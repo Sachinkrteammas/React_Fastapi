@@ -1,0 +1,87 @@
+/* Full Page Layout */
+.dashboard-layout {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+  
+  /* Top Navbar */
+  .top-navbar {
+    height: 45px;
+    background-color: #f3f3f3;
+    display: flex;
+    
+    justify-content: left;
+    padding: 10px;
+  }
+  
+  .top-logo {
+    height: 40px; /* Adjust size as needed */
+    object-fit: contain;
+   
+  }
+  
+  /* Content Layout (Sidebar + Main Content) */
+  .content-layout {
+    display: flex;
+    flex: 1;
+  }
+  
+  /* Sidebar */
+  .sidebar {
+    width: 180px;
+    background-color: #0d0d0e;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    gap: 15px;
+   
+    
+  }
+  
+  
+  /* Navigation Buttons */
+  .nav-button {
+    padding: 12px;
+    background-color: #33334d;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    text-align: left;
+    transition: background 0.3s;
+    
+  }
+  
+  .nav-button:hover {
+    background-color: #44445e;
+  }
+  
+  /* Main Content */
+  .main-content {
+    flex: 1;
+    padding: 20px;
+    
+  }
+
+
+  /* second content */
+
+  .second-content{
+    flex: 1;
+    padding: 20px;
+  }
+
+  .third-content{
+    flex: 1;
+    padding: 20px;
+  }
+
+ .new
+ {
+ 
+  font-size: 20px;
+ }
+ 
