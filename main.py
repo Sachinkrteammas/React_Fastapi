@@ -1,13 +1,17 @@
 import re
+from urllib.request import Request
+
 import jwt
 import datetime
 import bcrypt
 from fastapi import FastAPI, HTTPException, Depends
+from fastapi.exceptions import RequestValidationError
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from pydantic import BaseModel, EmailStr, constr, validator
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.responses import JSONResponse
 
 # FastAPI app initialization
 app = FastAPI()
@@ -78,8 +82,9 @@ class ForgotPasswordRequest(BaseModel):
 
 
 class ResetPasswordRequest(BaseModel):
-    token: str
+    email_id: EmailStr
     new_password: str
+    confirm_password: str
 
 
 # Dependency to get DB session
@@ -91,39 +96,76 @@ def get_db():
         db.close()
 
 
-# Route to Register a New User
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    errors = exc.errors()
+
+    error_message = errors[0]["msg"] if errors else "Validation error."
+
+    error_message = error_message.replace("Value error, ", "")
+
+    return JSONResponse(status_code=400, content={"detail": error_message})
+
+
+class UserRequest(BaseModel):
+    username: str
+    email_id: EmailStr
+    contact_number: str
+    password: str
+    confirm_password: str
+
+    @validator("contact_number")
+    def validate_phone(cls, value):
+        if not re.fullmatch(r"^\d{10}$", value):
+            raise ValueError("Phone number must have exactly 10 digits.")
+        return value
+
+
 @app.post("/register")
 def register_user(user: UserRequest, db: Session = Depends(get_db)):
     if user.password != user.confirm_password:
-        raise HTTPException(status_code=400, detail="Passwords do not match")
+        raise HTTPException(status_code=400, detail="Passwords do not match.")
+
+    if db.query(User).filter(User.username == user.username).first():
+        raise HTTPException(status_code=400, detail="Username is already taken. Choose another one.")
+
+    if db.query(User).filter(User.email_id == user.email_id).first():
+        raise HTTPException(status_code=400, detail="Email is already registered. Use a different one.")
+
+    if db.query(User).filter(User.contact_number == user.contact_number).first():
+        raise HTTPException(status_code=400, detail="Phone number is already registered. Use a different one.")
 
     hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
     new_user = User(
         username=user.username,
         email_id=user.email_id,
-        contact_number=user.contact_num,
+        contact_number=user.contact_number,
         password=hashed_password
     )
 
-    db.add(new_user)
     try:
+        db.add(new_user)
         db.commit()
         db.refresh(new_user)
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=400, detail=f"Database error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
-    return {"message": "User registered successfully"}
-
+    return {"detail": "User registered successfully."}
 
 
 # Route to Login a User
 @app.post("/login")
 def login_user(user: LoginRequest, db: Session = Depends(get_db)):
+    # Check if the user exists
     db_user = db.query(User).filter(User.username == user.username).first()
-    if not db_user or not bcrypt.checkpw(user.password.encode('utf-8'), db_user.password.encode('utf-8')):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Check if the password matches
+    if not bcrypt.checkpw(user.password.encode('utf-8'), db_user.password.encode('utf-8')):
+        raise HTTPException(status_code=401, detail="Incorrect password")
 
     # Generate JWT Token for session management
     token = jwt.encode(
@@ -132,47 +174,94 @@ def login_user(user: LoginRequest, db: Session = Depends(get_db)):
         algorithm="HS256"
     )
 
-    return {"message": "Login successful", "token": token}
+    return {"message": "Login successful"}
 
 
-# Route to Handle Forgot Password (generate reset token)
+class VerifyOtpRequest(BaseModel):
+    email_id: str  # The user's email address
+    otp: int
+
+import random
+import smtplib
+from email.mime.text import MIMEText
+
+# Store OTPs temporarily (in a real app, use Redis or a DB)
+otp_store = {}
+
+def send_otp_email(email_id, otp):
+    sender_email = "sachinkr78276438@gmail.com"  # Replace with your Gmail address
+    sender_password = "efsn ryss yjin kwgr"  # Replace with your Gmail App Password
+    subject = "Your Password Reset OTP"
+    body = f"Your OTP for password reset is: {otp}. It is valid for 10 minutes."
+
+    msg = MIMEText(body)
+    msg["Subject"] = subject
+    msg["From"] = sender_email
+    msg["To"] = email_id
+
+    try:
+        smtp_server = "smtp.gmail.com"
+        smtp_port = 587
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()
+        server.login(sender_email, sender_password)
+        server.sendmail(sender_email, email_id, msg.as_string())
+        server.quit()
+        print(f"OTP sent to {email_id}")
+    except Exception as e:
+        print(f"Error sending email: {e}")
+
 @app.post("/forgot-password")
 def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email_id == request.email_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    # Generate JWT token with the email and expiry time
-    reset_token = jwt.encode(
-        {"email_id": request.email_id, "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1)},
-        SECRET_KEY,
-        algorithm="HS256"
-    )
+    otp = random.randint(100000, 999999)  # Generate 6-digit OTP
+    otp_store[request.email_id] = {"otp": otp, "expires": datetime.datetime.utcnow() + datetime.timedelta(minutes=10)}
 
-    # In real application, you would send this token via email
-    return {"message": "Password reset instructions have been sent.", "token": reset_token}
+    send_otp_email(request.email_id, otp)
+
+    return {"message": "OTP has been sent to your email. It is valid for 10 minutes."}
 
 
-# Route to Reset Password
+@app.post("/verify-otp")
+def verify_otp(request: VerifyOtpRequest):
+    stored_data = otp_store.get(request.email_id)
+
+    if not stored_data:
+        raise HTTPException(status_code=400, detail="OTP expired or not requested.")
+
+    if stored_data["otp"] != request.otp:
+        raise HTTPException(status_code=400, detail="Invalid OTP.")
+
+    # Mark OTP as verified (for security)
+    otp_store[request.email_id]["verified"] = True
+
+    return {"message": "OTP verified successfully. You can now reset your password."}
+
+
 @app.post("/reset-password")
 def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db)):
-    try:
-        # Decode JWT token
-        payload = jwt.decode(request.token, SECRET_KEY, algorithms=["HS256"])
-        email_id = payload["email_id"]
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=400, detail="Token expired")
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=400, detail="Invalid token")
+    stored_data = otp_store.get(request.email_id)
 
-    # Find user by email and update password
-    user = db.query(User).filter(User.email_id == email_id).first()
+    if not stored_data or not stored_data.get("verified"):
+        raise HTTPException(status_code=400, detail="OTP not verified.")
+
+    if request.new_password != request.confirm_password:
+        raise HTTPException(status_code=400, detail="Passwords do not match.")
+
+    user = db.query(User).filter(User.email_id == request.email_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    # Hash the new password
     hashed_password = bcrypt.hashpw(request.new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     user.password = hashed_password
 
     db.commit()
+
+    # Remove OTP after password reset
+    del otp_store[request.email_id]
+
     return {"message": "Password has been successfully reset"}
+
