@@ -73,7 +73,7 @@ class UserRequest(BaseModel):
 
 
 class LoginRequest(BaseModel):
-    username: str
+    email_id: str
     password: str
 
 
@@ -158,8 +158,8 @@ def register_user(user: UserRequest, db: Session = Depends(get_db)):
 # Route to Login a User
 @app.post("/login")
 def login_user(user: LoginRequest, db: Session = Depends(get_db)):
-    # Check if the user exists
-    db_user = db.query(User).filter(User.username == user.username).first()
+    # Check if the user exists based on email
+    db_user = db.query(User).filter(User.email_id == user.email_id).first()
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
 
@@ -169,12 +169,12 @@ def login_user(user: LoginRequest, db: Session = Depends(get_db)):
 
     # Generate JWT Token for session management
     token = jwt.encode(
-        {"username": user.username, "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=2)},
+        {"email_id": user.email_id, "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=2)},
         SECRET_KEY,
         algorithm="HS256"
     )
 
-    return {"message": "Login successful"}
+    return {"message": "Login successful","token": token}
 
 
 class VerifyOtpRequest(BaseModel):
