@@ -77,7 +77,7 @@ const Login = ({ onLogin }) => {
         </form>
         <p>
           Don't have an account? <Link to="/signup">Sign up here.........</Link>
-          <Link to="/reset-password/testtoken">Forgot Password?</Link>
+          <Link to="/forgot-password/testtoken">Forgot Password?</Link>
         </p>
 
 

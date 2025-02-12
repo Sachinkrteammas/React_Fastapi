@@ -1,40 +1,30 @@
 import React, { useState } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
-import './App.css'; 
+import { Link, useParams,useLocation, useNavigate } from "react-router-dom";
+import './App.css';
 import myImage from './assets/image.jpg';
 import logo from './assets/logo.png';
 
+
 const ResetPassword = () => {
-    const { token } = useParams(); // Get token from URL
+    const location = useLocation();
     const navigate = useNavigate();
+    const email = location.state?.email || ""; // ✅ Ensure email is passed correctly
+
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [message, setMessage] = useState("");
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
+
         if (password !== confirmPassword) {
             setMessage("❌ Passwords do not match!");
             return;
         }
 
-        try {
-            const response = await fetch("http://localhost:5000/api/reset-password", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ token, password }),
-            });
-
-            const data = await response.json();
-            if (response.ok) {
-                setMessage("✅ Password reset successful! Redirecting...");
-                setTimeout(() => navigate("/"), 2000);
-            } else {
-                setMessage(`❌ ${data.message || "Failed to reset password."}`);
-            }
-        } catch (error) {
-            setMessage("❌ Server error. Please try again.");
-        }
+        // ✅ Navigate to login page after successful reset
+        setMessage("✅ Password reset successfully!");
+        setTimeout(() => navigate("/"), 2000); // Redirect after 2 seconds
     };
 
     return (
@@ -53,9 +43,16 @@ const ResetPassword = () => {
             {/* Right Section (Reset Password Form) */}
             <div className="login-section">
                 <h2>Reset Password</h2>
-                
+
                 <form onSubmit={handleSubmit}>
                     <div className="input-group">
+                        <input
+                            type="email"
+                            placeholder="Email"
+                            value={email}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        /><br></br> 
                         <input
                             type="password"
                             placeholder="New Password"

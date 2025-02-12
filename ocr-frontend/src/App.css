@@ -1,58 +1,68 @@
 /* Main Container (Flexbox for 50/50 split) */
 .container1 {
   display: flex;
-  height:100vh;
-  width: 100vw; /* Full viewport height */
+  height: 100vh;
+  width: 100vw;
+  /* Full viewport height */
 }
 
 /* Left Side - Image Section */
 .image-section {
-  width: 50%; /* Explicitly set 50% width */
+  width: 65%;
+  /* Explicitly set 50% width */
   display: flex;
   justify-content: center;
-  align-items: center;
-  background-color: #f8f9fa; /* Light background */
-  overflow: hidden; /* Prevents overflow issues */
+  align-items: self-end;
+  background-color: #ffffff;
+  /* Light background */
+  overflow: hidden;
+  /* Prevents overflow issues */
 }
 
 .image-preview {
-  width: 100%; /* Ensures it takes full width */
-  height: 100%; /* Ensures it takes full height */
-  object-fit: cover; /* Ensures image covers the section */
-  border-radius: 0; /* Optional: Removes rounded corners for full coverage */
+  width: 70%;
+  /* Ensures it takes full width */
+  height: 70%;
+  /* Ensures it takes full height */
+  object-fit: cover;
+  /* Ensures image covers the section */
+  border-radius: 0;
+  /* Optional: Removes rounded corners for full coverage */
 }
 
 .logo {
   position: absolute;
-  top: 55%;
-  left: 23%;
+  top: 25%;
+  left: 32%;
   transform: translate(-50%, -50%);
-  text-align: center; /* Center-align content */
+  text-align: center;
+  /* Center-align content */
 }
 
 .logo-overlay {
-  width: 50%;
-  height: 50%;
-  opacity: 0.8;
-}
-
-.welcome-text {
-  margin-top: 10px; /* Space between logo and text */
-  font-size: 40px;
-  font-weight: bold;
-  color: #0c0c0c; /* Adjust color as needed */
+  width: 70%;
+  height: 70%;
   
 }
 
-#new
-{
-    width: 45%;
+.welcome-text {
+  margin-top: 10px;
+  font-size: 40px;
+  font-weight: bold;
+  color: #0a0a0a;
+  /* Adjust color as needed */
+
+}
+
+#new {
+  width: 45%;
 }
 
 
 /* Right Side - Login Section---------------------------------------------------------- */
 .login-section {
-  width: 50%; /* Explicitly set 50% width */
+  width: 40%;
+  /* Explicitly set 50% width */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -67,7 +77,7 @@
   font-size: 16px;
   color: gray;
   margin-bottom: 20px;
-  
+
 
 }
 
@@ -93,7 +103,7 @@ button {
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  
+
 }
 
 button:hover {
@@ -111,4 +121,3 @@ button:hover {
 
 
 } */
-

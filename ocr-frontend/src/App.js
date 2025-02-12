@@ -5,6 +5,10 @@ import Login from "./Login";
 import Signup from "./signup";
 import ResetPassword from "./ResetPassword"; 
 import Dashboard from "./dashboard";
+import ForgotPassword from "./forgot";
+import VerifyPassword from "./verify";
+
+
 
 
 const App = () => {
@@ -20,8 +24,12 @@ const App = () => {
         {/* Signup Route */}
         <Route path="/signup" element={<Signup />} />
 
+        <Route path="/forgot-password/:token" element={<ForgotPassword />} />
+        <Route path="/verify" element={<VerifyPassword/>}/>
+
+
         {/* Reset Password Route (Fixed Path) */}
-        <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route path="/ResetPassword" element={<ResetPassword />} />
 
         {/* Protected Route: OCR Page (Requires Login) */}
         <Route 
