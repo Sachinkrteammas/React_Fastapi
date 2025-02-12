@@ -14,13 +14,12 @@ const Dropdown = () => {
       </button>
       {isOpen && (
         <div className="dropdown-content">
-          <a href="#">Pan Card</a>
-          <a href="#">Aadhaar Card</a>
-          <a href="#">Passport</a>
-          <a href="#">Financial document</a>
-          <a href="#">Invoice</a>
-          <a href="#">Forms</a>
-          <a href="#">Other</a>
+          <a href="#">Today</a>
+          <a href="#">Yesterday</a>
+          <a href="#">Week</a>
+          <a href="#">Month</a>
+          <a href="#">Custom</a>
+
         </div>
       )}
 
