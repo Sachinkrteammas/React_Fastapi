@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import "./App.css";
 import myImage from "./assets/image.jpg";
 import logo from "./assets/logo.png";
@@ -7,17 +8,36 @@ import logo from "./assets/logo.png";
 const ForgotPassword = () => {
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
+    const [message, setMessage] = useState("");  // To display success or error messages
+    const [loading, setLoading] = useState(false); // To show loading state while waiting for response
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (!email) {
-            alert("Please enter your email.");
+            setMessage("❌ Please enter your email.");
             return;
         }
 
-        // Navigate to the VerifyPassword page with email as state
-        navigate("/verify", { state: { email } });
+        setLoading(true);  // Start loading
+
+        try {
+            // Sending the email to the backend
+            const response = await axios.post("http://127.0.0.1:9006/forgot-password", {
+                email_id: email
+            });
+
+            // Show success message
+            setMessage(response.data.message || "OTP sent successfully! Please check your email.");
+            setLoading(false);
+
+            // Navigate to verify page after successful request
+            setTimeout(() => navigate("/verify", { state: { email } }), 2000);
+        } catch (error) {
+            setLoading(false);
+            console.error("Error sending OTP:", error);
+            setMessage("❌ Failed to send OTP. Please try again.");
+        }
     };
 
     return (
@@ -45,8 +65,13 @@ const ForgotPassword = () => {
                         />
                     </div>
 
-                    <button type="submit">Request Reset Link</button>
+                    <button type="submit" disabled={loading}>
+                        {loading ? "Sending..." : "Request Reset Link"}
+                    </button>
                 </form>
+
+                {/* Display success or error message */}
+                {message && <p className="message">{message}</p>}
 
                 <p>
                     <Link to="/">Back to Login</Link>

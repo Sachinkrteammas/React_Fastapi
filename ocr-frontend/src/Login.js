@@ -1,47 +1,56 @@
 import React, { useState } from "react";
-import './App.css'; // Assuming Login.js is inside src/
-import myImage from './assets/image.jpg';
-import logo from './assets/logo.png';
 import { Link, useNavigate } from "react-router-dom";
-
+import axios from "axios"; // Import axios for API requests
+import "./App.css";
+import myImage from "./assets/image.jpg";
+import logo from "./assets/logo.png";
 
 const Login = ({ onLogin }) => {
-  const navigate = useNavigate(); // Initialize navigate
-  const [email, setEmail] = useState("");
+  const navigate = useNavigate();
+  const [email_id, setEmail] = useState(""); // Use 'email_id' to match backend
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  
+  const [message, setMessage] = useState("");
 
-  const handleLogin = () => {
-    localStorage.setItem("token", "user-auth-token"); // Simulating login
-    onLogin(); // Updates isLoggedIn state in App.js
-    navigate("/dashboard"); // Redirect to dashboard
-  };
-
-  
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email || !password) {
-      setError("Please fill out both fields.");
-    } else {
-      setError("");
-      onLogin(); // Call the function to update login state
+    setMessage(""); // Clear previous errors
+
+    if (!email_id || !password) {
+      setMessage("⚠️ Please enter both email and password.");
+      return;
+    }
+
+    try {
+      const response = await axios.post("http://127.0.0.1:9006/login", {
+        email_id, // Send email_id (ensure your backend expects this)
+        password
+      });
+
+      if (response.status === 200) {
+        localStorage.setItem("token", response.data.token); // Store token
+        onLogin(); // Call login state function
+        navigate("/dashboard"); // Redirect to dashboard
+      } else {
+        setMessage("❌ Login failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      setMessage("❌ Invalid email or password.");
     }
   };
 
   return (
     <div className="container1">
-      {/* Left Section (Image) */}
+      {/* Left Section */}
       <div className="image-section">
         <img src={myImage} alt="Preview" className="image-preview" />
       </div>
       <div className="logo">
-          <img src={logo} alt="Logo" className="logo-overlay" />
-          <div className="welcome-text">Welcome to DialDesk</div>
+        <img src={logo} alt="Logo" className="logo-overlay" />
+        <div className="welcome-text">Welcome to DialDesk</div>
       </div>
 
-      {/* Right Section (Login) */}
+      {/* Right Section */}
       <div className="login-section">
         <h1>Glad to see you back!</h1>
         <h4>Login to continue.</h4>
@@ -53,7 +62,7 @@ const Login = ({ onLogin }) => {
             <input
               type="email"
               id="email"
-              value={email}
+              value={email_id}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="e.g., xyz@gmail.com"
               required
@@ -66,21 +75,20 @@ const Login = ({ onLogin }) => {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="XXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+              placeholder="Enter your password"
               required
             />
-          </div><br></br>
-          {error && <p className="error">{error}</p>}
-          <button type="submit" className="login-button">
-            Login
-          </button>
+          </div><br />
+
+          {message && <p className="error">{message}</p>}
+
+          <button type="submit" className="login-button">Login</button>
         </form>
+
         <p>
-          Don't have an account? <Link to="/signup">Sign up here.........</Link>
+          Don't have an account? <Link to="/signup">Sign up here</Link> |
           <Link to="/forgot-password/testtoken">Forgot Password?</Link>
         </p>
-
-
       </div>
     </div>
   );

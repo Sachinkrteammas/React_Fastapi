@@ -1,20 +1,48 @@
 import React, { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom"; 
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";  // Import axios for API requests
 import "./App.css";
 import myImage from "./assets/image.jpg";
 import logo from "./assets/logo.png";
 
 const VerifyPassword = () => {
     const location = useLocation();
-    const navigate = useNavigate(); 
-    const [email] = useState(location.state?.email || ""); 
+    const navigate = useNavigate();
+    const [email] = useState(location.state?.email || "");  // Email is passed via state
     const [otp, setOtp] = useState("");
+    const [message, setMessage] = useState("");  // To display messages like success or error
+    const [loading, setLoading] = useState(false);  // Loading state for the button
 
-    // ✅ Navigate to Reset Password Page After OTP Verification
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Navigating to Reset Password page...");  // Debugging log
-        navigate("/ResetPassword", { state: { email } });  // ✅ Ensure correct navigation
+
+        if (!otp) {
+            setMessage("❌ Please enter OTP.");
+            return;
+        }
+
+        setLoading(true);  // Start loading state
+
+        try {
+            // Make API call to verify OTP
+            const response = await axios.post("http://127.0.0.1:9006/verify-otp", {
+                email_id: email,
+                otp: otp
+            });
+
+            // If OTP is verified successfully
+            setMessage(response.data.message || "OTP verified successfully.");
+            setTimeout(() => {
+                setLoading(false);
+                // After OTP verification, navigate to the ResetPassword page
+                navigate("/ResetPassword", { state: { email } });
+            }, 2000); // Delay before navigating
+
+        } catch (error) {
+            setLoading(false);  // End loading state
+            console.error("Error verifying OTP:", error);
+            setMessage("❌ Invalid OTP or session expired. Please try again.");
+        }
     };
 
     return (
@@ -46,8 +74,13 @@ const VerifyPassword = () => {
                         />
                     </div>
 
-                    <button type="submit">Verify OTP</button>
+                    <button type="submit" disabled={loading}>
+                        {loading ? "Verifying..." : "Verify OTP"}
+                    </button>
                 </form>
+
+                {/* Message Display */}
+                {message && <p className="message">{message}</p>}
 
                 <p>
                     <Link to="/">Back to Login</Link>

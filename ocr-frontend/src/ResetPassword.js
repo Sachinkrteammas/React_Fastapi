@@ -1,30 +1,41 @@
 import React, { useState } from "react";
-import { Link, useParams,useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
 import './App.css';
 import myImage from './assets/image.jpg';
 import logo from './assets/logo.png';
 
-
 const ResetPassword = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const email = location.state?.email || ""; // ✅ Ensure email is passed correctly
+    const email = location.state?.email || ""; // Ensure email is passed correctly
 
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [message, setMessage] = useState("");
 
-    const handleSubmit = (e) => {
+    // Handle Password Reset
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (password !== confirmPassword) {
-            setMessage("❌ Passwords do not match!");
+            setMessage("❌ Passwords do not match.");
             return;
         }
 
-        // ✅ Navigate to login page after successful reset
-        setMessage("✅ Password reset successfully!");
-        setTimeout(() => navigate("/"), 2000); // Redirect after 2 seconds
+        try {
+            const response = await axios.post("http://127.0.0.1:9006/reset-password", {
+                email_id: email,  // API requires email_id as a key
+                new_password: password,  // New password
+                confirm_password: confirmPassword  // Confirm password
+            });
+
+            setMessage(response.data.message || "Password reset successfully.");
+            setTimeout(() => navigate("/"), 2000); // Redirect to login page after 2 seconds
+        } catch (error) {
+            console.error("Error resetting password:", error);
+            setMessage("❌ Failed to reset password. Try again.");
+        }
     };
 
     return (
@@ -40,34 +51,32 @@ const ResetPassword = () => {
                 <div className="welcome-text">Welcome to DialDesk</div>
             </div>
 
-            {/* Right Section (Reset Password Form) */}
+            {/* Right Section (Password Reset Form) */}
             <div className="login-section">
                 <h2>Reset Password</h2>
 
+                {/* Password Reset Form */}
                 <form onSubmit={handleSubmit}>
-                    <div className="input-group">
-                        <input
-                            type="email"
-                            placeholder="Email"
-                            value={email}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        /><br></br> 
-                        <input
-                            type="password"
-                            placeholder="New Password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        /><br></br> {/* for break line */}
-                        <input
-                            type="password"
-                            placeholder="Confirm Password"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            required
-                        />
-                    </div><br></br> {/* for break line */}
+                    <input
+                        type="email"
+                        value={email}
+                        disabled
+                        className="disabled-input"
+                    />
+                    <input
+                        type="password"
+                        placeholder="New Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
+                    <input
+                        type="password"
+                        placeholder="Confirm Password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        required
+                    />
                     <button type="submit">Reset Password</button>
                 </form>
 
