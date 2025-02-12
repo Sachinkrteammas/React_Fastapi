@@ -29,7 +29,8 @@ app.add_middleware(
 )
 
 # MySQL Database Connection (replace with your actual credentials)
-SQL_DB_URL = "mysql+pymysql://root:Hello%40123@localhost/my_db?charset=utf8mb4"
+# SQL_DB_URL = "mysql+pymysql://root:Hello%40123@localhost/my_db?charset=utf8mb4"
+SQL_DB_URL = "mysql+pymysql://root:dial%40mas123@172.12.10.22/ai_audit?charset=utf8mb4"
 engine = create_engine(SQL_DB_URL, echo=True)
 SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 Base = declarative_base()
