@@ -300,6 +300,7 @@ class AudioFile(Base):
     filename = Column(String(255), nullable=False)
     filepath = Column(String(255), nullable=False)
     upload_time = Column(DateTime, server_default=func.now())
+    transcribe_stat = Column(Integer, default=0)
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -329,6 +330,34 @@ async def upload_audio(file: UploadFile = File(...), db: Session = Depends(get_d
         db.refresh(new_audio)
 
         return {"id": new_audio.id, "filename": new_audio.filename, "message": "File uploaded and saved in database"}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
+
+
+# API to fetch records based on date range
+@app.get("/get-audio-stats/")
+def get_audio_stats(from_date: datetime.date, to_date: datetime.date, db: Session = Depends(get_db)):
+
+    try:
+        results = (
+            db.query(
+                func.date(AudioFile.upload_time).label("date"),
+                func.count().label("upload"),
+                func.sum(func.if_(AudioFile.transcribe_stat == 1, 1, 0)).label("transcribe")
+            )
+            .filter(func.date(AudioFile.upload_time).between(from_date, to_date))
+            .group_by(func.date(AudioFile.upload_time))
+            .all()
+        )
+
+        data = [
+            {"date": row.date, "upload": row.upload, "transcribe": row.transcribe}
+            for row in results
+        ]
+
+        return {"status": "success", "data": data}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
