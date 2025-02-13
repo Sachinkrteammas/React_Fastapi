@@ -1,18 +1,20 @@
+import os
 import re
+import shutil
 from urllib.request import Request
 
 import jwt
 import datetime
 import bcrypt
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends,File, UploadFile
 from fastapi.exceptions import RequestValidationError
-from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy import create_engine, Column, Integer, String, func, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from pydantic import BaseModel, EmailStr, constr, validator
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
-
+from pathlib import Path
 # FastAPI app initialization
 app = FastAPI()
 
@@ -266,3 +268,67 @@ def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db))
 
     return {"message": "Password has been successfully reset"}
 
+
+
+
+# Define the "prompts" table
+class Prompt(Base):
+    __tablename__ = "prompts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    ClientId = Column(Integer, nullable=False)
+    PromptName = Column(String(255), nullable=False)
+    prompt = Column(String(500), nullable=False)
+
+
+
+# Create a new prompt
+@app.post("/prompts/")
+def create_prompt(ClientId: int, PromptName: str, prompt: str, db: Session = Depends(get_db)):
+    new_prompt = Prompt(ClientId=ClientId, PromptName=PromptName, prompt=prompt)
+    db.add(new_prompt)
+    db.commit()
+    db.refresh(new_prompt)
+    return new_prompt
+
+
+
+class AudioFile(Base):
+    __tablename__ = "audio_files"
+
+    id = Column(Integer, primary_key=True, index=True)
+    filename = Column(String(255), nullable=False)
+    filepath = Column(String(255), nullable=False)
+    upload_time = Column(DateTime, server_default=func.now())
+
+
+BASE_DIR = Path(__file__).resolve().parent
+UPLOAD_DIR = BASE_DIR / "audio_file"
+# UPLOAD_DIR = r"C:\Users\admin\Desktop"  # Explicit path to Windows Downloads
+
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+# Allowed MIME types
+ALLOWED_MIME_TYPES = ["audio/mpeg", "audio/wav"]
+import shutil
+
+@app.post("/upload-audio/")
+async def upload_audio(file: UploadFile = File(...), db: Session = Depends(get_db)):
+    try:
+        # Validate file type
+        if file.content_type not in ALLOWED_MIME_TYPES:
+            return {"status": 400, "message": "Only MP3 and WAV files are allowed"}
+
+        file_path = os.path.join(UPLOAD_DIR, file.filename)
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+        new_audio = AudioFile(filename=file.filename, filepath=file_path)
+        db.add(new_audio)
+        db.commit()
+        db.refresh(new_audio)
+
+        return {"id": new_audio.id, "filename": new_audio.filename, "message": "File uploaded and saved in database"}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
