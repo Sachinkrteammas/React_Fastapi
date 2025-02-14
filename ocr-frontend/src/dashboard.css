@@ -83,30 +83,32 @@
 
   .new {
     font-size: 20px;
-    color: rgb(206, 12, 12);
+    color: rgb(98, 147, 161);
     display: flex;
     justify-content: center; /* Centers content horizontally */
     align-items: center; /* Centers content vertically */
     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 
   }
-  p
-  {
-    font-family: cursive;
+  p {
+    font-family: 'Arial', sans-serif;
+    
   }
+  
+  
   
 
 
 .flex-container {
   display: flex;
   flex-wrap: wrap;
-  background-color: rgb(250, 250, 250);
+  background-color: rgb(247, 240, 240);
  
 }
 
 .flex-container > div {
-  background-color: rgb(168, 153, 153);
-  min-width:400px;
+  background-color: rgb(196, 191, 191);
+  min-width:250px;
   margin: 1px;
   text-align: justify;
   padding: 5px;
@@ -118,10 +120,95 @@
 
 .new123 {
   border-radius: 10px;
-  margin-left: 20px !important;
+  margin-left: 10px !important;
   margin-top: 20px !important;
+  transition: all 0.3s ease-in-out;
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.12), 
               0 10px 20px rgba(0, 0, 0, 0.15);
+  
+}
+.new123:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2), 
+              0 12px 25px rgba(0, 0, 0, 0.25);
+}
+
+.new12 {
+  border-radius: 10px;
+  height: 279px !important;
+  margin-left: 10px !important;
+  margin-top: 20px !important;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.12), 
+              0 10px 20px rgba(0, 0, 0, 0.15);    
+  
+}
+
+.new12:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2), 
+              0 12px 25px rgba(0, 0, 0, 0.25);
+}
+
+.new12 p 
+{
+  margin-left: 10px;
+}
+
+.new1 {
+  border-radius: 10px;
+  height: 279px !important;
+  margin-left: 10px !important;
+  margin-top: 20px !important;
+  margin-right: 10px !important;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.12), 
+              0 10px 20px rgba(0, 0, 0, 0.15);
+  
+}
+.new1:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2), 
+              0 12px 25px rgba(0, 0, 0, 0.25);
 }
 
 
+.new1 p 
+{
+  margin-left: 10px;
+}
+
+
+.activity
+{
+  margin-left: 10px !important;
+  height: 85px !important;
+  position: relative;
+  bottom: 120px;
+}
+
+
+.activity-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  padding: 10px 15px;
+  border-radius: 10px;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.12), 
+              0 10px 20px rgba(0, 0, 0, 0.15);
+  gap: 10px; /* Space between elements */
+  flex-wrap: wrap; /* Allows wrapping if screen size is small */
+  
+}
+.activity h4
+{
+  font-size: 20px;
+  color: rgb(98, 147, 161);
+
+}
+.datepic
+{
+  width: 84px;
+  height: 25px;
+}

@@ -78,14 +78,14 @@ const Dashboard = ({ onLogout }) => {
             <p><Check size={16} className="icon" /> Auto Tagging</p>
           </div>
 
-          <div className="main-content">
+          <div className="main-content new12">
             <h1 className="new">Addon’s API</h1>
             <p>Transcribe</p>
             <p>Upload</p>
             <p>Insights</p>
           </div>
 
-          <div className="main-content">
+          <div className="main-content new1">
             <h1 className="new">Learn</h1>
             <p>How to Upload</p>
             <p>API Usage</p>
@@ -93,7 +93,7 @@ const Dashboard = ({ onLogout }) => {
           </div>
 
           {/* Usage Activity Section */}
-          <div className="activity-section">
+          <div className="activity-section activity">
             <h4>Usage Activity</h4>
             <select>
               <option>Today</option>
@@ -102,18 +102,24 @@ const Dashboard = ({ onLogout }) => {
               <option>Month</option>
               <option>Custom</option>
             </select>
+
+            <h4>Start Date</h4>
+            <DatePicker className="datepic" selected={startDate} onChange={(date) => handleDateChange(date, "start")} />
+
+            <h4>End Date</h4>
+            <DatePicker className="datepic"  selected={endDate} onChange={(date) => handleDateChange(date, "end")} />
           </div>
 
           {/* Date Pickers */}
 
-          <div className="calender">
+          {/* <div className="calender activity">
             <h4>Start Date</h4>
             <DatePicker selected={startDate} onChange={(date) => handleDateChange(date, "start")} />
-          </div>
-          <div className="calender">
+          </div> */}
+          {/* <div className="calender">
             <h4>End Date</h4>
             <DatePicker selected={endDate} onChange={(date) => handleDateChange(date, "end")} />
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
