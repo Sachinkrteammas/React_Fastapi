@@ -25,7 +25,7 @@ const VerifyPassword = () => {
 
         try {
             // Make API call to verify OTP
-            const response = await axios.post("http://127.0.0.1:9006/verify-otp", {
+            const response = await axios.post("http://172.12.13.74:9000/verify-otp", {
                 email_id: email,
                 otp: otp
             });
@@ -62,7 +62,7 @@ const VerifyPassword = () => {
                 <form onSubmit={handleSubmit}>
                     <div className="input-group">
                         <input type="email" value={email} disabled />
-                    </div>
+                    </div><br></br>
 
                     <div className="input-group">
                         <input
@@ -72,7 +72,7 @@ const VerifyPassword = () => {
                             onChange={(e) => setOtp(e.target.value)}
                             required
                         />
-                    </div>
+                    </div><br></br>
 
                     <button type="submit" disabled={loading}>
                         {loading ? "Verifying..." : "Verify OTP"}

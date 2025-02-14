@@ -20,6 +20,11 @@ import Transcription from "./components/Transcription";
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    console.log("User logged out");
+  };
+
   return (
     <Router>
       <Routes>
@@ -39,10 +44,14 @@ const App = () => {
 
         {/* Protected Route: OCR Page (Requires Login) */}
         <Route
-          path="/dashboard" element={isLoggedIn ? <Dashboard onLogout={() => setIsLoggedIn(false)} /> : <Navigate to="/" />} />
-        <Route path="/Recordings" element={<Recordings />} />
+          path="/dashboard" element={isLoggedIn ? <Dashboard onLogout={() => setIsLoggedIn(false)} /> : <Navigate to="/" />} 
+        />
+
+
+
+        <Route path="/Recordings" element={<Recordings onLogout={handleLogout} />} />
         <Route path="/Transcription" element={<Transcription />} />
-        <Route path="/Prompt" element={<Prompt />} />
+        <Route path="/prompt" element={<Prompt onLogout={handleLogout} />} />
         <Route path="/Settings" element={<Settings />} />
         <Route path="/APIKey" element={<APIKey />} />
         <Route path="/Analysis" element={<Analysis />} />

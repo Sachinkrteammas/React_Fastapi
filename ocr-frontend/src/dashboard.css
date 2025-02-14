@@ -3,6 +3,7 @@
     display: flex;
     flex-direction: column;
     height: 100vh;
+    
   }
   
   /* Top Navbar */
@@ -18,8 +19,21 @@
   .top-logo {
     height: 40px; /* Adjust size as needed */
     object-fit: contain;
+    
    
   }
+
+  .top-text{
+    display: flex;
+    align-items: center;
+    justify-content: center;  /* Center content horizontally */
+    background-color: #f0f0f0; /* Adjust the background color if needed */
+    padding: 10px 20px;
+    position: relative; /* Allows absolute positioning for icons if needed */
+    width: 100%;
+    font-weight: bold;
+  }
+  
   
   /* Content Layout (Sidebar + Main Content) */
   .content-layout {
@@ -29,7 +43,7 @@
   
   /* Sidebar */
   .sidebar {
-    width: 180px;
+    width: 320px;
     background-color: #0d0d0e;
     color: white;
     display: flex;
@@ -62,26 +76,52 @@
   /* Main Content */
   .main-content {
     flex: 1;
-    padding: 20px;
-    
+    padding: 10px;
+    height: fit-content;
+    text-align:justify;     
   }
 
+  .new {
+    font-size: 20px;
+    color: rgb(206, 12, 12);
+    display: flex;
+    justify-content: center; /* Centers content horizontally */
+    align-items: center; /* Centers content vertically */
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 
-  /* second content */
-
-  .second-content{
-    flex: 1;
-    padding: 20px;
   }
-
-  .third-content{
-    flex: 1;
-    padding: 20px;
+  p
+  {
+    font-family: cursive;
   }
+  
 
- .new
- {
+
+.flex-container {
+  display: flex;
+  flex-wrap: wrap;
+  background-color: rgb(250, 250, 250);
  
-  font-size: 20px;
- }
- 
+}
+
+.flex-container > div {
+  background-color: rgb(168, 153, 153);
+  min-width:400px;
+  margin: 1px;
+  text-align: justify;
+  padding: 5px;
+  height: fit-content;
+}
+.calender{
+  font-size: 10px;
+}
+
+.new123 {
+  border-radius: 10px;
+  margin-left: 20px !important;
+  margin-top: 20px !important;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.12), 
+              0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+

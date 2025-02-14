@@ -1,0 +1,61 @@
+/* Main Content */
+.main-content1 {
+    display: flex;
+    flex: 1;
+    padding: 20px;
+  }
+  
+  /* Left Form Section */
+  .form-container {
+    width: 50%;
+    padding-right: 20px;
+  }
+  
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  label {
+    font-weight: bold;
+    display: block;
+  }
+  
+  .input-field {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background: #ccc;
+    color: black;
+  }
+  
+  .input-group {
+    display: flex;
+  }
+  
+  .add-key-btn {
+    margin-left: 10px;
+    padding: 8px;
+    background: #ddd;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .add-key-btn:hover {
+    background: #bbb;
+  }
+  
+  /* Right Output Section */
+  .output-container {
+    width: 50%;
+    background: #ddd;
+    padding: 10px;
+    border-radius: 5px;
+  }
+  
+  .output-box {
+    height: 200px;
+    background: #c20e0e;
+    border-radius: 5px;
+    margin-top: 10px;
+  }

@@ -24,7 +24,7 @@ const ResetPassword = () => {
         }
 
         try {
-            const response = await axios.post("http://127.0.0.1:9006/reset-password", {
+            const response = await axios.post("http://172.12.13.74:9000/reset-password", {
                 email_id: email,  // API requires email_id as a key
                 new_password: password,  // New password
                 confirm_password: confirmPassword  // Confirm password
@@ -62,14 +62,14 @@ const ResetPassword = () => {
                         value={email}
                         disabled
                         className="disabled-input"
-                    />
+                    /><br></br>
                     <input
                         type="password"
                         placeholder="New Password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                    />
+                    /><br></br>
                     <input
                         type="password"
                         placeholder="Confirm Password"

@@ -23,7 +23,7 @@ const ForgotPassword = () => {
 
         try {
             // Sending the email to the backend
-            const response = await axios.post("http://127.0.0.1:9006/forgot-password", {
+            const response = await axios.post("http://172.12.13.74:9000/forgot-password", {
                 email_id: email
             });
 
@@ -63,7 +63,7 @@ const ForgotPassword = () => {
                             onChange={(e) => setEmail(e.target.value)}
                             required
                         />
-                    </div>
+                    </div><br></br>
 
                     <button type="submit" disabled={loading}>
                         {loading ? "Sending..." : "Request Reset Link"}

@@ -58,7 +58,7 @@ const Signup = () => {
         }
 
         try {
-            const response = await axios.post("http://127.0.0.1:9006/register", formData);
+            const response = await axios.post("http://172.12.13.74:9000/register", formData);
             setMessage(`✅ ${response.data.detail || "Registration successful!"}`);
         } catch (error) {
             console.error("Registration error:", error);

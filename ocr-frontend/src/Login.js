@@ -21,7 +21,7 @@ const Login = ({ onLogin }) => {
     }
 
     try {
-      const response = await axios.post("http://127.0.0.1:9006/login", {
+      const response = await axios.post("http://172.12.13.74:9001/login", {
         email_id, // Send email_id (ensure your backend expects this)
         password
       });

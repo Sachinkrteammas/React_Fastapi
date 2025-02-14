@@ -1,0 +1,62 @@
+.dashboard-container1 {
+    font-family: Arial, sans-serif;
+    background: #f4f4f2;
+    padding: 20px;
+  }
+  
+  .dashboard-sections {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+  .recordings-box, .developer-box {
+    background: #666;
+    padding: 20px;
+    border-radius: 8px;
+    color: white;
+    width: 45%;
+  }
+  
+  .browse-button, .upload-button, .generate-key {
+    background: #77b5c8;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  
+  .upload-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .code-area {
+    background: #444;
+    height: 100px;
+    margin: 10px 0;
+  }
+  
+  .key-section {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+  }
+  
+  .key-input {
+    flex: 1;
+    padding: 5px;
+    background: #999;
+    border: none;
+    color: white;
+  }
+  
+  .copy-button {
+    padding: 5px;
+    margin-left: 5px;
+    cursor: pointer;
+  }
+  
