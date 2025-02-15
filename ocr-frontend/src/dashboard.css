@@ -43,13 +43,15 @@
   
   /* Sidebar */
   .sidebar {
-    width: 320px;
-    background-color: #0d0d0e;
+    top: 20px;
+    width: 250px;
+    background-color: #bebec0;
     color: white;
     display: flex;
     flex-direction: column;
     padding: 20px;
     gap: 15px;
+    
    
     
   }
@@ -58,7 +60,7 @@
   /* Navigation Buttons */
   .nav-button {
     padding: 12px;
-    background-color: #33334d;
+    background-color: #6d6d9e;
     border: none;
     border-radius: 8px;
     color: white;
@@ -70,7 +72,7 @@
   }
   
   .nav-button:hover {
-    background-color: #44445e;
+    background-color: #38383d;
   }
   
   /* Main Content */
@@ -107,7 +109,7 @@
 }
 
 .flex-container > div {
-  background-color: rgb(196, 191, 191);
+  background-color: rgb(255, 251, 251);
   min-width:250px;
   margin: 1px;
   text-align: justify;
@@ -209,6 +211,24 @@
 }
 .datepic
 {
-  width: 84px;
+  width: 105px;
   height: 25px;
+}
+
+.submit-btn {
+  width: 100px;
+  height: 40px;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+  
+  color: white;
+  font-weight: bold;
+  transition: all 0.3s ease-in-out;
+}
+
+.submit-btn:hover {
+  background: linear-gradient(135deg, #5a7bf7, #9663d5);
+  transform: scale(1.05);
 }

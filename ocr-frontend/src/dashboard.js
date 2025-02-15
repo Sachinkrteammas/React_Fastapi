@@ -18,6 +18,11 @@ const Dashboard = ({ onLogout }) => {
     navigate("/");
   };
 
+  const handleSubmit = () => {
+    console.log("Submit button clicked!");
+    // Add your logic here, such as filtering data based on selected dates
+  };
+
   const handleNavigation = (path) => {
     navigate(path);
   };
@@ -107,19 +112,13 @@ const Dashboard = ({ onLogout }) => {
             <DatePicker className="datepic" selected={startDate} onChange={(date) => handleDateChange(date, "start")} />
 
             <h4>End Date</h4>
-            <DatePicker className="datepic"  selected={endDate} onChange={(date) => handleDateChange(date, "end")} />
+            <DatePicker className="datepic" selected={endDate} onChange={(date) => handleDateChange(date, "end")} />
+            
+            <button className="submit-btn" onClick={handleSubmit}>Submit</button>
           </div>
 
-          {/* Date Pickers */}
 
-          {/* <div className="calender activity">
-            <h4>Start Date</h4>
-            <DatePicker selected={startDate} onChange={(date) => handleDateChange(date, "start")} />
-          </div> */}
-          {/* <div className="calender">
-            <h4>End Date</h4>
-            <DatePicker selected={endDate} onChange={(date) => handleDateChange(date, "end")} />
-          </div> */}
+
         </div>
       </div>
     </div>
