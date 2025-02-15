@@ -1,0 +1,168 @@
+/* Analysis.css */
+.dashboard-container {
+    padding: 20px;
+    background-color: #f4f6f9;
+    min-height: 100vh;
+}
+
+.card-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start; /* Align cards to the left */
+    gap: 5px;
+    overflow-x: auto; /* Enables horizontal scrolling if necessary */
+    padding: 2px 0;
+    width: 50%;
+}
+
+.card {
+    background: white;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    min-width: 140px; /* Ensures small card size */
+    flex: 1;
+    max-width: 160px; /* Prevents cards from getting too large */
+    font-size: 14px;
+}
+
+/* Makes sure text is small and fits well */
+.card h2 {
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.card p {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .card-container {
+        justify-content: center; /* Center align for smaller screens */
+    }
+
+    .card {
+        min-width: 120px;
+        max-width: 140px;
+    }
+}
+
+
+.chart-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Achet Categorization & Top Performers - Now inside .chart-box */
+.chart-box {
+    flex: 1;
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    min-width: 400px;
+}
+
+/* Table Styling */
+table {
+    width: 20%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+/* Responsive - Stack vertically on small screens */
+@media (max-width: 1024px) {
+    .chart-container {
+        flex-direction: column;
+    }
+}
+
+
+
+.soft-skills-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    max-width: 490px;
+}
+
+.soft-skill-row {
+    display: flex;
+    justify-content: space-between;
+    background-color: white;
+    padding: 8px 15px;
+    border-radius: 5px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.soft-skill-title {
+    color: #333;
+}
+
+.soft-skill-value {
+    color: #007bff;
+}
+
+
+.performer
+{
+    width: 30% !important;
+}
+
+.bar_chart
+{
+    position: relative;
+    bottom: 430px;
+}
+
+.chart-box.bar_chart
+{
+    height: 410px !important;
+    width: 200px !important;
+}
+/* softskill
+{
+    height: 400px !important;
+    width: 300px !important;
+} */
+
+.soft-skills-container.softskill {
+    height: 300px !important;
+    width: 2500px !important;
+    background-color: #f5f5f5; /* Just to check if styles apply */
+    position: relative;
+    
+}
+
+.chart-box.chart-box.graph
+{
+    position: relative;
+    left: 498px;
+}
+
+
+.achet
+{
+    position: relative;
+    bottom: 411px;
+    height: 409px;
+    width: 562px;
+}
