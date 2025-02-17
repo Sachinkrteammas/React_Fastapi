@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./PromptPage.css"; // Import the new CSS file
+import "./PromptPage.css"; // Import CSS file
 
 import topLogo from "../assets/logo.png";
 import {
@@ -17,15 +17,9 @@ import {
 const PromptPage = ({ onLogout }) => {
   const navigate = useNavigate();
   const [name, setName] = useState("Sneha");
-  const [keys, setKeys] = useState(["XXXXXXXXXXXX"]);
+  const [keyValuePairs, setKeyValuePairs] = useState({});
   const [newKey, setNewKey] = useState("");
-
-  const addKey = () => {
-    if (newKey.trim()) {
-      setKeys([...keys, newKey]);
-      setNewKey("");
-    }
-  };
+  const [newValue, setNewValue] = useState("");
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -36,6 +30,23 @@ const PromptPage = ({ onLogout }) => {
 
   const handleNavigation = (path) => {
     navigate(path);
+  };
+
+  // Function to add key-value pair
+  const addKey = () => {
+    if (newKey.trim() === "" || newValue.trim() === "") {
+      alert("Both key and value are required.");
+      return;
+    }
+
+    setKeyValuePairs((prevPairs) => ({
+      ...prevPairs,
+      [newKey]: newValue,
+    }));
+
+    // Clear input fields
+    setNewKey("");
+    setNewValue("");
   };
 
   return (
@@ -107,18 +118,9 @@ const PromptPage = ({ onLogout }) => {
               />
             </div>
 
-            {/* Key Section */}
+            {/* Key-Value Input Section */}
             <div className="form-group">
               <label>Key</label>
-              {keys.map((key, index) => (
-                <input
-                  key={index}
-                  type="text"
-                  value={key}
-                  readOnly
-                  className="input-field"
-                />
-              ))}
               <div className="input-group">
                 <input
                   type="text"
@@ -127,24 +129,40 @@ const PromptPage = ({ onLogout }) => {
                   className="input-field"
                   placeholder="Enter new key"
                 />
-                <button onClick={addKey} className="add-key-btn">
-                  Add key
-                </button>
               </div>
-            </div>
 
-            {/* Value Field */}
-            <div className="form-group">
-              <label>Value</label>
-              <input type="text" className="input-field" />
+              {/* Value Field */}
+              <div className="form-group">
+                <label>Value</label>
+                <input
+                  type="text"
+                  value={newValue}
+                  onChange={(e) => setNewValue(e.target.value)}
+                  className="input-field"
+                  placeholder="Enter value"
+                />
+              </div>
+
+              <button onClick={addKey} className="add-key-btn">
+                Add key
+              </button>
             </div>
           </div>
 
           {/* Right Display Section */}
-          <div className="output-container">
-            <h2>Created Prompt</h2>
-            <div className="output-box"></div>
-          </div>
+          
+            <div className="output-container">
+              <h2>Created Prompt</h2>
+              <div className="output-box">
+                <textarea
+                  name="text"
+                  placeholder="Generated JSON"
+                  value={JSON.stringify(keyValuePairs, null, 2)}
+                  readOnly
+                />
+              </div>
+            </div>
+       
         </div>
       </div>
     </div>

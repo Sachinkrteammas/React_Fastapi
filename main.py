@@ -177,7 +177,7 @@ def login_user(user: LoginRequest, db: Session = Depends(get_db)):
         algorithm="HS256"
     )
 
-    return {"message": "Login successful","token": token}
+    return {"message": "Login successful","token": token,"username": db_user.username}
 
 
 class VerifyOtpRequest(BaseModel):
