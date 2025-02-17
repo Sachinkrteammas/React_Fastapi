@@ -28,6 +28,7 @@ const Login = ({ onLogin }) => {
 
       if (response.status === 200) {
         localStorage.setItem("token", response.data.token); // Store token
+        localStorage.setItem("username", response.data.username);
         onLogin(); // Call login state function
         navigate("/dashboard"); // Redirect to dashboard
       } else {

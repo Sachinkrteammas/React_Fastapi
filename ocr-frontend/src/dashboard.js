@@ -4,6 +4,7 @@ import "./dashboard.css";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import topLogo from "./assets/logo.png";
+import accountLogo from "./assets/account.png"
 import { Check, House, Settings, LogOut, Captions, AudioLines, Terminal, FileKey, ChartNoAxesCombined } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
 
@@ -15,6 +16,14 @@ const Dashboard = ({ onLogout }) => {
   const [dateOption, setDateOption] = useState("Today");
   const [isCustom, setIsCustom] = useState(false);
   const [barData, setBarData] = useState([]);
+  const firstname=localStorage.getItem("username");
+  const username =firstname? firstname.split(" ")[0] : "";
+  
+  
+
+  // const togglePopup = () => {
+  //   setShowPopup(!showPopup);
+  // };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -22,14 +31,14 @@ const Dashboard = ({ onLogout }) => {
     onLogout();
     navigate("/");
   };
-
+ 
 
 
   const handleSubmit = async () => {
     try {
         console.log("Fetching data for:", startDate, "to", endDate);
 
-        const response = await fetch("http://172.12.13.74:8095/get-audio-stats/", {
+        const response = await fetch("http://172.12.13.74:9001/get-audio-stats/", {
             method: "POST", // Use POST instead of GET
             headers: {
                 "Content-Type": "application/json",
@@ -127,6 +136,11 @@ const Dashboard = ({ onLogout }) => {
         <div className="top-text">
           <p>"Title to be decided"</p>
         </div>
+        <div className="account">
+
+          <img src={accountLogo} alt="loginname" className="account-logo" />
+          <span>{username}</span>          
+        </div> 
       </div>
 
       {/* Main Content Layout (Sidebar + Content) */}
