@@ -23,36 +23,36 @@ const Dashboard = ({ onLogout }) => {
     navigate("/");
   };
 
- 
+
 
   const handleSubmit = async () => {
     try {
-        console.log("Fetching data for:", startDate, "to", endDate);
+      console.log("Fetching data for:", startDate, "to", endDate);
 
-        const response = await fetch(`http://172.12.13.74:8095/get-audio-stats/?from_date=${startDate}&to_date=${endDate}`);
+      const response = await fetch(`http://172.12.13.74:9001/get-audio-stats/?from_date=${startDate}&to_date=${endDate}`);
 
-        if (!response.ok) {
-            throw new Error("Failed to fetch data");
-        }
+      if (!response.ok) {
+        throw new Error("Failed to fetch data");
+      }
 
-        const result = await response.json();
+      const result = await response.json();
 
-        if (result.status === "success") {
-            console.log("API Response:", result.data);
-            
-            const formattedData = result.data.map(item => ({
-              date: new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), // Convert "2025-02-12" → "Feb 12"
-              Upload: item.upload,       // Convert "upload" → "Upload"
-              Transcribe: item.transcribe // Convert "transcribe" → "Transcribe"
-          }));
-          setBarData(formattedData); // Update bar chart data
-        } else {
-            console.error("API Error:", result);
-        }
+      if (result.status === "success") {
+        console.log("API Response:", result.data);
+
+        const formattedData = result.data.map(item => ({
+          date: new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), // Convert "2025-02-12" → "Feb 12"
+          Upload: item.upload,       // Convert "upload" → "Upload"
+          Transcribe: item.transcribe // Convert "transcribe" → "Transcribe"
+        }));
+        setBarData(formattedData); // Update bar chart data
+      } else {
+        console.error("API Error:", result);
+      }
     } catch (error) {
-        console.error("Error fetching data:", error);
+      console.error("Error fetching data:", error);
     }
-};
+  };
 
 
   const handleNavigation = (path) => {
@@ -66,17 +66,17 @@ const Dashboard = ({ onLogout }) => {
 
     if (type === "start") setStartDate(formattedDate);
     else setEndDate(formattedDate);
-};
+  };
 
   const handleDateOptionChange = (event) => {
     const option = event.target.value;
     setDateOption(option);
     setIsCustom(option === "Custom");
-    
+
     let today = new Date();
     let newStartDate = today;
     let newEndDate = today;
-    
+
     if (option === "Today") {
       newStartDate = new Date();
       newEndDate = new Date();
@@ -93,7 +93,7 @@ const Dashboard = ({ onLogout }) => {
       newStartDate.setMonth(today.getMonth() - 1);
       newEndDate = new Date();
     }
-    
+
     setStartDate(newStartDate.toISOString().split("T")[0]);
     setEndDate(newEndDate.toISOString().split("T")[0]);
   };
@@ -185,16 +185,16 @@ const Dashboard = ({ onLogout }) => {
             </select>
 
             <h4>Start Date</h4>
-            <DatePicker className="datepic" selected={startDate} onChange={(date) => handleDateChange(date, "start")} readOnly={!isCustom} dateFormat="yyyy-MM-dd"/>
+            <DatePicker className="datepic" selected={startDate} onChange={(date) => handleDateChange(date, "start")} readOnly={!isCustom} dateFormat="yyyy-MM-dd" />
 
             <h4>End Date</h4>
-            <DatePicker className="datepic" selected={endDate} onChange={(date) => handleDateChange(date, "end")} readOnly={!isCustom} dateFormat="yyyy-MM-dd"/>
+            <DatePicker className="datepic" selected={endDate} onChange={(date) => handleDateChange(date, "end")} readOnly={!isCustom} dateFormat="yyyy-MM-dd" />
 
             <input className="submit" onClick={handleSubmit} placeholder="submit" readOnly />
           </div>
 
 
-          <div className="main-content new145">
+          <div className="main-content notifi">
             <h1 className="new">Notifications</h1>
             <p>'Rail ministry probing if conspiracy…': ...
               Who will be new Delhi CM? ...
@@ -205,17 +205,19 @@ const Dashboard = ({ onLogout }) => {
 
           </div>
 
-          <div className="range-chart">
-            <h1 className="r-text">Range</h1>
-            <BarChart width={450} height={300} data={barData}>
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="Upload" fill="#2196F3" />
-              <Bar dataKey="Transcribe" fill="#4CAF50" />
-            </BarChart>
-          </div>
+          {barData.length > 0 && (
+            <div className="range-chart">
+              <h1 className="r-text">Range</h1>
+              <BarChart width={450} height={300} data={barData}>
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="Upload" fill="#2196F3" />
+                <Bar dataKey="Transcribe" fill="#4CAF50" />
+              </BarChart>
+            </div>
+          )}
 
 
 
