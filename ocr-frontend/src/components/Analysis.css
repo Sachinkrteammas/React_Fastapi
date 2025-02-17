@@ -1,10 +1,11 @@
-/* Analysis.css */
+/* Main Dashboard */
 .dashboard-container {
+    flex: 1;
     padding: 20px;
-    background-color: #f4f6f9;
-    min-height: 100vh;
+    overflow-y: auto;
 }
 
+/* Cards Section */
 .card-container {
     display: flex;
     flex-wrap: wrap;
@@ -30,7 +31,7 @@
 /* Makes sure text is small and fits well */
 .card h2 {
     font-size: 12px;
-    font-weight: 600;
+    font-weight: bold;
     margin-bottom: 5px;
 }
 
@@ -39,130 +40,59 @@
     font-weight: bold;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-    .card-container {
-        justify-content: center; /* Center align for smaller screens */
-    }
-
-    .card {
-        min-width: 120px;
-        max-width: 140px;
-    }
-}
-
-
-.chart-container {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-/* Achet Categorization & Top Performers - Now inside .chart-box */
-.chart-box {
-    flex: 1;
-    background: white;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-    min-width: 400px;
-}
-
-/* Table Styling */
-table {
-    width: 20%;
-    border-collapse: collapse;
-}
-
-th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: center;
-}
-
-th {
-    background-color: #f2f2f2;
-}
-
-/* Responsive - Stack vertically on small screens */
-@media (max-width: 1024px) {
-    .chart-container {
-        flex-direction: column;
-    }
-}
-
-
-
+/* Soft Skills Section */
 .soft-skills-container {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    width: 100%;
-    max-width: 490px;
+    margin-top: 20px;
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    width: 200px;
 }
 
 .soft-skill-row {
     display: flex;
     justify-content: space-between;
+    padding: 5px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Charts */
+.chart-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.chart-box {
     background-color: white;
-    padding: 8px 15px;
-    border-radius: 5px;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-    font-size: 16px;
-    font-weight: bold;
-}
-
-.soft-skill-title {
-    color: #333;
-}
-
-.soft-skill-value {
-    color: #007bff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    flex: 1;
+    margin-right: 10px;
+    width: fit-content;
 }
 
 
-.performer
-{
-    width: 30% !important;
+.performer {
+    width: 100%;
+    border-collapse: collapse;
 }
 
-.bar_chart
-{
-    position: relative;
-    bottom: 430px;
+.performer th,
+.performer td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
 }
 
-.chart-box.bar_chart
-{
-    height: 410px !important;
-    width: 200px !important;
-}
-/* softskill
-{
-    height: 400px !important;
-    width: 300px !important;
-} */
-
-.soft-skills-container.softskill {
-    height: 300px !important;
-    width: 2500px !important;
-    background-color: #f5f5f5; /* Just to check if styles apply */
-    position: relative;
-    
-}
-
-.chart-box.chart-box.graph
-{
-    position: relative;
-    left: 498px;
-}
-
-
-.achet
-{
-    position: relative;
-    bottom: 411px;
-    height: 409px;
-    width: 562px;
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .card-container,
+    .chart-container {
+        flex-direction: column;
+    }
 }

@@ -5,6 +5,8 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import topLogo from "./assets/logo.png";
 import { Check, House, Settings, LogOut, Captions, AudioLines, Terminal, FileKey, ChartNoAxesCombined } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
+
 
 const Dashboard = ({ onLogout }) => {
   const navigate = useNavigate();
@@ -20,6 +22,7 @@ const Dashboard = ({ onLogout }) => {
 
   const handleSubmit = () => {
     console.log("Submit button clicked!");
+    alert('submit')
     // Add your logic here, such as filtering data based on selected dates
   };
 
@@ -31,6 +34,16 @@ const Dashboard = ({ onLogout }) => {
     if (type === "start") setStartDate(date);
     else setEndDate(date);
   };
+
+  const barData = [
+    { date: "Feb 8", Upload: 76, Transcribe: 95 },
+    { date: "Feb 9", Upload: 82, Transcribe: 95 },
+    { date: "Feb 10", Upload: 76, Transcribe: 95 },
+    { date: "Feb 11", Upload: 76, Transcribe: 95 },
+    { date: "Feb 12", Upload: 78, Transcribe: 95 },
+    { date: "Feb 13", Upload: 79, Transcribe: 95 },
+    { date: "Feb 14", Upload: 80, Transcribe: 95 }
+  ];
 
   return (
     <div className="dashboard-layout">
@@ -113,8 +126,32 @@ const Dashboard = ({ onLogout }) => {
 
             <h4>End Date</h4>
             <DatePicker className="datepic" selected={endDate} onChange={(date) => handleDateChange(date, "end")} />
-            
-            <button className="submit-btn" onClick={handleSubmit}>Submit</button>
+
+            <input className="submit" onClick={handleSubmit} placeholder="submit" readOnly />
+          </div>
+
+
+          <div className="main-content new145">
+            <h1 className="new">Notifications</h1>
+            <p>'Rail ministry probing if conspiracy…': ...
+              Who will be new Delhi CM? ...
+              Yamuna cleaning begins days before BJP government formation in Delhi. ...
+              'Muslim majority state': Kashmir MLA faces backlash over liquor sales comment. ...
+              'Shocked to see…': ...
+              IPL 2025 schedule announced; KKR vs RCB to headline season opener on March 22</p>
+
+          </div>
+
+          <div className="range-chart">
+            <h1 className="r-text">Range</h1>
+            <BarChart width={450} height={300} data={barData}>
+              <XAxis dataKey="date" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="Upload" fill="#2196F3" />
+              <Bar dataKey="Transcribe" fill="#4CAF50" />
+            </BarChart>
           </div>
 
 
