@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./PromptPage.css"; // Import CSS file
+import "./PromptPage.css";
 
 import topLogo from "../assets/logo.png";
 import {
@@ -21,6 +21,8 @@ const PromptPage = ({ onLogout }) => {
   const [newKey, setNewKey] = useState("");
   const [newValue, setNewValue] = useState("");
 
+  const defaultPrompt = `Please analyze the following conversation between an agent and a customer and extract the details in the provided JSON format. If any field is not explicitly mentioned or does not apply, return "None" for that field. Ensure the output strictly adheres to the JSON structure and addresses all fields. Do not infer or guess beyond the conversation's content.`;
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     sessionStorage.removeItem("user");
@@ -32,7 +34,6 @@ const PromptPage = ({ onLogout }) => {
     navigate(path);
   };
 
-  // Function to add key-value pair
   const addKey = () => {
     if (newKey.trim() === "" || newValue.trim() === "") {
       alert("Both key and value are required.");
@@ -150,19 +151,21 @@ const PromptPage = ({ onLogout }) => {
           </div>
 
           {/* Right Display Section */}
-          
-            <div className="output-container">
-              <h2>Created Prompt</h2>
-              <div className="output-box">
-                <textarea
-                  name="text"
-                  placeholder="Generated JSON"
-                  value={JSON.stringify(keyValuePairs, null, 2)}
-                  readOnly
-                />
-              </div>
+          <div className="output-container">
+            <h2>Created Prompt</h2>
+            <div className="output-box">
+              <textarea
+                name="text"
+                placeholder="Generated JSON"
+                value={
+                  Object.keys(keyValuePairs).length > 0
+                    ? `${defaultPrompt}\n\n${JSON.stringify(keyValuePairs, null, 2)}`
+                    : defaultPrompt
+                }
+                readOnly
+              />
             </div>
-       
+          </div>
         </div>
       </div>
     </div>
