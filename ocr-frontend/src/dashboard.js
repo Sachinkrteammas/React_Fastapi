@@ -27,32 +27,43 @@ const Dashboard = ({ onLogout }) => {
 
   const handleSubmit = async () => {
     try {
-      console.log("Fetching data for:", startDate, "to", endDate);
+        console.log("Fetching data for:", startDate, "to", endDate);
 
-      const response = await fetch(`http://172.12.13.74:9001/get-audio-stats/?from_date=${startDate}&to_date=${endDate}`);
+        const response = await fetch("http://172.12.13.74:8095/get-audio-stats/", {
+            method: "POST", // Use POST instead of GET
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                from_date: startDate,
+                to_date: endDate
+            }),
+        });
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch data");
-      }
+        if (!response.ok) {
+            throw new Error(`Failed to fetch data. Status: ${response.status}`);
+        }
 
-      const result = await response.json();
+        const result = await response.json();
 
-      if (result.status === "success") {
-        console.log("API Response:", result.data);
+        if (result.status === "success") {
+            console.log("API Response:", result.data);
 
-        const formattedData = result.data.map(item => ({
-          date: new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), // Convert "2025-02-12" → "Feb 12"
-          Upload: item.upload,       // Convert "upload" → "Upload"
-          Transcribe: item.transcribe // Convert "transcribe" → "Transcribe"
-        }));
-        setBarData(formattedData); // Update bar chart data
-      } else {
-        console.error("API Error:", result);
-      }
+            const formattedData = result.data.map(item => ({
+                date: new Date(item.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }), // Format date
+                Upload: item.upload || 0,       // Ensure numeric value
+                Transcribe: item.transcribe || 0 // Ensure numeric value
+            }));
+
+            setBarData(formattedData); // Update bar chart data
+        } else {
+            console.error("API Error:", result);
+        }
     } catch (error) {
-      console.error("Error fetching data:", error);
+        console.error("Error fetching data:", error);
     }
-  };
+};
+
 
 
   const handleNavigation = (path) => {

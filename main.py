@@ -337,9 +337,12 @@ async def upload_audio(file: UploadFile = File(...), db: Session = Depends(get_d
 
 
 # API to fetch records based on date range
-@app.get("/get-audio-stats/")
-def get_audio_stats(from_date: datetime.date, to_date: datetime.date, db: Session = Depends(get_db)):
+class AudioStatsRequest(BaseModel):
+    from_date: datetime.date
+    to_date: datetime.date
 
+@app.post("/get-audio-stats/")
+def get_audio_stats(request: AudioStatsRequest, db: Session = Depends(get_db)):
     try:
         results = (
             db.query(
@@ -347,7 +350,7 @@ def get_audio_stats(from_date: datetime.date, to_date: datetime.date, db: Sessio
                 func.count().label("upload"),
                 func.sum(func.if_(AudioFile.transcribe_stat == 1, 1, 0)).label("transcribe")
             )
-            .filter(func.date(AudioFile.upload_time).between(from_date, to_date))
+            .filter(func.date(AudioFile.upload_time).between(request.from_date, request.to_date))
             .group_by(func.date(AudioFile.upload_time))
             .all()
         )
@@ -355,7 +358,7 @@ def get_audio_stats(from_date: datetime.date, to_date: datetime.date, db: Sessio
         data_dict = {row.date: {"upload": row.upload, "transcribe": row.transcribe} for row in results}
 
         date_range = [
-            (from_date + datetime.timedelta(days=i)) for i in range((to_date - from_date).days + 1)
+            (request.from_date + datetime.timedelta(days=i)) for i in range((request.to_date - request.from_date).days + 1)
         ]
 
         data = [
