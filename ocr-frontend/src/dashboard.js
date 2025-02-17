@@ -10,8 +10,11 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
 
 const Dashboard = ({ onLogout }) => {
   const navigate = useNavigate();
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const [startDate, setStartDate] = useState(new Date().toISOString().split("T")[0]);
+  const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0]);
+  const [dateOption, setDateOption] = useState("Today");
+  const [isCustom, setIsCustom] = useState(false);
+  const [barData, setBarData] = useState([]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -20,30 +23,90 @@ const Dashboard = ({ onLogout }) => {
     navigate("/");
   };
 
-  const handleSubmit = () => {
-    console.log("Submit button clicked!");
-    alert('submit')
-    // Add your logic here, such as filtering data based on selected dates
-  };
+ 
+
+  const handleSubmit = async () => {
+    try {
+        console.log("Fetching data for:", startDate, "to", endDate);
+
+        const response = await fetch(`http://172.12.13.74:8095/get-audio-stats/?from_date=${startDate}&to_date=${endDate}`);
+
+        if (!response.ok) {
+            throw new Error("Failed to fetch data");
+        }
+
+        const result = await response.json();
+
+        if (result.status === "success") {
+            console.log("API Response:", result.data);
+            
+            const formattedData = result.data.map(item => ({
+              date: new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), // Convert "2025-02-12" → "Feb 12"
+              Upload: item.upload,       // Convert "upload" → "Upload"
+              Transcribe: item.transcribe // Convert "transcribe" → "Transcribe"
+          }));
+          setBarData(formattedData); // Update bar chart data
+        } else {
+            console.error("API Error:", result);
+        }
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
+};
+
 
   const handleNavigation = (path) => {
     navigate(path);
   };
 
   const handleDateChange = (date, type) => {
-    if (type === "start") setStartDate(date);
-    else setEndDate(date);
+    if (!date) return; // Ensure date is not null
+
+    const formattedDate = date.toISOString().split("T")[0]; // Convert to YYYY-MM-DD
+
+    if (type === "start") setStartDate(formattedDate);
+    else setEndDate(formattedDate);
+};
+
+  const handleDateOptionChange = (event) => {
+    const option = event.target.value;
+    setDateOption(option);
+    setIsCustom(option === "Custom");
+    
+    let today = new Date();
+    let newStartDate = today;
+    let newEndDate = today;
+    
+    if (option === "Today") {
+      newStartDate = new Date();
+      newEndDate = new Date();
+    } else if (option === "Yesterday") {
+      newStartDate = new Date();
+      newStartDate.setDate(today.getDate() - 1);
+      newEndDate = new Date();
+    } else if (option === "Week") {
+      newStartDate = new Date();
+      newStartDate.setDate(today.getDate() - 7);
+      newEndDate = new Date();
+    } else if (option === "Month") {
+      newStartDate = new Date();
+      newStartDate.setMonth(today.getMonth() - 1);
+      newEndDate = new Date();
+    }
+    
+    setStartDate(newStartDate.toISOString().split("T")[0]);
+    setEndDate(newEndDate.toISOString().split("T")[0]);
   };
 
-  const barData = [
-    { date: "Feb 8", Upload: 76, Transcribe: 95 },
-    { date: "Feb 9", Upload: 82, Transcribe: 95 },
-    { date: "Feb 10", Upload: 76, Transcribe: 95 },
-    { date: "Feb 11", Upload: 76, Transcribe: 95 },
-    { date: "Feb 12", Upload: 78, Transcribe: 95 },
-    { date: "Feb 13", Upload: 79, Transcribe: 95 },
-    { date: "Feb 14", Upload: 80, Transcribe: 95 }
-  ];
+  // const barData = [
+  //   { date: "Feb 8", Upload: 76, Transcribe: 95 },
+  //   { date: "Feb 9", Upload: 82, Transcribe: 95 },
+  //   { date: "Feb 10", Upload: 76, Transcribe: 95 },
+  //   { date: "Feb 11", Upload: 76, Transcribe: 95 },
+  //   { date: "Feb 12", Upload: 78, Transcribe: 95 },
+  //   { date: "Feb 13", Upload: 79, Transcribe: 95 },
+  //   { date: "Feb 14", Upload: 80, Transcribe: 95 }
+  // ];
 
   return (
     <div className="dashboard-layout">
@@ -113,7 +176,7 @@ const Dashboard = ({ onLogout }) => {
           {/* Usage Activity Section */}
           <div className="activity-section activity">
             <h4>Usage Activity</h4>
-            <select>
+            <select value={dateOption} onChange={handleDateOptionChange}>
               <option>Today</option>
               <option>Yesterday</option>
               <option>Week</option>
@@ -122,10 +185,10 @@ const Dashboard = ({ onLogout }) => {
             </select>
 
             <h4>Start Date</h4>
-            <DatePicker className="datepic" selected={startDate} onChange={(date) => handleDateChange(date, "start")} />
+            <DatePicker className="datepic" selected={startDate} onChange={(date) => handleDateChange(date, "start")} readOnly={!isCustom} dateFormat="yyyy-MM-dd"/>
 
             <h4>End Date</h4>
-            <DatePicker className="datepic" selected={endDate} onChange={(date) => handleDateChange(date, "end")} />
+            <DatePicker className="datepic" selected={endDate} onChange={(date) => handleDateChange(date, "end")} readOnly={!isCustom} dateFormat="yyyy-MM-dd"/>
 
             <input className="submit" onClick={handleSubmit} placeholder="submit" readOnly />
           </div>

@@ -352,9 +352,19 @@ def get_audio_stats(from_date: datetime.date, to_date: datetime.date, db: Sessio
             .all()
         )
 
+        data_dict = {row.date: {"upload": row.upload, "transcribe": row.transcribe} for row in results}
+
+        date_range = [
+            (from_date + datetime.timedelta(days=i)) for i in range((to_date - from_date).days + 1)
+        ]
+
         data = [
-            {"date": row.date, "upload": row.upload, "transcribe": row.transcribe}
-            for row in results
+            {
+                "date": str(date),
+                "upload": data_dict.get(date, {"upload": 0, "transcribe": 0})["upload"],
+                "transcribe": data_dict.get(date, {"upload": 0, "transcribe": 0})["transcribe"]
+            }
+            for date in date_range
         ]
 
         return {"status": "success", "data": data}
