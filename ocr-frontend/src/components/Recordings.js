@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Recording.css"; // Import the CSS file
+import axios from "axios";
+import "./Recording.css"; 
 
 import topLogo from "../assets/logo.png";
 import {
@@ -16,6 +17,8 @@ import {
 
 const Recordings = ({ onLogout }) => {
   const navigate = useNavigate();
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [uploadMessage, setUploadMessage] = useState("");
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -28,6 +31,32 @@ const Recordings = ({ onLogout }) => {
     navigate(path);
   };
 
+  const handleFileChange = (event) => {
+    setSelectedFile(event.target.files[0]);
+    setUploadMessage(""); 
+  };
+
+  const handleUpload = async () => {
+    if (!selectedFile) {
+      setUploadMessage("Please select a file first.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+
+    try {
+      const response = await axios.post("http://127.0.0.1:8095/upload-audio/", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      setUploadMessage(response.data.message);
+      document.getElementById("fileInput").value = "";
+    } catch (error) {
+      setUploadMessage(error.response?.data?.detail || "Upload failed.");
+    }
+  };
+
   return (
     <div className="dashboard-layout">
       {/* Top Navbar */}
@@ -37,8 +66,8 @@ const Recordings = ({ onLogout }) => {
 
       {/* Main Content Layout */}
       <div className="content-layout">
-        {/* Sidebar */}
-        <div className="sidebar">
+        {/* Sidebar Navigation */}
+        <div className="sidebar newsidebar">
           <button className="nav-button" onClick={() => handleNavigation("/")}>
             <House size={20} className="icon" /> Home
           </button>
@@ -69,10 +98,12 @@ const Recordings = ({ onLogout }) => {
         <div className="main-content">
           <h2>Recordings</h2>
           <div className="recordings-box">
-            <p>Choose Recordings</p>
-            <button className="browse-button">Browse</button>
-            <p>Or</p>
-            <button className="upload-button">Upload</button>
+            <h2>Choose an Audio File</h2>
+            <input type="file" accept="audio/mpeg,audio/wav" id="fileInput" className="browse-button" onChange={handleFileChange} />
+
+            <button className="upload-button" onClick={handleUpload}>Upload</button>
+
+            {uploadMessage && <p className="upload-message">{uploadMessage}</p>}
           </div>
         </div>
       </div>

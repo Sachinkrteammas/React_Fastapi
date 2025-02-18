@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./Login";
 import Signup from "./signup";
@@ -13,48 +13,49 @@ import Recordings from "./components/Recordings";
 import Settings from "./components/Settings";
 import Transcription from "./components/Transcription";
 
+// Protected Route 
 
 
 
+const ProtectedRoute = ({ element, isLoggedIn }) => {
+  return isLoggedIn ? element : <Navigate to="/" />;
+};
 
 const App = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    localStorage.getItem("isLoggedIn") === "true"
+  );
+
+  // Save login state to localStorage
+  useEffect(() => {
+    localStorage.setItem("isLoggedIn", isLoggedIn);
+  }, [isLoggedIn]);
 
   const handleLogout = () => {
     setIsLoggedIn(false);
+    localStorage.removeItem("isLoggedIn"); // Clear login state on logout
     console.log("User logged out");
   };
 
   return (
     <Router>
       <Routes>
-        {/* Login Page */}
-        <Route
-          path="/" element={isLoggedIn ? <Navigate to="/dashboard" /> : <Login onLogin={() => setIsLoggedIn(true)} />} />
-
-        {/* Signup Route */}
+        {/* Public Routes */}
+        <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" /> : <Login onLogin={() => setIsLoggedIn(true)} />} />
         <Route path="/signup" element={<Signup />} />
-
         <Route path="/forgot-password/:token" element={<ForgotPassword />} />
         <Route path="/verify" element={<VerifyPassword />} />
-
-
-        {/* Reset Password Route (Fixed Path) */}
         <Route path="/ResetPassword" element={<ResetPassword />} />
 
-        {/* Protected Route: OCR Page (Requires Login) */}
-        <Route
-          path="/dashboard" element={isLoggedIn ? <Dashboard onLogout={() => setIsLoggedIn(false)} /> : <Navigate to="/" />} 
-        />
+        {/* Protected Routes */}
+        <Route path="/dashboard" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Dashboard onLogout={handleLogout} />} />} />
+        <Route path="/Recordings" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Recordings onLogout={handleLogout} />} />} />
+        <Route path="/Transcription" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Transcription />} />} />
+        <Route path="/prompt" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Prompt onLogout={handleLogout} />} />} />
+        <Route path="/Settings" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Settings />} />} />
+        <Route path="/APIKey" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<APIKey />} />} />
+        <Route path="/Analysis" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Analysis />} />} />
 
-
-
-        <Route path="/Recordings" element={<Recordings onLogout={handleLogout} />} />
-        <Route path="/Transcription" element={<Transcription />} />
-        <Route path="/prompt" element={<Prompt onLogout={handleLogout} />} />
-        <Route path="/Settings" element={<Settings />} />
-        <Route path="/APIKey" element={<APIKey />} />
-        <Route path="/Analysis" element={<Analysis />} />
         {/* Catch-all route (redirect unknown paths to login) */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>

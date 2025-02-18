@@ -11,15 +11,18 @@
   }
   
   .recordings-box, .developer-box {
-    background: #666;
+    background:  rgb(255, 251, 251);
     padding: 20px;
-    border-radius: 8px;
+    border-radius: 10px;
     color: white;
     width: 45%;
+    transform: scale(1.00);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2),
+    0 12px 25px rgba(0, 0, 0, 0.25);
   }
   
   .browse-button, .upload-button, .generate-key {
-    background: #77b5c8;
+    background: #282855;
     padding: 10px;
     border: none;
     border-radius: 5px;
@@ -32,6 +35,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 61px;
+    margin-left: 93px;
   }
   
   .code-area {
@@ -60,3 +65,33 @@
     cursor: pointer;
   }
   
+  .recordings-box{
+    height: 244px ;
+    width: 300px;
+  }
+
+  .newsidebar
+  {
+    width: 36%;
+  }
+  .main-content h2{
+  font-size: 15px;
+  color: rgb(12, 13, 14);
+  text-align: center;
+  }
+  .main-content button
+  {
+    margin-top: 40px;
+    
+  }
+
+  .main-content p{
+    font-size: 16px;
+    color: rgb(23, 26, 26);
+    margin-top: 10px;
+    text-align: center;
+  }
+  .upload-button:hover
+  {
+  background-color:#38383d;
+  }

@@ -329,7 +329,7 @@ async def upload_audio(file: UploadFile = File(...), db: Session = Depends(get_d
         db.commit()
         db.refresh(new_audio)
 
-        return {"id": new_audio.id, "filename": new_audio.filename, "message": "File uploaded and saved in database"}
+        return {"id": new_audio.id, "filename": new_audio.filename, "message": "File Uploaded in database"}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
