@@ -1,32 +1,29 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./PromptPage.css";
+import Layout from "../layout"; // Import layout component
+import "../layout.css"; // Import styles
 
-import topLogo from "../assets/logo.png";
-import {
-  House,
-  Settings,
-  LogOut,
-  Captions,
-  AudioLines,
-  Terminal,
-  FileKey,
-  ChartNoAxesCombined,
-} from "lucide-react";
 
-const PromptPage = ({ onLogout }) => {
+const PromptPage = () => {
   const navigate = useNavigate();
-  const [name, setName] = useState("Sneha");
+  const [name, setName] = useState("");
   const [keyValuePairs, setKeyValuePairs] = useState({});
   const [newKey, setNewKey] = useState("");
   const [newValue, setNewValue] = useState("");
+  const firstname = localStorage.getItem("username");
+  const username = firstname ? firstname.split(" ")[0] : "";
+  const defaultPrompt = "Please analyze the following conversation between an agent and a customer " +
+    "and extract the details in the provided JSON format. If any field is not " +
+    "explicitly mentioned or does not apply, return 'None' for that field. " +
+    "Ensure the output strictly adheres to the JSON structure and addresses all " +
+    "fields. Do not infer or guess beyond the conversation's content.";
 
-  const defaultPrompt = `Please analyze the following conversation between an agent and a customer and extract the details in the provided JSON format. If any field is not explicitly mentioned or does not apply, return "None" for that field. Ensure the output strictly adheres to the JSON structure and addresses all fields. Do not infer or guess beyond the conversation's content.`;
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     sessionStorage.removeItem("user");
-    onLogout();
+    // onLogout();
     navigate("/");
   };
 
@@ -51,66 +48,15 @@ const PromptPage = ({ onLogout }) => {
   };
 
   return (
-    <div className="dashboard-layout">
-      {/* Top Navbar */}
-      <div className="top-navbar">
-        <img src={topLogo} alt="Company Logo" className="top-logo" />
-      </div>
+    <Layout>
+      {/* Main Content */}
+      <div className="main-content1">
+        <div className="form-container">
 
-      {/* Main Content Layout */}
-      <div className="content-layout">
-        {/* Sidebar */}
-        <div className="sidebar">
-          <button className="nav-button" onClick={() => handleNavigation("/")}>
-            <House size={20} className="icon" /> Home
-          </button>
-          <button
-            className="nav-button"
-            onClick={() => handleNavigation("/Recordings")}
-          >
-            <AudioLines size={20} className="icon" /> Recordings
-          </button>
-          <button
-            className="nav-button"
-            onClick={() => handleNavigation("/Transcription")}
-          >
-            <Captions size={20} className="icon" /> Transcription
-          </button>
-          <button
-            className="nav-button"
-            onClick={() => handleNavigation("/Prompt")}
-          >
-            <Terminal size={20} className="icon" /> Prompt
-          </button>
-          <button
-            className="nav-button"
-            onClick={() => handleNavigation("/Settings")}
-          >
-            <Settings size={20} className="icon" /> Settings
-          </button>
-          <button
-            className="nav-button"
-            onClick={() => handleNavigation("/APIKey")}
-          >
-            <FileKey size={20} className="icon" /> API Key
-          </button>
-          <button
-            className="nav-button"
-            onClick={() => handleNavigation("/Analysis")}
-          >
-            <ChartNoAxesCombined size={20} className="icon" /> Analysis
-          </button>
-          <button className="nav-button logout-button" onClick={handleLogout}>
-            <LogOut size={20} className="icon" /> Logout
-          </button>
-        </div>
-
-        {/* Main Content */}
-        <div className="main-content1">
-          <div className="form-container">
+          <div className="form-group">
             {/* Name Field */}
-            <div className="form-group">
-              <label>Name</label>
+            <p>Name</p>
+            <div className="input-group">
               <input
                 type="text"
                 value={name}
@@ -120,55 +66,63 @@ const PromptPage = ({ onLogout }) => {
             </div>
 
             {/* Key-Value Input Section */}
-            <div className="form-group">
-              <label>Key</label>
-              <div className="input-group">
-                <input
-                  type="text"
-                  value={newKey}
-                  onChange={(e) => setNewKey(e.target.value)}
-                  className="input-field"
-                  placeholder="Enter new key"
-                />
-              </div>
 
-              {/* Value Field */}
-              <div className="form-group">
-                <label>Value</label>
-                <input
-                  type="text"
-                  value={newValue}
-                  onChange={(e) => setNewValue(e.target.value)}
-                  className="input-field"
-                  placeholder="Enter value"
-                />
-              </div>
-
-              <button onClick={addKey} className="add-key-btn">
-                Add key
-              </button>
-            </div>
-          </div>
-
-          {/* Right Display Section */}
-          <div className="output-container">
-            <h2>Created Prompt</h2>
-            <div className="output-box">
-              <textarea
-                name="text"
-                placeholder="Generated JSON"
-                value={
-                  Object.keys(keyValuePairs).length > 0
-                    ? `${defaultPrompt}\n\n${JSON.stringify(keyValuePairs, null, 2)}`
-                    : defaultPrompt
-                }
-                readOnly
+            <p>Key</p>
+            <div className="input-group">
+              <input
+                type="text"
+                value={newKey}
+                onChange={(e) => setNewKey(e.target.value)}
+                className="input-field"
+                placeholder="Enter new key"
               />
             </div>
+
+
+
+            {/* Value Field */}
+            <div className="form-group">
+              <p>Value</p>
+              <input
+                type="text"
+                value={newValue}
+                onChange={(e) => setNewValue(e.target.value)}
+                className="input-field"
+                placeholder="Enter value"
+              />
+            </div>
+            <button onClick={addKey} className="add-key-btn">
+              Add key
+            </button>
+            <button className="add-key-btn">
+              Submit
+            </button>
+
+
           </div>
         </div>
+
+        {/* Right Display Section */}
+        <div className="output-container">
+          <h1 className="new">Created Prompt</h1>
+
+          <textarea
+            className="outbox"
+            name="text"
+            placeholder="Generated JSON"
+            value={
+              Object.keys(keyValuePairs).length > 0
+                ? `${defaultPrompt}\n\n${JSON.stringify(keyValuePairs, null, 2)}`
+                : defaultPrompt
+            }
+            readOnly
+          />
+
+
+        </div>
       </div>
-    </div>
+    </Layout>
+
   );
 };
 

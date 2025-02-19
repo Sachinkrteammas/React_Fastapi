@@ -1,31 +1,27 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./Recording.css"; 
+import "./Recording.css";
+import Layout from "../layout"; 
+import "../layout.css"; // Import styles
+// import topLogo from "../assets/logo.png";
+// import {
+//   House,
+//   Settings,
+//   LogOut,
+//   Captions,
+//   AudioLines,
+//   Terminal,
+//   FileKey,
+//   ChartNoAxesCombined,
+// } from "lucide-react";
 
-import topLogo from "../assets/logo.png";
-import {
-  House,
-  Settings,
-  LogOut,
-  Captions,
-  AudioLines,
-  Terminal,
-  FileKey,
-  ChartNoAxesCombined,
-} from "lucide-react";
-
-const Recordings = ({ onLogout }) => {
+const Recordings = () => {
   const navigate = useNavigate();
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadMessage, setUploadMessage] = useState("");
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    sessionStorage.removeItem("user");
-    onLogout();
-    navigate("/");
-  };
+
 
   const handleNavigation = (path) => {
     navigate(path);
@@ -33,7 +29,7 @@ const Recordings = ({ onLogout }) => {
 
   const handleFileChange = (event) => {
     setSelectedFile(event.target.files[0]);
-    setUploadMessage(""); 
+    setUploadMessage("");
   };
 
   const handleUpload = async () => {
@@ -51,6 +47,7 @@ const Recordings = ({ onLogout }) => {
       });
 
       setUploadMessage(response.data.message);
+      setSelectedFile(null);
       document.getElementById("fileInput").value = "";
     } catch (error) {
       setUploadMessage(error.response?.data?.detail || "Upload failed.");
@@ -58,57 +55,28 @@ const Recordings = ({ onLogout }) => {
   };
 
   return (
-    <div className="dashboard-layout">
-      {/* Top Navbar */}
-      <div className="top-navbar">
-        <img src={topLogo} alt="Company Logo" className="top-logo" />
-      </div>
-
-      {/* Main Content Layout */}
-      <div className="content-layout">
-        {/* Sidebar Navigation */}
-        <div className="sidebar newsidebar">
-          <button className="nav-button" onClick={() => handleNavigation("/")}>
-            <House size={20} className="icon" /> Home
+    <Layout>
+    
+      <div className="main-content">
+        
+        <div className="recordings-box">
+          <h2>Choose an Audio File</h2>
+          <input
+            type="file"
+            accept="audio/mpeg,audio/wav"
+            id="fileInput"
+            className="browse-button"
+            onChange={handleFileChange}
+          />
+          <button className="upload-button" onClick={handleUpload}>
+            Upload
           </button>
-          <button className="nav-button" onClick={() => handleNavigation("/Recordings")}>
-            <AudioLines size={20} className="icon" /> Recordings
-          </button>
-          <button className="nav-button" onClick={() => handleNavigation("/Transcription")}>
-            <Captions size={20} className="icon" /> Transcription
-          </button>
-          <button className="nav-button" onClick={() => handleNavigation("/Prompt")}>
-            <Terminal size={20} className="icon" /> Prompt
-          </button>
-          <button className="nav-button" onClick={() => handleNavigation("/Settings")}>
-            <Settings size={20} className="icon" /> Settings
-          </button>
-          <button className="nav-button" onClick={() => handleNavigation("/APIKey")}>
-            <FileKey size={20} className="icon" /> API Key
-          </button>
-          <button className="nav-button" onClick={() => handleNavigation("/Analysis")}>
-            <ChartNoAxesCombined size={20} className="icon" /> Analysis
-          </button>
-          <button className="nav-button logout-button" onClick={handleLogout}>
-            <LogOut size={20} className="icon" /> Logout
-          </button>
-        </div>
-
-        {/* Main Content Area */}
-        <div className="main-content">
-          <h2>Recordings</h2>
-          <div className="recordings-box">
-            <h2>Choose an Audio File</h2>
-            <input type="file" accept="audio/mpeg,audio/wav" id="fileInput" className="browse-button" onChange={handleFileChange} />
-
-            <button className="upload-button" onClick={handleUpload}>Upload</button>
-
-            {uploadMessage && <p className="upload-message">{uploadMessage}</p>}
-          </div>
+          {uploadMessage && <p className="upload-message">{uploadMessage}</p>}
         </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 
 export default Recordings;
+
