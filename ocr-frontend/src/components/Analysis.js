@@ -54,21 +54,21 @@ const Analysis = () => {
                     </div>
                 ))}
             </div>
-
-            <div className="chart-container1">
-
-                <div className="chart-box graph">
-                    <h2>Target Vs CQ Score</h2>
-                    <BarChart width={450} height={300} data={barData}>
-                        <XAxis dataKey="date" />
-                        <YAxis />
+            <div className="chart-container2">
+                <div className="chart-box bar_chart">
+                    <h2>Call Wise</h2>
+                    <PieChart width={400} height={300}>
+                        <Pie data={pieData} cx="50%" cy="50%" outerRadius={80} dataKey="value" label>
+                            {pieData.map((entry, index) => (
+                                <Cell key={index} fill={entry.color} />
+                            ))}
+                        </Pie>
                         <Tooltip />
                         <Legend />
-                        <Bar dataKey="score" fill="#2196F3" />
-                        <Bar dataKey="target" fill="#4CAF50" />
-                    </BarChart>
+                    </PieChart>
                 </div>
             </div>
+
             <div className="chart-container3">
                 <div className="chart-box achet">
                     <h2>Achet Categorization</h2>
@@ -124,6 +124,7 @@ const Analysis = () => {
                 </div>
 
             </div>
+
             <div className="soft-skills-container softskill">
                 {[
                     { title: "Opening", value: "60%" },
@@ -140,79 +141,8 @@ const Analysis = () => {
                 ))}
             </div>
 
-
-
-            <div className="chart-container2">
-                <div className="chart-box bar_chart">
-                    <h2>Call Wise</h2>
-                    <PieChart width={400} height={300}>
-                        <Pie data={pieData} cx="50%" cy="50%" outerRadius={80} dataKey="value" label>
-                            {pieData.map((entry, index) => (
-                                <Cell key={index} fill={entry.color} />
-                            ))}
-                        </Pie>
-                        <Tooltip />
-                        <Legend />
-                    </PieChart>
-                </div>
-            </div>
-
-
-            <div className="chart-container3">
-                <div className="chart-box achet">
-                    <h2>Achet Categorization</h2>
-                    <table className="performer">
-                        <thead>
-                            <tr>
-                                <th>Category</th>
-                                <th>ACHT</th>
-                                <th>Audit Count</th>
-                                <th>Fatal Count</th>
-                                <th>CQ Score%</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Short (&lt;60 sec)</td>
-                                <td>00:00:33</td>
-                                <td>10</td>
-                                <td>0</td>
-                                <td>96%</td>
-                            </tr>
-                        </tbody>
-                        <tbody>
-                            <tr>
-                                <td>Short (&lt;60 sec)</td>
-                                <td>00:00:33</td>
-                                <td>10</td>
-                                <td>0</td>
-                                <td>96%</td>
-                            </tr>
-                        </tbody>
-                        <tbody>
-                            <tr>
-                                <td>Short (&lt;60 sec)</td>
-                                <td>00:00:33</td>
-                                <td>10</td>
-                                <td>0</td>
-                                <td>96%</td>
-                            </tr>
-                        </tbody>
-                        <tbody>
-                            <tr>
-                                <td>Short (&lt;60 sec)</td>
-                                <td>00:00:33</td>
-                                <td>10</td>
-                                <td>0</td>
-                                <td>96%</td>
-                            </tr>
-                        </tbody>
-
-
-                    </table>
-                </div>
-
-            </div>
+            
+            
 
             <div className="chart-container4">
                 <div className="chart-box">
@@ -236,7 +166,68 @@ const Analysis = () => {
                                 <td>0%</td>
                             </tr>
                         </tbody>
+                        <tbody>
+                            <tr>
+                                <td>Sachin</td>
+                                <td>7</td>
+                                <td>92%</td>
+                                <td>0</td>
+                                <td>0%</td>
+                            </tr>
+                        </tbody>
+                        <tbody>
+                            <tr>
+                                <td>Gaurav</td>
+                                <td>7</td>
+                                <td>92%</td>
+                                <td>0</td>
+                                <td>0%</td>
+                            </tr>
+                        </tbody>
+                        <tbody>
+                            <tr>
+                                <td>Gaurav</td>
+                                <td>7</td>
+                                <td>92%</td>
+                                <td>0</td>
+                                <td>0%</td>
+                            </tr>
+                        </tbody>
+                        <tbody>
+                            <tr>
+                                <td>Gaurav</td>
+                                <td>7</td>
+                                <td>92%</td>
+                                <td>0</td>
+                                <td>0%</td>
+                            </tr>
+                        </tbody>
+                        <tbody>
+                            <tr>
+                                <td>Gaurav</td>
+                                <td>7</td>
+                                <td>92%</td>
+                                <td>0</td>
+                                <td>0%</td>
+                            </tr>
+                        </tbody>
+                        
                     </table>
+                </div>
+            </div>
+
+            <div className="chart-container1">
+
+                <div className="chart-box graph">
+                    <h2>Target Vs CQ Score</h2>
+                    <BarChart width={450} height={300} data={barData}>
+                        <XAxis dataKey="date" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="score" fill="#2196F3" />
+                        <Bar dataKey="target" fill="#4CAF50" />
+                    </BarChart>
                 </div>
             </div>
         </div>

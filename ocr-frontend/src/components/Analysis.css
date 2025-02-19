@@ -3,6 +3,8 @@
     flex: 1;
     padding: 20px;
     overflow-y: auto;
+    display: flex;
+    flex-wrap: wrap;
 }
 
 /* Cards Section */
@@ -74,7 +76,10 @@
     flex: 1;
     margin-right: 10px;
     width: fit-content;
+    
 }
+
+
 
 
 .performer {
@@ -94,5 +99,55 @@
     .card-container,
     .chart-container {
         flex-direction: column;
+        max-width: 20px;
     }
+}
+.card-container
+{
+    width: 681px;
+    height: 135px;
+
+}
+.bar_chart
+{
+    height: 500px;
+    margin-left: 10px;
+    width: 441px;
+}
+
+.achet
+{
+    width: 457px;
+    height: 364px;
+    
+}
+.softskill
+{
+    width: 213px;
+    margin-top: -350px;
+    height: 359px;
+}
+.chart-container3
+{
+    margin-top: -351px;
+}
+.softskill .soft-skill-row
+{
+    padding: 17px;
+    
+}
+.graph
+{
+    width: 655px;
+}
+.chart-container1
+{
+margin-left: 0px;
+margin-top: 6px;
+}
+
+.chart-container4
+{
+    margin-top: 9px;
+    
 }
