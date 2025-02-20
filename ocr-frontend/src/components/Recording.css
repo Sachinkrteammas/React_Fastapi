@@ -10,15 +10,16 @@
     margin-bottom: 20px;
   }
   
-  .recordings-box, .developer-box {
+  .recordings-box{
+    
     background:  rgb(255, 251, 251);
-    padding: 20px;
+    padding: 5px;
     border-radius: 10px;
     color: white;
     width: 45%;
     transform: scale(1.00);
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2),
-    0 12px 25px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2),
+      0 12px 25px rgba(0, 0, 0, 0.25);
   }
   
   .browse-button, .upload-button, .generate-key {
@@ -68,6 +69,8 @@
   .recordings-box{
     height: 244px ;
     width: 300px;
+    margin-top: 5px;
+   
   }
 
   .newsidebar
@@ -85,7 +88,7 @@
     
   }
 
-  .main-content p{
+  .main-content {
     font-size: 16px;
     color: rgb(23, 26, 26);
     margin-top: 10px;
@@ -94,4 +97,25 @@
   .upload-button:hover
   {
   background-color:#38383d;
+  }
+
+  .drop-record{
+    
+    font-size: 15px;
+    width: fit-content;
+    display: flex;
+    gap: 5px;
+  }
+
+  .developer-box{
+    background:  rgb(255, 251, 251);
+    padding: 5px;
+    border-radius: 10px;
+    color: white;
+    transform: scale(1.00);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2),
+      0 12px 25px rgba(0, 0, 0, 0.25);
+    height: 244px ;
+    width: 300px;
+    margin-top: 5px;
   }

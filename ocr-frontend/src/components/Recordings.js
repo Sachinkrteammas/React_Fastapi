@@ -1,27 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./Recording.css";
-import Layout from "../layout"; 
+import Layout from "../layout";
 import "../layout.css"; // Import styles
-// import topLogo from "../assets/logo.png";
-// import {
-//   House,
-//   Settings,
-//   LogOut,
-//   Captions,
-//   AudioLines,
-//   Terminal,
-//   FileKey,
-//   ChartNoAxesCombined,
-// } from "lucide-react";
 
 const Recordings = () => {
   const navigate = useNavigate();
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadMessage, setUploadMessage] = useState("");
-
-
+  const [selectedLanguage, setSelectedLanguage] = useState("English");
+  const fileInputRef = useRef(null); // Use useRef to handle file input reset
 
   const handleNavigation = (path) => {
     navigate(path);
@@ -48,7 +37,9 @@ const Recordings = () => {
 
       setUploadMessage(response.data.message);
       setSelectedFile(null);
-      document.getElementById("fileInput").value = "";
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""; // Reset input field
+      }
     } catch (error) {
       setUploadMessage(error.response?.data?.detail || "Upload failed.");
     }
@@ -56,22 +47,33 @@ const Recordings = () => {
 
   return (
     <Layout>
-    
       <div className="main-content">
-        
+        <div className="drop-record">
+          <h1 className="word">Recordings</h1>
+          <select value={selectedLanguage} onChange={(e) => setSelectedLanguage(e.target.value)}>
+            <option value="English">English</option>
+            <option value="Hindi">Hindi</option>
+            <option value="Tamil">Tamil</option>
+          </select>
+        </div>
+
         <div className="recordings-box">
           <h2>Choose an Audio File</h2>
           <input
             type="file"
             accept="audio/mpeg,audio/wav"
-            id="fileInput"
             className="browse-button"
             onChange={handleFileChange}
+            ref={fileInputRef} // Attach ref to input field
           />
           <button className="upload-button" onClick={handleUpload}>
             Upload
           </button>
           {uploadMessage && <p className="upload-message">{uploadMessage}</p>}
+        </div>
+
+        <div className="developer-box" >
+
         </div>
       </div>
     </Layout>
@@ -79,4 +81,3 @@ const Recordings = () => {
 };
 
 export default Recordings;
-

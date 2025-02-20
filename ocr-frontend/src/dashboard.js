@@ -157,7 +157,8 @@ const Dashboard = () => {
           {/* Usage Activity Section */}
           <div className="activity-section activity">
             <h4>Usage Activity</h4>
-            <select value={dateOption} onChange={handleDateOptionChange}>
+            <select className="predate1" value={dateOption} onChange={handleDateOptionChange}>
+            
               <option>Today</option>
               <option>Yesterday</option>
               <option>Week</option>

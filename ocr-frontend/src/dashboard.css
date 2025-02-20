@@ -42,7 +42,7 @@ p {
  
   text-align: justify;
   padding: 5px;
-  height: fit-content;
+  
 }
 
 .calender {
@@ -112,7 +112,7 @@ p {
 
 .activity {
   margin-left: 10px !important;
-  height: 85px !important;
+  height: 115px !important;
   position: relative;
   width: 750px;
   
@@ -124,7 +124,7 @@ p {
   align-items: center;
   justify-content: space-between;
   background: white;
-  padding: 10px 15px;
+  
   border-radius: 10px;
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.12),
     0 10px 20px rgba(0, 0, 0, 0.15);
@@ -138,12 +138,20 @@ p {
 
 .activity h4 {
   font-size: 15px;
-  color: rgb(98, 147, 161);
+  color: black;
+  position: relative;
+  left: 3rem;
+  top: -2rem;
 }
+ 
+
 
 .datepic {
+  margin-left: -5rem;
   width: 105px;
   height: 25px;
+  border: 1px solid;
+  margin-top: 1.8rem;
 }
 
 .submit{
@@ -153,6 +161,7 @@ p {
   border: none;
   width: 100px;
   border-radius: 5px;
+  margin-bottom: 15px;
 }
 
 .submit:hover{
@@ -197,6 +206,16 @@ p {
   box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2),
     0 12px 25px rgba(0, 0, 0, 0.25);
 }
+
+.predate1 {
+  border-radius: 5px;
+  width: 140px;
+  height: 25px;
+  margin-top: 1.8rem;
+  margin-left: -7rem;
+}
+
+
 
 
 
