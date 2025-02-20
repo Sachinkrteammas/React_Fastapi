@@ -11,11 +11,14 @@ import {
   Terminal,
   FileKey,
   ChartNoAxesCombined,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 
 const Layout = ({ onLogout, children }) => {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
+  const [openMenus, setOpenMenus] = useState({});
 
   useEffect(() => {
     const storedName = localStorage.getItem("username");
@@ -33,6 +36,10 @@ const Layout = ({ onLogout, children }) => {
     navigate(path);
   };
 
+  const toggleMenu = (menu) => {
+    setOpenMenus((prev) => ({ ...prev, [menu]: !prev[menu] }));
+  };
+
   const menuItems = [
     { path: "/", label: "Home", Icon: House },
     { path: "/Recordings", label: "Recordings", Icon: AudioLines },
@@ -40,7 +47,14 @@ const Layout = ({ onLogout, children }) => {
     { path: "/Prompt", label: "Prompt", Icon: Terminal },
     { path: "/Settings", label: "Settings", Icon: Settings },
     { path: "/APIKey", label: "API Key", Icon: FileKey },
-    { path: "/Analysis", label: "Analysis", Icon: ChartNoAxesCombined },
+    {
+      label: "Analysis",
+      Icon: ChartNoAxesCombined,
+      submenu: [
+        { path: "/Analysis", label: "Analysis" },
+        { path: "/Analysis/Trends", label: "Trends" },
+      ],
+    },
   ];
 
   return (
@@ -61,19 +75,38 @@ const Layout = ({ onLogout, children }) => {
       <div className="content-layout5">
         {/* Sidebar */}
         <div className="sidebar5">
-          {menuItems.map(({ path, label, Icon }) => (
-            <button key={path} className="nav-button" onClick={() => handleNavigation(path)}>
-              <Icon size={20} className="icon" /> {label}
-            </button>
+          {menuItems.map(({ path, label, Icon, submenu }) => (
+            <div key={label}>
+              {/* Main Menu Item */}
+              <button
+                className="nav-button"
+                onClick={() => (submenu ? toggleMenu(label) : handleNavigation(path))}
+              >
+                <Icon size={20} className="icon" /> {label}
+                {submenu && (openMenus[label] ? <ChevronDown size={16} /> : <ChevronRight size={16} />)}
+              </button>
+
+              {/* Submenu Items */}
+              {submenu && openMenus[label] && (
+                <div className="submenu">
+                  {submenu.map(({ path, label }) => (
+                    <button key={path} className="sub-nav-button" onClick={() => handleNavigation(path)}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           ))}
+          
+          {/* Logout Button */}
           <button className="nav-button logout-button" onClick={handleLogout}>
             <LogOut size={20} className="icon" /> Logout
           </button>
         </div>
+
         {/* Main Content Area */}
         <div className="main-content">{children}</div>
-
-
       </div>
     </div>
   );

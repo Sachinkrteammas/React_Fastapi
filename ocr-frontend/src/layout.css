@@ -1,113 +1,104 @@
-/* Full Page Layout */
+
 .dashboard-layout5 {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    width: 100vw;
-  }
-  
-  /* Top Navbar */
-  .top-navbar {
-    height: 60px;
-    background-color: rgb(255, 251, 251);
-    display: flex;
-    justify-content: left;
-    padding: 20px;
-  }
-  
-  .top-logo {
-    height: 40px;
-    object-fit: contain;
-    opacity: 1;
-    
-  }
-  
-  .account {
-    display: flex;
-    align-items: center;
-    font-weight: bold;
-    gap: 8px; /* Adjust spacing between image and text */
-  }
-  
-  .account-logo {
-    width: 30px; /* Adjust size as needed */
-    height: 30px;
-    object-fit: cover;
-    opacity: 1;
-  }
-  
-  .top-text {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    /* Center content horizontally */
-    background-color: rgb(255, 251, 251);
-    /* Adjust the background color if needed */
-    padding: 10px 20px;
-    position: relative;
-    /* Allows absolute positioning for icons if needed */
-    width: 100%;
-    font-weight: bold;
-  }
-  
-  
-  /* Content Layout (Sidebar + Main Content) */
-  .content-layout5 {
-    display: flex;
-    flex: 1;
-    margin: 10px;
-    
-  }
-  
-  /* Sidebar */
-  .sidebar5 {
-    margin-top: 20px;
-    width: 200px;
-    background-color: rgb(255, 251, 251);
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-    gap: 15px;
-    border-radius: 10px;
-    transform: scale(1.01);
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2),
-      0 12px 25px rgba(0, 0, 0, 0.25);
-  }
-  
-  
-  
-  /* Navigation Buttons */
-  .nav-button {
-    padding: 12px;
-    background-color: #282855;
-    border: none;
-    border-radius: 8px;
-    color: white;
-    cursor: pointer;
-    font-size: 16px;
-    text-align: left;
-    transition: background 0.3s;
-  
-  }
-  
-  .nav-button:hover {
-    background-color: #38383d;
-  }
-  
- body
- {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+}
+
+
+.top-navbar {
+  height: 60px;
+  background-color: rgb(255, 251, 251);
+  display: flex;
+  justify-content: left;
+  padding: 20px;
+}
+
+.top-logo {
+  height: 40px;
+  object-fit: contain;
+  opacity: 1;
+}
+
+.account {
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  gap: 8px;
+}
+
+.account-logo {
+  width: 30px;
+  height: 30px;
+  object-fit: cover;
+  opacity: 1;
+}
+
+.top-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(255, 251, 251);
+  padding: 10px 20px;
+  position: relative;
+  width: 100%;
+  font-weight: bold;
+}
+
+
+.content-layout5 {
+  display: flex;
+  flex: 1;
+  margin: 10px;
+}
+
+
+.sidebar5 {
+  margin-top: 20px;
+  width: 200px;
+  background-color: rgb(255, 251, 251);
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 15px;
+  border-radius: 10px;
+  transform: scale(1.01);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2), 0 12px 25px rgba(0, 0, 0, 0.25);
+}
+
+
+.nav-button {
+  padding: 12px;
+  background-color: #282855;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  text-align: left;
+  transition: background 0.3s;
+}
+
+.nav-button:hover {
+  background-color: #38383d;
+}
+
+body {
   overflow-x: hidden;
- }
-
-
-  
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
+}
+.sub-nav-button {
+  padding: 12px;
+  margin: 5px;
+  background-color: #282855;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  text-align: left;
+  transition: background 0.3s;
+}
+.sub-nav-button:hover {
+  background-color: #38383d;
+}
