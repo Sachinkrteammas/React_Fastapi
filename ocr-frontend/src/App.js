@@ -13,12 +13,8 @@ import Recordings from "./components/Recordings";
 import Settings from "./components/Settings";
 import Transcription from "./components/Transcription";
 
-// Protected Route 
-
-
-
 const ProtectedRoute = ({ element, isLoggedIn }) => {
-  return isLoggedIn ? element : <Navigate to="/" />;
+  return isLoggedIn ? element : <Navigate to="/" replace />;
 };
 
 const App = () => {
@@ -26,22 +22,27 @@ const App = () => {
     localStorage.getItem("isLoggedIn") === "true"
   );
 
-  // Save login state to localStorage
   useEffect(() => {
     localStorage.setItem("isLoggedIn", isLoggedIn);
   }, [isLoggedIn]);
 
   const handleLogout = () => {
     setIsLoggedIn(false);
-    localStorage.removeItem("isLoggedIn"); // Clear login state on logout
+    localStorage.removeItem("isLoggedIn"); // Clear login state
+    localStorage.removeItem("token");
+    sessionStorage.removeItem("user");
     console.log("User logged out");
+
+    setTimeout(() => {
+      window.location.href = "/"; // Ensure full redirect
+    }, 100);
   };
 
   return (
     <Router>
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" /> : <Login onLogin={() => setIsLoggedIn(true)} />} />
+        <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" replace /> : <Login onLogin={() => setIsLoggedIn(true)} />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password/:token" element={<ForgotPassword />} />
         <Route path="/verify" element={<VerifyPassword />} />
@@ -57,7 +58,7 @@ const App = () => {
         <Route path="/Analysis" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Analysis />} />} />
 
         {/* Catch-all route (redirect unknown paths to login) */}
-        <Route path="*" element={<Navigate to="/" />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

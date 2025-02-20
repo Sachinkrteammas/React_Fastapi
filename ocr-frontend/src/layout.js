@@ -27,9 +27,14 @@ const Layout = ({ onLogout, children }) => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("isLoggedIn");
     sessionStorage.removeItem("user");
-    if (onLogout) onLogout();
-    navigate("/");
+
+    if (onLogout) onLogout(); // Update App.js state
+
+    setTimeout(() => {
+      window.location.href = "/"; // Ensure proper redirection
+    }, 100);
   };
 
   const handleNavigation = (path) => {
