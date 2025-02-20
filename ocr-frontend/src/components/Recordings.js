@@ -9,7 +9,8 @@ const Recordings = () => {
   const navigate = useNavigate();
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadMessage, setUploadMessage] = useState("");
-  const [selectedLanguage, setSelectedLanguage] = useState("English");
+  const [selectedLanguage, setSelectedLanguage] = useState("Language Choice");
+  const [generatedKey, setGeneratedKey] = useState(""); // State for storing the generated key
   const fileInputRef = useRef(null); // Use useRef to handle file input reset
 
   const handleNavigation = (path) => {
@@ -45,20 +46,29 @@ const Recordings = () => {
     }
   };
 
+  // Function to generate a random key
+  const handleGenerateKey = () => {
+    const newKey = Math.random().toString(36).substring(2, 12).toUpperCase(); // Generate a random alphanumeric key
+    setGeneratedKey(newKey);
+  };
+
   return (
     <Layout>
-      <div className="main-content">
+      <div className="record-content">
+        <h1 className="wordrec">Recordings</h1>
         <div className="drop-record">
-          <h1 className="word">Recordings</h1>
+
           <select value={selectedLanguage} onChange={(e) => setSelectedLanguage(e.target.value)}>
+            <option value="Language Choice">Language Choice</option>
             <option value="English">English</option>
             <option value="Hindi">Hindi</option>
             <option value="Tamil">Tamil</option>
+            <option value="Kannada">Kannada</option>
           </select>
         </div>
-
+        <h2 className="chword">Choose an Audio File</h2>
         <div className="recordings-box">
-          <h2>Choose an Audio File</h2>
+          {/* <h2 className="chword">Choose an Audio File</h2> */}
           <input
             type="file"
             accept="audio/mpeg,audio/wav"
@@ -72,10 +82,35 @@ const Recordings = () => {
           {uploadMessage && <p className="upload-message">{uploadMessage}</p>}
         </div>
 
-        <div className="developer-box" >
+        <div className="developer-container">
+          <h1 className="worddev">Developer Code</h1>
+          <div className="developer-box">
 
+
+          </div>
+          <div className="generate-container">
+            <input
+              type="text"
+              value={generatedKey}
+              readOnly
+              className="key-input"
+            />
+
+            <button
+              className="copy-key-button"
+              onClick={() => navigator.clipboard.writeText(generatedKey)}
+              disabled={!generatedKey} // Disable if no key is generated
+            >
+              Copy
+            </button>
+            <button className="generate-key-button" onClick={handleGenerateKey}>
+              Generate Key
+            </button>
+          </div>
         </div>
+
       </div>
+
     </Layout>
   );
 };

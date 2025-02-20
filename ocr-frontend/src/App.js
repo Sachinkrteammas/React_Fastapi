@@ -12,6 +12,7 @@ import Prompt from "./components/Prompt";
 import Recordings from "./components/Recordings";
 import Settings from "./components/Settings";
 import Transcription from "./components/Transcription";
+import "./Pages.css";
 
 const ProtectedRoute = ({ element, isLoggedIn }) => {
   return isLoggedIn ? element : <Navigate to="/" replace />;

@@ -7,13 +7,13 @@ import logo from "./assets/logo.png";
 
 const Login = ({ onLogin }) => {
   const navigate = useNavigate();
-  const [email_id, setEmail] = useState(""); // Use 'email_id' to match backend
+  const [email_id, setEmail] = useState(""); // Match backend field name
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage(""); // Clear previous errors
+    setMessage(""); // Clear previous messages
 
     if (!email_id || !password) {
       setMessage("⚠️ Please enter both email and password.");
@@ -22,14 +22,16 @@ const Login = ({ onLogin }) => {
 
     try {
       const response = await axios.post("http://172.12.13.74:9001/login", {
-        email_id, // Send email_id (ensure your backend expects this)
+        email_id, // Send email_id (ensure backend expects this)
         password
       });
 
       if (response.status === 200) {
         localStorage.setItem("token", response.data.token); // Store token
         localStorage.setItem("username", response.data.username);
-        onLogin(); // Call login state function
+        localStorage.setItem("isLoggedIn", JSON.stringify(true)); // Ensure proper boolean storage
+
+        onLogin(); // Call login function to update state
         navigate("/dashboard"); // Redirect to dashboard
       } else {
         setMessage("❌ Login failed. Please try again.");
@@ -79,7 +81,8 @@ const Login = ({ onLogin }) => {
               placeholder="Enter your password"
               required
             />
-          </div><br />
+          </div>
+          <br />
 
           {message && <p className="error">{message}</p>}
 
