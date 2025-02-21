@@ -10,6 +10,7 @@ const Recordings = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadMessage, setUploadMessage] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState("Language Choice");
+  const [selectedCategory, setSelectedCategory] = useState("Category Choice");
   const [generatedKey, setGeneratedKey] = useState(""); // State for storing the generated key
   const fileInputRef = useRef(null); // Use useRef to handle file input reset
 
@@ -65,6 +66,12 @@ const Recordings = () => {
             <option value="Tamil">Tamil</option>
             <option value="Kannada">Kannada</option>
           </select>
+          <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
+            <option value="Category">Category Choice</option>
+            <option value="Sales">Sales</option>
+            <option value="Service">Service</option>
+          </select>
+
         </div>
         <h2 className="chword">Choose an Audio File</h2>
         <div className="recordings-box">
