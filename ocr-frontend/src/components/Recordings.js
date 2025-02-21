@@ -3,62 +3,75 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./Recording.css";
 import Layout from "../layout";
-import "../layout.css"; // Import styles
+import "../layout.css"; 
 
 const Recordings = () => {
   const navigate = useNavigate();
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedFiles, setSelectedFiles] = useState([]); 
   const [uploadMessage, setUploadMessage] = useState("");
-  const [selectedLanguage, setSelectedLanguage] = useState(""); // Default empty
-  const [selectedCategory, setSelectedCategory] = useState(""); // Default empty
-  const [generatedKey, setGeneratedKey] = useState(""); // State for storing the generated key
-  const fileInputRef = useRef(null); // Use useRef to handle file input reset
-
-  const handleNavigation = (path) => {
-    navigate(path);
-  };
+  const [selectedLanguage, setSelectedLanguage] = useState(""); 
+  const [selectedCategory, setSelectedCategory] = useState(""); 
+  const [generatedKey, setGeneratedKey] = useState(""); 
+  const [uploading, setUploading] = useState(false); 
+  const fileInputRef = useRef(null); 
 
   const handleFileChange = (event) => {
-    setSelectedFile(event.target.files[0]);
-    setUploadMessage("");
+    setSelectedFiles((prevFiles) => [...prevFiles, ...Array.from(event.target.files)]);
+    setUploadMessage(""); 
   };
 
   const handleUpload = async () => {
-    if (!selectedFile) {
-      setUploadMessage("Please select a file first.");
+    if (selectedFiles.length === 0) {
+      setUploadMessage("Please select at least one file.");
       return;
     }
-
+  
     if (!selectedLanguage || !selectedCategory) {
       setUploadMessage("Please select both language and category.");
       return;
     }
-
-    const formData = new FormData();
-    formData.append("file", selectedFile);
-    formData.append("language", selectedLanguage);
-    formData.append("category", selectedCategory);
-
-    try {
-      const response = await axios.post("http://127.0.0.1:8095/upload-audio/", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      setUploadMessage(response.data.message);
-      setSelectedFile(null);
-      setSelectedLanguage(""); // Reset language selection
-      setSelectedCategory(""); // Reset category selection
-      if (fileInputRef.current) {
-        fileInputRef.current.value = ""; // Reset input field
+  
+    setUploading(true);
+    let successCount = 0;
+    let failedFiles = [];
+  
+    for (const file of selectedFiles) {
+      const formData = new FormData();
+      formData.append("files", file);
+      formData.append("language", selectedLanguage);
+      formData.append("category", selectedCategory);
+  
+      try {
+        await axios.post("http://127.0.0.1:8095/upload-audio/", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        successCount++; 
+      } catch (error) {
+        failedFiles.push(file.name); 
       }
-    } catch (error) {
-      setUploadMessage(error.response?.data?.detail || "Upload failed.");
+    }
+  
+    if (successCount > 0 && failedFiles.length === 0) {
+      setUploadMessage(`${successCount} file(s) uploaded successfully!`);
+    } else if (successCount > 0 && failedFiles.length > 0) {
+      setUploadMessage(`${successCount} file(s) uploaded successfully. Failed: ${failedFiles.join(", ")}`);
+    } else {
+      setUploadMessage("All file uploads failed.");
+    }
+  
+    setUploading(false);
+    setSelectedFiles([]); 
+    setSelectedLanguage(""); 
+    setSelectedCategory(""); 
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""; 
     }
   };
+  
 
-  // Function to generate a random key
+  // Generate a random key
   const handleGenerateKey = () => {
-    const newKey = Math.random().toString(36).substring(2, 12).toUpperCase(); // Generate a random alphanumeric key
+    const newKey = Math.random().toString(36).substring(2, 12).toUpperCase();
     setGeneratedKey(newKey);
   };
 
@@ -66,6 +79,8 @@ const Recordings = () => {
     <Layout>
       <div className="record-content">
         <h1 className="wordrec">Recordings</h1>
+
+        {/* Language & Category Dropdowns */}
         <div className="drop-record">
           <select value={selectedLanguage} onChange={(e) => setSelectedLanguage(e.target.value)}>
             <option value="">Select Language</option>
@@ -82,21 +97,25 @@ const Recordings = () => {
           </select>
         </div>
 
-        <h2 className="chword">Choose an Audio File</h2>
+        <h2 className="chword">Choose Audio Files</h2>
+
+        {/* File Input & Upload Button */}
         <div className="recordings-box">
           <input
             type="file"
             accept="audio/mpeg,audio/wav"
+            multiple
             className="browse-button"
             onChange={handleFileChange}
-            ref={fileInputRef} // Attach ref to input field
+            ref={fileInputRef}
           />
-          <button className="upload-button" onClick={handleUpload}>
-            Upload
+          <button className="upload-button" onClick={handleUpload} disabled={uploading}>
+            {uploading ? "Uploading..." : "Upload"}
           </button>
           {uploadMessage && <p className="upload-message">{uploadMessage}</p>}
         </div>
 
+      
         <div className="developer-container">
           <h1 className="worddev">Developer Code</h1>
           <div className="developer-box"></div>
@@ -105,7 +124,7 @@ const Recordings = () => {
             <button
               className="copy-key-button"
               onClick={() => navigator.clipboard.writeText(generatedKey)}
-              disabled={!generatedKey} // Disable if no key is generated
+              disabled={!generatedKey}
             >
               Copy
             </button>

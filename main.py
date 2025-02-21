@@ -335,40 +335,46 @@ import shutil
 
 @app.post("/upload-audio/")
 async def upload_audio(
-    file: UploadFile = File(...),
+    files: list[UploadFile] = File(...),  # Accept multiple files
     language: str = Form(None),  # Optional field
     category: str = Form(None),  # Optional field
     db: Session = Depends(get_db)
 ):
+    uploaded_files = []
+
     try:
-        # Validate file type
-        if file.content_type not in ALLOWED_MIME_TYPES:
-            return {"status": 400, "message": "Only MP3 and WAV files are allowed"}
+        for file in files:
+            # Validate file type
+            if file.content_type not in ALLOWED_MIME_TYPES:
+                return {"status": 400, "message": f"Invalid file type: {file.filename}"}
 
-        file_path = os.path.join(UPLOAD_DIR, file.filename)
-        with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+            file_path = os.path.join(UPLOAD_DIR, file.filename)
+            with open(file_path, "wb") as buffer:
+                shutil.copyfileobj(file.file, buffer)
 
-        new_audio = AudioFile(
-            filename=file.filename,
-            filepath=file_path,
-            language=language,
-            category=category
-        )
-        db.add(new_audio)
-        db.commit()
-        db.refresh(new_audio)
+            new_audio = AudioFile(
+                filename=file.filename,
+                filepath=file_path,
+                language=language,
+                category=category
+            )
+            db.add(new_audio)
+            db.commit()
+            db.refresh(new_audio)
 
-        return {
-            "id": new_audio.id,
-            "filename": new_audio.filename,
-            "language": new_audio.language,
-            "category": new_audio.category,
-            "message": "File uploaded successfully"
-        }
+            uploaded_files.append({
+                "id": new_audio.id,
+                "filename": new_audio.filename,
+                "language": new_audio.language,
+                "category": new_audio.category,
+                "message": "File uploaded successfully"
+            })
+
+        return {"uploaded_files": uploaded_files}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
 
 
 
