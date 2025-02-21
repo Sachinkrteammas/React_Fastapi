@@ -8,7 +8,8 @@
 
 .top-navbar {
   height: 60px;
-  background-color: white;
+  background: #f4f4f4;
+  border-bottom: 2px solid #ddd;
   display: flex;
   /* justify-content: left; */
   padding: 5px;
@@ -39,7 +40,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: white;
+  background: #f4f4f4;
   padding: 1px 1px;
   position: relative;
   width: 71rem;
@@ -91,14 +92,15 @@ body {
 .sub-nav-button {
   padding: 12px;
   margin: 5px;
-  background-color: #282855;
+  background-color: #71717e;
   border: none;
   border-radius: 8px;
   color: white;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 13px;
   text-align: left;
   transition: background 0.3s;
+  width: 9.4rem;
 }
 
 .sub-nav-button:hover {
@@ -115,3 +117,5 @@ body {
     max-height: 90vh;
   }
 }
+
+

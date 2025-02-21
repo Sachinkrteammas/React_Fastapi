@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import topLogo from "./assets/logo.png";
 import accountLogo from "./assets/account.png";
 import {
@@ -13,10 +13,12 @@ import {
   ChartNoAxesCombined,
   ChevronDown,
   ChevronRight,
+  Search,
 } from "lucide-react";
 
 const Layout = ({ onLogout, children }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [username, setUsername] = useState("");
   const [openMenus, setOpenMenus] = useState({});
 
@@ -24,6 +26,15 @@ const Layout = ({ onLogout, children }) => {
     const storedName = localStorage.getItem("username");
     setUsername(storedName ? storedName.split(" ")[0] : "");
   }, []);
+
+  useEffect(() => {
+    // Keep submenu open if the current route is inside it
+    menuItems.forEach(({ label, submenu }) => {
+      if (submenu && submenu.some((item) => item.path === location.pathname)) {
+        setOpenMenus((prev) => ({ ...prev, [label]: true }));
+      }
+    });
+  }, [location.pathname]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -37,12 +48,23 @@ const Layout = ({ onLogout, children }) => {
     }, 100);
   };
 
-  const handleNavigation = (path) => {
-    navigate(path);
+  // Toggle submenu when clicking the main menu item
+  const toggleMenu = (menu) => {
+    setOpenMenus((prev) => ({
+      ...prev,
+      [menu]: !prev[menu], // Toggle submenu state
+    }));
   };
 
-  const toggleMenu = (menu) => {
-    setOpenMenus((prev) => ({ ...prev, [menu]: !prev[menu] }));
+  // Navigate and keep submenu open
+  const handleNavigation = (path, menu) => {
+    navigate(path);
+    if (menu) {
+      setOpenMenus((prev) => ({
+        ...prev,
+        [menu]: true, // Ensure submenu stays open
+      }));
+    }
   };
 
   const menuItems = [
@@ -57,7 +79,13 @@ const Layout = ({ onLogout, children }) => {
       Icon: ChartNoAxesCombined,
       submenu: [
         { path: "/Analysis", label: "Analysis" },
-        { path: "/Analysis/Trends", label: "Trends" },
+        { path: "/QualityPerformance", label: "Quality Performance" },
+        { path: "/FatalAnalysis", label: "Fatal Analysis" },
+        { path: "/DetailAnalysis", label: "Detail Analysis" },
+        { path: "/Search", label: "Search Lead", Icon: Search },
+        { path: "/RawDownload", label: "Raw Download" },
+        { path: "/RawDump", label: "Raw Dump" },
+        { path: "/Potential", label: "Potential Escalation" },
       ],
     },
   ];
@@ -95,7 +123,11 @@ const Layout = ({ onLogout, children }) => {
               {submenu && openMenus[label] && (
                 <div className="submenu">
                   {submenu.map(({ path, label }) => (
-                    <button key={path} className="sub-nav-button" onClick={() => handleNavigation(path)}>
+                    <button
+                      key={path}
+                      className={`sub-nav-button ${location.pathname === path ? "active" : ""}`}
+                      onClick={() => handleNavigation(path, label)}
+                    >
                       {label}
                     </button>
                   ))}
@@ -103,7 +135,7 @@ const Layout = ({ onLogout, children }) => {
               )}
             </div>
           ))}
-          
+
           {/* Logout Button */}
           <button className="nav-button logout-button" onClick={handleLogout}>
             <LogOut size={20} className="icon" /> Logout

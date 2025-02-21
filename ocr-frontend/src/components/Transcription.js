@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -16,6 +16,9 @@ const Transcription = ({ onLogout }) => {
   const [totalPages, setTotalPages] = useState(1);
   const itemsPerPage = 6; // Set items per page dynamically
 
+  const [selectedFile, setSelectedFile] = useState(null);
+  const audioRef = useRef(null);
+
   const firstname = localStorage.getItem("username");
   const username = firstname ? firstname.split(" ")[0] : "";
 
@@ -27,46 +30,11 @@ const Transcription = ({ onLogout }) => {
   };
 
   const data = [
-    { preview: "🔍", recordingDate: "2024-02-19", file: "recording1.mp4", category: "Interview" },
+    { preview: "🔍", recordingDate: "2024-02-19", file: "Gori Hai Kalaiyan - Mere Husband Ki Biwi 128 Kbps.mp3", category: "Interview" },
     { preview: "🔍", recordingDate: "2024-02-18", file: "recording2.mp4", category: "Lecture" },
     { preview: "🔍", recordingDate: "2024-02-17", file: "recording3.mp4", category: "Podcast" },
     { preview: "🔍", recordingDate: "2024-02-17", file: "recording4.mp4", category: "Podcast" },
-    { preview: "🔍", recordingDate: "2024-02-17", file: "recording5.mp4", category: "Podcast" },
-    { preview: "🔍", recordingDate: "2024-02-17", file: "recording6.mp4", category: "Lecture" },
-    { preview: "🔍", recordingDate: "2024-05-17", file: "recording7.mp4", category: "Podcast" },
-    { preview: "🔍", recordingDate: "2024-02-17", file: "recording8.mp4", category: "Podcast" },
-    { preview: "🔍", recordingDate: "2024-02-17", file: "recording9.mp4", category: "Podcast" },
-    { preview: "🔍", recordingDate: "2024-02-18", file: "recording10.mp4", category: "Lecture" },
-    { preview: "🔍", recordingDate: "2024-02-19", file: "recording1.mp4", category: "Interview" },
-    { preview: "🔍", recordingDate: "2024-02-18", file: "recording2.mp4", category: "Lecture" },
-    { preview: "🔍", recordingDate: "2024-02-17", file: "recording3.mp4", category: "Podcast" },
-    { preview: "🔍", recordingDate: "2024-02-17", file: "recording4.mp4", category: "Podcast" },
-    { preview: "🔍", recordingDate: "2024-02-17", file: "recording5.mp4", category: "Podcast" },
-    { preview: "🔍", recordingDate: "2024-02-17", file: "recording6.mp4", category: "Lecture" },
-    { preview: "🔍", recordingDate: "2024-05-17", file: "recording7.mp4", category: "Podcast" },
-    { preview: "🔍", recordingDate: "2024-02-17", file: "recording8.mp4", category: "Podcast" },
-    { preview: "🔍", recordingDate: "2024-02-17", file: "recording9.mp4", category: "Podcast" },
-    { preview: "🔍", recordingDate: "2024-02-18", file: "recording10.mp4", category: "Lecture" },
-    { preview: "🔍", recordingDate: "2024-02-19", file: "recording1.mp4", category: "Interview" },
-    { preview: "🔍", recordingDate: "2024-02-18", file: "recording2.mp4", category: "Lecture" },
-    { preview: "🔍", recordingDate: "2024-02-17", file: "recording3.mp4", category: "Podcast" },
-    { preview: "🔍", recordingDate: "2024-02-17", file: "recording4.mp4", category: "Podcast" },
-    { preview: "🔍", recordingDate: "2024-02-17", file: "recording5.mp4", category: "Podcast" },
-    { preview: "🔍", recordingDate: "2024-02-17", file: "recording6.mp4", category: "Lecture" },
-    { preview: "🔍", recordingDate: "2024-05-17", file: "recording7.mp4", category: "Podcast" },
-    { preview: "🔍", recordingDate: "2024-02-17", file: "recording8.mp4", category: "Podcast" },
-    { preview: "🔍", recordingDate: "2024-02-17", file: "recording9.mp4", category: "Podcast" },
-    { preview: "🔍", recordingDate: "2024-02-18", file: "recording10.mp4", category: "Lecture" },
-    { preview: "🔍", recordingDate: "2024-02-19", file: "recording1.mp4", category: "Interview" },
-    { preview: "🔍", recordingDate: "2024-02-18", file: "recording2.mp4", category: "Lecture" },
-    { preview: "🔍", recordingDate: "2024-02-17", file: "recording3.mp4", category: "Podcast" },
-    { preview: "🔍", recordingDate: "2024-02-17", file: "recording4.mp4", category: "Podcast" },
-    { preview: "🔍", recordingDate: "2024-02-17", file: "recording5.mp4", category: "Podcast" },
-    { preview: "🔍", recordingDate: "2024-02-17", file: "recording6.mp4", category: "Lecture" },
-    { preview: "🔍", recordingDate: "2024-05-17", file: "recording7.mp4", category: "Podcast" },
-    { preview: "🔍", recordingDate: "2024-02-17", file: "recording8.mp4", category: "Podcast" },
-    { preview: "🔍", recordingDate: "2024-02-17", file: "recording9.mp4", category: "Podcast" },
-    { preview: "🔍", recordingDate: "2024-02-18", file: "recording10.mp4", category: "Lecture" },
+
   ];
 
   useEffect(() => {
@@ -82,6 +50,14 @@ const Transcription = ({ onLogout }) => {
   const prevPage = () => {
     if (page > 1) {
       setPage(page - 1);
+    }
+  };
+
+  const handleFileClick = (fileName) => {
+    setSelectedFile(`/audio/${fileName}`); // Update the file path based on your server's location
+    if (audioRef.current) {
+      audioRef.current.load(); // Reload audio with new file
+      audioRef.current.play(); // Auto-play the selected file
     }
   };
 
@@ -160,6 +136,17 @@ const Transcription = ({ onLogout }) => {
             </tbody>
           </table>
         </div>
+
+        {/* Audio Player */}
+        {selectedFile && (
+          <div className="audio-player">
+            <audio ref={audioRef} controls>
+              <source src={selectedFile} type="audio/mp3" />
+              Your browser does not support the audio element.
+            </audio>
+          </div>
+        )}
+
 
         {/* Pagination Controls */}
         <div className="pagination">

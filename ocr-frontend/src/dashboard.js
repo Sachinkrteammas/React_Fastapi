@@ -115,15 +115,7 @@ const Dashboard = () => {
     setEndDate(newEndDate.toISOString().split("T")[0]);
   };
 
-  // const barData = [
-  //   { date: "Feb 8", Upload: 76, Transcribe: 95 },
-  //   { date: "Feb 9", Upload: 82, Transcribe: 95 },
-  //   { date: "Feb 10", Upload: 76, Transcribe: 95 },
-  //   { date: "Feb 11", Upload: 76, Transcribe: 95 },
-  //   { date: "Feb 12", Upload: 78, Transcribe: 95 },
-  //   { date: "Feb 13", Upload: 79, Transcribe: 95 },
-  //   { date: "Feb 14", Upload: 80, Transcribe: 95 }
-  // ];
+
 
   return (
     <Layout>
