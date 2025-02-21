@@ -143,7 +143,7 @@ const Analysis = () => {
               </label>
             </div>
 
-            <h2 className="callwise">Call Wise</h2>
+            <h5 className="callwise">Call Wise</h5>
             <PieChart width={400} height={300}>
               <Pie
                 data={pieData}
@@ -165,7 +165,7 @@ const Analysis = () => {
 
         <div className="chart-container3">
           <div className="chart-box achet">
-            <h2>Achet Categorization</h2>
+            <h5>Achet Categorization</h5>
             <table className="performer">
               <thead>
                 <tr>
@@ -234,7 +234,7 @@ const Analysis = () => {
 
         <div className="chart-container4">
           <div className="chart-box">
-            <h2>Top 5 Performer</h2>
+            <h5>Top 5 Performer</h5>
             <table className="performer">
               <thead>
                 <tr>
@@ -305,7 +305,7 @@ const Analysis = () => {
 
         <div className="chart-container1">
           <div className="chart-box graph">
-            <h4>Target Vs CQ Score</h4>
+            <h5>Target Vs CQ Score</h5>
             
             <BarChart width={450} height={300} data={barData}>
               <XAxis dataKey="date" />
@@ -320,7 +320,7 @@ const Analysis = () => {
         
                     {/* Left Section */}
                 <div className="left-section">
-                    <h2>Potential Escalation - Sensitive Cases</h2>
+                    <h5>Potential Escalation - Sensitive Cases</h5>
                     <div className="escalation-box">
                         <div className="escalation-item">
                             <span>Social Media and Consumer Court Threat</span>
@@ -332,7 +332,7 @@ const Analysis = () => {
                         </div>
                     </div>
 
-                    <h2>Recent Escalation</h2>
+                    <h5>Recent Escalation</h5>
                     <div className="chart-containernew">
                         <PieChart width={300} height={300}>
                             <Pie
@@ -356,7 +356,7 @@ const Analysis = () => {
 
                 {/* Right Section */}
                 <div className="right-section">
-                    <h2>Top Negative Signals</h2>
+                    <h5>Top Negative Signals</h5>
                     <div className="negative-signals">
                         {topNegativeSignals.map((item, index) => (
                             <div key={index} className="signal-box">
@@ -366,12 +366,12 @@ const Analysis = () => {
                         ))}
                     </div>
 
-                    <h2>Social Media and Consumer Court Threat</h2>
+                    <h5>Social Media and Consumer Court Threat</h5>
                     <div className="data-table">
                         <p>No data</p>
                     </div>
 
-                    <h2>Top Negative Signals</h2>
+                    <h5>Top Negative Signals</h5>
                     <table className="negative-signals-table">
                         <thead>
                             <tr>
@@ -401,14 +401,14 @@ const Analysis = () => {
                         </tbody>
                     </table>
 
-                    <h2>Protetional Scam</h2>
+                    <h5>Protetional Scam</h5>
                     <div className="data-table">
                         <p>No data</p>
                     </div>
                 </div>
 
                 <div className="section-box">
-        <h2>Social Media and Consumer Court Threat</h2>
+        <h5>Social Media and Consumer Court Threat</h5>
         <div className="section-content">
           <div className="alert-box">
             <p><b>Feb 13</b> - Lead ID (123456) - Customer mentioned consumer court due to dissatisfaction.</p>
@@ -442,7 +442,7 @@ const Analysis = () => {
       </div>
 
       <div className="section-box">
-        <h2>Potential Scam</h2>
+        <h5>Potential Scam</h5>
         <div className="section-content">
           <div className="alert-box">
             <p><b>Feb 10</b> - Lead ID (987654) - Customer reported fraudulent activity.</p>
@@ -485,14 +485,14 @@ const Analysis = () => {
       <div className="section">
       
         <div className="alerts">
-        <h3>Top Negative Signals</h3>
+        <h5>Top Negative Signals</h5>
           <div className="alert-box">Frustration - Delay, disappointment (Lead ID: 11023039)</div>
           <div className="alert-box">Threat - Fraud, case (Lead ID: 11023093)</div>
         </div>
       </div>
 
       <div className="chart-box1">
-        <h3>Month Wise</h3>
+        <h5>Month Wise</h5>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={monthWiseData}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -510,7 +510,7 @@ const Analysis = () => {
       </div>
 
       <div className="chart-box2">
-        <h3>Last 2 Days</h3>
+        <h5>Last 2 Days</h5>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={lastTwoDaysData}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -527,7 +527,7 @@ const Analysis = () => {
 
       
       <div className="competitor-table">
-      <h2>Competitor Analysis</h2>
+      <h5>Competitor Analysis</h5>
           <table>
             <thead>
               <tr>

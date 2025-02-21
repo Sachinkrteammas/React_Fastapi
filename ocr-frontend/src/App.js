@@ -30,21 +30,45 @@ const App = () => {
     localStorage.getItem("isLoggedIn") === "true"
   );
 
-  useEffect(() => {
-    localStorage.setItem("isLoggedIn", isLoggedIn);
-  }, [isLoggedIn]);
+
 
   const handleLogout = () => {
     setIsLoggedIn(false);
     localStorage.removeItem("isLoggedIn"); // Clear login state
     localStorage.removeItem("token");
     sessionStorage.removeItem("user");
-    console.log("User logged out");
+    console.log("User logged out due to inactivity");
 
     setTimeout(() => {
       window.location.href = "/"; // Ensure full redirect
     }, 100);
   };
+
+
+  let inactivityTimeout;
+  const resetInactivityTimeout = () => {
+    clearTimeout(inactivityTimeout);
+    inactivityTimeout = setTimeout(handleLogout, 1200000); // 20 minutes
+  };
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      resetInactivityTimeout(); // Start timeout on login
+
+      window.addEventListener("mousemove", resetInactivityTimeout);
+      window.addEventListener("keydown", resetInactivityTimeout);
+      window.addEventListener("scroll", resetInactivityTimeout);
+      window.addEventListener("click", resetInactivityTimeout);
+    }
+
+    return () => {
+      clearTimeout(inactivityTimeout);
+      window.removeEventListener("mousemove", resetInactivityTimeout);
+      window.removeEventListener("keydown", resetInactivityTimeout);
+      window.removeEventListener("scroll", resetInactivityTimeout);
+      window.removeEventListener("click", resetInactivityTimeout);
+    };
+  }, [isLoggedIn]);
 
   return (
     <Router>

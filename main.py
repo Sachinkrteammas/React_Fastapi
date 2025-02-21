@@ -6,7 +6,7 @@ from urllib.request import Request
 import jwt
 import datetime
 import bcrypt
-from fastapi import FastAPI, HTTPException, Depends,File, UploadFile
+from fastapi import FastAPI, HTTPException, Depends,File, UploadFile,Form
 from fastapi.exceptions import RequestValidationError
 from sqlalchemy import create_engine, Column, Integer, String, func, DateTime
 from sqlalchemy.ext.declarative import declarative_base
@@ -177,7 +177,7 @@ def login_user(user: LoginRequest, db: Session = Depends(get_db)):
         algorithm="HS256"
     )
 
-    return {"message": "Login successful","token": token,"username": db_user.username}
+    return {"message": "Login successful","token": token,"username": db_user.username,"id":db_user.id}
 
 
 class VerifyOtpRequest(BaseModel):
@@ -280,16 +280,34 @@ class Prompt(Base):
     PromptName = Column(String(255), nullable=False)
     prompt = Column(String(500), nullable=False)
 
-
+# Define a request model to accept JSON input
+class PromptRequest(BaseModel):
+    ClientId: int
+    PromptName: str
+    prompt: str
 
 # Create a new prompt
+from fastapi import HTTPException
+
 @app.post("/prompts/")
-def create_prompt(ClientId: int, PromptName: str, prompt: str, db: Session = Depends(get_db)):
+def create_prompt(request: PromptRequest, db: Session = Depends(get_db)):
+    print("Received request:", request.dict())
+
+    # Extract data from the request model
+    ClientId = request.ClientId
+    PromptName = request.PromptName
+    prompt = request.prompt
+
+    if not ClientId or not PromptName or not prompt:
+        raise HTTPException(status_code=400, detail="All fields are required")
+
     new_prompt = Prompt(ClientId=ClientId, PromptName=PromptName, prompt=prompt)
     db.add(new_prompt)
     db.commit()
     db.refresh(new_prompt)
+
     return new_prompt
+
 
 
 
@@ -301,6 +319,8 @@ class AudioFile(Base):
     filepath = Column(String(255), nullable=False)
     upload_time = Column(DateTime, server_default=func.now())
     transcribe_stat = Column(Integer, default=0)
+    language = Column(String(100), nullable=True)
+    category = Column(String(100), nullable=True)
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -314,7 +334,12 @@ ALLOWED_MIME_TYPES = ["audio/mpeg", "audio/wav"]
 import shutil
 
 @app.post("/upload-audio/")
-async def upload_audio(file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def upload_audio(
+    file: UploadFile = File(...),
+    language: str = Form(None),  # Optional field
+    category: str = Form(None),  # Optional field
+    db: Session = Depends(get_db)
+):
     try:
         # Validate file type
         if file.content_type not in ALLOWED_MIME_TYPES:
@@ -324,15 +349,27 @@ async def upload_audio(file: UploadFile = File(...), db: Session = Depends(get_d
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-        new_audio = AudioFile(filename=file.filename, filepath=file_path)
+        new_audio = AudioFile(
+            filename=file.filename,
+            filepath=file_path,
+            language=language,
+            category=category
+        )
         db.add(new_audio)
         db.commit()
         db.refresh(new_audio)
 
-        return {"id": new_audio.id, "filename": new_audio.filename, "message": "File Uploaded in database"}
+        return {
+            "id": new_audio.id,
+            "filename": new_audio.filename,
+            "language": new_audio.language,
+            "category": new_audio.category,
+            "message": "File uploaded successfully"
+        }
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
 
 
 

@@ -21,7 +21,7 @@ const Login = ({ onLogin }) => {
     }
 
     try {
-      const response = await axios.post("http://172.12.13.74:9001/login", {
+      const response = await axios.post("http://172.12.13.74:8095/login", {
         email_id, // Send email_id (ensure backend expects this)
         password
       });
@@ -29,6 +29,7 @@ const Login = ({ onLogin }) => {
       if (response.status === 200) {
         localStorage.setItem("token", response.data.token); // Store token
         localStorage.setItem("username", response.data.username);
+        localStorage.setItem("id", response.data.id);
         localStorage.setItem("isLoggedIn", JSON.stringify(true)); // Ensure proper boolean storage
 
         onLogin(); // Call login function to update state

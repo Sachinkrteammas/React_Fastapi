@@ -9,8 +9,8 @@ const Recordings = () => {
   const navigate = useNavigate();
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadMessage, setUploadMessage] = useState("");
-  const [selectedLanguage, setSelectedLanguage] = useState("Language Choice");
-  const [selectedCategory, setSelectedCategory] = useState("Category Choice");
+  const [selectedLanguage, setSelectedLanguage] = useState(""); // Default empty
+  const [selectedCategory, setSelectedCategory] = useState(""); // Default empty
   const [generatedKey, setGeneratedKey] = useState(""); // State for storing the generated key
   const fileInputRef = useRef(null); // Use useRef to handle file input reset
 
@@ -29,8 +29,15 @@ const Recordings = () => {
       return;
     }
 
+    if (!selectedLanguage || !selectedCategory) {
+      setUploadMessage("Please select both language and category.");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("file", selectedFile);
+    formData.append("language", selectedLanguage);
+    formData.append("category", selectedCategory);
 
     try {
       const response = await axios.post("http://127.0.0.1:8095/upload-audio/", formData, {
@@ -39,6 +46,8 @@ const Recordings = () => {
 
       setUploadMessage(response.data.message);
       setSelectedFile(null);
+      setSelectedLanguage(""); // Reset language selection
+      setSelectedCategory(""); // Reset category selection
       if (fileInputRef.current) {
         fileInputRef.current.value = ""; // Reset input field
       }
@@ -58,24 +67,23 @@ const Recordings = () => {
       <div className="record-content">
         <h1 className="wordrec">Recordings</h1>
         <div className="drop-record">
-
           <select value={selectedLanguage} onChange={(e) => setSelectedLanguage(e.target.value)}>
-            <option value="Language Choice">Language Choice</option>
+            <option value="">Select Language</option>
             <option value="English">English</option>
             <option value="Hindi">Hindi</option>
             <option value="Tamil">Tamil</option>
             <option value="Kannada">Kannada</option>
           </select>
+
           <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
-            <option value="Category">Category Choice</option>
+            <option value="">Select Category</option>
             <option value="Sales">Sales</option>
             <option value="Service">Service</option>
           </select>
-
         </div>
+
         <h2 className="chword">Choose an Audio File</h2>
         <div className="recordings-box">
-          {/* <h2 className="chword">Choose an Audio File</h2> */}
           <input
             type="file"
             accept="audio/mpeg,audio/wav"
@@ -91,18 +99,9 @@ const Recordings = () => {
 
         <div className="developer-container">
           <h1 className="worddev">Developer Code</h1>
-          <div className="developer-box">
-
-
-          </div>
+          <div className="developer-box"></div>
           <div className="generate-container">
-            <input
-              type="text"
-              value={generatedKey}
-              readOnly
-              className="key-input"
-            />
-
+            <input type="text" value={generatedKey} readOnly className="key-input" />
             <button
               className="copy-key-button"
               onClick={() => navigator.clipboard.writeText(generatedKey)}
@@ -115,9 +114,7 @@ const Recordings = () => {
             </button>
           </div>
         </div>
-
       </div>
-
     </Layout>
   );
 };
