@@ -1,0 +1,179 @@
+.dashboard-container-analy {
+    flex: 1 1;
+    padding: 3px;
+    overflow-y: auto;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.card-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 5px;
+    padding: 2px 0;
+    width: 44rem;
+    height: 7rem;
+}
+
+.card {
+    background: white;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    min-width: 140px;
+    flex: 1;
+    max-width: 160px;
+    font-size: 14px;
+}
+
+.card h2 {
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.card p {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.chart-container2 {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: 2px 0;
+    width: 29rem;
+    height: 25rem;
+    margin-right: 10px;
+    margin-left: 10px;
+}
+
+.callwise-chart {
+    background-color: white;
+    padding: 6px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    flex: 1 1;
+    margin-right: 10px;
+    width: fit-content;
+    margin-left: 15px;
+}
+
+.achet {
+    background-color: white;
+    padding: 5px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    flex: 1 1;
+    margin-right: 10px;
+    margin-top: -17rem;
+    height: 17.2rem;
+    max-width: 33rem;
+}
+
+.performer {
+    border-collapse: collapse;
+}
+
+.performer th,
+.performer td {
+    padding: 6px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.soft-skills-container {
+    display: flex;
+    flex-direction: column;
+    margin-top: -24rem;
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    position: relative;
+    top: 7.1rem;
+    height: 17rem;
+
+}
+
+.soft-skill-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.performer1 {
+
+    border-collapse: collapse;
+}
+
+.performer1 th,
+.performer1 td {
+    padding: 5px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.performer-box {
+    background-color: white;
+    padding: 5px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    flex: 1 1;
+    height: 18.2rem;
+    position: relative;
+    right: 44.1rem;
+    top: 20px;
+}
+
+
+
+
+.graph {
+
+    background-color: white;
+    padding: 5px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    flex: 1 1;
+    margin-right: 10px;
+    position: relative;
+    top: -17rem;
+
+}
+
+.chart-box {
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    flex: 1 1;
+    margin-right: 10px;
+    width: fit-content;
+}
+
+.bar_chart {
+    margin-left: 10px;
+    width: 28rem;
+    margin-right: 10px;
+    height: 30rem;
+}
+
+.bar_chart-date {
+    margin-left: 10px;
+    width: 441px;
+}
+
+.chart-container4 {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: 2px 0;
+    width: 29rem;
+    height: 25rem;
+    margin-right: 10px;
+    margin-left: 10px;
+}

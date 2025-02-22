@@ -14,7 +14,7 @@ const Transcription = ({ onLogout }) => {
   const [isCustom, setIsCustom] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const itemsPerPage = 6; // Set items per page dynamically
+  const itemsPerPage = 6;
 
   const [selectedFile, setSelectedFile] = useState(null);
   const audioRef = useRef(null);
@@ -30,10 +30,24 @@ const Transcription = ({ onLogout }) => {
   };
 
   const data = [
-    { preview: "🔍", recordingDate: "2024-02-19", file: "Gori Hai Kalaiyan - Mere Husband Ki Biwi 128 Kbps.mp3", category: "Interview" },
-    { preview: "🔍", recordingDate: "2024-02-18", file: "recording2.mp4", category: "Lecture" },
-    { preview: "🔍", recordingDate: "2024-02-17", file: "recording3.mp4", category: "Podcast" },
-    { preview: "🔍", recordingDate: "2024-02-17", file: "recording4.mp4", category: "Podcast" },
+    { preview: "🔍", recordingDate: "2024-02-19", file: "song1.mp3", category: "Interview" },
+    { preview: "🔍", recordingDate: "2024-02-18", file: "song1 copy.mp3", category: "Lecture" },
+    { preview: "🔍", recordingDate: "2024-02-17", file: "song1 copy 2.mp3", category: "Podcast" },
+    { preview: "🔍", recordingDate: "2024-02-19", file: "song1.mp3", category: "Interview" },
+    { preview: "🔍", recordingDate: "2024-02-18", file: "song1 copy.mp3", category: "Lecture" },
+    { preview: "🔍", recordingDate: "2024-02-17", file: "song1 copy 2.mp3", category: "Podcast" },
+    { preview: "🔍", recordingDate: "2024-02-19", file: "song1.mp3", category: "Interview" },
+    { preview: "🔍", recordingDate: "2024-02-18", file: "song1 copy.mp3", category: "Lecture" },
+    { preview: "🔍", recordingDate: "2024-02-17", file: "song1 copy 2.mp3", category: "Podcast" },
+    { preview: "🔍", recordingDate: "2024-02-19", file: "song1.mp3", category: "Interview" },
+    { preview: "🔍", recordingDate: "2024-02-18", file: "song1 copy.mp3", category: "Lecture" },
+    { preview: "🔍", recordingDate: "2024-02-17", file: "song1 copy 2.mp3", category: "Podcast" },
+    { preview: "🔍", recordingDate: "2024-02-19", file: "song1.mp3", category: "Interview" },
+    { preview: "🔍", recordingDate: "2024-02-18", file: "song1 copy.mp3", category: "Lecture" },
+    { preview: "🔍", recordingDate: "2024-02-17", file: "song1 copy 2.mp3", category: "Podcast" },
+    { preview: "🔍", recordingDate: "2024-02-19", file: "song1.mp3", category: "Interview" },
+    { preview: "🔍", recordingDate: "2024-02-18", file: "song1 copy.mp3", category: "Lecture" },
+    { preview: "🔍", recordingDate: "2024-02-17", file: "song1 copy 2.mp3", category: "Podcast" },
 
   ];
 
@@ -50,14 +64,6 @@ const Transcription = ({ onLogout }) => {
   const prevPage = () => {
     if (page > 1) {
       setPage(page - 1);
-    }
-  };
-
-  const handleFileClick = (fileName) => {
-    setSelectedFile(`/audio/${fileName}`); // Update the file path based on your server's location
-    if (audioRef.current) {
-      audioRef.current.load(); // Reload audio with new file
-      audioRef.current.play(); // Auto-play the selected file
     }
   };
 
@@ -120,7 +126,7 @@ const Transcription = ({ onLogout }) => {
               <tr>
                 <th>Preview</th>
                 <th>Recording Date</th>
-                <th>File</th>
+                <th>Recording File</th>
                 <th>Category</th>
               </tr>
             </thead>
@@ -129,24 +135,19 @@ const Transcription = ({ onLogout }) => {
                 <tr key={index}>
                   <td>{item.preview}</td>
                   <td>{item.recordingDate}</td>
-                  <td className="file-link">{item.file}</td>
+                  <td>
+                    <audio className="audio-controls" controls>
+                      <source src={`/audio/${item.file}`} type="audio/mp3" />
+                      Your browser does not support the audio element.
+                    </audio>
+                  </td>
+
                   <td>{item.category}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-
-        {/* Audio Player */}
-        {selectedFile && (
-          <div className="audio-player">
-            <audio ref={audioRef} controls>
-              <source src={selectedFile} type="audio/mp3" />
-              Your browser does not support the audio element.
-            </audio>
-          </div>
-        )}
-
 
         {/* Pagination Controls */}
         <div className="pagination">

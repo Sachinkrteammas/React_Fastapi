@@ -182,7 +182,8 @@ const Dashboard = () => {
 
           {barData.length > 0 && (
             <div className="range-chart">
-              <h1 className="r-text">Range</h1>
+              <h1 className="r-text">Usage Activity Chart</h1>
+              
               <BarChart width={450} height={300} data={barData}>
                 <XAxis dataKey="date" />
                 <YAxis />

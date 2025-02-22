@@ -134,7 +134,8 @@
   
   /* Table Data */
   .custom-table td {
-    padding: 10px;
+    padding: 4px;
+   
   }
   
   /* Clickable File Link */
@@ -183,6 +184,14 @@
     font-weight: bold;
     align-items: center;
     margin-top: 1rem;
+  }
+
+
+  .audio-controls {
+    width: 13rem;
+    border-radius: 30px;
+    background-color: #f4f4f4;
+    outline: none;
   }
   
   

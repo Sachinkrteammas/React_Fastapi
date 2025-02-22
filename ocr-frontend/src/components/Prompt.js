@@ -43,7 +43,7 @@ const PromptPage = () => {
     setMessage("");
 
     try {
-      const response = await axios.post("http://127.0.0.1:8095/prompts/", {
+      const response = await axios.post("http://172.12.13.74:8095/prompts/", {
         ClientId: parseInt(id, 10), // Convert id to integer
         PromptName: name,
         prompt: generatePromptString(), // Send prompt as a string (NOT JSON)

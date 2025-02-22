@@ -13,10 +13,10 @@ import {
   CartesianGrid,
   ResponsiveContainer
 } from "recharts";
-import "./Analysis.css";
+// import "./Analysis.css";
 import Layout from "../layout"; // Import layout component
 import "../layout.css"; // Import styles
-import {Doughnut } from 'react-chartjs-2';
+import { Doughnut } from 'react-chartjs-2';
 import 'chart.js/auto';
 const Analysis = () => {
   const navigate = useNavigate();
@@ -44,7 +44,7 @@ const Analysis = () => {
     { category: "Threat", count: 0 },
     { category: "Frustration", count: 2 },
     { category: "Slang", count: 0 },
-    
+
   ];
 
   const barData = [
@@ -57,7 +57,7 @@ const Analysis = () => {
     { date: "Feb 14", score: 80, target: 95 },
   ];
 
-  
+
   const data = [
     { name: "Frustration", value: 2, color: "#B71C1C" }, // Dark Red
     { name: "Abuse", value: 0, color: "#E57373" }, // Light Red
@@ -108,7 +108,7 @@ const Analysis = () => {
 
   return (
     <Layout>
-      <div className="dashboard-container">
+      <div className="dashboard-container-analy">
         <div className="card-container">
           {[
             { title: "CQ Score%", value: "80%", color: "text-red-600" },
@@ -130,7 +130,7 @@ const Analysis = () => {
           ))}
         </div>
         <div className="chart-container2">
-          <div className="chart-box bar_chart">
+          <div className="bar_chart-date ">
             <div className="datediv">
               <label htmlFor="">
                 <input type="date" />
@@ -142,7 +142,8 @@ const Analysis = () => {
                 <input type="submit" />
               </label>
             </div>
-
+          </div>
+          <div className="callwise-chart">
             <h5 className="callwise">Call Wise</h5>
             <PieChart width={400} height={300}>
               <Pie
@@ -161,60 +162,61 @@ const Analysis = () => {
               <Legend />
             </PieChart>
           </div>
+
         </div>
 
-        <div className="chart-container3">
-          <div className="chart-box achet">
-            <h5>Achet Categorization</h5>
-            <table className="performer">
-              <thead>
-                <tr>
-                  <th>Category</th>
-                  <th>ACHT</th>
-                  <th>Audit Count</th>
-                  <th>Fatal Count</th>
-                  <th>CQ Score%</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Short (&lt;60 sec)</td>
-                  <td>00:00:33</td>
-                  <td>10</td>
-                  <td>0</td>
-                  <td>96%</td>
-                </tr>
-              </tbody>
-              <tbody>
-                <tr>
-                  <td>Short (&lt;60 sec)</td>
-                  <td>00:00:33</td>
-                  <td>10</td>
-                  <td>0</td>
-                  <td>96%</td>
-                </tr>
-              </tbody>
-              <tbody>
-                <tr>
-                  <td>Short (&lt;60 sec)</td>
-                  <td>00:00:33</td>
-                  <td>10</td>
-                  <td>0</td>
-                  <td>96%</td>
-                </tr>
-              </tbody>
-              <tbody>
-                <tr>
-                  <td>Short (&lt;60 sec)</td>
-                  <td>00:00:33</td>
-                  <td>10</td>
-                  <td>0</td>
-                  <td>96%</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+
+        <div className=" achet">
+          <h5>Achet Categorization</h5>
+          <table className="performer">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>ACHT</th>
+                <th>Audit Count</th>
+                <th>Fatal Count</th>
+                <th>CQ Score%</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Short (&lt;60 sec)</td>
+                <td>00:00:33</td>
+                <td>10</td>
+                <td>0</td>
+                <td>96%</td>
+              </tr>
+            </tbody>
+            <tbody>
+              <tr>
+                <td>Short (&lt;60 sec)</td>
+                <td>00:00:33</td>
+                <td>10</td>
+                <td>0</td>
+                <td>96%</td>
+              </tr>
+            </tbody>
+            <tbody>
+              <tr>
+                <td>Short (&lt;60 sec)</td>
+                <td>00:00:33</td>
+                <td>10</td>
+                <td>0</td>
+                <td>96%</td>
+              </tr>
+            </tbody>
+            <tbody>
+              <tr>
+                <td>Short (&lt;60 sec)</td>
+                <td>00:00:33</td>
+                <td>10</td>
+                <td>0</td>
+                <td>96%</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+
 
         <div className="soft-skills-container softskill">
           {[
@@ -233,9 +235,9 @@ const Analysis = () => {
         </div>
 
         <div className="chart-container4">
-          <div className="chart-box">
+          <div className="performer-box">
             <h5>Top 5 Performer</h5>
-            <table className="performer">
+            <table className="performer1">
               <thead>
                 <tr>
                   <th>Agent Name</th>
@@ -306,7 +308,7 @@ const Analysis = () => {
         <div className="chart-container1">
           <div className="chart-box graph">
             <h5>Target Vs CQ Score</h5>
-            
+
             <BarChart width={450} height={300} data={barData}>
               <XAxis dataKey="date" />
               <YAxis />
@@ -317,217 +319,217 @@ const Analysis = () => {
             </BarChart>
           </div>
         </div>
-        
-                    {/* Left Section */}
-                <div className="left-section">
-                    <h5>Potential Escalation - Sensitive Cases</h5>
-                    <div className="escalation-box">
-                        <div className="escalation-item">
-                            <span>Social Media and Consumer Court Threat</span>
-                            <span className="count">0</span>
-                        </div>
-                        <div className="escalation-item">
-                            <span>Potential Scam</span>
-                            <span className="count">0</span>
-                        </div>
-                    </div>
 
-                    <h5>Recent Escalation</h5>
-                    <div className="chart-containernew">
-                        <PieChart width={300} height={300}>
-                            <Pie
-                                data={pieData1}
-                                cx="50%"
-                                cy="50%"
-                                outerRadius={100}
-                                fill="#d32f2f"
-                                dataKey="value"
-                                label
-                            >
-                                {pieData1.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={entry.color} />
-                                ))}
-                            </Pie>
-                            <Tooltip />
-                            <Legend />
-                        </PieChart>
-                    </div>
-                </div>
-
-                {/* Right Section */}
-                <div className="right-section">
-                    <h5>Top Negative Signals</h5>
-                    <div className="negative-signals">
-                        {topNegativeSignals.map((item, index) => (
-                            <div key={index} className="signal-box">
-                                <span>{item.category}</span>
-                                <span className="count">{item.count}</span>
-                            </div>
-                        ))}
-                    </div>
-
-                    <h5>Social Media and Consumer Court Threat</h5>
-                    <div className="data-table">
-                        <p>No data</p>
-                    </div>
-
-                    <h5>Top Negative Signals</h5>
-                    <table className="negative-signals-table">
-                        <thead>
-                            <tr>
-                                <th>Scenario</th>
-                                <th>Sub Scenario</th>
-                                <th>Top Negative Signals</th>
-                                <th>Count</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Complaint</td>
-                                <td>Delivered Product Complaint</td>
-                                <td>Frustration</td>
-                                <td>1</td>
-                            </tr>
-                            <tr>
-                                <td>Complaint</td>
-                                <td>Order Delay</td>
-                                <td>Frustration</td>
-                                <td>1</td>
-                            </tr>
-                            <tr>
-                                <td colSpan="3"><strong>Grand Total</strong></td>
-                                <td>2</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <h5>Protetional Scam</h5>
-                    <div className="data-table">
-                        <p>No data</p>
-                    </div>
-                </div>
-
-                <div className="section-box">
-        <h5>Social Media and Consumer Court Threat</h5>
-        <div className="section-content">
-          <div className="alert-box">
-            <p><b>Feb 13</b> - Lead ID (123456) - Customer mentioned consumer court due to dissatisfaction.</p>
-            <p><b>Feb 12</b> - Lead ID (654321) - Customer mentioned social media escalation.</p>
+        {/* Left Section */}
+        <div className="left-section">
+          <h5>Potential Escalation - Sensitive Cases</h5>
+          <div className="escalation-box">
+            <div className="escalation-item">
+              <span>Social Media and Consumer Court Threat</span>
+              <span className="count">0</span>
+            </div>
+            <div className="escalation-item">
+              <span>Potential Scam</span>
+              <span className="count">0</span>
+            </div>
           </div>
-          <table className="data-table">
+
+          <h5>Recent Escalation</h5>
+          <div className="chart-containernew">
+            <PieChart width={300} height={300}>
+              <Pie
+                data={pieData1}
+                cx="50%"
+                cy="50%"
+                outerRadius={100}
+                fill="#d32f2f"
+                dataKey="value"
+                label
+              >
+                {pieData1.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          </div>
+        </div>
+
+        {/* Right Section */}
+        <div className="right-section">
+          <h5>Top Negative Signals</h5>
+          <div className="negative-signals">
+            {topNegativeSignals.map((item, index) => (
+              <div key={index} className="signal-box">
+                <span>{item.category}</span>
+                <span className="count">{item.count}</span>
+              </div>
+            ))}
+          </div>
+
+          <h5>Social Media and Consumer Court Threat</h5>
+          <div className="data-table">
+            <p>No data</p>
+          </div>
+
+          <h5>Top Negative Signals</h5>
+          <table className="negative-signals-table">
             <thead>
               <tr>
-                <th>Call Date</th>
-                <th>Social Media</th>
-                <th>Consumer Court</th>
-                <th>Total</th>
+                <th>Scenario</th>
+                <th>Sub Scenario</th>
+                <th>Top Negative Signals</th>
+                <th>Count</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>Feb 13, 2025</td>
+                <td>Complaint</td>
+                <td>Delivered Product Complaint</td>
+                <td>Frustration</td>
                 <td>1</td>
-                <td>3</td>
-                <td>4</td>
               </tr>
               <tr>
-                <td>Feb 12, 2025</td>
-                <td>3</td>
-                <td>4</td>
-                <td>7</td>
+                <td>Complaint</td>
+                <td>Order Delay</td>
+                <td>Frustration</td>
+                <td>1</td>
+              </tr>
+              <tr>
+                <td colSpan="3"><strong>Grand Total</strong></td>
+                <td>2</td>
               </tr>
             </tbody>
           </table>
-        </div>
-      </div>
 
-      <div className="section-box">
-        <h5>Potential Scam</h5>
-        <div className="section-content">
-          <div className="alert-box">
-            <p><b>Feb 10</b> - Lead ID (987654) - Customer reported fraudulent activity.</p>
-            <p><b>Feb 09</b> - Lead ID (456789) - Suspicious transaction flagged.</p>
+          <h5>Protetional Scam</h5>
+          <div className="data-table">
+            <p>No data</p>
           </div>
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Call Date</th>
-                <th>System Manipulation</th>
-                <th>Financial Fraud</th>
-                <th>Collusion</th>
-                <th>Policy Communication</th>
-                <th>Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Feb 10, 2025</td>
-                <td>2</td>
-                <td>1</td>
-                <td>0</td>
-                <td>1</td>
-                <td>4</td>
-              </tr>
-              <tr>
-                <td>Feb 09, 2025</td>
-                <td>0</td>
-                <td>1</td>
-                <td>1</td>
-                <td>0</td>
-                <td>2</td>
-              </tr>
-            </tbody>
-          </table>
         </div>
-      </div>
 
-      
-      <div className="section">
-      
-        <div className="alerts">
-        <h5>Top Negative Signals</h5>
-          <div className="alert-box">Frustration - Delay, disappointment (Lead ID: 11023039)</div>
-          <div className="alert-box">Threat - Fraud, case (Lead ID: 11023093)</div>
+        <div className="section-box">
+          <h5>Social Media and Consumer Court Threat</h5>
+          <div className="section-content">
+            <div className="alert-box">
+              <p><b>Feb 13</b> - Lead ID (123456) - Customer mentioned consumer court due to dissatisfaction.</p>
+              <p><b>Feb 12</b> - Lead ID (654321) - Customer mentioned social media escalation.</p>
+            </div>
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Call Date</th>
+                  <th>Social Media</th>
+                  <th>Consumer Court</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Feb 13, 2025</td>
+                  <td>1</td>
+                  <td>3</td>
+                  <td>4</td>
+                </tr>
+                <tr>
+                  <td>Feb 12, 2025</td>
+                  <td>3</td>
+                  <td>4</td>
+                  <td>7</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
 
-      <div className="chart-box1">
-        <h5>Month Wise</h5>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={monthWiseData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="Frustration" stackId="a" fill="#FF7F50" />
-            <Bar dataKey="Threat" stackId="a" fill="#1E90FF" />
-            <Bar dataKey="Slang" stackId="a" fill="#32CD32" />
-            <Bar dataKey="Abuse" stackId="a" fill="#8B0000" />
-            <Bar dataKey="Sarcasm" stackId="a" fill="#FF1493" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
+        <div className="section-box">
+          <h5>Potential Scam</h5>
+          <div className="section-content">
+            <div className="alert-box">
+              <p><b>Feb 10</b> - Lead ID (987654) - Customer reported fraudulent activity.</p>
+              <p><b>Feb 09</b> - Lead ID (456789) - Suspicious transaction flagged.</p>
+            </div>
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Call Date</th>
+                  <th>System Manipulation</th>
+                  <th>Financial Fraud</th>
+                  <th>Collusion</th>
+                  <th>Policy Communication</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Feb 10, 2025</td>
+                  <td>2</td>
+                  <td>1</td>
+                  <td>0</td>
+                  <td>1</td>
+                  <td>4</td>
+                </tr>
+                <tr>
+                  <td>Feb 09, 2025</td>
+                  <td>0</td>
+                  <td>1</td>
+                  <td>1</td>
+                  <td>0</td>
+                  <td>2</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
 
-      <div className="chart-box2">
-        <h5>Last 2 Days</h5>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={lastTwoDaysData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="Frustration" stackId="a" fill="#FF7F50" />
-            <Bar dataKey="Threat" stackId="a" fill="#1E90FF" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
+
+        <div className="section">
+
+          <div className="alerts">
+            <h5>Top Negative Signals</h5>
+            <div className="alert-box">Frustration - Delay, disappointment (Lead ID: 11023039)</div>
+            <div className="alert-box">Threat - Fraud, case (Lead ID: 11023093)</div>
+          </div>
+        </div>
+
+        <div className="chart-box1">
+          <h5>Month Wise</h5>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={monthWiseData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="Frustration" stackId="a" fill="#FF7F50" />
+              <Bar dataKey="Threat" stackId="a" fill="#1E90FF" />
+              <Bar dataKey="Slang" stackId="a" fill="#32CD32" />
+              <Bar dataKey="Abuse" stackId="a" fill="#8B0000" />
+              <Bar dataKey="Sarcasm" stackId="a" fill="#FF1493" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div className="chart-box2">
+          <h5>Last 2 Days</h5>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={lastTwoDaysData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="Frustration" stackId="a" fill="#FF7F50" />
+              <Bar dataKey="Threat" stackId="a" fill="#1E90FF" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
 
 
-      
-      <div className="competitor-table">
-      <h5>Competitor Analysis</h5>
+
+        <div className="competitor-table">
+          <h5>Competitor Analysis</h5>
           <table>
             <thead>
               <tr>
@@ -550,12 +552,12 @@ const Analysis = () => {
             </tbody>
           </table>
         </div>
-      <div className="section">
-        
-        <div className="chart-container">
-          <Doughnut data={doughnutChartData} />
+        <div className="section">
+
+          <div className="chart-container">
+            <Doughnut data={doughnutChartData} />
+          </div>
         </div>
-      </div>
 
 
       </div>
