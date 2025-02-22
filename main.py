@@ -1,12 +1,13 @@
 import os
 import re
+import secrets
 import shutil
 from urllib.request import Request
 
 import jwt
 import datetime
 import bcrypt
-from fastapi import FastAPI, HTTPException, Depends,File, UploadFile,Form
+from fastapi import FastAPI, HTTPException, Depends, File, UploadFile, Form, Header
 from fastapi.exceptions import RequestValidationError
 from sqlalchemy import create_engine, Column, Integer, String, func, DateTime
 from sqlalchemy.ext.declarative import declarative_base
@@ -46,6 +47,8 @@ class User(Base):
     email_id = Column(String(255), unique=True, nullable=False)
     contact_number = Column(String(15), unique=True, nullable=False)
     password = Column(String(255), nullable=False)
+    api_key = Column(String(255), unique=True, nullable=True)
+
 
 
 # Create tables if they don't exist
@@ -374,6 +377,102 @@ async def upload_audio(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
+
+########## Curl fun ##############
+API_SECRET_TOKEN = "YOUR_SECRET_TOKEN"
+
+class GenerateKeyRequest(BaseModel):
+    user_id: int
+
+class KeyResponse(BaseModel):
+    user_id: int
+    key: str
+    api_secret_token: str
+
+@app.post("/generate-key/", response_model=KeyResponse)
+def generate_key(request: GenerateKeyRequest, db: Session = Depends(get_db)):
+    global API_SECRET_TOKEN  # Allow modification of the global variable
+
+    user = db.query(User).filter(User.id == request.user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Generate a new API key
+    new_key = secrets.token_hex(16)
+    API_SECRET_TOKEN = new_key  # Update global API_SECRET_TOKEN
+    print(new_key, "Generated Key")
+    print(API_SECRET_TOKEN, "Updated API_SECRET_TOKEN")
+
+    # Save the new key in the database
+    user.api_key = new_key
+    db.commit()
+    db.refresh(user)
+
+    return {"user_id": user.id, "key": new_key, "api_secret_token": API_SECRET_TOKEN}
+
+@app.post("/upload-audio-curl/")
+async def upload_audio_curl(
+    files: list[UploadFile] = File(...),
+    language: str = Form(None),
+    category: str = Form(None),
+    authorization: str = Header(None),
+    db: Session = Depends(get_db)
+):
+    global API_SECRET_TOKEN  # Ensure we use the updated token
+
+    # Check for valid authorization token
+    if not authorization or authorization.split(" ")[-1] != API_SECRET_TOKEN:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    if not files:
+        raise HTTPException(status_code=400, detail="No files uploaded")
+
+    uploaded_files = []
+
+    try:
+        for file in files:
+            print(f"Received file: {file.filename}, Content-Type: {file.content_type}")
+
+            # Validate file type
+            ALLOWED_MIME_TYPES = {"audio/mpeg", "audio/wav"}
+            if not file.content_type or file.content_type not in ALLOWED_MIME_TYPES:
+                raise HTTPException(status_code=400, detail=f"Invalid file type: {file.filename} (Content-Type: {file.content_type})")
+
+            # Save file
+            UPLOAD_DIR = "uploads"  # Define upload directory
+            os.makedirs(UPLOAD_DIR, exist_ok=True)
+            file_path = os.path.join(UPLOAD_DIR, file.filename)
+            with open(file_path, "wb") as buffer:
+                shutil.copyfileobj(file.file, buffer)
+
+            # Save file details to the database
+            new_audio = AudioFile(
+                filename=file.filename,
+                filepath=file_path,
+                language=language,
+                category=category
+            )
+            db.add(new_audio)
+            db.commit()
+            db.refresh(new_audio)
+
+            uploaded_files.append({
+                "id": new_audio.id,
+                "filename": new_audio.filename,
+                "language": new_audio.language,
+                "category": new_audio.category,
+                "message": "File uploaded successfully"
+            })
+
+        return {"uploaded_files": uploaded_files}
+
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
+
 
 
 
