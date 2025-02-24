@@ -210,4 +210,10 @@
   min-width: 30%;
   text-align: left;
   margin-left: 40px;
+
+}
+
+.curlcode
+{
+  color: rgb(22, 22, 22);
 }

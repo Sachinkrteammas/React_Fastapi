@@ -15,6 +15,23 @@ const Recordings = () => {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef(null);
 
+
+  const curlCommand = `curl -X 'POST' 'http://127.0.0.1:8097/upload-audio-curl/' \\
+-H "Authorization: Bearer YOUR_SECRET_TOKEN" \\
+-H 'Content-Type: multipart/form-data' \\
+-F 'files=@/path/to/audio1.mp3' \\
+-F 'files=@/path/to/audio2.wav' \\
+-F 'language=English' \\
+-F 'category=Sales'`;
+
+    const [copied, setCopied] = useState(false);
+
+    const copyToClipboard = () => {
+        navigator.clipboard.writeText(curlCommand);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    }
+
   const handleFileChange = (event) => {
     setSelectedFiles((prevFiles) => [
       ...prevFiles,
@@ -95,6 +112,11 @@ const Recordings = () => {
       setUploadMessage("Failed to generate key.");
     }
   };
+
+
+  
+   
+
   return (
     <Layout>
       <div className="record-content">
@@ -149,11 +171,14 @@ const Recordings = () => {
           <h1 className="worddev">Developer Code</h1>
           <div className="developer-box">
             <div className="curl-div">
-              curl -X 'POST' 'http://127.0.0.1:8095/upload-audio-curl/' \ -H
-              "Authorization: Bearer YOUR_SECRET_TOKEN" \ -H 'Content-Type:
-              multipart/form-data' \ -F 'files=@/path/to/audio1.mp3' \ -F
-              'files=@/path/to/audio2.wav' \ -F 'language=English' \ -F
-              'category=Sales'
+            <code className="curlcode" >{curlCommand}</code>
+            <button
+                onClick={copyToClipboard}
+                className="mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"
+            >
+                {copied ? "Copied!" : "Copy"}
+            </button>
+        
             </div>
           </div>
           <div className="generate-container">

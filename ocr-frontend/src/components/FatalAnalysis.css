@@ -1,0 +1,178 @@
+.dashboard-container {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    background-color: #f3f5f5;
+    gap: 1px
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #c7d5e3;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    width: 100%;
+  }
+  
+  .date-picker {
+    background-color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+  
+  .stats {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  
+  .stat-box {
+    background-color: white;
+    padding: 14px;
+    border-radius: 17px;
+    width: 26%;
+    text-align: center;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  .score {
+    font-size: 20px;
+    font-weight: bold;
+  }
+  
+  .negative {
+    color: red;
+    font-size: 12px;
+  }
+  
+  .top-contributors {
+    margin-top: 20px;
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  
+  th, td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  th {
+    background-color: #f2f2f2;
+  }
+  
+  .highlight {
+    background-color: orange;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+  }
+  
+  .chart-section {
+    margin-top: 20px;
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+  }
+  
+
+
+  /* rightside css */
+
+  
+
+
+  .container {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    min-height: 100vh;
+  }
+  
+  .card {
+    background: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    
+  }
+  
+  h2 {
+    margin-bottom: 10px;
+    font-size: 18px;
+    color: #333;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+  }
+  
+  th, td {
+    padding: 10px;
+    border: 1px solid #ddd;
+  }
+  
+  th {
+    background: #e0e0e0;
+    font-weight: bold;
+  }
+  
+  tfoot {
+    background: #f0f0f0;
+    font-weight: bold;
+  }
+  
+  .bold {
+    font-weight: bold;
+  }
+  
+  .highlight {
+    background-color: #ffcccc;
+  }
+  
+  .leftbody, .rightbody {
+    width: 49%; /* Make each section take 50% width */
+    background-color: white; /* Add background for visibility */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  .rightbody {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .leftbody {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .full-width {
+    width: 98%;
+    background-color: white; /* Add background for visibility */
+    border-radius: 8px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    text-align: center;
+    border-radius: 8px;
+  }
+  .low-score {
+    background-color: red;
+    color: white;
+  }
