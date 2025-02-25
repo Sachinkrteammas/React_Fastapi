@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "./Analysis.css"
 import {
   PieChart,
   Pie,
@@ -235,7 +236,7 @@ const Analysis = () => {
         </div>
 
         <div className="chart-container4">
-          <div className="performer-box">
+          <div className="top-box">
             <h5>Top 5 Performer</h5>
             <table className="performer1">
               <thead>
@@ -292,15 +293,7 @@ const Analysis = () => {
                   <td>0%</td>
                 </tr>
               </tbody>
-              <tbody>
-                <tr>
-                  <td>Gaurav</td>
-                  <td>7</td>
-                  <td>92%</td>
-                  <td>0</td>
-                  <td>0%</td>
-                </tr>
-              </tbody>
+
             </table>
           </div>
         </div>
@@ -309,7 +302,7 @@ const Analysis = () => {
           <div className="chart-box graph">
             <h5>Target Vs CQ Score</h5>
 
-            <BarChart width={450} height={300} data={barData}>
+            <BarChart width={467} height={238} data={barData}>
               <XAxis dataKey="date" />
               <YAxis />
               <Tooltip />
@@ -358,6 +351,7 @@ const Analysis = () => {
 
         {/* Right Section */}
         <div className="right-section">
+
           <h5>Top Negative Signals</h5>
           <div className="negative-signals">
             {topNegativeSignals.map((item, index) => (
@@ -368,9 +362,11 @@ const Analysis = () => {
             ))}
           </div>
 
-          <h5>Social Media and Consumer Court Threat</h5>
-          <div className="data-table">
-            <p>No data</p>
+          <div className="sig">
+            <h5>Social Media and Consumer Court Threat</h5>
+            <div className="data-table1">
+              <p>No data</p>
+            </div>
           </div>
 
           <h5>Top Negative Signals</h5>
