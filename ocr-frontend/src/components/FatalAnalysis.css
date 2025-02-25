@@ -2,7 +2,7 @@
     font-family: Arial, sans-serif;
     padding: 20px;
     background-color: #f3f5f5;
-    gap: 1px
+    gap: 1px;
   }
   
   .header {
@@ -175,4 +175,8 @@
   .low-score {
     background-color: red;
     color: rgb(241, 222, 222);
+  }
+  .maincon
+  {
+    display: flex;
   }

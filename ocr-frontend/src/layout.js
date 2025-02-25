@@ -78,8 +78,8 @@ const Layout = ({ onLogout, children }) => {
       label: "Analysis",
       Icon: ChartNoAxesCombined,
       submenu: [
-        { path: "/Analysis", label: "Analysis" },
-        { path: "/QualityPerformance", label: "Quality Performance" },
+        { path: "/Analysis", label: "Quality Performance" },
+        // { path: "/QualityPerformance", label: "Quality Performance" },
         { path: "/FatalAnalysis", label: "Fatal Analysis" },
         { path: "/DetailAnalysis", label: "Detail Analysis" },
         { path: "/Search", label: "Search Lead", Icon: Search },

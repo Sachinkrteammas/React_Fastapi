@@ -89,7 +89,7 @@ const Fatal = () => {
             </label>
           </div>
         </header>
-
+    <div className="maincon">
         <div className="leftbody">
           <div className="stats">
             <div className="stat-box">
@@ -291,6 +291,7 @@ const Fatal = () => {
               </tfoot>
             </table>
           {/* </div> */}
+        </div>
         </div>
 
         {/* footer */}
