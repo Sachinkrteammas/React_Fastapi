@@ -116,7 +116,7 @@ const Transcription = ({ onLogout }) => {
             <option>All</option>
           </select>
 
-          <button className="view" style={{ marginTop: "3rem" }}>View</button>
+          <button className="view" style={{ marginLeft: "30rem" }}>View</button>
         </div>
 
         {/* Table with Paginated Data */}
