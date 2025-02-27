@@ -224,3 +224,8 @@ p {
     width: 90%;
   }
 }
+@media (max-width: 1200px) {
+  .flex-container, .notifi, .activity-section, .activity  {
+    width: 95%;
+  }
+}

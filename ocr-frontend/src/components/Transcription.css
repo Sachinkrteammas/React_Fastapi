@@ -134,7 +134,7 @@
 
 /* === Responsive Design Adjustments === */
 @media (max-width: 1200px) {
-  .prev-page, .date-page1, .table-container {
+  .prev-page, .date-page1, .table-container,.word, .word1 {
     width: 95%;
   }
 }
@@ -157,6 +157,13 @@
   .pagination-button {
     width: 80px;
   }
+  .word{
+    font-size: 15px;
+  }
+  
+  .word1{
+    font-size: 15px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -177,6 +184,13 @@
 
   .audio-controls {
     width: 100%;
+  }
+  .word{
+    font-size: 15px;
+  }
+  
+  .word1{
+    font-size: 15px;
   }
 }
 
