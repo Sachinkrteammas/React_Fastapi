@@ -466,6 +466,216 @@ const Analysis = () => {
           </div>
 
         </div>
+        
+        <div className="social-media">
+        <div className="section-box">
+          <h5>Social Media and Consumer Court Threat</h5>
+          <div className="section-content">
+            <div className="alert-box">
+              <p>
+                <b>Feb 13</b> - Lead ID (123456) - Customer mentioned consumer
+                court due to dissatisfaction.
+              </p>
+              <p>
+                <b>Feb 12</b> - Lead ID (654321) - Customer mentioned social
+                media escalation.
+              </p>
+            </div>
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Call Date</th>
+                  <th>Social Media</th>
+                  <th>Consumer Court</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Feb 13, 2025</td>
+                  <td>1</td>
+                  <td>3</td>
+                  <td>4</td>
+                </tr>
+                <tr>
+                  <td>Feb 12, 2025</td>
+                  <td>3</td>
+                  <td>4</td>
+                  <td>7</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        </div>
+        <div className="partialscan">
+
+        <div className="section-box">
+          <h5>Potential Scam</h5>
+          <div className="section-content">
+            <div className="alert-box">
+              <p>
+                <b>Feb 10</b> - Lead ID (987654) - Customer reported fraudulent
+                activity.
+              </p>
+              <p>
+                <b>Feb 09</b> - Lead ID (456789) - Suspicious transaction
+                flagged.
+              </p>
+            </div>
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Call Date</th>
+                  <th>System Manipulation</th>
+                  <th>Financial Fraud</th>
+                  <th>Collusion</th>
+                  <th>Policy Communication</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Feb 10, 2025</td>
+                  <td>2</td>
+                  <td>1</td>
+                  <td>0</td>
+                  <td>1</td>
+                  <td>4</td>
+                </tr>
+                <tr>
+                  <td>Feb 09, 2025</td>
+                  <td>0</td>
+                  <td>1</td>
+                  <td>1</td>
+                  <td>0</td>
+                  <td>2</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        </div>
+
+        <div className="topnegative">
+
+        <div className="section">
+          <div className="alerts">
+            <h5>Top Negative Signals</h5>
+            <div className="alert-box">
+              Frustration - Delay, disappointment (Lead ID: 11023039)
+            </div>
+            <div className="alert-box">
+              Threat - Fraud, case (Lead ID: 11023093)
+            </div>
+          </div>
+        </div>
+
+        <div className="chart-box1">
+          <h5>Month Wise</h5>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={monthWiseData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="Frustration" stackId="a" fill="#FF7F50" />
+              <Bar dataKey="Threat" stackId="a" fill="#1E90FF" />
+              <Bar dataKey="Slang" stackId="a" fill="#32CD32" />
+              <Bar dataKey="Abuse" stackId="a" fill="#8B0000" />
+              <Bar dataKey="Sarcasm" stackId="a" fill="#FF1493" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div className="chart-box2">
+          <h5>Last 2 Days</h5>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={lastTwoDaysData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="Frustration" stackId="a" fill="#FF7F50" />
+              <Bar dataKey="Threat" stackId="a" fill="#1E90FF" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        </div>
+
+        <div className="Competitordiv">
+
+        <div className="competitor-table">
+          <h5>Competitor Analysis</h5>
+          <table>
+            <thead>
+              <tr>
+                <th>Competitor</th>
+                <th>Count</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Amazon</td>
+                <td>3</td>
+              </tr>
+              <tr>
+                <td>Flipkart</td>
+                <td>2</td>
+              </tr>
+              <tr>
+                <td>BuyZone Attwin</td>
+                <td>1</td>
+              </tr>
+              <tr>
+                <td>BuyZone Attwin</td>
+                <td>1</td>
+              </tr>
+              <tr>
+                <td>BuyZone Attwin</td>
+                <td>1</td>
+              </tr>
+              <tr>
+                <td>BuyZone Attwin</td>
+                <td>1</td>
+              </tr>
+              <tr>
+                <td>BuyZone Attwin</td>
+                <td>1</td>
+              </tr>
+              <tr>
+                <td>BuyZone Attwin</td>
+                <td>1</td>
+              </tr>
+              <tr>
+                <td>Flipkart</td>
+                <td>2</td>
+              </tr>
+              <tr>
+                <td>Flipkart</td>
+                <td>2</td>
+              </tr>
+              <tr>
+                <td>Flipkart</td>
+                <td>2</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div className="section">
+          <div className="chart-container">
+            <Doughnut data={doughnutChartData} />
+          </div>
+        </div>
+        </div>
+        
+
+
+
 
 
         
