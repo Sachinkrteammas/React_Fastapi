@@ -133,7 +133,7 @@ const Analysis = () => {
         <header className="header">
           <h3>BELLAVITA</h3>
           {/* <div className="date-picker">Feb 19, 2025 - Feb 20, 2025</div> */}
-          <div>
+          <div className="setdate">
             <label>
               <input type="date" />
             </label>
@@ -368,6 +368,103 @@ const Analysis = () => {
             </div>
             </div>
           </div>
+        </div>
+
+        <div className="potensialtop">
+          <div className="potensial">
+          <div className="left-section">
+          <p>Potential Escalation - Sensitive Cases</p>
+          <div className="escalation-box">
+            <div className="escalation-item">
+              <span>Social Media and Consumer Court Threat</span>
+              <span className="count">0</span>
+            </div>
+            <div className="escalation-item">
+              <span>Potential Scam</span>
+              <span className="count">0</span>
+            </div>
+          </div>
+
+          <p>Recent Escalation</p>
+          <div className="chart-containernew">
+            <PieChart width={300} height={300}>
+              <Pie
+                data={pieData1}
+                cx="50%"
+                cy="50%"
+                outerRadius={100}
+                fill="#d32f2f"
+                dataKey="value"
+                label
+              >
+                {pieData1.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          </div>
+        </div>
+
+          </div>
+          <div className="topclass">
+
+          <div className="right-section">
+          <p>Top Negative Signals</p>
+          <div className="negative-signals">
+            {topNegativeSignals.map((item, index) => (
+              <div key={index} className="signal-box">
+                <span>{item.category}</span>
+                <span className="count">{item.count}</span>
+              </div>
+            ))}
+          </div>
+
+          <p>Social Media and Consumer Court Threat</p>
+          <div className="data-table">
+            <p>No data</p>
+          </div>
+
+          <p>Top Negative Signals</p>
+          <table className="negative-signals-table">
+            <thead>
+              <tr>
+                <th>Scenario</th>
+                <th>Sub Scenario</th>
+                <th>Top Negative Signals</th>
+                <th>Count</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Complaint</td>
+                <td>Delivered Product Complaint</td>
+                <td>Frustration</td>
+                <td>1</td>
+              </tr>
+              <tr>
+                <td>Complaint</td>
+                <td>Order Delay</td>
+                <td>Frustration</td>
+                <td>1</td>
+              </tr>
+              <tr>
+                <td colSpan="3">
+                  <strong>Grand Total</strong>
+                </td>
+                <td>2</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p>Protetional Scam</p>
+          <div className="data-table">
+            <p>No data</p>
+          </div>
+        </div>
+          </div>
+
         </div>
 
 
