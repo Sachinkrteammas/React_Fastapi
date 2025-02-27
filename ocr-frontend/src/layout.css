@@ -5,21 +5,22 @@
   width: 100vw;
 }
 
-
+/* Top Navbar */
 .top-navbar {
   height: 60px;
   background: #f4f4f4;
   border-bottom: 2px solid #ddd;
   display: flex;
-  /* justify-content: left; */
-  padding: 5px;
+  align-items: center;
+  padding: 5px 15px;
+  justify-content: space-between;
 }
 
 .top-logo {
   height: 3rem;
+  width: auto;
+  max-width: 10rem;
   object-fit: contain;
-  opacity: 1;
-  width: 10rem;
 }
 
 .account {
@@ -33,7 +34,6 @@
   width: 30px;
   height: 30px;
   object-fit: cover;
-  opacity: 1;
 }
 
 .top-text {
@@ -41,20 +41,21 @@
   align-items: center;
   justify-content: center;
   background: #f4f4f4;
-  padding: 1px 1px;
-  position: relative;
-  width: 71rem;
+  padding: 5px 10px;
+  flex-grow: 1;
+  text-align: center;
   font-weight: bold;
 }
 
-
+/* Content Layout */
 .content-layout5 {
   display: flex;
   flex: 1;
   margin: 10px;
+  gap: 10px;
 }
 
-
+/* Sidebar */
 .sidebar5 {
   margin-top: 20px;
   width: 200px;
@@ -64,10 +65,9 @@
   padding: 20px;
   gap: 15px;
   border-radius: 10px;
-  transform: scale(1.01);
   box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2), 0 12px 25px rgba(0, 0, 0, 0.25);
+  transition: transform 0.3s ease-in-out;
 }
-
 
 .nav-button {
   padding: 12px;
@@ -85,10 +85,6 @@
   background-color: #38383d;
 }
 
-body {
-  overflow-x: hidden;
-}
-
 .sub-nav-button {
   padding: 12px;
   margin: 5px;
@@ -100,22 +96,80 @@ body {
   font-size: 13px;
   text-align: left;
   transition: background 0.3s;
-  width: 9.4rem;
+  width: 100%;
 }
 
 .sub-nav-button:hover {
   background-color: #38383d;
 }
 
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .content-layout5 {
+    flex-direction: column;
+  }
 
+  .sidebar5 {
+    width: 100%;
+    margin-top: 0;
+    padding: 10px;
+    flex-direction: row;
+    justify-content: space-around;
+  }
 
-
-@media (max-width: 768px) {
-  .content {
-    width: 95%;
-    height: auto;
-    max-height: 90vh;
+  .nav-button {
+    font-size: 14px;
+    padding: 10px;
   }
 }
 
+@media (max-width: 768px) {
+  .top-navbar {
+    flex-direction: column;
+    height: auto;
+    padding: 10px;
+  }
 
+  .top-text {
+    width: 100%;
+    font-size: 14px;
+  }
+
+  .sidebar5 {
+    position: absolute;
+    left: -220px;
+    width: 200px;
+    height: 100vh;
+    flex-direction: column;
+    padding: 15px;
+    transition: left 0.3s ease-in-out;
+  }
+
+  .sidebar5.open {
+    left: 0;
+  }
+
+  .content-layout5 {
+    width: 100%;
+    margin: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .top-logo {
+    height: 2rem;
+  }
+
+  .account {
+    font-size: 12px;
+  }
+
+  .nav-button {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .sub-nav-button {
+    font-size: 12px;
+  }
+}
