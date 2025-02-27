@@ -37,7 +37,8 @@ p {
 
 .flex-container>div {
   background-color: rgb(255, 251, 251);
-  min-width: 300px;
+  min-width: 279px;
+
  
   text-align: justify;
   padding: 5px;
