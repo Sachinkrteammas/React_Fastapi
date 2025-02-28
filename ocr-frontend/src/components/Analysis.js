@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Analysis.css";
 import {
@@ -30,11 +30,12 @@ const Analysis = () => {
     navigate(path);
   };
 
-  const pieData = [
-    { name: "Excellent", value: 13.6, color: "#4CAF50" },
-    { name: "Good", value: 42, color: "#8BC34A" },
-    { name: "Below Average", value: 42, color: "#F44336" },
-  ];
+  // const pieData = [
+  //   { name: "Excellent", value: 13.6, color: "#4CAF50" },
+  //   { name: "Good", value: 142, color: "#8BC34A" },
+  //   { name: "Below Average", value: 21, color: "#F44336" },
+  //   { name: "Average", value: 21, color: "#990000" },
+  // ];
 
   const pieData1 = [
     { name: "Top Negative Signals", value: 2, color: "#d32f2f" },
@@ -127,6 +128,56 @@ const Analysis = () => {
     ],
   };
 
+
+  // api connect
+  
+  const [auditData, setAuditData] = useState(null);
+  const [pieData, setPieData] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAuditData = async () => {
+      try {
+        const response = await fetch("http://127.0.0.1:8097/audit_count");
+        const data = await response.json();
+        setAuditData(data);
+
+        // Update pie chart data dynamically
+        setPieData([
+          { name: "Excellent", value: data.excellent, color: "#4CAF50" },
+          { name: "Good", value: data.good, color: "#8BC34A" },
+          { name: "Average", value: data.avg_call, color: "#990000" },
+          { name: "Below Average", value: data.b_avg, color: "#F44336" },
+        ]);
+      } catch (error) {
+        console.error("Error fetching audit data:", error);
+      }
+    };
+
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("http://127.0.0.1:8097/call_length_categorization");
+        const data = await response.json();
+        setCategories(data);
+      } catch (error) {
+        console.error("Error fetching call length data:", error);
+      }
+    };
+
+    const fetchData = async () => {
+      await Promise.all([fetchAuditData(), fetchCategories()]);
+      setLoading(false); // Set loading false only after both fetch calls
+    };
+
+    fetchData();
+  }, []);
+
+  // Show loading message until all data is fetched
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+  
   return (
     <Layout>
       <div className="dashboard-container">
@@ -148,107 +199,48 @@ const Analysis = () => {
         <div className="callandache">
           <div className="categorization">
             <div className="cqscore">
-              <div className="card-container">
-                {[
-                  { title: "CQ Score", value: "80%", color: "text-red-600" },
-                  {
-                    title: "Fatal CQ Score",
-                    value: "84%",
-                    color: "text-green-600",
-                  },
-                  { title: "Audit Count", value: "81", color: "text-blue-600" },
-                  {
-                    title: "Excellent Call",
-                    value: "34",
-                    color: "text-purple-600",
-                  },
-                  {
-                    title: "Excellent Call",
-                    value: "34",
-                    color: "text-purple-600",
-                  },
-                  {
-                    title: "Excellent Call",
-                    value: "34",
-                    color: "text-purple-600",
-                  },
-                  {
-                    title: "Excellent Call",
-                    value: "34",
-                    color: "text-purple-600",
-                  },
-                ].map((card, index) => (
-                  <div key={index} className="card">
-                    <h6>{card.title}</h6>
-                    <p className={`text-2xl font-bold ${card.color}`}>
-                      {card.value}
-                    </p>
-                  </div>
-                ))}
-              </div>
+            <div className="card-container">
+      {[
+        { title: "CQ Score", value: `${auditData.cq_score}%`, color: "text-red-600" },
+        { title: "Fatal CQ Score", value: "84%", color: "text-green-600" }, // Static for now
+        { title: "Audit Count", value: auditData.audit_cnt, color: "text-blue-600" },
+        { title: "Excellent Call", value: auditData.excellent, color: "text-purple-600" },
+        { title: "Good Call", value: auditData.good, color: "text-green-600" },
+        { title: "Average Call", value: auditData.avg_call, color: "text-yellow-600" },
+        { title: "Below Call", value: auditData.b_avg, color: "text-gray-600" },
+      ].map((card, index) => (
+        <div key={index} className="card">
+          <h6>{card.title}</h6>
+          <p className={`text-2xl font-bold ${card.color}`}>{card.value}</p>
+        </div>
+      ))}
+    </div>
             </div>
 
             <div className="catoopening">
-              <div className="cato">
-                <p>Achet Categorization</p>
-                <table className="performer">
-                  <thead>
-                    <tr>
-                      <th>Category</th>
-                      <th>ACHT</th>
-                      <th>Audit Count</th>
-                      <th>Fatal Count</th>
-                      <th>CQ Score%</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Short (&lt;60 sec)</td>
-                      <td>00:00:33</td>
-                      <td>10</td>
-                      <td>0</td>
-                      <td>96%</td>
-                    </tr>
-                  </tbody>
-                  <tbody>
-                    <tr>
-                      <td>Short (&lt;60 sec)</td>
-                      <td>00:00:33</td>
-                      <td>10</td>
-                      <td>0</td>
-                      <td>96%</td>
-                    </tr>
-                  </tbody>
-                  <tbody>
-                    <tr>
-                      <td>Short (&lt;60 sec)</td>
-                      <td>00:00:33</td>
-                      <td>10</td>
-                      <td>0</td>
-                      <td>96%</td>
-                    </tr>
-                  </tbody>
-                  <tbody>
-                    <tr>
-                      <td>Short (&lt;60 sec)</td>
-                      <td>00:00:33</td>
-                      <td>10</td>
-                      <td>0</td>
-                      <td>96%</td>
-                    </tr>
-                  </tbody>
-
-                  <tbody>
-                    <tr>
-                      <td>Grand Total</td>
-                      <td>00:00:13</td>
-                      <td>82</td>
-                      <td>4</td>
-                      <td>80%</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+            <div className="cato">
+      <p>Achet Categorization</p>
+      <table className="performer">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Audit Count</th>
+            <th>Fatal%</th>
+            <th>CQ Score%</th>
+          </tr>
+        </thead>
+        <tbody>
+          {categories.map((item, index) => (
+            <tr key={index} className={item["ACH Category"] === "Grand Total" ? "font-bold" : ""}>
+              <td>{item["ACH Category"]}</td>
+              <td>{item["Audit Count"]}</td>
+              <td>{item["Fatal%"]}</td>
+              <td>{item["Score%"]}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
               <div className="opening">
                 <div className="soft-skills-container softskill">
                   {[
