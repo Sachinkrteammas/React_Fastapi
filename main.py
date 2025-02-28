@@ -7,15 +7,16 @@ from urllib.request import Request
 import jwt
 import datetime
 import bcrypt
-from fastapi import FastAPI, HTTPException, Depends, File, UploadFile, Form, Header
+from fastapi import FastAPI, HTTPException, Depends, File, UploadFile, Form, Header, Query
 from fastapi.exceptions import RequestValidationError
-from sqlalchemy import create_engine, Column, Integer, String, func, DateTime
+from sqlalchemy import create_engine, Column, Integer, String, func, DateTime, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from pydantic import BaseModel, EmailStr, constr, validator
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
 from pathlib import Path
+from datetime import date
 # FastAPI app initialization
 app = FastAPI()
 
@@ -38,6 +39,22 @@ engine = create_engine(SQL_DB_URL, echo=True)
 SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 Base = declarative_base()
 
+
+#########  Second DB
+
+DATABASE_URL2 = "mysql+pymysql://root:vicidialnow@192.168.10.6/db_audit"
+
+# Create SQLAlchemy engine
+engine2 = create_engine(DATABASE_URL2)
+SessionLocal2 = sessionmaker(autocommit=False, autoflush=False, bind=engine2)
+
+# Dependency to get database session
+def get_db2():
+    db = SessionLocal2()
+    try:
+        yield db
+    finally:
+        db.close()
 
 # User Model
 class User(Base):
@@ -516,3 +533,243 @@ def get_audio_stats(request: AudioStatsRequest, db: Session = Depends(get_db)):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
+
+@app.get("/audit_count")
+def get_audit_count(db: Session = Depends(get_db2)):
+    query = text("""
+    SELECT
+        COUNT(lead_id) AS audit_cnt,
+        ROUND(
+            SUM(CASE WHEN scenario2 <> 'Blank Call' THEN quality_percentage ELSE 0 END) / 
+            NULLIF(COUNT(CASE WHEN scenario2 <> 'Blank Call' THEN lead_id END), 0), 
+            2
+        ) AS cq_score,
+        SUM(CASE WHEN quality_percentage BETWEEN 98 AND 100 THEN 1 ELSE 0 END) AS excellent_call,
+        SUM(CASE WHEN quality_percentage BETWEEN 90 AND 97 THEN 1 ELSE 0 END) AS good_call,
+        SUM(CASE WHEN quality_percentage BETWEEN 85 AND 89 THEN 1 ELSE 0 END) AS avg_call,
+        SUM(CASE WHEN quality_percentage <= 84 THEN 1 ELSE 0 END) AS below_avg_call
+    FROM call_quality_assessment 
+    WHERE ClientId = :ClientId
+    AND DATE(CallDate) = CURDATE()
+    """)
+
+    result = db.execute(query, {"ClientId": 375}).fetchone()
+
+    # Handle None case to avoid errors
+    if not result:
+        return {"audit_cnt": 0, "cq_score": 0, "excellent": 0, "good": 0, "avg_call": 0, "b_avg": 0}
+
+    return {
+        "audit_cnt": result[0] or 0,
+        "cq_score": result[1] or 0.0,
+        "excellent": result[2] or 0,
+        "good": result[3] or 0,
+        "avg_call": result[4] or 0,
+        "b_avg": result[5] or 0
+    }
+
+
+@app.get("/call_length_categorization")
+def get_call_length_categorization(db: Session = Depends(get_db2)):
+    query = text("""
+    SELECT 
+    CASE
+        WHEN length_in_sec < 60 THEN 'Short(<60sec)'
+        WHEN length_in_sec BETWEEN 60 AND 300 THEN 'Average(1min-5min)'
+        WHEN length_in_sec BETWEEN 301 AND 600 THEN 'Long(5min-10min)'
+        ELSE 'Extremely Long(>10min)'
+    END AS category,
+    COUNT(*) AS audit_count,
+    ROUND(
+        100.0 * SUM(CASE WHEN professionalism_maintained = 0 AND scenario2 <> 'Blank Call' THEN 1 ELSE 0 END) 
+        / NULLIF(COUNT(*), 0), 2
+    ) AS fatal_percentage,
+    ROUND(AVG(quality_percentage), 2) AS score_percentage
+FROM call_quality_assessment
+WHERE ClientId = :ClientId
+AND DATE(CallDate) = CURDATE()
+GROUP BY category
+WITH ROLLUP; """)
+
+    result = db.execute(query, {"ClientId": 375}).fetchall()
+
+    response_data = []
+    for row in result:
+        category = row[0] if row[0] else "Grand Total"
+        response_data.append({
+            "ACH Category": category,
+            "Audit Count": row[1] or 0,
+            "Fatal%": f"{row[2] or 0}%",
+            "Score%": f"{row[3] or 0}%"
+        })
+
+    return response_data
+
+@app.get("/agent_scores")
+def get_agent_scores(
+    client_id: str = Query(..., description="Client ID"),
+    start_date: date = Query(..., description="Start Date in YYYY-MM-DD format"),
+    end_date: date = Query(..., description="End Date in YYYY-MM-DD format"),
+    db: Session = Depends(get_db2)
+):
+    query = text("""
+        SELECT 
+            ROUND(AVG(
+                CASE 
+                    WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                    WHEN customer_concern_acknowledged = TRUE THEN 1
+                    ELSE 0
+                END
+            ), 2) AS opening,
+
+            ROUND(AVG(
+                CASE 
+                    WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                    ELSE 
+                        (IF(professionalism_maintained = TRUE, 0.111111, 0) +
+                         IF(assurance_or_appreciation_provided = TRUE, 0.111111, 0) +
+                         IF(express_empathy = TRUE, 0.111111, 0) +
+                         IF(pronunciation_and_clarity = TRUE, 0.111111, 0) +
+                         IF(enthusiasm_and_no_fumbling = TRUE, 0.111111, 0) +
+                         IF(active_listening = TRUE, 0.111111, 0) +
+                         IF(politeness_and_no_sarcasm = TRUE, 0.111111, 0) +
+                         IF(proper_grammar = TRUE, 0.111111, 0) +
+                         IF(accurate_issue_probing = TRUE, 0.111111, 0))
+                END
+            ), 2) AS soft_skills,
+
+            ROUND(AVG(
+                CASE 
+                    WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                    ELSE 
+                        (IF(proper_hold_procedure = TRUE, 0.5, 0) +
+                         IF(proper_transfer_and_language = TRUE, 0.5, 0))
+                END
+            ), 2) AS hold_procedure,
+
+            ROUND(AVG(
+                CASE 
+                    WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                    ELSE 
+                        (IF(address_recorded_completely = TRUE, 0.5, 0) +
+                         IF(correct_and_complete_information = TRUE, 0.5, 0))
+                END
+            ), 2) AS resolution,
+
+            ROUND(AVG(
+                CASE 
+                    WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                    WHEN professionalism_maintained = TRUE THEN 1
+                    ELSE 0
+                END
+            ), 2) AS closing,
+
+            ROUND((
+                AVG(
+                    CASE 
+                        WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                        WHEN customer_concern_acknowledged = TRUE THEN 1
+                        ELSE 0
+                    END
+                ) +
+                AVG(
+                    CASE 
+                        WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                        ELSE 
+                            (IF(professionalism_maintained = TRUE, 0.111111, 0) +
+                             IF(assurance_or_appreciation_provided = TRUE, 0.111111, 0) +
+                             IF(express_empathy = TRUE, 0.111111, 0) +
+                             IF(pronunciation_and_clarity = TRUE, 0.111111, 0) +
+                             IF(enthusiasm_and_no_fumbling = TRUE, 0.111111, 0) +
+                             IF(active_listening = TRUE, 0.111111, 0) +
+                             IF(politeness_and_no_sarcasm = TRUE, 0.111111, 0) +
+                             IF(proper_grammar = TRUE, 0.111111, 0) +
+                             IF(accurate_issue_probing = TRUE, 0.111111, 0))
+                    END
+                ) +
+                AVG(
+                    CASE 
+                        WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                        ELSE 
+                            (IF(proper_hold_procedure = TRUE, 0.5, 0) +
+                             IF(proper_transfer_and_language = TRUE, 0.5, 0))
+                    END
+                ) +
+                AVG(
+                    CASE 
+                        WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                        ELSE 
+                            (IF(address_recorded_completely = TRUE, 0.5, 0) +
+                             IF(correct_and_complete_information = TRUE, 0.5, 0))
+                    END
+                ) +
+                AVG(
+                    CASE 
+                        WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                        WHEN professionalism_maintained = TRUE THEN 1
+                        ELSE 0
+                    END
+                )
+            ) / 5, 2) AS avg_score
+
+        FROM call_quality_assessment
+        WHERE ClientId = :client_id
+        AND DATE(CallDate) BETWEEN :start_date AND :end_date;
+    """)
+
+    result = db.execute(query, {"client_id": client_id, "start_date": start_date, "end_date": end_date}).fetchone()
+
+    return {
+        "client_id": client_id,
+        "start_date": start_date,
+        "end_date": end_date,
+        "opening": result[0],
+        "soft_skills": result[1],
+        "hold_procedure": result[2],
+        "resolution": result[3],
+        "closing": result[4],
+        "avg_score": result[5]
+    }
+
+@app.get("/top_performers")
+def get_top_performers(
+    client_id: str = Query(..., description="Client ID"),
+    start_date: date = Query(..., description="Start Date in YYYY-MM-DD format"),
+    end_date: date = Query(..., description="End Date in YYYY-MM-DD format"),
+    db: Session = Depends(get_db2)
+):
+    query = text("""
+        SELECT 
+            User,
+            COUNT(*) AS audit_count,
+            ROUND(AVG(quality_percentage), 2) AS cq_percentage,
+            SUM(CASE WHEN professionalism_maintained = 0 AND scenario2 <> 'Blank Call' THEN 1 ELSE 0 END) AS fatal_count,
+            ROUND(SUM(CASE WHEN professionalism_maintained = 0 THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0) * 100, 2) AS fatal_percentage
+        FROM call_quality_assessment
+        WHERE ClientId = :client_id
+        AND DATE(CallDate) BETWEEN :start_date AND :end_date
+        GROUP BY User
+        ORDER BY cq_percentage DESC, audit_count DESC
+        LIMIT 5;
+    """)
+
+    result = db.execute(query, {"client_id": client_id, "start_date": start_date, "end_date": end_date}).fetchall()
+
+    top_performers = [
+        {
+            "User": row[0],
+            "audit_count": row[1],
+            "cq_percentage": row[2],
+            "fatal_count": row[3],
+            "fatal_percentage": row[4]
+        }
+        for row in result
+    ]
+
+    return {
+        "client_id": client_id,
+        "start_date": start_date,
+        "end_date": end_date,
+        "top_performers": top_performers
+    }
