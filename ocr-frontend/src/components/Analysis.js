@@ -37,12 +37,12 @@ const Analysis = () => {
     { name: "Top Negative Signals", value: 2, color: "#d32f2f" },
   ];
 
-  const topNegativeSignals = [
-    { category: "Abuse", count: 0 },
-    { category: "Threat", count: 0 },
-    { category: "Frustration", count: 2 },
-    { category: "Slang", count: 0 },
-  ];
+  // const topNegativeSignals = [
+  //   { category: "Abuse", count: 0 },
+  //   { category: "Threat", count: 0 },
+  //   { category: "Frustration", count: 2 },
+  //   { category: "Slang", count: 0 },
+  // ];
 
   // const barDatanew = [
   //   { date: "Feb 8, 2025", Target: 95, Score: 76 },
@@ -133,16 +133,29 @@ const Analysis = () => {
   const [scores, setScores] = useState(null);
   const [performers, setPerformers] = useState([]);
   const [barData, setBarData] = useState([]);
-  console.log(barData, "barData====123");
+
+  const [topNegativeSignals, setTopNegativeSignals] = useState([
+    { category: "Abuse", count: 0 },
+    { category: "Threat", count: 0 },
+    { category: "Frustration", count: 0 },
+    { category: "Slang", count: 0 },
+  ]);
+
+  const [escalationData, setEscalationData] = useState({
+  social_media_threat: 0,
+  consumer_court_threat: 0,
+  potential_scam: 0,
+});
+  
 
   const today = new Date().toISOString().split("T")[0];
   const [formData, setFormData] = useState({
-    client_id: "375", // Default client_id (you can make it dynamic)
+    client_id: "375", 
     start_date: "",
     end_date: "",
   });
 
-  // Set default values only on first load
+  
   useEffect(() => {
     setFormData({
       client_id: "375",
@@ -156,9 +169,14 @@ const Analysis = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); 
+  
     try {
-      const [scoresResponse, performersResponse] = await Promise.all([
+      
+      const [escalationResponse, scoresResponse, performersResponse] = await Promise.all([
+        fetch(
+          `http://127.0.0.1:8097/potential_escalation?client_id=${formData.client_id}&start_date=${formData.start_date}&end_date=${formData.end_date}`
+        ),
         fetch(
           `http://127.0.0.1:8097/agent_scores?client_id=${formData.client_id}&start_date=${formData.start_date}&end_date=${formData.end_date}`
         ),
@@ -166,20 +184,43 @@ const Analysis = () => {
           `http://127.0.0.1:8097/top_performers?client_id=${formData.client_id}&start_date=${formData.start_date}&end_date=${formData.end_date}`
         ),
       ]);
-
-      if (!scoresResponse.ok || !performersResponse.ok) {
-        throw new Error("Failed to fetch data");
+  
+      
+      if (!escalationResponse.ok || !scoresResponse.ok || !performersResponse.ok) {
+        throw new Error("Failed to fetch one or more datasets");
       }
-
+  
+      
+      const escalationData = await escalationResponse.json(); // ✅ Renamed correctly
       const scoresData = await scoresResponse.json();
       const performersData = await performersResponse.json();
-
+  
+      console.log("Escalation API Response:", escalationData);
+  
+      
+      setEscalationData({
+        social_media_threat: escalationData.potential_escalation.social_media_threat || 0,
+        consumer_court_threat: escalationData.potential_escalation.consumer_court_threat || 0,
+        potential_scam: escalationData.potential_escalation.potential_scam || 0,
+      });
+  
+      
+      setTopNegativeSignals([
+        { category: "Abuse", count: escalationData.negative_signals.abuse || 0 },
+        { category: "Threat", count: escalationData.negative_signals.threat || 0 },
+        { category: "Frustration", count: escalationData.negative_signals.frustration || 0 },
+        { category: "Slang", count: escalationData.negative_signals.slang || 0 },
+      ]);
+  
       setScores(scoresData);
       setPerformers(performersData.top_performers || []);
+  
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
+  
+  
 
   useEffect(() => {
     const fetchAuditData = async () => {
@@ -208,7 +249,7 @@ const Analysis = () => {
         if (!response.ok) throw new Error("Failed to fetch CQ trend data");
 
         const data = await response.json();
-        console.log("Raw API Response:", data);
+        
 
         if (!data.trend || !Array.isArray(data.trend)) {
           console.error("Invalid trend data:", data.trend);
@@ -225,7 +266,7 @@ const Analysis = () => {
           target: item.target,
         }));
 
-        console.log("Formatted Bar Data:", formattedData);
+        
 
         setBarData(formattedData);
       } catch (error) {
@@ -499,15 +540,19 @@ const Analysis = () => {
             <div className="left-section">
               <p>Potential Escalation - Sensitive Cases</p>
               <div className="escalation-box">
-                <div className="escalation-item">
-                  <span>Social Media and Consumer Court Threat</span>
-                  <span className="count">0</span>
-                </div>
-                <div className="escalation-item">
-                  <span>Potential Scam</span>
-                  <span className="count">0</span>
-                </div>
-              </div>
+  <div className="escalation-item">
+    <span>Social Media</span>
+    <span className="count">{escalationData.social_media_threat}</span>
+  </div>
+  <div className="escalation-item">
+    <span>Consumer Court Threat</span>
+    <span className="count">{escalationData.consumer_court_threat}</span>
+  </div>
+  <div className="escalation-item">
+    <span>Potential Scam</span>
+    <span className="count">{escalationData.potential_scam}</span>
+  </div>
+</div>
 
               <p>Recent Escalation</p>
               <div className="chart-containernew">
