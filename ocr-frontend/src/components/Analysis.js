@@ -169,7 +169,8 @@ const Analysis = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); 
+    e.preventDefault();
+    setLoading(true); 
   
     try {
       
@@ -217,6 +218,9 @@ const Analysis = () => {
   
     } catch (error) {
       console.error("Error fetching data:", error);
+    }
+    finally {
+      setLoading(false); // Hide loader after fetching
     }
   };
   
