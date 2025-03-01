@@ -2,6 +2,7 @@
     font-family: Arial, sans-serif;
     padding: 20px;
     background: #f4f4f4;
+    margin-top: 20px;
   }
   
   /* Header */
@@ -90,15 +91,14 @@
    
   }
 .chart-detail{
-    background: white;
-    padding: 15px;
-    margin-bottom: 10px;
-    border-radius: 8px;
-    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
-
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
+  background: white;
+  padding: 0px;
+  margin-bottom: 0px;
+  border-radius: 8px;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9px;
    
 }
 
