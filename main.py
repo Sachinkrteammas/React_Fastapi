@@ -16,7 +16,9 @@ from pydantic import BaseModel, EmailStr, constr, validator
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
 from pathlib import Path
-from datetime import date
+from datetime import date, timedelta
+from pydantic import BaseModel
+from typing import List
 # FastAPI app initialization
 app = FastAPI()
 
@@ -724,12 +726,12 @@ def get_agent_scores(
         "client_id": client_id,
         "start_date": start_date,
         "end_date": end_date,
-        "opening": result[0],
-        "soft_skills": result[1],
-        "hold_procedure": result[2],
-        "resolution": result[3],
-        "closing": result[4],
-        "avg_score": result[5]
+        "opening": result[0]*100,
+        "soft_skills": result[1]*100,
+        "hold_procedure": result[2]*100,
+        "resolution": result[3]*100,
+        "closing": result[4]*100,
+        "avg_score": result[5]*100
     }
 
 @app.get("/top_performers")
@@ -773,3 +775,285 @@ def get_top_performers(
         "end_date": end_date,
         "top_performers": top_performers
     }
+
+# Pydantic Model for Response
+class CQScoreTrend(BaseModel):
+    date: str  # Convert date to string format
+    cq_score: float
+    target: int
+
+class CQScoreResponse(BaseModel):
+    client_id: str
+    target_cq: int
+    trend: List[CQScoreTrend]
+
+@app.get("/target_vs_cq_trend", response_model=CQScoreResponse)
+def get_target_vs_cq_trend(
+    client_id: str = Query(..., description="Client ID"),
+    db: Session = Depends(get_db2)
+):
+    target_cq = 95  # Target CQ Score
+
+    # Define date range (last 7 days)
+    end_date = date.today()
+    start_date = end_date - timedelta(days=6)
+
+    query = text("""
+        SELECT DATE(CallDate) AS date, 
+               ROUND(AVG(quality_percentage), 2) AS cq_score
+        FROM call_quality_assessment
+        WHERE ClientId = :client_id
+        AND DATE(CallDate) BETWEEN :start_date AND :end_date
+        GROUP BY DATE(CallDate)
+        ORDER BY DATE(CallDate) ASC;
+    """)
+
+    result = db.execute(query, {"client_id": client_id, "start_date": start_date, "end_date": end_date}).fetchall()
+
+    # Convert date to string before returning
+    trend_data = [
+        CQScoreTrend(date=row[0].strftime("%Y-%m-%d"), cq_score=row[1], target=target_cq)
+        for row in result
+    ]
+
+    return CQScoreResponse(client_id=client_id, target_cq=target_cq, trend=trend_data)
+
+
+class PotentialEscalation(BaseModel):
+    social_media_threat: int
+    consumer_court_threat: int
+    potential_scam: int
+
+
+class NegativeSignals(BaseModel):
+    abuse: int
+    threat: int
+    frustration: int
+    slang: int
+    sarcasm: int
+
+
+class EscalationResponse(BaseModel):
+    client_id: str
+    potential_escalation: PotentialEscalation
+    negative_signals: NegativeSignals
+
+
+@app.get("/potential_escalation", response_model=EscalationResponse)
+def get_potential_escalation(
+        client_id: str = Query(..., description="Client ID"),
+        start_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
+        end_date: str = Query(..., description="End date (YYYY-MM-DD)"),
+        db: Session = Depends(get_db2)
+):
+    query = text("""
+        SELECT
+            SUM(CASE WHEN LOWER(sensetive_word) LIKE '%social%' THEN 1 ELSE 0 END) AS social_media_threat,
+            SUM(CASE WHEN LOWER(sensetive_word) LIKE '%court%'
+                        OR LOWER(sensetive_word) LIKE '%consumer%'
+                        OR LOWER(sensetive_word) LIKE '%legal%'
+                        OR LOWER(sensetive_word) LIKE '%fir%' THEN 1 ELSE 0 END) AS consumer_court_threat,
+            SUM(CASE WHEN system_manipulation = 'Yes' THEN 1 ELSE 0 END) AS potential_scam,
+
+            SUM(CASE WHEN LOWER(top_negative_words) LIKE '%Abuse%' THEN 1 ELSE 0 END) AS abuse,
+            SUM(CASE WHEN LOWER(top_negative_words) LIKE '%Threat%' THEN 1 ELSE 0 END) AS threat,
+            SUM(CASE WHEN LOWER(top_negative_words) LIKE '%Frustration%' THEN 1 ELSE 0 END) AS frustration,
+            SUM(CASE WHEN LOWER(top_negative_words) LIKE '%Slang%' THEN 1 ELSE 0 END) AS slang,
+            SUM(CASE WHEN LOWER(top_negative_words) LIKE '%Sarcasm%' THEN 1 ELSE 0 END) AS sarcasm
+
+        FROM call_quality_assessment
+        WHERE ClientId = :client_id
+        AND DATE(CallDate) BETWEEN :start_date AND :end_date
+    """)
+
+    result = db.execute(query, {"client_id": client_id, "start_date": start_date, "end_date": end_date}).fetchone()
+
+    return EscalationResponse(
+        client_id=client_id,
+        potential_escalation=PotentialEscalation(
+            social_media_threat=result[0],
+            consumer_court_threat=result[1],
+            potential_scam=result[2]
+        ),
+        negative_signals=NegativeSignals(
+            abuse=result[3],
+            threat=result[4],
+            frustration=result[5],
+            slang=result[6],
+            sarcasm=result[7]
+        )
+    )
+
+
+@app.get("/potential_escalations_data/")
+def get_potential_escalations_data(
+        client_id: str = Query(..., description="Client ID"),
+        start_date: date = Query(..., description="Start Date in YYYY-MM-DD format"),
+        end_date: date = Query(..., description="End Date in YYYY-MM-DD format"),
+        db: Session = Depends(get_db2)
+):
+    query = text("""
+        SELECT 
+            scenario, 
+            scenario1, 
+            sensetive_word
+        FROM call_quality_assessment
+        WHERE ClientId = :client_id  
+        AND DATE(CallDate) BETWEEN :start_date AND :end_date
+        AND (
+            LOWER(sensetive_word) LIKE '%social%'
+            OR LOWER(sensetive_word) LIKE '%court%'
+            OR LOWER(sensetive_word) LIKE '%consumer%'
+            OR LOWER(sensetive_word) LIKE '%legal%'
+            OR LOWER(sensetive_word) LIKE '%fir%'
+            OR system_manipulation = 'Yes'
+        )
+    """)
+
+    result = db.execute(query, {
+        "client_id": client_id,
+        "start_date": start_date,
+        "end_date": end_date
+    }).fetchall()
+
+    return [
+        {
+            "scenario": row[0],
+            "scenario1": row[1],
+            "sensetive_word": row[2]
+        }
+        for row in result
+    ]
+
+
+@app.get("/negative_data/")
+def get_negative_data(
+        client_id: str = Query(..., description="Client ID"),
+        start_date: date = Query(..., description="Start Date in YYYY-MM-DD format"),
+        end_date: date = Query(..., description="End Date in YYYY-MM-DD format"),
+        db: Session = Depends(get_db2)
+):
+    query = text("""
+        SELECT 
+            scenario, 
+            scenario1, 
+            top_negative_words
+        FROM call_quality_assessment
+        WHERE ClientId = :client_id  
+        AND DATE(CallDate) BETWEEN :start_date AND :end_date
+        AND (
+            LOWER(top_negative_words) LIKE '%Abuse%'
+            OR LOWER(top_negative_words) LIKE '%Threat%'
+            OR LOWER(top_negative_words) LIKE '%Frustration%'
+            OR LOWER(top_negative_words) LIKE '%Slang%'
+            OR LOWER(top_negative_words) LIKE '%Sarcasm%'
+        )
+    """)
+
+    result = db.execute(query, {
+        "client_id": client_id,
+        "start_date": start_date,
+        "end_date": end_date
+    }).fetchall()
+
+    return [
+        {
+            "scenario": row[0],
+            "scenario1": row[1],
+            "sensetive_word": row[2]
+        }
+        for row in result
+    ]
+class ComplaintSummary(BaseModel):
+    call_date: str  # Convert date to string format
+    social_media_threat: int
+    consumer_court_threat: int
+    total: int
+
+class ComplaintRawData(BaseModel):
+    call_date: str  # Convert date to string format
+    scenario: str
+    sub_scenario: str
+    sensitive_word: str
+
+# Response Model
+class ComplaintResponse(BaseModel):
+    client_id: str
+    summary: List[ComplaintSummary]
+    raw_data: List[ComplaintRawData]
+
+@app.get("/complaints_by_date/", response_model=ComplaintResponse)
+def get_complaints_by_date(
+    client_id: str = Query(..., description="Client ID"),
+    db: Session = Depends(get_db)
+):
+    # Define the last 7 days (including today)
+    end_date = date.today()
+    start_date = end_date - timedelta(days=6)
+
+    # Aggregated complaints summary query
+    summary_query = text("""
+        SELECT 
+            DATE(CallDate) AS call_date,
+            SUM(CASE WHEN LOWER(sensetive_word) LIKE '%social%' THEN 1 ELSE 0 END) AS social_media_threat,
+            SUM(CASE WHEN LOWER(sensetive_word) LIKE '%court%' 
+                        OR LOWER(sensetive_word) LIKE '%consumer%' 
+                        OR LOWER(sensetive_word) LIKE '%legal%' 
+                        OR LOWER(sensetive_word) LIKE '%fir%' THEN 1 ELSE 0 END) AS consumer_court_threat,
+            COUNT(*) AS total
+        FROM call_quality_assessment
+        WHERE ClientId = :client_id  
+        AND DATE(CallDate) BETWEEN :start_date AND :end_date
+        GROUP BY call_date
+        ORDER BY call_date DESC
+    """)
+
+    # Raw data query (for detailed records)
+    raw_data_query = text("""
+        SELECT 
+            DATE(CallDate) AS call_date,
+            scenario,
+            scenario1,
+            sensetive_word
+        FROM call_quality_assessment
+        WHERE ClientId = :client_id  
+        AND DATE(CallDate) BETWEEN :start_date AND :end_date
+        ORDER BY call_date DESC
+    """)
+
+    # Execute queries
+    summary_results = db.execute(summary_query, {
+        "client_id": client_id,
+        "start_date": start_date,
+        "end_date": end_date
+    }).fetchall()
+
+    raw_data_results = db.execute(raw_data_query, {
+        "client_id": client_id,
+        "start_date": start_date,
+        "end_date": end_date
+    }).fetchall()
+
+    # Format summary results
+    summary = [
+        ComplaintSummary(
+            call_date=row[0].strftime("%Y-%m-%d"),  # ✅ Convert date to string
+            social_media_threat=row[1],
+            consumer_court_threat=row[2],
+            total=row[3]
+        )
+        for row in summary_results
+    ]
+
+    # Format raw data results
+    raw_data = [
+        ComplaintRawData(
+            call_date=row[0].strftime("%Y-%m-%d"),  # ✅ Convert date to string
+            scenario=row[1],
+            sub_scenario=row[2],
+            sensitive_word=row[3]
+        )
+        for row in raw_data_results
+    ]
+
+    return ComplaintResponse(client_id=client_id, summary=summary, raw_data=raw_data)

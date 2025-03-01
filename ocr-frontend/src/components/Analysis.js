@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Analysis.css";
 import {
@@ -12,6 +12,9 @@ import {
   Tooltip,
   Legend,
   CartesianGrid,
+  ComposedChart,
+  Line,
+  ReferenceLine,
   ResponsiveContainer,
 } from "recharts";
 // import "./Analysis.css";
@@ -30,13 +33,6 @@ const Analysis = () => {
     navigate(path);
   };
 
-  // const pieData = [
-  //   { name: "Excellent", value: 13.6, color: "#4CAF50" },
-  //   { name: "Good", value: 142, color: "#8BC34A" },
-  //   { name: "Below Average", value: 21, color: "#F44336" },
-  //   { name: "Average", value: 21, color: "#990000" },
-  // ];
-
   const pieData1 = [
     { name: "Top Negative Signals", value: 2, color: "#d32f2f" },
   ];
@@ -48,15 +44,15 @@ const Analysis = () => {
     { category: "Slang", count: 0 },
   ];
 
-  const barData = [
-    { date: "Feb 8", score: 76, target: 95 },
-    { date: "Feb 9", score: 82, target: 95 },
-    { date: "Feb 10", score: 76, target: 95 },
-    { date: "Feb 11", score: 76, target: 95 },
-    { date: "Feb 12", score: 78, target: 95 },
-    { date: "Feb 13", score: 79, target: 95 },
-    { date: "Feb 14", score: 80, target: 95 },
-  ];
+  // const barDatanew = [
+  //   { date: "Feb 8, 2025", Target: 95, Score: 76 },
+  //   { date: "Feb 9, 2025", Target: 95, Score: 82 },
+  //   { date: "Feb 10, 2025", Target: 95, Score: 76 },
+  //   { date: "Feb 11, 2025", Target: 95, Score: 76 },
+  //   { date: "Feb 12, 2025", Target: 95, Score: 78 },
+  //   { date: "Feb 13, 2025", Target: 95, Score: 79 },
+  //   { date: "Feb 14, 2025", Target: 95, Score: 80 }
+  // ];
 
   const data = [
     { name: "Frustration", value: 2, color: "#B71C1C" }, // Dark Red
@@ -128,13 +124,62 @@ const Analysis = () => {
     ],
   };
 
-
   // api connect
-  
+
   const [auditData, setAuditData] = useState(null);
   const [pieData, setPieData] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [scores, setScores] = useState(null);
+  const [performers, setPerformers] = useState([]);
+  const [barData, setBarData] = useState([]);
+  console.log(barData, "barData====123");
+
+  const today = new Date().toISOString().split("T")[0];
+  const [formData, setFormData] = useState({
+    client_id: "375", // Default client_id (you can make it dynamic)
+    start_date: "",
+    end_date: "",
+  });
+
+  // Set default values only on first load
+  useEffect(() => {
+    setFormData({
+      client_id: "375",
+      start_date: today,
+      end_date: today,
+    });
+  }, []);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const [scoresResponse, performersResponse] = await Promise.all([
+        fetch(
+          `http://127.0.0.1:8097/agent_scores?client_id=${formData.client_id}&start_date=${formData.start_date}&end_date=${formData.end_date}`
+        ),
+        fetch(
+          `http://127.0.0.1:8097/top_performers?client_id=${formData.client_id}&start_date=${formData.start_date}&end_date=${formData.end_date}`
+        ),
+      ]);
+
+      if (!scoresResponse.ok || !performersResponse.ok) {
+        throw new Error("Failed to fetch data");
+      }
+
+      const scoresData = await scoresResponse.json();
+      const performersData = await performersResponse.json();
+
+      setScores(scoresData);
+      setPerformers(performersData.top_performers || []);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
 
   useEffect(() => {
     const fetchAuditData = async () => {
@@ -155,9 +200,44 @@ const Analysis = () => {
       }
     };
 
+    const fetchCQTrendData = async () => {
+      try {
+        const response = await fetch(
+          "http://127.0.0.1:8097/target_vs_cq_trend?client_id=375"
+        );
+        if (!response.ok) throw new Error("Failed to fetch CQ trend data");
+
+        const data = await response.json();
+        console.log("Raw API Response:", data);
+
+        if (!data.trend || !Array.isArray(data.trend)) {
+          console.error("Invalid trend data:", data.trend);
+          return;
+        }
+
+        // ✅ Convert API response into bar chart format
+        const formattedData = data.trend.map((item) => ({
+          date: new Date(item.date).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+          }), // Converts YYYY-MM-DD → "Feb 23"
+          score: Math.round(item.cq_score), // ✅ Ensure rounding works
+          target: item.target,
+        }));
+
+        console.log("Formatted Bar Data:", formattedData);
+
+        setBarData(formattedData);
+      } catch (error) {
+        console.error("Error fetching CQ trend data:", error);
+      }
+    };
+
     const fetchCategories = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:8097/call_length_categorization");
+        const response = await fetch(
+          "http://127.0.0.1:8097/call_length_categorization"
+        );
         const data = await response.json();
         setCategories(data);
       } catch (error) {
@@ -166,7 +246,11 @@ const Analysis = () => {
     };
 
     const fetchData = async () => {
-      await Promise.all([fetchAuditData(), fetchCategories()]);
+      await Promise.all([
+        fetchAuditData(),
+        fetchCategories(),
+        fetchCQTrendData(),
+      ]);
       setLoading(false); // Set loading false only after both fetch calls
     };
 
@@ -177,7 +261,7 @@ const Analysis = () => {
   if (loading) {
     return <p>Loading...</p>;
   }
-  
+
   return (
     <Layout>
       <div className="dashboard-container">
@@ -185,78 +269,143 @@ const Analysis = () => {
           <h3>BELLAVITA</h3>
           {/* <div className="date-picker">Feb 19, 2025 - Feb 20, 2025</div> */}
           <div className="setdate">
-            <label>
-              <input type="date" />
-            </label>
-            <label>
-              <input type="date" />
-            </label>
-            <label>
-              <input type="submit" value="Submit" />
-            </label>
+            <form className="setdatewidth" onSubmit={handleSubmit}>
+              <label>
+                <input
+                  type="date"
+                  name="start_date"
+                  value={formData.start_date}
+                  onChange={handleChange}
+                  required
+                />
+              </label>
+              <label>
+                <input
+                  type="date"
+                  name="end_date"
+                  value={formData.end_date}
+                  onChange={handleChange}
+                  required
+                />
+              </label>
+              <label>
+                <input type="submit" value="Submit" />
+              </label>
+            </form>
           </div>
         </header>
         <div className="callandache">
           <div className="categorization">
             <div className="cqscore">
-            <div className="card-container">
-      {[
-        { title: "CQ Score", value: `${auditData.cq_score}%`, color: "text-red-600" },
-        { title: "Fatal CQ Score", value: "84%", color: "text-green-600" }, // Static for now
-        { title: "Audit Count", value: auditData.audit_cnt, color: "text-blue-600" },
-        { title: "Excellent Call", value: auditData.excellent, color: "text-purple-600" },
-        { title: "Good Call", value: auditData.good, color: "text-green-600" },
-        { title: "Average Call", value: auditData.avg_call, color: "text-yellow-600" },
-        { title: "Below Call", value: auditData.b_avg, color: "text-gray-600" },
-      ].map((card, index) => (
-        <div key={index} className="card">
-          <h6>{card.title}</h6>
-          <p className={`text-2xl font-bold ${card.color}`}>{card.value}</p>
-        </div>
-      ))}
-    </div>
+              <div className="card-container">
+                {[
+                  {
+                    title: "CQ Score",
+                    value: `${auditData.cq_score}%`,
+                    color: "text-red-600",
+                  },
+                  {
+                    title: "Fatal CQ Score",
+                    value: "84%",
+                    color: "text-green-600",
+                  }, // Static for now
+                  {
+                    title: "Audit Count",
+                    value: auditData.audit_cnt,
+                    color: "text-blue-600",
+                  },
+                  {
+                    title: "Excellent Call",
+                    value: auditData.excellent,
+                    color: "text-purple-600",
+                  },
+                  {
+                    title: "Good Call",
+                    value: auditData.good,
+                    color: "text-green-600",
+                  },
+                  {
+                    title: "Average Call",
+                    value: auditData.avg_call,
+                    color: "text-yellow-600",
+                  },
+                  {
+                    title: "Below Call",
+                    value: auditData.b_avg,
+                    color: "text-gray-600",
+                  },
+                ].map((card, index) => (
+                  <div key={index} className="card">
+                    <h6>{card.title}</h6>
+                    <p className={`text-2xl font-bold ${card.color}`}>
+                      {card.value}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="catoopening">
-            <div className="cato">
-      <p>Achet Categorization</p>
-      <table className="performer">
-        <thead>
-          <tr>
-            <th>Category</th>
-            <th>Audit Count</th>
-            <th>Fatal%</th>
-            <th>CQ Score%</th>
-          </tr>
-        </thead>
-        <tbody>
-          {categories.map((item, index) => (
-            <tr key={index} className={item["ACH Category"] === "Grand Total" ? "font-bold" : ""}>
-              <td>{item["ACH Category"]}</td>
-              <td>{item["Audit Count"]}</td>
-              <td>{item["Fatal%"]}</td>
-              <td>{item["Score%"]}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+              <div className="cato">
+                <p>Achet Categorization</p>
+                <table className="performer">
+                  <thead>
+                    <tr>
+                      <th>Category</th>
+                      <th>Audit Count</th>
+                      <th>Fatal%</th>
+                      <th>CQ Score%</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {categories.map((item, index) => (
+                      <tr
+                        key={index}
+                        className={
+                          item["ACH Category"] === "Grand Total"
+                            ? "font-bold"
+                            : ""
+                        }
+                      >
+                        <td>{item["ACH Category"]}</td>
+                        <td>{item["Audit Count"]}</td>
+                        <td>{item["Fatal%"]}</td>
+                        <td>{item["Score%"]}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
               <div className="opening">
-                <div className="soft-skills-container softskill">
-                  {[
-                    { title: "Opening", value: "60%" },
-                    { title: "Soft Skills", value: "69%" },
-                    { title: "Hold Procedure", value: "68%" },
-                    { title: "Resolution", value: "59%" },
-                    { title: "Closing", value: "78%" },
-                    { title: "Average Score", value: "67%" },
-                  ].map((skill, index) => (
-                    <div key={index} className="soft-skill-row">
-                      <span className="soft-skill-title">{skill.title}</span>
-                      <span className="soft-skill-value">{skill.value}</span>
-                    </div>
-                  ))}
-                </div>
+                {/* Soft Skills Scores */}
+                {scores && Object.keys(scores).length > 0 ? (
+                  <div className="soft-skills-container softskill">
+                    {[
+                      { title: "Opening", value: `${scores.opening}%` },
+                      { title: "Soft Skills", value: `${scores.soft_skills}%` },
+                      {
+                        title: "Hold Procedure",
+                        value: `${scores.hold_procedure}%`,
+                      },
+                      { title: "Resolution", value: `${scores.resolution}%` },
+                      { title: "Closing", value: `${scores.closing}%` },
+                      { title: "Average Score", value: `${scores.avg_score}%` },
+                    ].map((skill, index) => (
+                      <div key={index} className="soft-skill-row">
+                        <span className="soft-skill-title">{skill.title}</span>
+                        <span className="soft-skill-value">{skill.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <table className="performer1">
+                    <tbody>
+                      <tr>
+                        <td colSpan="5">No data available</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                )}
               </div>
             </div>
           </div>
@@ -286,7 +435,7 @@ const Analysis = () => {
 
         <div className="performertarget">
           <div className="topperformer">
-            <p>Top 5 Performer</p>
+            <p>Top 5 Performers</p>
             <table className="performer1">
               <thead>
                 <tr>
@@ -298,379 +447,347 @@ const Analysis = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>Gaurav</td>
-                  <td>7</td>
-                  <td>92%</td>
-                  <td>0</td>
-                  <td>0%</td>
-                </tr>
-              </tbody>
-              <tbody>
-                <tr>
-                  <td>Sachin</td>
-                  <td>7</td>
-                  <td>92%</td>
-                  <td>0</td>
-                  <td>0%</td>
-                </tr>
-              </tbody>
-              <tbody>
-                <tr>
-                  <td>Gaurav</td>
-                  <td>7</td>
-                  <td>92%</td>
-                  <td>0</td>
-                  <td>0%</td>
-                </tr>
-              </tbody>
-              <tbody>
-                <tr>
-                  <td>Gaurav</td>
-                  <td>7</td>
-                  <td>92%</td>
-                  <td>0</td>
-                  <td>0%</td>
-                </tr>
-              </tbody>
-              <tbody>
-                <tr>
-                  <td>Gaurav</td>
-                  <td>7</td>
-                  <td>92%</td>
-                  <td>0</td>
-                  <td>0%</td>
-                </tr>
+                {performers.length > 0 ? (
+                  performers.map((performer, index) => (
+                    <tr key={index}>
+                      <td>{performer.User}</td>
+                      <td>{performer.audit_count}</td>
+                      <td>{performer.cq_percentage}%</td>
+                      <td>{performer.fatal_count}</td>
+                      <td>{performer.fatal_percentage}%</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5">No data available</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
+
           <div className="targetwize">
             <div className="chart-box graph">
-              <div className="setheight">
-              <p>Target Vs CQ Score</p>
+              <ResponsiveContainer width="100%" height={300}>
+                <ComposedChart
+                  data={barData}
+                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis domain={[60, 100]} tickCount={5} />
+                  <Tooltip />
+                  <Legend />
 
-              <BarChart width={467} height={238} data={barData}>
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="score" fill="#2196F3" />
-                <Bar dataKey="target" fill="#4CAF50" />
-              </BarChart>
-            </div>
+                  {/* FIX: Corrected "score" and "target" */}
+                  <Bar dataKey="score" fill="#0080ff" barSize={30} />
+                  <Line
+                    type="monotone"
+                    dataKey="target"
+                    stroke="red"
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                </ComposedChart>
+              </ResponsiveContainer>
             </div>
           </div>
         </div>
 
         <div className="potensialtop">
           <div className="potensial">
-          <div className="left-section">
-          <p>Potential Escalation - Sensitive Cases</p>
-          <div className="escalation-box">
-            <div className="escalation-item">
-              <span>Social Media and Consumer Court Threat</span>
-              <span className="count">0</span>
-            </div>
-            <div className="escalation-item">
-              <span>Potential Scam</span>
-              <span className="count">0</span>
-            </div>
-          </div>
+            <div className="left-section">
+              <p>Potential Escalation - Sensitive Cases</p>
+              <div className="escalation-box">
+                <div className="escalation-item">
+                  <span>Social Media and Consumer Court Threat</span>
+                  <span className="count">0</span>
+                </div>
+                <div className="escalation-item">
+                  <span>Potential Scam</span>
+                  <span className="count">0</span>
+                </div>
+              </div>
 
-          <p>Recent Escalation</p>
-          <div className="chart-containernew">
-            <PieChart width={300} height={300}>
-              <Pie
-                data={pieData1}
-                cx="50%"
-                cy="50%"
-                outerRadius={100}
-                fill="#d32f2f"
-                dataKey="value"
-                label
-              >
-                {pieData1.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </PieChart>
-          </div>
-        </div>
-
+              <p>Recent Escalation</p>
+              <div className="chart-containernew">
+                <PieChart width={300} height={300}>
+                  <Pie
+                    data={pieData1}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    fill="#d32f2f"
+                    dataKey="value"
+                    label
+                  >
+                    {pieData1.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </div>
+            </div>
           </div>
           <div className="topclass">
-
-          <div className="right-section">
-          <p>Top Negative Signals</p>
-          <div className="negative-signals">
-            {topNegativeSignals.map((item, index) => (
-              <div key={index} className="signal-box">
-                <span>{item.category}</span>
-                <span className="count">{item.count}</span>
+            <div className="right-section">
+              <p>Top Negative Signals</p>
+              <div className="negative-signals">
+                {topNegativeSignals.map((item, index) => (
+                  <div key={index} className="signal-box">
+                    <span>{item.category}</span>
+                    <span className="count">{item.count}</span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
 
-          <p>Social Media and Consumer Court Threat</p>
-          <div className="data-table">
-            <p>No data</p>
-          </div>
+              <p>Social Media and Consumer Court Threat</p>
+              <div className="data-table">
+                <p>No data</p>
+              </div>
 
-          <p>Top Negative Signals</p>
-          <table className="negative-signals-table">
-            <thead>
-              <tr>
-                <th>Scenario</th>
-                <th>Sub Scenario</th>
-                <th>Top Negative Signals</th>
-                <th>Count</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Complaint</td>
-                <td>Delivered Product Complaint</td>
-                <td>Frustration</td>
-                <td>1</td>
-              </tr>
-              <tr>
-                <td>Complaint</td>
-                <td>Order Delay</td>
-                <td>Frustration</td>
-                <td>1</td>
-              </tr>
-              <tr>
-                <td colSpan="3">
-                  <strong>Grand Total</strong>
-                </td>
-                <td>2</td>
-              </tr>
-            </tbody>
-          </table>
+              <p>Top Negative Signals</p>
+              <table className="negative-signals-table">
+                <thead>
+                  <tr>
+                    <th>Scenario</th>
+                    <th>Sub Scenario</th>
+                    <th>Top Negative Signals</th>
+                    <th>Count</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Complaint</td>
+                    <td>Delivered Product Complaint</td>
+                    <td>Frustration</td>
+                    <td>1</td>
+                  </tr>
+                  <tr>
+                    <td>Complaint</td>
+                    <td>Order Delay</td>
+                    <td>Frustration</td>
+                    <td>1</td>
+                  </tr>
+                  <tr>
+                    <td colSpan="3">
+                      <strong>Grand Total</strong>
+                    </td>
+                    <td>2</td>
+                  </tr>
+                </tbody>
+              </table>
 
-          <p>Protetional Scam</p>
-          <div className="data-table">
-            <p>No data</p>
-          </div>
-        </div>
-          </div>
-
-        </div>
-        
-        <div className="social-media">
-        <div className="section-box">
-          <h5>Social Media and Consumer Court Threat</h5>
-          <div className="section-content">
-            <div className="alert-box">
-              <p>
-                <b>Feb 13</b> - Lead ID (123456) - Customer mentioned consumer
-                court due to dissatisfaction.
-              </p>
-              <p>
-                <b>Feb 12</b> - Lead ID (654321) - Customer mentioned social
-                media escalation.
-              </p>
+              <p>Protetional Scam</p>
+              <div className="data-table">
+                <p>No data</p>
+              </div>
             </div>
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Call Date</th>
-                  <th>Social Media</th>
-                  <th>Consumer Court</th>
-                  <th>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Feb 13, 2025</td>
-                  <td>1</td>
-                  <td>3</td>
-                  <td>4</td>
-                </tr>
-                <tr>
-                  <td>Feb 12, 2025</td>
-                  <td>3</td>
-                  <td>4</td>
-                  <td>7</td>
-                </tr>
-              </tbody>
-            </table>
           </div>
         </div>
 
+        <div className="social-media">
+          <div className="section-box">
+            <h5>Social Media and Consumer Court Threat</h5>
+            <div className="section-content">
+              <div className="alert-box">
+                <p>
+                  <b>Feb 13</b> - Lead ID (123456) - Customer mentioned consumer
+                  court due to dissatisfaction.
+                </p>
+                <p>
+                  <b>Feb 12</b> - Lead ID (654321) - Customer mentioned social
+                  media escalation.
+                </p>
+              </div>
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Call Date</th>
+                    <th>Social Media</th>
+                    <th>Consumer Court</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Feb 13, 2025</td>
+                    <td>1</td>
+                    <td>3</td>
+                    <td>4</td>
+                  </tr>
+                  <tr>
+                    <td>Feb 12, 2025</td>
+                    <td>3</td>
+                    <td>4</td>
+                    <td>7</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
         <div className="partialscan">
-
-        <div className="section-box">
-          <h5>Potential Scam</h5>
-          <div className="section-content">
-            <div className="alert-box">
-              <p>
-                <b>Feb 10</b> - Lead ID (987654) - Customer reported fraudulent
-                activity.
-              </p>
-              <p>
-                <b>Feb 09</b> - Lead ID (456789) - Suspicious transaction
-                flagged.
-              </p>
+          <div className="section-box">
+            <h5>Potential Scam</h5>
+            <div className="section-content">
+              <div className="alert-box">
+                <p>
+                  <b>Feb 10</b> - Lead ID (987654) - Customer reported
+                  fraudulent activity.
+                </p>
+                <p>
+                  <b>Feb 09</b> - Lead ID (456789) - Suspicious transaction
+                  flagged.
+                </p>
+              </div>
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Call Date</th>
+                    <th>System Manipulation</th>
+                    <th>Financial Fraud</th>
+                    <th>Collusion</th>
+                    <th>Policy Communication</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Feb 10, 2025</td>
+                    <td>2</td>
+                    <td>1</td>
+                    <td>0</td>
+                    <td>1</td>
+                    <td>4</td>
+                  </tr>
+                  <tr>
+                    <td>Feb 09, 2025</td>
+                    <td>0</td>
+                    <td>1</td>
+                    <td>1</td>
+                    <td>0</td>
+                    <td>2</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Call Date</th>
-                  <th>System Manipulation</th>
-                  <th>Financial Fraud</th>
-                  <th>Collusion</th>
-                  <th>Policy Communication</th>
-                  <th>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Feb 10, 2025</td>
-                  <td>2</td>
-                  <td>1</td>
-                  <td>0</td>
-                  <td>1</td>
-                  <td>4</td>
-                </tr>
-                <tr>
-                  <td>Feb 09, 2025</td>
-                  <td>0</td>
-                  <td>1</td>
-                  <td>1</td>
-                  <td>0</td>
-                  <td>2</td>
-                </tr>
-              </tbody>
-            </table>
           </div>
-        </div>
-
         </div>
 
         <div className="topnegative">
-
-        <div className="section">
-          <div className="alerts">
-            <h5>Top Negative Signals</h5>
-            <div className="alert-box">
-              Frustration - Delay, disappointment (Lead ID: 11023039)
-            </div>
-            <div className="alert-box">
-              Threat - Fraud, case (Lead ID: 11023093)
+          <div className="section">
+            <div className="alerts">
+              <h5>Top Negative Signals</h5>
+              <div className="alert-box">
+                Frustration - Delay, disappointment (Lead ID: 11023039)
+              </div>
+              <div className="alert-box">
+                Threat - Fraud, case (Lead ID: 11023093)
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="chart-box1">
-          <h5>Month Wise</h5>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={monthWiseData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="Frustration" stackId="a" fill="#FF7F50" />
-              <Bar dataKey="Threat" stackId="a" fill="#1E90FF" />
-              <Bar dataKey="Slang" stackId="a" fill="#32CD32" />
-              <Bar dataKey="Abuse" stackId="a" fill="#8B0000" />
-              <Bar dataKey="Sarcasm" stackId="a" fill="#FF1493" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+          <div className="chart-box1">
+            <h5>Month Wise</h5>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={monthWiseData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="Frustration" stackId="a" fill="#FF7F50" />
+                <Bar dataKey="Threat" stackId="a" fill="#1E90FF" />
+                <Bar dataKey="Slang" stackId="a" fill="#32CD32" />
+                <Bar dataKey="Abuse" stackId="a" fill="#8B0000" />
+                <Bar dataKey="Sarcasm" stackId="a" fill="#FF1493" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
 
-        <div className="chart-box2">
-          <h5>Last 2 Days</h5>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={lastTwoDaysData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="Frustration" stackId="a" fill="#FF7F50" />
-              <Bar dataKey="Threat" stackId="a" fill="#1E90FF" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+          <div className="chart-box2">
+            <h5>Last 2 Days</h5>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={lastTwoDaysData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="Frustration" stackId="a" fill="#FF7F50" />
+                <Bar dataKey="Threat" stackId="a" fill="#1E90FF" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
         <div className="Competitordiv">
-
-        <div className="competitor-table">
-          <h5>Competitor Analysis</h5>
-          <table>
-            <thead>
-              <tr>
-                <th>Competitor</th>
-                <th>Count</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Amazon</td>
-                <td>3</td>
-              </tr>
-              <tr>
-                <td>Flipkart</td>
-                <td>2</td>
-              </tr>
-              <tr>
-                <td>BuyZone Attwin</td>
-                <td>1</td>
-              </tr>
-              <tr>
-                <td>BuyZone Attwin</td>
-                <td>1</td>
-              </tr>
-              <tr>
-                <td>BuyZone Attwin</td>
-                <td>1</td>
-              </tr>
-              <tr>
-                <td>BuyZone Attwin</td>
-                <td>1</td>
-              </tr>
-              <tr>
-                <td>BuyZone Attwin</td>
-                <td>1</td>
-              </tr>
-              <tr>
-                <td>BuyZone Attwin</td>
-                <td>1</td>
-              </tr>
-              <tr>
-                <td>Flipkart</td>
-                <td>2</td>
-              </tr>
-              <tr>
-                <td>Flipkart</td>
-                <td>2</td>
-              </tr>
-              <tr>
-                <td>Flipkart</td>
-                <td>2</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div className="section">
-          <div className="chart-container">
-            <Doughnut data={doughnutChartData} />
+          <div className="competitor-table">
+            <h5>Competitor Analysis</h5>
+            <table>
+              <thead>
+                <tr>
+                  <th>Competitor</th>
+                  <th>Count</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Amazon</td>
+                  <td>3</td>
+                </tr>
+                <tr>
+                  <td>Flipkart</td>
+                  <td>2</td>
+                </tr>
+                <tr>
+                  <td>BuyZone Attwin</td>
+                  <td>1</td>
+                </tr>
+                <tr>
+                  <td>BuyZone Attwin</td>
+                  <td>1</td>
+                </tr>
+                <tr>
+                  <td>BuyZone Attwin</td>
+                  <td>1</td>
+                </tr>
+                <tr>
+                  <td>BuyZone Attwin</td>
+                  <td>1</td>
+                </tr>
+                <tr>
+                  <td>BuyZone Attwin</td>
+                  <td>1</td>
+                </tr>
+                <tr>
+                  <td>BuyZone Attwin</td>
+                  <td>1</td>
+                </tr>
+                <tr>
+                  <td>Flipkart</td>
+                  <td>2</td>
+                </tr>
+                <tr>
+                  <td>Flipkart</td>
+                  <td>2</td>
+                </tr>
+                <tr>
+                  <td>Flipkart</td>
+                  <td>2</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div className="section">
+            <div className="chart-container">
+              <Doughnut data={doughnutChartData} />
+            </div>
           </div>
         </div>
-        </div>
-        
-
-
-
-
-
-        
       </div>
     </Layout>
   );
