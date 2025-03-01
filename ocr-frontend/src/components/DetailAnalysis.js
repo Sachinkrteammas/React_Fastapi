@@ -283,6 +283,9 @@ const DetailAnalysis = () => {
                       <td>{row.total}</td>
                     </tr>
                   ))}
+                </tbody>
+
+                
                   <tr className="total-row">
                     <td>Grand total</td>
                     <td className="percentage green">42%</td>
@@ -291,7 +294,7 @@ const DetailAnalysis = () => {
                     <td className="percentage">0%</td>
                     <td>33</td>
                   </tr>
-                </tbody>
+                
               </table>
             </div>
           </div>

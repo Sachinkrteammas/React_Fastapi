@@ -160,7 +160,8 @@
  
 
   .audit-table {
-    background: #d6edea;
+    background: white;
+    
     padding: 15px;
     border-radius: 8px;
     box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
@@ -197,8 +198,13 @@
   }
   
   .total-row {
+   
     font-weight: bold;
   }
+
+  /* .grand-con{
+    margin-top: 100%;
+  } */
   
   /* Responsive Styles */
   @media (max-width: 1024px) {

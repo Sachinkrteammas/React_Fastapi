@@ -84,7 +84,7 @@ const Layout = ({ onLogout, children }) => {
         { path: "/DetailAnalysis", label: "Detail Analysis" },
         { path: "/Search", label: "Search Lead", Icon: Search },
         { path: "/RawDownload", label: "Raw Download" },
-        { path: "/RawDump", label: "Raw Dump" },
+        // { path: "/RawDump", label: "Raw Dump" },
         { path: "/Potential", label: "Potential Escalation" },
       ],
     },

@@ -24,6 +24,7 @@
 /* Main Content */
 .main-content1 {
   display: flex;
+  width: 100%;
   
  
 }
