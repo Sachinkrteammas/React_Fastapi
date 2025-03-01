@@ -25,7 +25,7 @@ const VerifyPassword = () => {
 
         try {
             // Make API call to verify OTP
-            const response = await axios.post("http://172.12.13.74:9000/verify-otp", {
+            const response = await axios.post("http://172.12.13.74:8097/verify-otp", {
                 email_id: email,
                 otp: otp
             });

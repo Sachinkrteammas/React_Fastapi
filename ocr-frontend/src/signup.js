@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios"; // ✅ Import axios
+import axios from "axios";
+import { Eye, EyeOff } from "lucide-react"; // ✅ Import professional eye icons
 import "./App.css";
 import myImage from "./assets/image.jpg";
 import logo from "./assets/logo.png";
@@ -15,19 +16,19 @@ const Signup = () => {
     });
 
     const [message, setMessage] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-};
-
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setMessage(""); // Clear previous messages
+        setMessage("");
 
         const { username, email_id, contact_number, password, confirm_password } = formData;
 
-        // ✅ Basic Validation
         if (!username || !email_id || !contact_number || !password || !confirm_password) {
             setMessage("⚠️ All fields are required.");
             return;
@@ -38,45 +39,39 @@ const Signup = () => {
             return;
         }
 
-        // ✅ Email Validation
         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         if (!emailRegex.test(email_id)) {
             setMessage("❌ Invalid email format.");
             return;
         }
 
-        // ✅ Phone Number Validation (Exactly 10 digits)
         if (!/^\d{10}$/.test(contact_number)) {
             setMessage("❌ Phone number must be exactly 10 digits.");
             return;
         }
 
-        // ✅ Password Strength Check (At least 6 characters)
         if (password.length < 6) {
             setMessage("❌ Password must be at least 6 characters long.");
             return;
         }
 
         try {
-            const response = await axios.post("http://172.12.13.74:9000/register", formData);
+            const response = await axios.post("http://172.12.13.74:8097/register", formData);
             setMessage(`✅ ${response.data.detail || "Registration successful!"}`);
         } catch (error) {
             console.error("Registration error:", error);
-
             let errorMessage = "❌ Registration failed.";
             if (error.response?.data?.detail) {
                 errorMessage = `❌ ${error.response.data.detail}`;
             } else if (error.code === "ECONNREFUSED") {
                 errorMessage = "❌ Server not reachable. Check your API connection.";
             }
-
             setMessage(errorMessage);
         }
     };
 
     return (
         <div className="container1">
-            {/* Left Section (Image) */}
             <div className="image-section">
                 <img src={myImage} alt="Preview" className="image-preview" />
             </div>
@@ -86,7 +81,6 @@ const Signup = () => {
                 <div className="welcome-text">Welcome to DialDesk</div>
             </div>
 
-            {/* Right Section */}
             <div className="login-section">
                 <h2>Signup</h2>
                 <form onSubmit={handleSubmit}>
@@ -126,31 +120,49 @@ const Signup = () => {
                         />
                     </div>
 
-                    <div className="input-group">
+                    {/* Password Field with Toggle Eye Icon */}
+                    <div className="input-group password-group">
                         <label htmlFor="password">Password:</label>
-                        <input
-                            type="password"
-                            name="password"
-                            placeholder="Password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            required
-                        />
+                        <div className="password-wrapper">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                name="password"
+                                placeholder="Password"
+                                value={formData.password}
+                                onChange={handleChange}
+                                required
+                            />
+                            <span
+                                className="eye-icon"
+                                onClick={() => setShowPassword(!showPassword)}
+                            >
+                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                            </span>
+                        </div>
                     </div>
 
-                    <div className="input-group">
+                    {/* Confirm Password Field with Toggle Eye Icon */}
+                    <div className="input-group password-group">
                         <label htmlFor="confirm_password">Confirm Password:</label>
-                        <input
-                            type="password"
-                            name="confirm_password"
-                            placeholder="Confirm Password"
-                            value={formData.confirm_password}
-                            onChange={handleChange}
-                            required
-                        />
+                        <div className="password-wrapper">
+                            <input
+                                type={showConfirmPassword ? "text" : "password"}
+                                name="confirm_password"
+                                placeholder="Confirm Password"
+                                value={formData.confirm_password}
+                                onChange={handleChange}
+                                required
+                            />
+                            <span
+                                className="eye-icon"
+                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            >
+                                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                            </span>
+                        </div>
                     </div>
-                    <br />
 
+                    <br />
                     {message && <p className="error">{message}</p>}
 
                     <button type="submit">Signup</button>

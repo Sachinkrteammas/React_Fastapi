@@ -24,7 +24,8 @@
 /* Main Content */
 .main-content1 {
   display: flex;
-  background-color: white;
+  
+ 
 }
 
 .main-content1>div {

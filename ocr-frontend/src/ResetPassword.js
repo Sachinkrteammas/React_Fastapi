@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { Eye, EyeOff } from "lucide-react"; // ✅ Import professional eye icons
 import './App.css';
 import myImage from './assets/image.jpg';
 import logo from './assets/logo.png';
@@ -13,6 +14,8 @@ const ResetPassword = () => {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [message, setMessage] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     // Handle Password Reset
     const handleSubmit = async (e) => {
@@ -24,13 +27,13 @@ const ResetPassword = () => {
         }
 
         try {
-            const response = await axios.post("http://172.12.13.74:9000/reset-password", {
+            const response = await axios.post("http://172.12.13.74:8097/reset-password", {
                 email_id: email,  // API requires email_id as a key
-                new_password: password,  // New password
-                confirm_password: confirmPassword  // Confirm password
+                new_password: password,
+                confirm_password: confirmPassword
             });
 
-            setMessage(response.data.message || "Password reset successfully.");
+            setMessage(response.data.message || "✅ Password reset successfully.");
             setTimeout(() => navigate("/"), 2000); // Redirect to login page after 2 seconds
         } catch (error) {
             console.error("Error resetting password:", error);
@@ -55,28 +58,52 @@ const ResetPassword = () => {
             <div className="login-section">
                 <h2>Reset Password</h2>
 
-                {/* Password Reset Form */}
                 <form onSubmit={handleSubmit}>
                     <input
                         type="email"
                         value={email}
                         disabled
                         className="disabled-input"
-                    /><br></br>
-                    <input
-                        type="password"
-                        placeholder="New Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    /><br></br>
-                    <input
-                        type="password"
-                        placeholder="Confirm Password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        required
-                    />
+                    /><br />
+                    <br></br>
+                    {/* New Password Field with Toggle Eye Icon */}
+                    <div className="input-group password-group">
+                        <div className="password-wrapper">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                placeholder="New Password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                            />
+                            <span
+                                className="eye-icon"
+                                onClick={() => setShowPassword(!showPassword)}
+                            >
+                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                            </span>
+                        </div>
+                    </div><br></br>
+
+                    {/* Confirm Password Field with Toggle Eye Icon */}
+                    <div className="input-group password-group">
+                        <div className="password-wrapper">
+                            <input
+                                type={showConfirmPassword ? "text" : "password"}
+                                placeholder="Confirm Password"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                required
+                            />
+                            <span
+                                className="eye-icon"
+                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            >
+                                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                            </span>
+                        </div>
+                    </div><br></br>
+
                     <button type="submit">Reset Password</button>
                 </form>
 

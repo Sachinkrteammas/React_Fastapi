@@ -1,10 +1,11 @@
 /* Container Styles */
 .containers {
-    width: 80%;
-    margin: auto;
-    font-family: Arial, sans-serif;
-    background: #f8f8f8;
-    padding: 10px;
+  width: 95%;
+  margin: auto;
+  margin-top: 20px; /* Adjust the value as needed */
+  font-family: Arial, sans-serif;
+  background: #f8f8f8;
+  padding: 10px;
   }
   
   /* Header */

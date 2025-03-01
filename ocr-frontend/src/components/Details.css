@@ -1,0 +1,239 @@
+.dashboard-container-de {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    background: #f4f4f4;
+  }
+  
+  /* Header */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 10px;
+  }
+  
+
+  
+  .date-picker-container {
+    display: flex;
+    align-items: center;
+  }
+  
+  .date-picker {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-right: 10px;
+    font-size: 14px;
+  }
+  
+  .brand {
+    color: #6a6a6a;
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  /* Stats Section */
+  .stats-flex {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .stat-card {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: bold;
+    width: 22%;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Main Content */
+  .content-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+  }
+  
+  /* Left Section */
+  .left-section-de{
+    width: 60%;
+  }
+  .issue-card {
+    display: flex;
+    
+    width: 100%;
+    gap:5px;
+
+  }
+  .issue-card-container{
+    height: 100%;
+    width: 100%;
+  
+
+    background: white;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+
+  }
+  .top-issues-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap:5px;
+   
+  }
+.chart-detail{
+    background: white;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+   
+}
+
+
+
+
+
+
+
+
+
+  /* Right Section */
+  .right-section-de {
+    width: 40%;
+  }
+  
+  .stats-flex-right{
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+
+
+
+  /* Table Cards */
+  .table-card-de {
+    background: white;
+    padding: 15px;
+    
+    margin-bottom: 10px;
+    border-radius: 8px;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .table-card-de h4 {
+    margin-bottom: 10px;
+    font-size: 16px;
+    font-weight: bold;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  
+  td, th {
+    padding: 6px 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .count {
+    text-align: right;
+    font-weight: bold;
+  }
+ 
+
+  .audit-table {
+    background: #d6edea;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .audit-table table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  
+  .audit-table th, .audit-table td {
+    padding: 8px 10px;
+    text-align: center;
+    border-bottom: 1px solid #ccc;
+  }
+  
+  .percentage {
+    font-weight: bold;
+  }
+  
+  .green {
+    background-color: #4caf50;
+    color: white;
+    padding: 5px;
+    border-radius: 5px;
+  }
+  
+  .red {
+    background-color: #d32f2f;
+    color: white;
+    padding: 5px;
+    border-radius: 5px;
+  }
+  
+  .total-row {
+    font-weight: bold;
+  }
+  
+  /* Responsive Styles */
+  @media (max-width: 1024px) {
+    .stats-flex {
+      flex-wrap: wrap;
+    }
+    
+    .stat-card {
+      width: 48%;
+    }
+  
+    .content-flex {
+      flex-direction: column;
+    }
+  
+    .left-section, .right-section {
+      width: 100%;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .stat-card {
+      width: 100%;
+    }
+  
+    .table-card {
+      padding: 10px;
+    }
+  
+    table {
+      font-size: 12px;
+    }
+  
+    /* .chart-container {
+      padding: 10px;
+    } */
+  }
+  

@@ -1,203 +1,203 @@
-/* === General Reset & Responsive Base === */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-/* body {
-  font-family: 'Arial', sans-serif;
-  width: 100%;
-  overflow-x: hidden; 
-  padding: 10px;
-  display: flex;
-  justify-content: center;
-} */
-
-/* === Data Board === */
-.dateboard {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-  max-width: 1200px;
-  width: 100%;
-}
-
-.dateboard div {
-  display: flex;
-  align-items: center;
-  padding: 10px;
-}
-
-/* === Fixed Container Sizes === */
-.prev-page, .date-page1, .table-container {
-  width: 100%;
-  max-width: 1168px;
-  height: auto;
-  border-radius: 10px;
-  transition: all 0.3s ease-in-out;
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.12),
-              0 10px 20px rgba(0, 0, 0, 0.15);
-  padding: 20px;
-  background: white;
-  margin-top: 20px;
-}
-
-/* === Button Styling === */
-.view {
-  padding: 5px;
-  background: #16155e;
-  border: none;
-  width: 4rem;
-  height: 1.6rem;
-  border-radius: 5px;
-  color: white;
-  cursor: pointer;
-}
-
-.view:hover {
-  background: #bbb;
-}
-
-/* === Responsive Date Section === */
-.date-page1 {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  padding: 15px;
-}
-
-.predate,
-.datepic1 {
-  border-radius: 5px;
-  width: 140px;
-  height: 30px;
-}
-
-/* === Table Container === */
-.table-container {
-  overflow-x: auto; 
-}
-
-.custom-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-family: Arial, sans-serif;
-  text-align: left;
-}
-
-.custom-table th,
-.custom-table td {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-}
-
-/* === Pagination === */
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 20px;
-  gap: 10px;
-}
-
-.pagination-button {
-  padding: 5px;
-  background: #16155e;
-  border: none;
-  width: 64px;
-  height: 30px;
-  border-radius: 5px;
-  color: white;
-  cursor: pointer;
-}
-
-.pagination-button:hover {
-  background: #bbb;
-}
-
-.pagination-button:disabled {
-  background-color: #bbb;
-  cursor: not-allowed;
-}
-
-/* === Audio Controls === */
-.audio-controls {
-  width: 100%;
-  max-width: 208px;
-  border-radius: 30px;
-  background-color: #f4f4f4;
-}
-
-/* === Responsive Design Adjustments === */
-@media (max-width: 1200px) {
-  .prev-page, .date-page1, .table-container,.word, .word1 {
-    width: 95%;
-  }
-}
-
-@media (max-width: 768px) {
   .dateboard {
-    flex-direction: column;
-    align-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 95%;
+      margin: auto;
+
+
+      margin-top: 20px; /* Adjust the value as needed */
+
+
   }
 
-  .prev-page, .date-page1, .table-container {
-    width: 100%;
+  .dateboard div {
+      display: flex;
+      align-items: normal;
+      padding: 10px;
   }
 
-  .pagination {
-    flex-direction: column;
-    gap: 10px;
+
+  /* @media (max-width: 768px) {
+      .dateboard {
+          flex-direction: column;
+          gap: 15px;
+      }
+
+      select,
+      .datepic {
+          width: 100%;
+      }
+  } */
+
+  .prev-page {
+
+      flex-wrap: wrap;
+
+      border-radius: 10px;
+      transition: all 0.3s ease-in-out;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.12),
+          0 10px 20px rgba(0, 0, 0, 0.15);
+
+      margin-top: 30px;
+      width: 73rem;
+      height: 25rem;
+
   }
 
-  .pagination-button {
-    width: 80px;
+  .view {
+      margin-left: 10px;
+      padding: 3px;
+      background: #16155e;
+      border: none;
+      width: 4rem;
+      height: 1.6rem;
+      border-radius: 5px;
+      margin-bottom: 40px;
   }
-  .word{
-    font-size: 15px;
+
+  .view:hover {
+      background: #bbb;
+  }
+
+  .word {
+      left: 3.5rem;
+      font-size: 1rem;
+      position: relative;
+  }
+
+  .word1 {
+      left: 5rem;
+      font-size: 1rem;
+      position: relative;
+  }
+
+  .date-page1 {
+      justify-content: space-between;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.12), 0 10px 20px rgba(0, 0, 0, 0.15);
+      gap: 10px;
+      flex-wrap: wrap;
+      height: 6rem;
+      width: 73rem;
+      margin-left: 10px;
+      margin-right: 10px;
+      margin-top: 1rem;
+
+  }
+
+  .predate {
+      border-radius: 5px;
+      width: 140px;
+      height: 25px;
+      margin-top: 3rem;
+      margin-left: -4rem;
+  }
+
+  .datepic1 {
+      width: 140px;
+      height: 25px;
+      border: 1px solid;
+      margin-top: 1.8rem;
+      margin-left: -4rem;
+  }
+
+
+
+
+
+
+  /* Table Container */
+.table-containers1 {
+    margin-top: 10px;
+    width: 73rem;
+    height: 25rem;
   }
   
-  .word1{
-    font-size: 15px;
+  /* Table Styling */
+  .custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: Arial, sans-serif;
+    text-align: left;
   }
-}
-
-@media (max-width: 480px) {
-  .prev-page {
-    height: auto;
-    padding: 15px;
+  
+  /* Table Header */
+  .custom-table thead {
+    background: #f4f4f4;
+    border-bottom: 2px solid #ddd;
+  }
+  
+  .custom-table th {
+    padding: 10px;
+    font-weight: bold;
+  }
+  
+  /* Table Rows */
+  .custom-table tbody tr {
+    border-bottom: 1px solid #ddd;
+  }
+  
+  /* Table Data */
+  .custom-table td {
+    padding: 4px;
+   
+  }
+  
+  /* Clickable File Link */
+  .file-link {
+    color: blue;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  
+  .file-link:hover {
+    color: darkblue;
   }
 
-  .custom-table th, .custom-table td {
-    padding: 8px;
-    font-size: 12px;
-  }
 
+/* next page button */
+  .pagination {
+    display: flex;
+    justify-content: center;
+   
+    margin-top: 4.5rem;
+  }
+  
   .pagination-button {
-    width: 100px;
-    height: 35px;
+    padding: 3px;
+    background: #16155e;
+    border: none;
+    width: 4rem;
+    height: 2rem;
+    border-radius: 5px;
+    
+    color: white;
+    cursor: pointer;
+    
   }
+  .pagination-button:hover{
+    background: #bbb;
+  }
+  
+  .pagination-button:disabled {
+    background-color: #bbb;
+    cursor: not-allowed;
+  }
+  
+  .page-info {
+    font-weight: bold;
+    align-items: center;
+    margin-top: 1rem;
+  }
+
 
   .audio-controls {
-    width: 100%;
-  }
-  .word{
-    font-size: 15px;
+    width: 60%;
+    border-radius: 30px;
+    background-color: #f4f4f4;
+    outline: none;
   }
   
-  .word1{
-    font-size: 15px;
-  }
-}
-
-.word{
-  font-size: 15px;
-}
-
-.word1{
-  font-size: 15px;
-}
+  

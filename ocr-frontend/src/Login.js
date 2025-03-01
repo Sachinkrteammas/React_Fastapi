@@ -1,19 +1,21 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios"; // Import axios for API requests
+import axios from "axios";
+import { Eye, EyeOff } from "lucide-react"; // Professional eye toggle icons
 import "./App.css";
 import myImage from "./assets/image.jpg";
 import logo from "./assets/logo.png";
 
 const Login = ({ onLogin }) => {
   const navigate = useNavigate();
-  const [email_id, setEmail] = useState(""); // Match backend field name
+  const [email_id, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage(""); // Clear previous messages
+    setMessage("");
 
     if (!email_id || !password) {
       setMessage("⚠️ Please enter both email and password.");
@@ -22,18 +24,18 @@ const Login = ({ onLogin }) => {
 
     try {
       const response = await axios.post("http://172.12.13.74:8097/login", {
-        email_id, // Send email_id (ensure backend expects this)
+        email_id,
         password
       });
 
       if (response.status === 200) {
-        localStorage.setItem("token", response.data.token); // Store token
+        localStorage.setItem("token", response.data.token);
         localStorage.setItem("username", response.data.username);
         localStorage.setItem("id", response.data.id);
-        localStorage.setItem("isLoggedIn", JSON.stringify(true)); // Ensure proper boolean storage
+        localStorage.setItem("isLoggedIn", JSON.stringify(true));
 
-        onLogin(); // Call login function to update state
-        navigate("/dashboard"); // Redirect to dashboard
+        onLogin();
+        navigate("/dashboard", { replace: true }); // Prevents going back to login
       } else {
         setMessage("❌ Login failed. Please try again.");
       }
@@ -72,16 +74,26 @@ const Login = ({ onLogin }) => {
               required
             />
           </div>
-          <div className="input-group">
+
+          {/* Password Field with Eye Icon */}
+          <div className="input-group password-group">
             <label htmlFor="password">Password:</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              required
-            />
+            <div className="password-wrapper">
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                required
+              />
+              <span
+                className="eye-icon"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </span>
+            </div>
           </div>
           <br />
 

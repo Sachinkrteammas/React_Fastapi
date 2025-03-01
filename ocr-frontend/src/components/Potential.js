@@ -44,7 +44,7 @@ const Potential = () => {
         {/* Header Section */}
         <header className="headerPo">
           <h3>BELLAVITA</h3>
-          <select className="po-search-bar">
+          <select className="search-bar">
             <option>Search Lead Id</option>
             <option value="12618840">12618840</option>
             <option value="14562892">14562892</option>

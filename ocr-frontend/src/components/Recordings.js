@@ -4,6 +4,7 @@ import axios from "axios";
 import "./Recording.css";
 import Layout from "../layout";
 import "../layout.css";
+import { Copy, CopyCheck } from "lucide-react";
 
 const Recordings = () => {
   const navigate = useNavigate();
@@ -24,13 +25,13 @@ const Recordings = () => {
 -F 'language=English' \\
 -F 'category=Sales'`;
 
-    const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-    const copyToClipboard = () => {
-        navigator.clipboard.writeText(curlCommand);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-    }
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(curlCommand);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
 
   const handleFileChange = (event) => {
     setSelectedFiles((prevFiles) => [
@@ -114,90 +115,88 @@ const Recordings = () => {
   };
 
 
-  
-   
+
+
 
   return (
     <Layout>
-      <div className="record-content">
-        <h1 className="wordrec">Recordings</h1>
+      <div className="record-dash">
+        <div className="record-content">
+          <h1 className="wordrec">Recordings</h1>
 
-        {/* Language & Category Dropdowns */}
-        <div className="drop-record">
-          <select
-            value={selectedLanguage}
-            onChange={(e) => setSelectedLanguage(e.target.value)}
-          >
-            <option value="">Select Language</option>
-            <option value="English">English</option>
-            <option value="Hindi">Hindi</option>
-            <option value="Tamil">Tamil</option>
-            <option value="Kannada">Kannada</option>
-          </select>
-
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-          >
-            <option value="">Select Category</option>
-            <option value="Sales">Sales</option>
-            <option value="Service">Service</option>
-          </select>
-        </div>
-
-        <h2 className="chword">Choose Audio Files</h2>
-
-        {/* File Input & Upload Button */}
-        <div className="recordings-box">
-          <input
-            type="file"
-            accept="audio/mpeg,audio/wav"
-            multiple
-            className="browse-button"
-            onChange={handleFileChange}
-            ref={fileInputRef}
-          />
-          <button
-            className="upload-button"
-            onClick={handleUpload}
-            disabled={uploading}
-          >
-            {uploading ? "Uploading..." : "Upload"}
-          </button>
-          {uploadMessage && <p className="upload-message">{uploadMessage}</p>}
-        </div>
-
-        <div className="developer-container">
-          <h1 className="worddev">Developer Code</h1>
-          <div className="developer-box">
-            <div className="curl-div">
-            <code className="curlcode" >{curlCommand}</code>
-            <button
-                onClick={copyToClipboard}
-                className="mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"
+          {/* Language & Category Dropdowns */}
+          <div className="drop-record">
+            <select
+              value={selectedLanguage}
+              onChange={(e) => setSelectedLanguage(e.target.value)}
             >
-                {copied ? "Copied!" : "Copy"}
-            </button>
-        
-            </div>
+              <option value="">Select Language</option>
+              <option value="English">English</option>
+              <option value="Hindi">Hindi</option>
+              <option value="Tamil">Tamil</option>
+              <option value="Kannada">Kannada</option>
+            </select>
+
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+            >
+              <option value="">Select Category</option>
+              <option value="Sales">Sales</option>
+              <option value="Service">Service</option>
+            </select>
           </div>
-          <div className="generate-container">
+
+          <h2 className="chword">Choose Audio Files</h2>
+
+          {/* File Input & Upload Button */}
+          <div className="recordings-box">
             <input
-              type="text"
-              value={generatedKey}
-              readOnly
-              className="key-input"
+              type="file"
+              accept="audio/mpeg,audio/wav"
+              multiple
+              className="browse-button"
+              onChange={handleFileChange}
+              ref={fileInputRef}
             />
             <button
-              className="copy-key-button"
-              onClick={() => navigator.clipboard.writeText(generatedKey)}
-              disabled={!generatedKey}
+              className="upload-button"
+              onClick={handleUpload}
+              disabled={uploading}
             >
-              Copy
+              {uploading ? "Uploading..." : "Upload"}
             </button>
-            <button className="generate-key-button" onClick={handleGenerateKey}>
-              Generate Key
-            </button>
+            {uploadMessage && <p className="upload-message">{uploadMessage}</p>}
+          </div>
+
+          <div className="developer-container">
+            <h1 className="worddev">Developer Code</h1>
+            <div className="developer-box">
+              <div className="curl-div">
+                <code className="curlcode">{curlCommand}</code>
+                <button onClick={copyToClipboard} className="clipcopy">
+                  {copied ? <CopyCheck size={18} /> : <Copy size={18} />}
+                </button>
+              </div>
+            </div>
+            <div className="generate-container">
+              <input
+                type="text"
+                value={generatedKey}
+                readOnly
+                className="key-input"
+              />
+              <button
+                className="copy-key-button"
+                onClick={() => navigator.clipboard.writeText(generatedKey)}
+                disabled={!generatedKey}
+              >
+                Copy
+              </button>
+              <button className="generate-key-button" onClick={handleGenerateKey}>
+                Generate Key
+              </button>
+            </div>
           </div>
         </div>
       </div>

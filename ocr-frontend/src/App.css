@@ -129,3 +129,40 @@ button:hover {
     height: 100vh;
   }
 }
+
+.password-group {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.password-wrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.password-wrapper input {
+  flex: 1;
+  padding-right: 40px; /* Ensures space for the eye icon */
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 16px;
+}
+
+.eye-icon {
+  position: absolute;
+  right: 10px;
+  cursor: pointer;
+  color: #666;
+  transition: color 0.3s ease;
+}
+
+.eye-icon:hover {
+  color: #000;
+}
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}

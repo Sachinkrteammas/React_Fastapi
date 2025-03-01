@@ -23,7 +23,7 @@ const ForgotPassword = () => {
 
         try {
             // Sending the email to the backend
-            const response = await axios.post("http://172.12.13.74:9000/forgot-password", {
+            const response = await axios.post("http://172.12.13.74:8097/forgot-password", {
                 email_id: email
             });
 
