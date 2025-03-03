@@ -44,7 +44,7 @@ const Potential = () => {
         {/* Header Section */}
         <header className="headerPo">
           <h3>BELLAVITA</h3>
-          <div className="search-container">
+          <div className="po-search-container">
             <input
               type="text"
               className="po-search-bar"

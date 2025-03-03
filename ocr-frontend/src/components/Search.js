@@ -38,7 +38,7 @@ const Search = () => {
         <header className="header">
           <h3>BELLAVITA</h3>
 
-          <div className="search-container">
+          <div className="search-container-se">
             <input
               type="text"
               className="search-bar"

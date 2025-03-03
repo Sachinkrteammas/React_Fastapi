@@ -30,10 +30,12 @@
     border-radius: 4px;
     margin-top: 13%;
   }
-  .search-container {
+  .search-container-se {
     display: flex;
     align-items: center;
     gap: 8px;
+    margin-top: -35px;
+   
     
   }
   .search-button-se {
