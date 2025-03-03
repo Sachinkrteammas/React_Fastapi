@@ -26,14 +26,38 @@
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    margin-left: 500px;
+    
    
   }
+
+  .po-search-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+  }
+  .po-search-button {
+    padding: 8px;
+   
+    background-color: #16155e;
+    border-radius: 4px;
+    cursor: pointer;
+  }
   
-  .date-picker {
+  .po-search-button:hover {
+    background: #bbb;
+  }
+
+  
+  .po-date-picker {
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
+
+    width: 198px;
+    height: 38px; 
+    
+    padding: 10px;
   }
   /* Content Layout */
   .content {

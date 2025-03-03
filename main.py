@@ -964,80 +964,79 @@ def get_negative_data(
         }
         for row in result
     ]
+
 class ComplaintSummary(BaseModel):
-    call_date: str  # Convert date to string format
+    date: str  # Convert date to string format
     social_media_threat: int
     consumer_court_threat: int
     total: int
 
 class ComplaintRawData(BaseModel):
-    call_date: str  # Convert date to string format
+    date: str  # Convert date to string format
     scenario: str
     sub_scenario: str
     sensitive_word: str
 
-# Response Model
 class ComplaintResponse(BaseModel):
     client_id: str
     summary: List[ComplaintSummary]
     raw_data: List[ComplaintRawData]
 
-@app.get("/complaints_by_date/", response_model=ComplaintResponse)
+# def get_db2():
+#     # Define your database dependency function here
+#     pass
+
+@app.get("/complaints_by_date", response_model=ComplaintResponse)
 def get_complaints_by_date(
     client_id: str = Query(..., description="Client ID"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db2)
 ):
-    # Define the last 7 days (including today)
     end_date = date.today()
     start_date = end_date - timedelta(days=6)
 
-    # Aggregated complaints summary query
     summary_query = text("""
-        SELECT 
-            DATE(CallDate) AS call_date,
+        SELECT
+            DATE(CallDate) AS date,
             SUM(CASE WHEN LOWER(sensetive_word) LIKE '%social%' THEN 1 ELSE 0 END) AS social_media_threat,
-            SUM(CASE WHEN LOWER(sensetive_word) LIKE '%court%' 
-                        OR LOWER(sensetive_word) LIKE '%consumer%' 
-                        OR LOWER(sensetive_word) LIKE '%legal%' 
+            SUM(CASE WHEN LOWER(sensetive_word) LIKE '%court%'
+                        OR LOWER(sensetive_word) LIKE '%consumer%'
+                        OR LOWER(sensetive_word) LIKE '%legal%'
                         OR LOWER(sensetive_word) LIKE '%fir%' THEN 1 ELSE 0 END) AS consumer_court_threat,
             COUNT(*) AS total
         FROM call_quality_assessment
         WHERE ClientId = :client_id  
         AND DATE(CallDate) BETWEEN :start_date AND :end_date
-        GROUP BY call_date
-        ORDER BY call_date DESC
+        GROUP BY DATE(CallDate)
+        ORDER BY DATE(CallDate) ASC;
     """)
 
-    # Raw data query (for detailed records)
     raw_data_query = text("""
-        SELECT 
-            DATE(CallDate) AS call_date,
+        SELECT
+            DATE(CallDate) AS date,
             scenario,
-            scenario1,
-            sensetive_word
+            scenario1 AS sub_scenario,
+            sensetive_word AS sensitive_word
         FROM call_quality_assessment
         WHERE ClientId = :client_id  
         AND DATE(CallDate) BETWEEN :start_date AND :end_date
-        ORDER BY call_date DESC
+        ORDER BY DATE(CallDate) ASC;
     """)
 
-    # Execute queries
     summary_results = db.execute(summary_query, {
         "client_id": client_id,
-        "start_date": start_date,
-        "end_date": end_date
+        "start_date": start_date.strftime("%Y-%m-%d"),
+        "end_date": end_date.strftime("%Y-%m-%d")
     }).fetchall()
 
     raw_data_results = db.execute(raw_data_query, {
         "client_id": client_id,
-        "start_date": start_date,
-        "end_date": end_date
+        "start_date": start_date.strftime("%Y-%m-%d"),
+        "end_date": end_date.strftime("%Y-%m-%d")
     }).fetchall()
 
-    # Format summary results
     summary = [
         ComplaintSummary(
-            call_date=row[0].strftime("%Y-%m-%d"),  # ✅ Convert date to string
+            date=row[0].strftime("%Y-%m-%d"),
             social_media_threat=row[1],
             consumer_court_threat=row[2],
             total=row[3]
@@ -1045,10 +1044,9 @@ def get_complaints_by_date(
         for row in summary_results
     ]
 
-    # Format raw data results
     raw_data = [
         ComplaintRawData(
-            call_date=row[0].strftime("%Y-%m-%d"),  # ✅ Convert date to string
+            date=row[0].strftime("%Y-%m-%d"),
             scenario=row[1],
             sub_scenario=row[2],
             sensitive_word=row[3]

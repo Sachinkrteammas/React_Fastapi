@@ -44,28 +44,29 @@ const Potential = () => {
         {/* Header Section */}
         <header className="headerPo">
           <h3>BELLAVITA</h3>
-          <select className="search-bar">
-            <option>Search Lead Id</option>
-            <option value="12618840">12618840</option>
-            <option value="14562892">14562892</option>
-            <option value="12859624">12859624</option>
-            <option value="12895464">12895464</option>
-            {/* Add more Lead IDs dynamically */}
-          </select>
-          <div className="filters">
-            <div className="filter-item">
-              {/* <label>Start Date - End Date</label> */}
-              <DatePicker
-                selected={startDate}
-                onChange={(update) => setDateRange(update)}
-                startDate={startDate}
-                endDate={endDate}
-                selectsRange
-                className="date-picker"
-                placeholderText="MM-DD-YYYY "
-              />
-            </div>
+          <div className="search-container">
+            <input
+              type="text"
+              className="po-search-bar"
+              placeholder="Search Lead Id..."
+            />
+            {/* <div className="filters">
+              <div className="filter-item"> */}
+            {/* <label>Start Date - End Date</label> */}
+            <DatePicker
+              selected={startDate}
+              onChange={(update) => setDateRange(update)}
+              startDate={startDate}
+              endDate={endDate}
+              selectsRange
+              className="po-date-picker"
+              placeholderText="MM-DD-YYYY "
+            />
+            {/* </div>
+            </div> */}
+              <button className="po-search-button" style={{ marginTop: "0%" }}>Search</button>
           </div>
+
 
 
         </header>
@@ -93,7 +94,8 @@ const Potential = () => {
                   width: "210px",
                   height: "auto",
                   left: "215px",
-                  bottom: "115px"
+                  bottom: "115px",
+                  fontSize: "12px",
                 }}
               />
             </PieChart>

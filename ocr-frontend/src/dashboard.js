@@ -37,7 +37,7 @@ const Dashboard = () => {
     try {
         console.log("Fetching data for:", startDate, "to", endDate);
 
-        const response = await fetch("http://172.12.13.74:9005/get-audio-stats/", {
+        const response = await fetch("http://172.12.13.74:8097/get-audio-stats/", {
             method: "POST", // Use POST instead of GET
             headers: {
                 "Content-Type": "application/json",

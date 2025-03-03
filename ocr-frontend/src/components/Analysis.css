@@ -456,8 +456,12 @@
   margin-bottom: 10px;
   border-radius: 5px;
   width: 18rem;
+  /* height: 335px; */
 }
-
+.setalertbox
+{
+  height: 335px;
+}
 .chart-containernew {
   flex: 2;
 }
@@ -521,4 +525,10 @@
 .setdatewidth
 {
   width: 100%;
+}
+
+
+.tablescrollbar{
+  overflow-y:auto;
+  height: 400px;
 }
