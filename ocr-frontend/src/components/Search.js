@@ -37,11 +37,15 @@ const Search = () => {
         {/* Header Section */}
         <header className="header">
           <h3>BELLAVITA</h3>
-          <select className="search-bar">
-            <option>Search Lead Id</option>
-            <option value="12618840">12618840</option>
-            {/* Add more Lead IDs dynamically */}
-          </select>
+
+          <div className="search-container">
+            <input
+              type="text"
+              className="search-bar"
+              placeholder="Search Lead Id..."
+            />
+            <button className="search-button-se ">Search</button>
+          </div>
 
         </header>
 

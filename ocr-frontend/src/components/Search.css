@@ -28,8 +28,26 @@
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
+    margin-top: 13%;
+  }
+  .search-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+  }
+  .search-button-se {
+    padding: 8px;
+   
+    background-color: #16155e;
+    border-radius: 4px;
+    cursor: pointer;
   }
   
+  .search-button-se:hover {
+    background: #bbb;
+  }
+
   /* Table Styles */
   .tables-container {
     margin-top: 15px;
