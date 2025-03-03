@@ -83,46 +83,46 @@ const Analysis = () => {
     ],
   };
 
-  const monthWiseData = [
-    {
-      name: "Dec '24",
-      Frustration: 33,
-      Threat: 39,
-      Slang: 3,
-      Abuse: 0,
-      Sarcasm: 0,
-    },
-    {
-      name: "Jan '25",
-      Frustration: 167,
-      Threat: 92,
-      Slang: 29,
-      Abuse: 0,
-      Sarcasm: 3,
-    },
-    {
-      name: "Feb '25",
-      Frustration: 123,
-      Threat: 57,
-      Slang: 1,
-      Abuse: 0,
-      Sarcasm: 0,
-    },
-  ];
-  const lastTwoDaysData = [
-    { name: "Feb 17, 2025", Frustration: 9, Threat: 1 },
-    { name: "Feb 18, 2025", Frustration: 1, Threat: 1 },
-  ];
+  // const monthWiseData = [
+  //   {
+  //     name: "Dec '24",
+  //     Frustration: 33,
+  //     Threat: 39,
+  //     Slang: 3,
+  //     Abuse: 0,
+  //     Sarcasm: 0,
+  //   },
+  //   {
+  //     name: "Jan '25",
+  //     Frustration: 167,
+  //     Threat: 92,
+  //     Slang: 29,
+  //     Abuse: 0,
+  //     Sarcasm: 3,
+  //   },
+  //   {
+  //     name: "Feb '25",
+  //     Frustration: 123,
+  //     Threat: 57,
+  //     Slang: 1,
+  //     Abuse: 0,
+  //     Sarcasm: 0,
+  //   },
+  // ];
+  // const lastTwoDaysData = [
+  //   { name: "Feb 17, 2025", Frustration: 9, Threat: 1 },
+  //   { name: "Feb 18, 2025", Frustration: 1, Threat: 1 },
+  // ];
 
-  const doughnutChartData = {
-    labels: ["Amazon", "Flipkart", "BuyZone Attwin", "Smiths", "Cuemath"],
-    datasets: [
-      {
-        data: [21, 14, 7, 7, 14],
-        backgroundColor: ["blue", "green", "red", "purple", "orange"],
-      },
-    ],
-  };
+  // const doughnutChartData = {
+  //   labels: ["Amazon", "Flipkart", "BuyZone Attwin", "Smiths", "Cuemath"],
+  //   datasets: [
+  //     {
+  //       data: [21, 14, 7, 7, 14],
+  //       backgroundColor: ["blue", "green", "red", "purple", "orange"],
+  //     },
+  //   ],
+  // };
 
   // api connect
 
@@ -137,6 +137,26 @@ const Analysis = () => {
   const [negativeData, setNegativeData] = useState([]); // ✅ For /negative_data/
   const [complaintData, setComplaintData] = useState([]);
   const [rawComplaintData, setRawComplaintData] = useState([]);
+  const [monthWiseData, setMonthWiseData] = useState([]);
+  const [lastTwoDaysData, setLastTwoDaysData] = useState([]);
+  const [competitorData, setCompetitorData] = useState([]);
+  const [doughnutChartData, setDoughnutChartData] = useState({
+    labels: [],
+    datasets: [
+      {
+        data: [],
+        backgroundColor: [
+          "blue",
+          "green",
+          "red",
+          "purple",
+          "orange",
+          "cyan",
+          "yellow",
+        ],
+      },
+    ],
+  });
 
   const [topNegativeSignals, setTopNegativeSignals] = useState([
     { category: "Abuse", count: 0 },
@@ -181,8 +201,9 @@ const Analysis = () => {
         `http://127.0.0.1:8097/potential_escalation?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`,
         `http://127.0.0.1:8097/agent_scores?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`,
         `http://127.0.0.1:8097/top_performers?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`,
-        `http://127.0.0.1:8097/potential_escalations_data/?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`, // ✅ Store separately
-        `http://127.0.0.1:8097/negative_data/?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`, // ✅ Store separately
+        `http://127.0.0.1:8097/potential_escalations_data/?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`,
+        `http://127.0.0.1:8097/negative_data/?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`,
+        `http://127.0.0.1:8097/competitor_data/?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`, // ✅ Fetch competitor data
       ];
 
       const responses = await Promise.all(urls.map((url) => fetch(url)));
@@ -196,14 +217,33 @@ const Analysis = () => {
         scoresData,
         performersData,
         potentialEscalationsData,
-        negativeDataResponse, // ✅ Separate variable for /negative_data/
+        negativeDataResponse,
+        competitorDataResponse,
       ] = await Promise.all(responses.map((response) => response.json()));
 
-      console.log(
-        "Potential Escalations API Response:",
-        potentialEscalationsData
-      );
-      console.log("Negative Data API Response:", negativeDataResponse);
+      console.log("Competitor Data API Response:", competitorDataResponse);
+
+      setCompetitorData(competitorDataResponse);
+
+      const labels = competitorDataResponse.map((item) => item.Competitor_Name);
+      const counts = competitorDataResponse.map((item) => item.Count);
+      setDoughnutChartData({
+        labels: labels,
+        datasets: [
+          {
+            data: counts,
+            backgroundColor: [
+              "blue",
+              "green",
+              "red",
+              "purple",
+              "orange",
+              "cyan",
+              "yellow",
+            ],
+          },
+        ],
+      });
 
       setEscalationData({
         social_media_threat:
@@ -235,9 +275,8 @@ const Analysis = () => {
 
       setScores(scoresData);
       setPerformers(performersData?.top_performers || []);
-
-      setPotentialEscalations(potentialEscalationsData); // ✅ Correctly storing /potential_escalations_data/
-      setNegativeData(negativeDataResponse); // ✅ Correctly storing /negative_data/
+      setPotentialEscalations(potentialEscalationsData);
+      setNegativeData(negativeDataResponse);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -248,7 +287,75 @@ const Analysis = () => {
   useEffect(() => {
     const fetchAuditData = async () => {
       try {
+        const response = await fetch(
+          "http://127.0.0.1:8097/negative_data_summary/?client_id=375"
+        );
+        if (!response.ok) throw new Error("Failed to fetch negative data");
+
+        const data = await response.json();
+
+        // Group by month
+        const monthDataMap = {};
+        data.last_3_months.forEach(({ month, negative_word }) => {
+          if (!monthDataMap[month]) {
+            monthDataMap[month] = {
+              Frustration: 0,
+              Threat: 0,
+              Slang: 0,
+              Abuse: 0,
+              Sarcasm: 0,
+            };
+          }
+
+          const words = negative_word.toLowerCase().split(", ");
+          if (words.includes("frustration"))
+            monthDataMap[month].Frustration += 1;
+          if (words.includes("threatened") || words.includes("threatens"))
+            monthDataMap[month].Threat += 1;
+          if (words.includes("slang")) monthDataMap[month].Slang += 1;
+          if (words.includes("abusive") || words.includes("abuse"))
+            monthDataMap[month].Abuse += 1;
+          if (words.includes("sarcasm")) monthDataMap[month].Sarcasm += 1;
+        });
+
+        // Convert to array format
+        const formattedMonthWiseData = Object.entries(monthDataMap).map(
+          ([month, values]) => ({
+            name: new Date(month + "-01").toLocaleString("en-US", {
+              month: "short",
+              year: "2-digit",
+            }),
+            ...values,
+          })
+        );
+
+        // Process last 2 days
+        const lastTwoDaysFormatted = data.last_2_days.map(
+          ({ date, negative_word }) => {
+            const words = negative_word.toLowerCase().split(", ");
+            return {
+              name: new Date(date).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+              }),
+              Frustration: words.includes("frustration") ? 1 : 0,
+              Threat: words.includes("threatened") ? 1 : 0,
+            };
+          }
+        );
+
+        setMonthWiseData(formattedMonthWiseData);
+        setLastTwoDaysData(lastTwoDaysFormatted);
+      } catch (error) {
+        console.error("Error fetching negative data:", error);
+      }
+    };
+
+    const fetchAuditCount = async () => {
+      try {
         const response = await fetch("http://127.0.0.1:8097/audit_count");
+        if (!response.ok) throw new Error("Failed to fetch audit count");
+
         const data = await response.json();
         setAuditData(data);
 
@@ -278,13 +385,13 @@ const Analysis = () => {
           return;
         }
 
-        // ✅ Convert API response into bar chart format
+        // Convert API response into bar chart format
         const formattedData = data.trend.map((item) => ({
           date: new Date(item.date).toLocaleDateString("en-US", {
             month: "short",
             day: "numeric",
-          }), // Converts YYYY-MM-DD → "Feb 23"
-          score: Math.round(item.cq_score), // ✅ Ensure rounding works
+          }),
+          score: Math.round(item.cq_score),
           target: item.target,
         }));
 
@@ -299,6 +406,9 @@ const Analysis = () => {
         const response = await fetch(
           "http://127.0.0.1:8097/call_length_categorization"
         );
+        if (!response.ok)
+          throw new Error("Failed to fetch call length categorization");
+
         const data = await response.json();
         setCategories(data);
       } catch (error) {
@@ -328,13 +438,19 @@ const Analysis = () => {
     };
 
     const fetchData = async () => {
-      await Promise.all([
-        fetchAuditData(),
-        fetchCategories(),
-        fetchCQTrendData(),
-        fetchComplaintData(), // Added new API call here
-      ]);
-      setLoading(false); // Set loading false only after all fetch calls complete
+      try {
+        await Promise.all([
+          fetchAuditData(),
+          fetchAuditCount(),
+          fetchCategories(),
+          fetchCQTrendData(),
+          fetchComplaintData(),
+        ]);
+      } catch (error) {
+        console.error("Error in fetchData:", error);
+      } finally {
+        setLoading(false); // Ensure setLoading(false) runs even if there's an error
+      }
     };
 
     fetchData();
@@ -807,11 +923,17 @@ const Analysis = () => {
           <div className="section">
             <div className="alerts">
               <h5>Top Negative Signals</h5>
-              <div className="alert-box">
-                Frustration - Delay, disappointment (Lead ID: 11023039)
-              </div>
-              <div className="alert-box">
-                Threat - Fraud, case (Lead ID: 11023093)
+              <div className="setscroll">
+                {negativeData.length > 0 ? (
+                  negativeData.map((item, index) => (
+                    <div key={index} className="alert-box">
+                      {item.sensetive_word} (Lead ID: {item.lead_id}) -{" "}
+                      {item.call_date}
+                    </div>
+                  ))
+                ) : (
+                  <div className="alert-box">No alerts available</div>
+                )}
               </div>
             </div>
           </div>
@@ -861,55 +983,18 @@ const Analysis = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>Amazon</td>
-                  <td>3</td>
-                </tr>
-                <tr>
-                  <td>Flipkart</td>
-                  <td>2</td>
-                </tr>
-                <tr>
-                  <td>BuyZone Attwin</td>
-                  <td>1</td>
-                </tr>
-                <tr>
-                  <td>BuyZone Attwin</td>
-                  <td>1</td>
-                </tr>
-                <tr>
-                  <td>BuyZone Attwin</td>
-                  <td>1</td>
-                </tr>
-                <tr>
-                  <td>BuyZone Attwin</td>
-                  <td>1</td>
-                </tr>
-                <tr>
-                  <td>BuyZone Attwin</td>
-                  <td>1</td>
-                </tr>
-                <tr>
-                  <td>BuyZone Attwin</td>
-                  <td>1</td>
-                </tr>
-                <tr>
-                  <td>Flipkart</td>
-                  <td>2</td>
-                </tr>
-                <tr>
-                  <td>Flipkart</td>
-                  <td>2</td>
-                </tr>
-                <tr>
-                  <td>Flipkart</td>
-                  <td>2</td>
-                </tr>
+                {competitorData.map((competitor, index) => (
+                  <tr key={index}>
+                    <td>{competitor.Competitor_Name}</td>
+                    <td>{competitor.Count}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
+
           <div className="section">
-            <div className="chart-container">
+            <div className="chart-container-ana">
               <Doughnut data={doughnutChartData} />
             </div>
           </div>

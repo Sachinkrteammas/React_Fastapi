@@ -3,33 +3,63 @@ import Layout from "../layout"; // Import layout component
 import "../layout.css"; // Import styles
 import "./Search.css";
 
-
 const Search = () => {
-  // Mock Data (Replace with API response)
-  const [data] = useState({
-    CallDate: "28-Feb-25",
-    "Lead ID": "12618840",
-    "Agent Name": "Rekha Sharma",
-    "Competitor Name": "",
-    "Customer Concern Acknowledged": "false",
-    "Professionalism Maintained": "false",
-    "Assurance Or Appreciation Provided": "false",
-    "Express Empathy": "false",
-    "Pronunciation And Clarity": "false",
-    "Enthusiasm And No Fumbling": "false",
-    "Active Listening": "false",
-    "Politeness And No Sarcasm": "false",
-    "Proper Grammar": "false",
-    "Accurate Issue Probing": "false",
-    "Proper Hold Procedure": "false",
-    "Proper Transfer And Language": "false",
-    "Address Recorded Completely": "false",
-    "Correct And Complete Information": "false",
-    "Proper Call Closure": "false",
-    "Sensitive Word Used": "None",
-    "Area for Improvement": "",
-  });
+  const [leadId, setLeadId] = useState(""); // Input field state
+  const [data, setData] = useState(null); // Store API response
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
+  // Fetch call quality details from API
+  const fetchCallQualityDetails = async () => {
+    if (!leadId) {
+      alert("Please enter a Lead ID.");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:8097/call_quality_details/?client_id=375&lead_id=${leadId}`
+      );
+      if (!response.ok) throw new Error("Failed to fetch call quality details");
+
+      const apiData = await response.json();
+
+      // Format API response to match UI requirements
+      const formattedData = {
+        "Call Date": apiData.call_date,
+        "Lead ID": apiData.lead_id,
+        "Agent Name": apiData.user,
+        "Competitor Name": apiData.competitor_name || "",
+        "Customer Concern Acknowledged": apiData.customer_concern_acknowledged ? "true" : "false",
+        "Professionalism Maintained": apiData.professionalism_maintained ? "true" : "false",
+        "Assurance Or Appreciation Provided": apiData.assurance_or_appreciation_provided ? "true" : "false",
+        "Express Empathy": apiData.express_empathy ? "true" : "false",
+        "Pronunciation And Clarity": apiData.pronunciation_and_clarity ? "true" : "false",
+        "Enthusiasm And No Fumbling": apiData.enthusiasm_and_no_fumbling ? "true" : "false",
+        "Active Listening": apiData.active_listening ? "true" : "false",
+        "Politeness And No Sarcasm": apiData.politeness_and_no_sarcasm ? "true" : "false",
+        "Proper Grammar": apiData.proper_grammar ? "true" : "false",
+        "Accurate Issue Probing": apiData.accurate_issue_probing ? "true" : "false",
+        "Proper Hold Procedure": apiData.proper_hold_procedure ? "true" : "false",
+        "Proper Transfer And Language": apiData.proper_transfer_and_language ? "true" : "false",
+        "Address Recorded Completely": apiData.address_recorded_completely ? "true" : "false",
+        "Correct And Complete Information": apiData.correct_and_complete_information ? "true" : "false",
+        "Proper Call Closure": apiData.proper_call_closure ? "true" : "false",
+        "Sensitive Word Used": apiData.sensitive_word_used || "None",
+        "Quality Percentage": `${apiData.quality_percentage}%`,
+        "Areas for Improvement": apiData.areas_for_improvement || "None",
+      };
+
+      setData(formattedData);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Layout>
@@ -43,29 +73,34 @@ const Search = () => {
               type="text"
               className="search-bar"
               placeholder="Search Lead Id..."
+              value={leadId}
+              onChange={(e) => setLeadId(e.target.value)}
             />
-            <button className="search-button-se ">Search</button>
+            <button className="search-button-se" onClick={fetchCallQualityDetails}>
+              Search
+            </button>
           </div>
-
         </header>
-
 
         {/* Table Section */}
         <div className="tables-container">
-          <table>
-            <tbody>
-              {Object.entries(data).map(([key, value]) => (
-                <tr key={key}>
-                  <td className="field">{key}</td>
-                  <td className="value">{value}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {loading && <p>Loading...</p>}
+          {error && <p style={{ color: "red" }}>{error}</p>}
+
+          {data && (
+            <table>
+              <tbody>
+                {Object.entries(data).map(([key, value]) => (
+                  <tr key={key}>
+                    <td className="field">{key}</td>
+                    <td className="value">{value}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
-
-
     </Layout>
   );
 };
