@@ -702,7 +702,7 @@ const Analysis = () => {
           <div className="section-box">
             <h5>Social Media and Consumer Court Threat</h5>
             <div className="section-content">
-              <div className="alert-box">
+              <div className="alert-box setalertbox">
                 {rawComplaintData.length > 0 ? (
                   rawComplaintData.map((item, index) => (
                     <p key={index}>

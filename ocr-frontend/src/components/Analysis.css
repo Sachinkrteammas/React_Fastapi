@@ -456,9 +456,12 @@
   margin-bottom: 10px;
   border-radius: 5px;
   width: 18rem;
+  /* height: 335px; */
+}
+.setalertbox
+{
   height: 335px;
 }
-
 .chart-containernew {
   flex: 2;
 }
