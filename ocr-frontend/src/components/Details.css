@@ -3,6 +3,7 @@
     padding: 20px;
     background: #f4f4f4;
     margin-top: 20px;
+    width: 95%;
   }
   
   /* Header */
@@ -48,6 +49,7 @@
     border-radius: 8px;
     text-align: center;
     font-weight: bold;
+    font-size: 12px;
     width: 22%;
     box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
   }
@@ -168,10 +170,11 @@
   }
   
   .audit-table table {
-    width: 100%;
+    width: 95%;
     border-collapse: collapse;
-    font-size: 14px;
-  }
+    font-size: 12px;
+}
+
   
   .audit-table th, .audit-table td {
     padding: 8px 10px;

@@ -90,7 +90,7 @@ const Potential = () => {
               <Legend
                 wrapperStyle={{
                   position: "absolute",
-                  width: "240px",
+                  width: "210px",
                   height: "auto",
                   left: "215px",
                   bottom: "115px"
