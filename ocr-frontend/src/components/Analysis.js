@@ -133,6 +133,10 @@ const Analysis = () => {
   const [scores, setScores] = useState(null);
   const [performers, setPerformers] = useState([]);
   const [barData, setBarData] = useState([]);
+  const [potentialEscalations, setPotentialEscalations] = useState([]); // ✅ For /potential_escalations_data/
+  const [negativeData, setNegativeData] = useState([]); // ✅ For /negative_data/
+  const [complaintData, setComplaintData] = useState([]);
+  const [rawComplaintData, setRawComplaintData] = useState([]);
 
   const [topNegativeSignals, setTopNegativeSignals] = useState([
     { category: "Abuse", count: 0 },
@@ -142,20 +146,18 @@ const Analysis = () => {
   ]);
 
   const [escalationData, setEscalationData] = useState({
-  social_media_threat: 0,
-  consumer_court_threat: 0,
-  potential_scam: 0,
-});
-  
+    social_media_threat: 0,
+    consumer_court_threat: 0,
+    potential_scam: 0,
+  });
 
   const today = new Date().toISOString().split("T")[0];
   const [formData, setFormData] = useState({
-    client_id: "375", 
+    client_id: "375",
     start_date: "",
     end_date: "",
   });
 
-  
   useEffect(() => {
     setFormData({
       client_id: "375",
@@ -170,61 +172,78 @@ const Analysis = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); 
-  
+    setLoading(true);
+
     try {
-      
-      const [escalationResponse, scoresResponse, performersResponse] = await Promise.all([
-        fetch(
-          `http://127.0.0.1:8097/potential_escalation?client_id=${formData.client_id}&start_date=${formData.start_date}&end_date=${formData.end_date}`
-        ),
-        fetch(
-          `http://127.0.0.1:8097/agent_scores?client_id=${formData.client_id}&start_date=${formData.start_date}&end_date=${formData.end_date}`
-        ),
-        fetch(
-          `http://127.0.0.1:8097/top_performers?client_id=${formData.client_id}&start_date=${formData.start_date}&end_date=${formData.end_date}`
-        ),
-      ]);
-  
-      
-      if (!escalationResponse.ok || !scoresResponse.ok || !performersResponse.ok) {
+      const { client_id, start_date, end_date } = formData;
+
+      const urls = [
+        `http://127.0.0.1:8097/potential_escalation?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`,
+        `http://127.0.0.1:8097/agent_scores?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`,
+        `http://127.0.0.1:8097/top_performers?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`,
+        `http://127.0.0.1:8097/potential_escalations_data/?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`, // ✅ Store separately
+        `http://127.0.0.1:8097/negative_data/?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`, // ✅ Store separately
+      ];
+
+      const responses = await Promise.all(urls.map((url) => fetch(url)));
+
+      if (responses.some((response) => !response.ok)) {
         throw new Error("Failed to fetch one or more datasets");
       }
-  
-      
-      const escalationData = await escalationResponse.json(); // ✅ Renamed correctly
-      const scoresData = await scoresResponse.json();
-      const performersData = await performersResponse.json();
-  
-      console.log("Escalation API Response:", escalationData);
-  
-      
+
+      const [
+        escalationData,
+        scoresData,
+        performersData,
+        potentialEscalationsData,
+        negativeDataResponse, // ✅ Separate variable for /negative_data/
+      ] = await Promise.all(responses.map((response) => response.json()));
+
+      console.log(
+        "Potential Escalations API Response:",
+        potentialEscalationsData
+      );
+      console.log("Negative Data API Response:", negativeDataResponse);
+
       setEscalationData({
-        social_media_threat: escalationData.potential_escalation.social_media_threat || 0,
-        consumer_court_threat: escalationData.potential_escalation.consumer_court_threat || 0,
-        potential_scam: escalationData.potential_escalation.potential_scam || 0,
+        social_media_threat:
+          escalationData?.potential_escalation?.social_media_threat || 0,
+        consumer_court_threat:
+          escalationData?.potential_escalation?.consumer_court_threat || 0,
+        potential_scam:
+          escalationData?.potential_escalation?.potential_scam || 0,
       });
-  
-      
+
       setTopNegativeSignals([
-        { category: "Abuse", count: escalationData.negative_signals.abuse || 0 },
-        { category: "Threat", count: escalationData.negative_signals.threat || 0 },
-        { category: "Frustration", count: escalationData.negative_signals.frustration || 0 },
-        { category: "Slang", count: escalationData.negative_signals.slang || 0 },
+        {
+          category: "Abuse",
+          count: escalationData?.negative_signals?.abuse || 0,
+        },
+        {
+          category: "Threat",
+          count: escalationData?.negative_signals?.threat || 0,
+        },
+        {
+          category: "Frustration",
+          count: escalationData?.negative_signals?.frustration || 0,
+        },
+        {
+          category: "Slang",
+          count: escalationData?.negative_signals?.slang || 0,
+        },
       ]);
-  
+
       setScores(scoresData);
-      setPerformers(performersData.top_performers || []);
-  
+      setPerformers(performersData?.top_performers || []);
+
+      setPotentialEscalations(potentialEscalationsData); // ✅ Correctly storing /potential_escalations_data/
+      setNegativeData(negativeDataResponse); // ✅ Correctly storing /negative_data/
     } catch (error) {
       console.error("Error fetching data:", error);
-    }
-    finally {
-      setLoading(false); // Hide loader after fetching
+    } finally {
+      setLoading(false);
     }
   };
-  
-  
 
   useEffect(() => {
     const fetchAuditData = async () => {
@@ -253,7 +272,6 @@ const Analysis = () => {
         if (!response.ok) throw new Error("Failed to fetch CQ trend data");
 
         const data = await response.json();
-        
 
         if (!data.trend || !Array.isArray(data.trend)) {
           console.error("Invalid trend data:", data.trend);
@@ -269,8 +287,6 @@ const Analysis = () => {
           score: Math.round(item.cq_score), // ✅ Ensure rounding works
           target: item.target,
         }));
-
-        
 
         setBarData(formattedData);
       } catch (error) {
@@ -290,13 +306,35 @@ const Analysis = () => {
       }
     };
 
+    const fetchComplaintData = async () => {
+      try {
+        const response = await fetch(
+          "http://127.0.0.1:8097/complaints_by_date?client_id=375"
+        );
+        if (!response.ok) throw new Error("Failed to fetch complaint data");
+
+        const data = await response.json();
+
+        if (!data.summary || !Array.isArray(data.summary)) {
+          console.error("Invalid complaints data:", data.summary);
+          return;
+        }
+
+        setComplaintData(data.summary);
+        setRawComplaintData(data.raw_data);
+      } catch (error) {
+        console.error("Error fetching complaints data:", error);
+      }
+    };
+
     const fetchData = async () => {
       await Promise.all([
         fetchAuditData(),
         fetchCategories(),
         fetchCQTrendData(),
+        fetchComplaintData(), // Added new API call here
       ]);
-      setLoading(false); // Set loading false only after both fetch calls
+      setLoading(false); // Set loading false only after all fetch calls complete
     };
 
     fetchData();
@@ -544,19 +582,23 @@ const Analysis = () => {
             <div className="left-section">
               <p>Potential Escalation - Sensitive Cases</p>
               <div className="escalation-box">
-  <div className="escalation-item">
-    <span>Social Media</span>
-    <span className="count">{escalationData.social_media_threat}</span>
-  </div>
-  <div className="escalation-item">
-    <span>Consumer Court Threat</span>
-    <span className="count">{escalationData.consumer_court_threat}</span>
-  </div>
-  <div className="escalation-item">
-    <span>Potential Scam</span>
-    <span className="count">{escalationData.potential_scam}</span>
-  </div>
-</div>
+                <div className="escalation-item">
+                  <span>Social Media</span>
+                  <span className="count">
+                    {escalationData.social_media_threat}
+                  </span>
+                </div>
+                <div className="escalation-item">
+                  <span>Consumer Court Threat</span>
+                  <span className="count">
+                    {escalationData.consumer_court_threat}
+                  </span>
+                </div>
+                <div className="escalation-item">
+                  <span>Potential Scam</span>
+                  <span className="count">{escalationData.potential_scam}</span>
+                </div>
+              </div>
 
               <p>Recent Escalation</p>
               <div className="chart-containernew">
@@ -593,41 +635,60 @@ const Analysis = () => {
               </div>
 
               <p>Social Media and Consumer Court Threat</p>
-              <div className="data-table">
-                <p>No data</p>
+              <div className="tablescrollbar">
+                <table className="negative-signals-table">
+                  <thead>
+                    <tr>
+                      <th>Scenario</th>
+                      <th>Scenario1</th>
+                      <th>Sensitive Word</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {potentialEscalations.length > 0 ? (
+                      potentialEscalations.map((item, index) => (
+                        <tr key={index}>
+                          <td>{item.scenario}</td>
+                          <td>{item.scenario1}</td>
+                          <td>{item.sensetive_word}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="3">No data available</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
               </div>
 
               <p>Top Negative Signals</p>
-              <table className="negative-signals-table">
-                <thead>
-                  <tr>
-                    <th>Scenario</th>
-                    <th>Sub Scenario</th>
-                    <th>Top Negative Signals</th>
-                    <th>Count</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Complaint</td>
-                    <td>Delivered Product Complaint</td>
-                    <td>Frustration</td>
-                    <td>1</td>
-                  </tr>
-                  <tr>
-                    <td>Complaint</td>
-                    <td>Order Delay</td>
-                    <td>Frustration</td>
-                    <td>1</td>
-                  </tr>
-                  <tr>
-                    <td colSpan="3">
-                      <strong>Grand Total</strong>
-                    </td>
-                    <td>2</td>
-                  </tr>
-                </tbody>
-              </table>
+              <div className="tablescrollbar">
+                <table className="negative-signals-table">
+                  <thead>
+                    <tr>
+                      <th>Scenario</th>
+                      <th>Scenario1</th>
+                      <th>Sensitive Words</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {negativeData.length > 0 ? (
+                      negativeData.map((item, index) => (
+                        <tr key={index}>
+                          <td>{item.scenario}</td>
+                          <td>{item.scenario1}</td>
+                          <td>{item.sensetive_word}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="3">No data available</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
 
               <p>Protetional Scam</p>
               <div className="data-table">
@@ -642,14 +703,22 @@ const Analysis = () => {
             <h5>Social Media and Consumer Court Threat</h5>
             <div className="section-content">
               <div className="alert-box">
-                <p>
-                  <b>Feb 13</b> - Lead ID (123456) - Customer mentioned consumer
-                  court due to dissatisfaction.
-                </p>
-                <p>
-                  <b>Feb 12</b> - Lead ID (654321) - Customer mentioned social
-                  media escalation.
-                </p>
+                {rawComplaintData.length > 0 ? (
+                  rawComplaintData.map((item, index) => (
+                    <p key={index}>
+                      <b>
+                        {new Date(item.date).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </b>{" "}
+                      - Scenario: {item.scenario} ({item.sub_scenario}) -
+                      Customer mentioned "{item.sensitive_word}".
+                    </p>
+                  ))
+                ) : (
+                  <p>No alerts available.</p>
+                )}
               </div>
               <table className="data-table">
                 <thead>
@@ -661,18 +730,26 @@ const Analysis = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>Feb 13, 2025</td>
-                    <td>1</td>
-                    <td>3</td>
-                    <td>4</td>
-                  </tr>
-                  <tr>
-                    <td>Feb 12, 2025</td>
-                    <td>3</td>
-                    <td>4</td>
-                    <td>7</td>
-                  </tr>
+                  {complaintData.length > 0 ? (
+                    complaintData.map((item, index) => (
+                      <tr key={index}>
+                        <td>
+                          {new Date(item.date).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </td>
+                        <td>{item.social_media_threat}</td>
+                        <td>{item.consumer_court_threat}</td>
+                        <td>{item.total}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="4">No data available</td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
