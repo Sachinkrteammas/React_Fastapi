@@ -9,66 +9,79 @@ import "./Potential.css";
 
 const Potential = () => {
   // Date State
-  const [dateRange, setDateRange] = useState([null, null]);
-  const [startDate, endDate] = dateRange;
+  // const [dateRange, setDateRange] = useState([null, null]);
+  // const [startDate, endDate] = dateRange;
 
-  // Sample Data for Table
-  const escalationData = {
-    "Call Date": "28-Feb-25",
-    "Lead ID": "12631818",
-    "Agent Name": "Lovely Supriya",
-    "Phone No": "9984743388",
-    "Alert": "Social Media and Consumer Court Threat",
-    "Sensetive Word Used": "social media",
-    "Negative Word": "dissatisfied, comparison to Amazon",
-    "Scenario": "Complaint",
-    "Sub Scenario": "Wrong Product Delivered/Missing",
-    "Sensitive word context":
-      "The customer mentioned comparing the company to platforms like Amazon and Flipkart...",
-    "Area for Improvement":
-      "The agent did not provide a satisfactory resolution...",
-    "Top Negative Signals": "Threat",
-    "Transcribe_Text":
-      "Good morning welcome to bhaarti. This is how may I help you...",
-  };
+  const [clientId, setClientId] = useState("375"); // Added Client ID input
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [escalationData, setEscalationData] = useState(null);
+  const [escalations, setEscalations] = useState([]);
 
-  // Sample Data for Pie Chart
+  
   const pieChartData = [
     { name: "Top Negative Signals", value: 2, color: "#c0392b" },
-    { name: "Social Media and Consumer Court Threat", value: 3, color: "#e74c3c" },
+    {
+      name: "Social Media and Consumer Court Threat",
+      value: 3,
+      color: "#e74c3c",
+    },
   ];
+
+  const fetchCallQualityDetails = async () => {
+    if (!clientId || !startDate || !endDate) {
+      alert("Please enter Client ID and select Start and End dates.");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:8097/call_quality_assessments?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}`
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch data");
+      }
+
+      const result = await response.json();
+
+      if (result.length > 0) {
+        setEscalationData(result[0]);
+        setEscalations(result); // Store first record
+      } else {
+        setEscalationData(null);
+        setEscalations([]);
+        alert("No escalation data found for selected criteria.");
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
 
   return (
     <Layout>
       <div className="dashboard-container-po">
         {/* Header Section */}
         <header className="headerPo">
-          <h3>BELLAVITA</h3>
-          <div className="po-search-container">
-            <input
-              type="text"
-              className="po-search-bar"
-              placeholder="Search Lead Id..."
-            />
-            {/* <div className="filters">
-              <div className="filter-item"> */}
-            {/* <label>Start Date - End Date</label> */}
-            <DatePicker
-              selected={startDate}
-              onChange={(update) => setDateRange(update)}
-              startDate={startDate}
-              endDate={endDate}
-              selectsRange
-              className="po-date-picker"
-              placeholderText="MM-DD-YYYY "
-            />
-            {/* </div>
-            </div> */}
-              <button className="po-search-button" style={{ marginTop: "0%" }}>Search</button>
-          </div>
+          <h3>Dial Desk</h3>
 
+          <label>Start Date: </label>
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+          />
 
+          <label>End Date: </label>
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+          />
 
+          <button className="setbotton" onClick={fetchCallQualityDetails}>
+            Submit
+          </button>
         </header>
 
         <div className="content">
@@ -103,52 +116,37 @@ const Potential = () => {
             {/* List of Recent Escalations */}
             <div className="scrollable-list">
               <div className="escalation-list">
-
-                <div className="escalations-items">
-                  <p>Top Negative Signals</p>
-                  <p><strong>Feb-28</strong></p>
-                  <p>Lead ID: <strong>12631850</strong></p>
-                  <p>Customer dissatisfaction with the brand and delivery partner.</p>
-                </div>
-                <div className="escalations-items">
-                  <p>Social Media and Consumer Court Threat</p>
-                  <p><strong>Feb-28</strong></p>
-                  <p>Lead ID: <strong>12631848</strong></p>
-                  <p>Customer mentioned posting about issues on social media.</p>
-                </div>
-
-                {/* Scrollable items start here */}
-
-                <div className="escalations-items">
-                  <p>Social Media and Consumer Court Threat</p>
-                  <p><strong>Feb-28</strong></p>
-                  <p>Lead ID: <strong>12631848</strong></p>
-                  <p>Customer mentioned posting about issues on social media.</p>
-                </div>
-                <div className="escalations-items">
-                  <p>Social Media and Consumer Court Threat</p>
-                  <p><strong>Feb-28</strong></p>
-                  <p>Lead ID: <strong>12631848</strong></p>
-                  <p>Customer mentioned posting about issues on social media.</p>
-                </div>
+                {escalations.map((item, index) => (
+                  <div key={index} className="escalations-items">
+                    <p>{item.alert}</p>
+                    <p>
+                      <strong>{item.CallDate}</strong>
+                    </p>
+                    <p>
+                      Lead ID: <strong>{item.lead_id}</strong>
+                    </p>
+                    <p>{item.Campaign}</p>
+                  </div>
+                ))}
               </div>
             </div>
-
           </div>
 
           {/* Right Section - Escalation Table */}
           <div className="table-container">
             <h3 className="Po-text">Potential Escalation - Sensitive Cases</h3>
-            <table>
-              <tbody>
-                {Object.entries(escalationData).map(([key, value]) => (
-                  <tr key={key}>
-                    <td className="fields">{key}</td>
-                    <td className="values">{value}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            {escalationData && (
+              <table>
+                <tbody>
+                  {Object.entries(escalationData).map(([key, value]) => (
+                    <tr key={key}>
+                      <td className="fields">{key}</td>
+                      <td className="values">{value}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
       </div>

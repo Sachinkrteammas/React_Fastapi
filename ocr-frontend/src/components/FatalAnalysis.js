@@ -336,7 +336,7 @@ const Fatal = () => {
     <Layout>
       <div className="dashboard-container">
       <header className="header">
-          <h3>BELLAVITA</h3>
+          <h3>Dial Desk</h3>
           <div>
             <label>
               <input

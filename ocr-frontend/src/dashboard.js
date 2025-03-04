@@ -171,12 +171,13 @@ const Dashboard = () => {
 
           <div className="main-content notifi">
             <h1 className="new">Notifications</h1>
-            <p>'Rail ministry probing if conspiracy…': ...
-              Who will be new Delhi CM? ...
-              Yamuna cleaning begins days before BJP government formation in Delhi. ...
-              'Muslim majority state': Kashmir MLA faces backlash over liquor sales comment. ...
-              'Shocked to see…': ...
-              IPL 2025 schedule announced; KKR vs RCB to headline season opener on March 22</p>
+            <p>Our new project is currently in the pipeline and progressing well.
+The development team is working on the project, which is in the pipeline.
+We have several exciting initiatives in the pipeline for this quarter.
+The upcoming project in the pipeline will revolutionize our workflow.
+There are multiple enhancements in the pipeline to improve system efficiency.
+A new feature is in the pipeline, set to launch next month.
+We are actively discussing a project that is in the pipeline.</p>
 
           </div>
 
