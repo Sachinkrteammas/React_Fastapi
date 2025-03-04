@@ -18,7 +18,7 @@ from starlette.responses import JSONResponse
 from pathlib import Path
 from datetime import date, timedelta
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 # FastAPI app initialization
 app = FastAPI()
 
@@ -937,7 +937,7 @@ def get_negative_data(
         SELECT 
             scenario, 
             scenario1, 
-            top_negative_words
+            top_negative_words,lead_id,date(CallDate) call_date
         FROM call_quality_assessment
         WHERE ClientId = :client_id  
         AND DATE(CallDate) BETWEEN :start_date AND :end_date
@@ -960,10 +960,13 @@ def get_negative_data(
         {
             "scenario": row[0],
             "scenario1": row[1],
-            "sensetive_word": row[2]
+            "sensetive_word": row[2],
+            "lead_id": row[3],
+            "call_date": row[4]
         }
         for row in result
     ]
+
 
 class ComplaintSummary(BaseModel):
     date: str  # Convert date to string format
@@ -971,36 +974,35 @@ class ComplaintSummary(BaseModel):
     consumer_court_threat: int
     total: int
 
+
 class ComplaintRawData(BaseModel):
     date: str  # Convert date to string format
     scenario: str
     sub_scenario: str
     sensitive_word: str
 
+
 class ComplaintResponse(BaseModel):
     client_id: str
     summary: List[ComplaintSummary]
     raw_data: List[ComplaintRawData]
 
-# def get_db2():
-#     # Define your database dependency function here
-#     pass
 
 @app.get("/complaints_by_date", response_model=ComplaintResponse)
 def get_complaints_by_date(
-    client_id: str = Query(..., description="Client ID"),
-    db: Session = Depends(get_db2)
+        client_id: str = Query(..., description="Client ID"),
+        db: Session = Depends(get_db2)
 ):
     end_date = date.today()
     start_date = end_date - timedelta(days=6)
 
     summary_query = text("""
-        SELECT
+        SELECT 
             DATE(CallDate) AS date,
             SUM(CASE WHEN LOWER(sensetive_word) LIKE '%social%' THEN 1 ELSE 0 END) AS social_media_threat,
-            SUM(CASE WHEN LOWER(sensetive_word) LIKE '%court%'
-                        OR LOWER(sensetive_word) LIKE '%consumer%'
-                        OR LOWER(sensetive_word) LIKE '%legal%'
+            SUM(CASE WHEN LOWER(sensetive_word) LIKE '%court%' 
+                        OR LOWER(sensetive_word) LIKE '%consumer%' 
+                        OR LOWER(sensetive_word) LIKE '%legal%' 
                         OR LOWER(sensetive_word) LIKE '%fir%' THEN 1 ELSE 0 END) AS consumer_court_threat,
             COUNT(*) AS total
         FROM call_quality_assessment
@@ -1011,14 +1013,22 @@ def get_complaints_by_date(
     """)
 
     raw_data_query = text("""
-        SELECT
+        SELECT 
             DATE(CallDate) AS date,
-            scenario,
-            scenario1 AS sub_scenario,
-            sensetive_word AS sensitive_word
+            lead_id,
+            sensetive_word AS sensitive_word,
+            sensitive_word_context
         FROM call_quality_assessment
         WHERE ClientId = :client_id  
         AND DATE(CallDate) BETWEEN :start_date AND :end_date
+        AND DATE(CallDate) BETWEEN :start_date AND :end_date
+        AND (
+            LOWER(sensetive_word) LIKE '%social%'
+            OR LOWER(sensetive_word) LIKE '%court%'
+            OR LOWER(sensetive_word) LIKE '%consumer%'
+            OR LOWER(sensetive_word) LIKE '%legal%'
+            OR LOWER(sensetive_word) LIKE '%fir%'
+        )
         ORDER BY DATE(CallDate) ASC;
     """)
 
@@ -1055,3 +1065,859 @@ def get_complaints_by_date(
     ]
 
     return ComplaintResponse(client_id=client_id, summary=summary, raw_data=raw_data)
+
+@app.get("/negative_data_summary/")
+def get_negative_data_summary(
+        client_id: str = Query(..., description="Client ID"),
+        db: Session = Depends(get_db2)
+):
+    today = date.today()
+    three_months_ago = today.replace(day=1) - timedelta(days=1)
+    three_months_ago = three_months_ago.replace(day=1)  # Get first day of 3 months ago
+    two_days_ago = today - timedelta(days=2)
+
+    # Query for last 3 months with monthly count
+    monthly_query = text("""
+        SELECT 
+            DATE_FORMAT(CallDate, '%Y-%m') AS month,
+            top_negative_words,
+            COUNT(*) AS total_count
+        FROM call_quality_assessment
+        WHERE ClientId = :client_id  
+        AND DATE(CallDate) BETWEEN :start_date AND :end_date
+        AND (
+            LOWER(top_negative_words) LIKE '%abuse%'
+            OR LOWER(top_negative_words) LIKE '%threat%'
+            OR LOWER(top_negative_words) LIKE '%frustration%'
+            OR LOWER(top_negative_words) LIKE '%slang%'
+            OR LOWER(top_negative_words) LIKE '%sarcasm%'
+        )
+        GROUP BY top_negative_words,DATE_FORMAT(CallDate, '%Y-%m')
+        ORDER BY month ASC
+    """)
+
+    # Query for last 2 days with daily count
+    daily_query = text("""
+        SELECT 
+            DATE(CallDate) AS date,
+            top_negative_words,
+            COUNT(*) AS total_count
+        FROM call_quality_assessment
+        WHERE ClientId = :client_id  
+        AND DATE(CallDate) BETWEEN :start_date AND :end_date
+        AND (
+            LOWER(top_negative_words) LIKE '%abuse%'
+            OR LOWER(top_negative_words) LIKE '%threat%'
+            OR LOWER(top_negative_words) LIKE '%frustration%'
+            OR LOWER(top_negative_words) LIKE '%slang%'
+            OR LOWER(top_negative_words) LIKE '%sarcasm%'
+        )
+        GROUP BY top_negative_words,DATE(CallDate)
+        ORDER BY date ASC
+    """)
+
+    # Execute queries
+    monthly_result = db.execute(monthly_query, {
+        "client_id": client_id,
+        "start_date": three_months_ago,
+        "end_date": today
+    }).fetchall()
+
+    daily_result = db.execute(daily_query, {
+        "client_id": client_id,
+        "start_date": two_days_ago,
+        "end_date": today
+    }).fetchall()
+
+    # Formatting output
+    monthly_data = [{"month": row[0], "negative_word": row[1], "total_count": row[2]} for row in monthly_result]
+    daily_data = [{"date": row[0], "negative_word": row[1], "total_count": row[2]} for row in daily_result]
+
+    return {
+        "last_3_months": monthly_data,
+        "last_2_days": daily_data
+    }
+
+
+@app.get("/competitor_data/")
+def get_competitor_data(
+        client_id: str = Query(..., description="Client ID"),
+        start_date: date = Query(..., description="Start Date in YYYY-MM-DD format"),
+        end_date: date = Query(..., description="End Date in YYYY-MM-DD format"),
+        db: Session = Depends(get_db2)
+):
+    query = text("""
+        SELECT
+            Competitor_Name,
+            COUNT(*) AS total_count
+        FROM call_quality_assessment
+        WHERE ClientId = :client_id  
+        AND DATE(CallDate) BETWEEN :start_date AND :end_date
+        and Competitor_Name not in ('Not Applicable','Not Mentioned','','Not Available','N/A','NA','Not provided')
+        GROUP BY Competitor_Name
+    """)
+
+    result = db.execute(query, {
+        "client_id": client_id,
+        "start_date": start_date,
+        "end_date": end_date
+    }).fetchall()
+
+    return [
+        {
+            "Competitor_Name": row[0],
+            "Count": row[1]
+        }
+        for row in result
+    ]
+####################  Fatal Details##############################
+
+@app.get("/fatal_count")
+def get_fatal_count(db: Session = Depends(get_db2)):
+    query = text("""
+    SELECT
+        COUNT(lead_id) AS audit_cnt,
+        ROUND(
+            SUM(CASE WHEN scenario2 <> 'Blank Call' THEN quality_percentage ELSE 0 END) /
+            NULLIF(COUNT(CASE WHEN scenario2 <> 'Blank Call' THEN lead_id END), 0),
+            2
+        ) AS cq_score,
+        SUM(CASE WHEN professionalism_maintained = 0 AND scenario2 <> 'Blank Call' THEN 1 ELSE 0 END) AS fatal_count,
+        ROUND(SUM(CASE WHEN professionalism_maintained = 0 THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0) * 100, 2) AS fatal_percentage,
+        SUM(CASE WHEN scenario = 'Query' AND professionalism_maintained = 0 THEN 1 ELSE 0 END) AS query_fatal,
+        SUM(CASE WHEN scenario = 'Complaint' AND professionalism_maintained = 0 THEN 1 ELSE 0 END) AS Complaint_fatal,
+        SUM(CASE WHEN scenario = 'Request' AND professionalism_maintained = 0 THEN 1 ELSE 0 END) AS Request_fatal,
+        SUM(CASE WHEN scenario = 'Sale Done' AND professionalism_maintained = 0 THEN 1 ELSE 0 END) AS sale_fatal
+    FROM call_quality_assessment 
+    WHERE ClientId = :ClientId
+    AND DATE(CallDate) = CURDATE()
+    """)
+
+    result = db.execute(query, {"ClientId": 375}).fetchone()
+    print(result)
+    # Handle None case to avoid errors
+    if not result:
+        return {"audit_cnt": 0, "cq_score": 0, "fatal_count": 0, "fatal_percentage": 0, "query_fatal": 0, "Complaint_fatal": 0, "Request_fatal": 0, "sale_fatal": 0}
+
+    return {
+        "audit_cnt": result[0] or 0,
+        "cq_score": result[1] or 0.0,
+        "fatal_count": result[2] or 0,
+        "fatal_percentage": result[3] or 0,
+        "query_fatal": result[4] or 0,
+        "Complaint_fatal": result[5] or 0,
+        "Request_fatal": result[6] or 0,
+        "sale_fatal": result[7] or 0
+    }
+
+@app.get("/top_agents_fatal_summary")
+def get_top_agents_fatal_summary(
+    client_id: str = Query(..., description="Client ID"),
+    start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
+    end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
+    limit: int = Query(5, description="Number of top agents to fetch (default: 5)"),
+    db: Session = Depends(get_db2)
+):
+    query = text("""
+        SELECT 
+            User as Agent_Name,
+            COUNT(*) AS audit_count,
+            SUM(CASE WHEN professionalism_maintained = 0 THEN 1 ELSE 0 END) AS fatal_count,
+            ROUND((SUM(CASE WHEN professionalism_maintained = 0 THEN 1 ELSE 0 END) * 100.0) / NULLIF(COUNT(*), 0), 2) AS fatal_percentage
+        FROM call_quality_assessment
+        WHERE ClientId = :client_id
+        AND DATE(CallDate) BETWEEN :start_date AND :end_date
+        GROUP BY Agent_Name
+        ORDER BY fatal_count DESC
+        LIMIT :limit;
+    """)
+
+    result = db.execute(query, {
+        "client_id": client_id,  # ✅ FIXED: Matched query param name
+        "start_date": start_date,
+        "end_date": end_date,
+        "limit": limit
+    }).fetchall()
+
+    response_data = [
+        {
+            "Agent Name": row[0],
+            "Audit Count": row[1] or 0,
+            "Fatal Count": row[2] or 0,
+            "Fatal%": f"{row[3] or 0}%"
+        }
+        for row in result
+    ]
+
+    return response_data
+
+@app.get("/daywise_fatal_summary")
+def get_daywise_fatal_summary(
+    client_id: str = Query(..., description="Client ID"),
+    start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
+    end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
+    #limit: int = Query(5, description="Number of top agents to fetch (default: 5)"),
+    db: Session = Depends(get_db2)
+):
+    query = text("""
+        SELECT 
+            date(CallDate) as CallDate,
+            SUM(CASE WHEN professionalism_maintained = 0 THEN 1 ELSE 0 END) AS fatal_count
+        FROM call_quality_assessment
+        WHERE ClientId = :client_id
+        AND DATE(CallDate) BETWEEN :start_date AND :end_date
+        GROUP BY DATE(CallDate);
+    """)
+
+    result = db.execute(query, {
+        "client_id": client_id,  # ✅ FIXED: Matched query param name
+        "start_date": start_date,
+        "end_date": end_date
+
+    }).fetchall()
+
+    response_data = [
+        {
+            "CallDate": row[0],
+            "Fatal Count": row[1] or 0
+        }
+        for row in result
+    ]
+
+    return response_data
+
+
+
+@app.get("/agent_audit_summary")
+def get_agent_audit_summary(
+    client_id: str = Query(..., description="Client ID"),
+    start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
+    end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
+    #limit: int = Query(10, description="Number of agents to fetch (default: 10)"),
+    db: Session = Depends(get_db2)
+):
+    query = text("""
+        SELECT 
+            User as Agent_Name,
+            COUNT(*) AS audit_count,
+            ROUND(AVG(quality_percentage), 2) AS cq_score_percentage,
+            SUM(CASE WHEN professionalism_maintained = 0 THEN 1 ELSE 0 END) AS fatal_count,
+            ROUND((SUM(CASE WHEN professionalism_maintained = 0 THEN 1 ELSE 0 END) * 100.0) / NULLIF(COUNT(*), 0), 2) AS fatal_percentage,
+            ROUND((SUM(CASE WHEN quality_percentage < 50 THEN 1 ELSE 0 END) * 100.0) / NULLIF(COUNT(*), 0), 2) AS below_average_percentage,
+            ROUND((SUM(CASE WHEN quality_percentage BETWEEN 50 AND 69 THEN 1 ELSE 0 END) * 100.0) / NULLIF(COUNT(*), 0), 2) AS average_percentage,
+            ROUND((SUM(CASE WHEN quality_percentage BETWEEN 70 AND 89 THEN 1 ELSE 0 END) * 100.0) / NULLIF(COUNT(*), 0), 2) AS good_percentage,
+            ROUND((SUM(CASE WHEN quality_percentage >= 90 THEN 1 ELSE 0 END) * 100.0) / NULLIF(COUNT(*), 0), 2) AS excellent_percentage
+        FROM call_quality_assessment
+        WHERE ClientId = :client_id
+        AND DATE(CallDate) BETWEEN :start_date AND :end_date
+        GROUP BY Agent_Name
+        ORDER BY audit_count DESC;
+    """)
+
+    result = db.execute(query, {
+        "client_id": client_id,
+        "start_date": start_date,
+        "end_date": end_date
+    }).fetchall()
+
+    response_data = []
+    total_audit_count = 0
+    total_fatal_count = 0
+    total_cq_score = 0
+    total_below_avg = 0
+    total_avg = 0
+    total_good = 0
+    total_excellent = 0
+
+    for row in result:
+        response_data.append({
+            "Agent Name": row[0],
+            "Audit Count": row[1] or 0,
+            "CQ Score%": f"{row[2] or 0}%",
+            "Fatal Count": row[3] or 0,
+            "Fatal%": f"{row[4] or 0}%",
+            "Below Average Calls": f"{row[5] or 0}%",
+            "Average Calls": f"{row[6] or 0}%",
+            "Good Calls": f"{row[7] or 0}%",
+            "Excellent Calls": f"{row[8] or 0}%"
+        })
+
+        # Summing up for Grand Total
+        total_audit_count += row[1] or 0
+        total_fatal_count += row[3] or 0
+        total_cq_score += row[2] or 0
+        total_below_avg += row[5] or 0
+        total_avg += row[6] or 0
+        total_good += row[7] or 0
+        total_excellent += row[8] or 0
+
+    # Adding Grand Total
+    if total_audit_count > 0:
+        response_data.append({
+            "Agent Name": "Grand Total",
+            "Audit Count": total_audit_count,
+            "CQ Score%": f"{round(total_cq_score / len(result), 2)}%" if result else "0%",
+            "Fatal Count": total_fatal_count,
+            "Fatal%": f"{round((total_fatal_count * 100) / total_audit_count, 2)}%" if total_audit_count else "0%",
+            "Below Average Calls": f"{round(total_below_avg / len(result), 2)}%" if result else "0%",
+            "Average Calls": f"{round(total_avg / len(result), 2)}%" if result else "0%",
+            "Good Calls": f"{round(total_good / len(result), 2)}%" if result else "0%",
+            "Excellent Calls": f"{round(total_excellent / len(result), 2)}%" if result else "0%"
+        })
+
+    return response_data
+
+##################   Detailed Analysis##########################
+@app.get("/details_count")
+def get_details_count(db: Session = Depends(get_db2)):
+    query = text("""
+    SELECT
+        COUNT(lead_id) AS audit_cnt,
+        ROUND(
+            SUM(CASE WHEN scenario2 <> 'Blank Call' THEN quality_percentage ELSE 0 END) /
+            NULLIF(COUNT(CASE WHEN scenario2 <> 'Blank Call' THEN lead_id END), 0),
+            2
+        ) AS cq_score,
+        SUM(CASE WHEN professionalism_maintained = 0 AND scenario2 <> 'Blank Call' THEN 1 ELSE 0 END) AS fatal_count,
+        ROUND(SUM(CASE WHEN professionalism_maintained = 0 THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0) * 100, 2) AS fatal_percentage,
+        SUM(CASE WHEN scenario = 'Query' THEN 1 ELSE 0 END) AS query_fatal,
+        SUM(CASE WHEN scenario = 'Complaint' THEN 1 ELSE 0 END) AS Complaint_fatal,
+        SUM(CASE WHEN scenario = 'Request' THEN 1 ELSE 0 END) AS Request_fatal,
+        SUM(CASE WHEN scenario = 'Sale Done' THEN 1 ELSE 0 END) AS sale_fatal
+    FROM call_quality_assessment 
+    WHERE ClientId = :ClientId
+    AND DATE(CallDate) = CURDATE()
+    """)
+
+    result = db.execute(query, {"ClientId": 375}).fetchone()
+    #print(result)
+    # Handle None case to avoid errors
+    if not result:
+        return {"audit_cnt": 0, "cq_score": 0, "fatal_count": 0, "fatal_percentage": 0, "query": 0, "Complaint": 0, "Request": 0, "sale": 0}
+
+    return {
+        "audit_cnt": result[0] or 0,
+        "cq_score": result[1] or 0.0,
+        "fatal_count": result[2] or 0,
+        "fatal_percentage": result[3] or 0,
+        "query": result[4] or 0,
+        "Complaint": result[5] or 0,
+        "Request": result[6] or 0,
+        "sale": result[7] or 0
+    }
+
+@app.get("/top_scenarios_with_counts")
+def get_top_scenarios_with_counts(
+    client_id: str = Query(..., description="Client ID"),
+    start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
+    end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
+    limit: int = Query(5, description="Number of top reasons to fetch per category (default: 5)"),
+    db: Session = Depends(get_db2)
+):
+    scenarios = ["Query", "Complaint", "Request"]
+    response_data = {}
+
+    for scenario in scenarios:
+        query = text(f"""
+            SELECT 
+                scenario1 AS reason,
+                COUNT(*) AS count
+            FROM call_quality_assessment
+            WHERE ClientId = :client_id
+            AND scenario = :scenario
+            AND DATE(CallDate) BETWEEN :start_date AND :end_date
+            GROUP BY scenario1
+            ORDER BY count DESC
+            LIMIT :limit;
+        """)
+
+        result = db.execute(query, {
+            "client_id": client_id,
+            "scenario": scenario,
+            "start_date": start_date,
+            "end_date": end_date,
+            "limit": limit
+        }).fetchall()
+
+        response_data[scenario] = [{"Reason": row[0], "Count": row[1]} for row in result]
+
+    return response_data
+
+
+@app.get("/agent_performance_summary")
+def get_agent_performance_summary(
+        client_id: str = Query(..., description="Client ID"),
+        start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
+        end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
+        #limit: int = Query(10, description="Number of top agents to fetch (default: 10)"),
+        db: Session = Depends(get_db2)
+):
+    query = text(f"""
+        SELECT 
+            User asAgent_Name,
+            'TQ' AS performance_category,
+            COUNT(*) AS audit_count,
+            ROUND(AVG(quality_percentage), 2) AS cq_score,
+            SUM(CASE WHEN professionalism_maintained = 0 THEN 1 ELSE 0 END) AS fatal_count,
+            ROUND((SUM(CASE WHEN professionalism_maintained = 0 THEN 1 ELSE 0 END) * 100.0) / NULLIF(COUNT(*), 0), 2) AS fatal_percentage,
+
+            ROUND(AVG( 
+                CASE 
+                    WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                    WHEN customer_concern_acknowledged = TRUE THEN 1
+                    ELSE 0
+                END
+            ), 2) AS opening_score,
+
+            ROUND(AVG(
+                CASE 
+                    WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                    ELSE 
+                        (IF(professionalism_maintained = TRUE, 0.111111, 0) +
+                         IF(assurance_or_appreciation_provided = TRUE, 0.111111, 0) +
+                         IF(express_empathy = TRUE, 0.111111, 0) +
+                         IF(pronunciation_and_clarity = TRUE, 0.111111, 0) +
+                         IF(enthusiasm_and_no_fumbling = TRUE, 0.111111, 0) +
+                         IF(active_listening = TRUE, 0.111111, 0) +
+                         IF(politeness_and_no_sarcasm = TRUE, 0.111111, 0) +
+                         IF(proper_grammar = TRUE, 0.111111, 0) +
+                         IF(accurate_issue_probing = TRUE, 0.111111, 0))
+                END
+            ), 2) AS soft_skills_score,
+
+            ROUND(AVG(
+                CASE 
+                    WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                    ELSE 
+                        (IF(proper_hold_procedure = TRUE, 0.5, 0) +
+                         IF(proper_transfer_and_language = TRUE, 0.5, 0))
+                END
+            ), 2) AS hold_procedure_score,
+
+            ROUND(AVG(
+                CASE 
+                    WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                    ELSE 
+                        (IF(address_recorded_completely = TRUE, 0.5, 0) +
+                         IF(correct_and_complete_information = TRUE, 0.5, 0))
+                END
+            ), 2) AS resolution_score,
+
+            ROUND(AVG(
+                CASE 
+                    WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                    WHEN professionalism_maintained = TRUE THEN 1
+                    ELSE 0
+                END
+            ), 2) AS closing_score,
+
+            ROUND((
+                AVG(
+                    CASE 
+                        WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                        WHEN customer_concern_acknowledged = TRUE THEN 1
+                        ELSE 0
+                    END
+                ) +
+                AVG(
+                    CASE 
+                        WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                        ELSE 
+                            (IF(professionalism_maintained = TRUE, 0.111111, 0) +
+                             IF(assurance_or_appreciation_provided = TRUE, 0.111111, 0) +
+                             IF(express_empathy = TRUE, 0.111111, 0) +
+                             IF(pronunciation_and_clarity = TRUE, 0.111111, 0) +
+                             IF(enthusiasm_and_no_fumbling = TRUE, 0.111111, 0) +
+                             IF(active_listening = TRUE, 0.111111, 0) +
+                             IF(politeness_and_no_sarcasm = TRUE, 0.111111, 0) +
+                             IF(proper_grammar = TRUE, 0.111111, 0) +
+                             IF(accurate_issue_probing = TRUE, 0.111111, 0))
+                    END
+                ) +
+                AVG(
+                    CASE 
+                        WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                        ELSE 
+                            (IF(proper_hold_procedure = TRUE, 0.5, 0) +
+                             IF(proper_transfer_and_language = TRUE, 0.5, 0))
+                    END
+                ) +
+                AVG(
+                    CASE 
+                        WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                        ELSE 
+                            (IF(address_recorded_completely = TRUE, 0.5, 0) +
+                             IF(correct_and_complete_information = TRUE, 0.5, 0))
+                    END
+                ) +
+                AVG(
+                    CASE 
+                        WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                        WHEN professionalism_maintained = TRUE THEN 1
+                        ELSE 0
+                    END
+                )
+            ) / 5, 2) AS avg_score 
+
+        FROM call_quality_assessment
+        WHERE ClientId = :client_id
+        AND DATE(CallDate) BETWEEN :start_date AND :end_date
+        GROUP BY User
+        ORDER BY audit_count DESC;
+    """)
+
+    result = db.execute(query, {
+        "client_id": client_id,
+        "start_date": start_date,
+        "end_date": end_date
+    }).fetchall()
+
+    response_data = []
+    for row in result:
+        response_data.append({
+            "Agent Name": row[0],
+            "TQ/MQ/BQ": row[1],
+            "Audit Count": row[2],
+            "CQ Score%": f"{row[3] or 0}%",
+            "Fatal Count": row[4] or 0,
+            "Fatal%": f"{row[5] or 0}%",
+            "Opening Score%": f"{row[6] or 0}%",
+            "Soft Skills Score%": f"{row[7] or 0}%",
+            "Hold Procedure Score%": f"{row[8] or 0}%",
+            "Resolution Score%": f"{row[9] or 0}%",
+            "Closing Score%": f"{row[10] or 0}%",
+            "Average Score%": f"{row[11] or 0}%"
+        })
+
+    return response_data
+
+
+@app.get("/day_performance_summary")
+def get_day_performance_summary(
+        client_id: str = Query(..., description="Client ID"),
+        start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
+        end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
+        #limit: int = Query(10, description="Number of top agents to fetch (default: 10)"),
+        db: Session = Depends(get_db2)
+):
+    query = text(f"""
+        SELECT 
+            date(CallDate) as CallDate,
+            'TQ' AS performance_category,
+            COUNT(*) AS audit_count,
+            ROUND(AVG(quality_percentage), 2) AS cq_score,
+            SUM(CASE WHEN professionalism_maintained = 0 THEN 1 ELSE 0 END) AS fatal_count,
+            ROUND((SUM(CASE WHEN professionalism_maintained = 0 THEN 1 ELSE 0 END) * 100.0) / NULLIF(COUNT(*), 0), 2) AS fatal_percentage,
+
+            ROUND(AVG( 
+                CASE 
+                    WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                    WHEN customer_concern_acknowledged = TRUE THEN 1
+                    ELSE 0
+                END
+            ), 2) AS opening_score,
+
+            ROUND(AVG(
+                CASE 
+                    WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                    ELSE 
+                        (IF(professionalism_maintained = TRUE, 0.111111, 0) +
+                         IF(assurance_or_appreciation_provided = TRUE, 0.111111, 0) +
+                         IF(express_empathy = TRUE, 0.111111, 0) +
+                         IF(pronunciation_and_clarity = TRUE, 0.111111, 0) +
+                         IF(enthusiasm_and_no_fumbling = TRUE, 0.111111, 0) +
+                         IF(active_listening = TRUE, 0.111111, 0) +
+                         IF(politeness_and_no_sarcasm = TRUE, 0.111111, 0) +
+                         IF(proper_grammar = TRUE, 0.111111, 0) +
+                         IF(accurate_issue_probing = TRUE, 0.111111, 0))
+                END
+            ), 2) AS soft_skills_score,
+
+            ROUND(AVG(
+                CASE 
+                    WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                    ELSE 
+                        (IF(proper_hold_procedure = TRUE, 0.5, 0) +
+                         IF(proper_transfer_and_language = TRUE, 0.5, 0))
+                END
+            ), 2) AS hold_procedure_score,
+
+            ROUND(AVG(
+                CASE 
+                    WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                    ELSE 
+                        (IF(address_recorded_completely = TRUE, 0.5, 0) +
+                         IF(correct_and_complete_information = TRUE, 0.5, 0))
+                END
+            ), 2) AS resolution_score,
+
+            ROUND(AVG(
+                CASE 
+                    WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                    WHEN professionalism_maintained = TRUE THEN 1
+                    ELSE 0
+                END
+            ), 2) AS closing_score,
+
+            ROUND((
+                AVG(
+                    CASE 
+                        WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                        WHEN customer_concern_acknowledged = TRUE THEN 1
+                        ELSE 0
+                    END
+                ) +
+                AVG(
+                    CASE 
+                        WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                        ELSE 
+                            (IF(professionalism_maintained = TRUE, 0.111111, 0) +
+                             IF(assurance_or_appreciation_provided = TRUE, 0.111111, 0) +
+                             IF(express_empathy = TRUE, 0.111111, 0) +
+                             IF(pronunciation_and_clarity = TRUE, 0.111111, 0) +
+                             IF(enthusiasm_and_no_fumbling = TRUE, 0.111111, 0) +
+                             IF(active_listening = TRUE, 0.111111, 0) +
+                             IF(politeness_and_no_sarcasm = TRUE, 0.111111, 0) +
+                             IF(proper_grammar = TRUE, 0.111111, 0) +
+                             IF(accurate_issue_probing = TRUE, 0.111111, 0))
+                    END
+                ) +
+                AVG(
+                    CASE 
+                        WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                        ELSE 
+                            (IF(proper_hold_procedure = TRUE, 0.5, 0) +
+                             IF(proper_transfer_and_language = TRUE, 0.5, 0))
+                    END
+                ) +
+                AVG(
+                    CASE 
+                        WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                        ELSE 
+                            (IF(address_recorded_completely = TRUE, 0.5, 0) +
+                             IF(correct_and_complete_information = TRUE, 0.5, 0))
+                    END
+                ) +
+                AVG(
+                    CASE 
+                        WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                        WHEN professionalism_maintained = TRUE THEN 1
+                        ELSE 0
+                    END
+                )
+            ) / 5, 2) AS avg_score 
+
+        FROM call_quality_assessment
+        WHERE ClientId = :client_id
+        AND DATE(CallDate) BETWEEN :start_date AND :end_date
+        GROUP BY DATE(CallDate)
+        ORDER BY audit_count DESC;
+    """)
+
+    result = db.execute(query, {
+        "client_id": client_id,
+        "start_date": start_date,
+        "end_date": end_date
+    }).fetchall()
+
+    response_data = []
+    for row in result:
+        response_data.append({
+            "Call Date": row[0],
+            "TQ/MQ/BQ": row[1],
+            "Audit Count": row[2],
+            "CQ Score%": f"{row[3] or 0}%",
+            "Fatal Count": row[4] or 0,
+            "Fatal%": f"{row[5] or 0}%",
+            "Opening Score%": f"{row[6] or 0}%",
+            "Soft Skills Score%": f"{row[7] or 0}%",
+            "Hold Procedure Score%": f"{row[8] or 0}%",
+            "Resolution Score%": f"{row[9] or 0}%",
+            "Closing Score%": f"{row[10] or 0}%",
+            "Average Score%": f"{row[11] or 0}%"
+        })
+
+    return response_data
+
+
+###############  Search Lead##########################
+class CallQualityAssessment(BaseModel):
+    client_id: str
+    mobile_no: str
+    user: str
+    lead_id: str
+    call_date: str  # Convert date to string format
+    customer_concern_acknowledged: Optional[int]
+    professionalism_maintained: Optional[int]
+    assurance_or_appreciation_provided: Optional[int]
+    pronunciation_and_clarity: Optional[int]
+    enthusiasm_and_no_fumbling: Optional[int]
+    active_listening: Optional[int]
+    politeness_and_no_sarcasm: Optional[int]
+    proper_grammar: Optional[int]
+    accurate_issue_probing: Optional[int]
+    proper_hold_procedure: Optional[int]
+    proper_transfer_and_language: Optional[int]
+    address_recorded_completely: Optional[int]
+    correct_and_complete_information: Optional[int]
+    proper_call_closure: Optional[int]
+    express_empathy: Optional[int]
+    total_score: Optional[int]
+    max_score: Optional[int]
+    quality_percentage: Optional[float]
+    areas_for_improvement: Optional[str]
+    transcribe_text: Optional[str]
+
+# ✅ Define API inside APIRouter
+@app.get("/call_quality_details/", response_model=CallQualityAssessment)
+def get_call_quality_details(
+    client_id: str = Query(..., description="Client ID"),
+    lead_id: str = Query(..., description="Lead ID"),
+    db: Session = Depends(get_db2)
+):
+    query = text("""
+        SELECT 
+            ClientId, MobileNo, User, lead_id, CallDate, 
+            customer_concern_acknowledged, professionalism_maintained, 
+            assurance_or_appreciation_provided, pronunciation_and_clarity, 
+            enthusiasm_and_no_fumbling, active_listening, 
+            politeness_and_no_sarcasm, proper_grammar, accurate_issue_probing, 
+            proper_hold_procedure, proper_transfer_and_language, 
+            address_recorded_completely, correct_and_complete_information, 
+            proper_call_closure, express_empathy, total_score, 
+            max_score, quality_percentage, areas_for_improvement, 
+            Transcribe_Text
+        FROM call_quality_assessment
+        WHERE ClientId = :client_id AND lead_id = :lead_id
+    """)
+
+    result = db.execute(query, {"client_id": client_id, "lead_id": lead_id}).fetchone()
+
+    if not result:
+        raise HTTPException(status_code=404, detail="No data found for the given Client ID and Lead ID")
+
+    return CallQualityAssessment(
+        client_id=result[0],
+        mobile_no=result[1],
+        user=result[2],
+        lead_id=result[3],
+        call_date=result[4].strftime("%Y-%m-%d"),  # ✅ Convert date to string
+        customer_concern_acknowledged=result[5],
+        professionalism_maintained=result[6],
+        assurance_or_appreciation_provided=result[7],
+        pronunciation_and_clarity=result[8],
+        enthusiasm_and_no_fumbling=result[9],
+        active_listening=result[10],
+        politeness_and_no_sarcasm=result[11],
+        proper_grammar=result[12],
+        accurate_issue_probing=result[13],
+        proper_hold_procedure=result[14],
+        proper_transfer_and_language=result[15],
+        address_recorded_completely=result[16],
+        correct_and_complete_information=result[17],
+        proper_call_closure=result[18],
+        express_empathy=result[19],
+        total_score=result[20],
+        max_score=result[21],
+        quality_percentage=result[22],
+        areas_for_improvement=result[23],
+        transcribe_text=result[24]
+    )
+
+
+##################  Raw Dump ####################################
+@app.get("/call_quality_assessments")
+def get_call_quality_assessments(
+    client_id: str = Query(..., description="Client ID"),
+    start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
+    end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
+    db: Session = Depends(get_db2)
+):
+    query = text("""
+        SELECT * 
+        FROM call_quality_assessment
+        WHERE ClientId = :client_id
+        AND DATE(CallDate) BETWEEN :start_date AND :end_date
+    """)
+
+    result = db.execute(query, {
+        "client_id": client_id,
+        "start_date": start_date,
+        "end_date": end_date
+    }).fetchall()
+
+    # Convert result to JSON-friendly format
+    response_data = [dict(row._mapping) for row in result]
+
+    return response_data
+
+
+#######  Potential Scam###################
+
+@app.get("/potential_data_summarry")
+def get_potential_data_summarry(
+    client_id: str = Query(..., description="Client ID"),
+    start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
+    end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
+    db: Session = Depends(get_db2)
+):
+    # Query to get the summarized count
+    query_counts = text("""
+        SELECT 
+            SUM(CASE WHEN LOWER(sensetive_word) LIKE '%social%' THEN 1 ELSE 0 END) AS social_media_threat,
+            SUM(CASE WHEN LOWER(sensetive_word) LIKE '%court%'
+                        OR LOWER(sensetive_word) LIKE '%consumer%'
+                        OR LOWER(sensetive_word) LIKE '%legal%'
+                        OR LOWER(sensetive_word) LIKE '%fir%' THEN 1 ELSE 0 END) AS consumer_court_threat,
+            SUM(CASE WHEN system_manipulation = 'Yes' THEN 1 ELSE 0 END) AS potential_scam,
+            SUM(CASE WHEN LOWER(top_negative_words) LIKE '%abuse%' THEN 1 ELSE 0 END) AS abuse,
+            SUM(CASE WHEN LOWER(top_negative_words) LIKE '%threat%' THEN 1 ELSE 0 END) AS threat,
+            SUM(CASE WHEN LOWER(top_negative_words) LIKE '%frustration%' THEN 1 ELSE 0 END) AS frustration,
+            SUM(CASE WHEN LOWER(top_negative_words) LIKE '%slang%' THEN 1 ELSE 0 END) AS slang,
+            SUM(CASE WHEN LOWER(top_negative_words) LIKE '%sarcasm%' THEN 1 ELSE 0 END) AS sarcasm
+        FROM call_quality_assessment
+        WHERE ClientId = :client_id
+        AND DATE(CallDate) BETWEEN :start_date AND :end_date
+    """)
+
+    count_result = db.execute(query_counts, {
+        "client_id": client_id,
+        "start_date": start_date,
+        "end_date": end_date
+    }).fetchone()
+
+    # Convert count result to dictionary
+    count_data = dict(count_result._mapping)
+
+    # Query to get raw dump
+    query_raw_dump = text("""
+        SELECT *
+        FROM call_quality_assessment
+        WHERE ClientId = :client_id
+        AND (LOWER(sensetive_word) LIKE '%social%'
+             OR LOWER(sensetive_word) LIKE '%court%'
+             OR LOWER(sensetive_word) LIKE '%consumer%'
+             OR LOWER(sensetive_word) LIKE '%legal%'
+             OR LOWER(sensetive_word) LIKE '%fir%'
+             OR system_manipulation = 'Yes'
+             OR LOWER(top_negative_words) LIKE '%abuse%'
+             OR LOWER(top_negative_words) LIKE '%threat%'
+             OR LOWER(top_negative_words) LIKE '%frustration%'
+             OR LOWER(top_negative_words) LIKE '%slang%'
+             OR LOWER(top_negative_words) LIKE '%sarcasm%')
+        AND DATE(CallDate) BETWEEN :start_date AND :end_date
+    """)
+
+    raw_dump_result = db.execute(query_raw_dump, {
+        "client_id": client_id,
+        "start_date": start_date,
+        "end_date": end_date
+    }).fetchall()
+
+    # Convert raw dump result to JSON-friendly format
+    raw_dump_data = [dict(row._mapping) for row in raw_dump_result]
+
+    return {
+        "counts": count_data,
+        "raw_dump": raw_dump_data
+    }
