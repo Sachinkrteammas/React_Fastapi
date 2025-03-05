@@ -543,3 +543,42 @@
 width: 100%;
     height: 425px;
 }
+
+
+
+
+/* loader css */
+
+.loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh; /* Full-screen centering */
+  background-color: #f8f9fa; /* Light background for better visibility */
+}
+
+.windows-spinner {
+  width: 80px; /* Increased size */
+  height: 80px;
+  border: 8px solid transparent; /* Thicker border */
+  border-top: 8px solid #0078d7; /* Windows blue color */
+  border-radius: 50%;
+  animation: windows-spin 0.8s linear infinite; /* Faster spin */
+}
+
+@keyframes windows-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.Loading {
+  font-size: 20px; /* Slightly bigger text */
+  font-weight: bold;
+  margin-top: 15px;
+  color: #333;
+}

@@ -458,7 +458,12 @@ const Analysis = () => {
 
   // Show loading message until all data is fetched
   if (loading) {
-    return <p>Loading...</p>;
+    return (
+      <div className="loader-container">
+        <div className="windows-spinner"></div>
+        <p className="Loading">Loading...</p>
+      </div>
+    );
   }
 
   return (
