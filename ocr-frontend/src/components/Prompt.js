@@ -14,7 +14,6 @@ const PromptPage = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-
   const id = localStorage.getItem("id"); // ClientId from localStorage
 
   const defaultPrompt =
@@ -79,6 +78,12 @@ const PromptPage = () => {
     setNewValue("");
   };
 
+  const handleKeyBlur = () => {
+    if (newKey.trim() !== "") {
+      setNewValue(`Extract ${newKey} in this conversation`);
+    }
+  };
+
   return (
     <Layout>
       <div className="main-content1">
@@ -101,6 +106,7 @@ const PromptPage = () => {
                 type="text"
                 value={newKey}
                 onChange={(e) => setNewKey(e.target.value)}
+                onBlur={handleKeyBlur}
                 className="input-field"
                 placeholder="Enter new key"
               />
