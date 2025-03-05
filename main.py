@@ -2,6 +2,7 @@ import os
 import re
 import secrets
 import shutil
+import uuid
 from urllib.request import Request
 
 import jwt
@@ -399,20 +400,31 @@ async def upload_audio(
 
 
 ########## Curl fun ##############
+class APIKey(Base):
+    __tablename__ = "api_keys"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))  # Ensure correct UUID format
+    api_key = Column(String(64), unique=True, nullable=False, index=True)  # Unique and non-null
+    created_at = Column(DateTime, server_default=func.now())
+    status = Column(String(20), default="Active")
+
 API_SECRET_TOKEN = "YOUR_SECRET_TOKEN"
 
 class GenerateKeyRequest(BaseModel):
-    user_id: int
+    user_id: str
 
 class KeyResponse(BaseModel):
     user_id: int
     key: str
     api_secret_token: str
+    # created_at: datetime
+    # status: str
 
 @app.post("/generate-key/", response_model=KeyResponse)
 def generate_key(request: GenerateKeyRequest, db: Session = Depends(get_db)):
     global API_SECRET_TOKEN  # Allow modification of the global variable
 
+    # Fetch user from the User table
     user = db.query(User).filter(User.id == request.user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -420,15 +432,23 @@ def generate_key(request: GenerateKeyRequest, db: Session = Depends(get_db)):
     # Generate a new API key
     new_key = secrets.token_hex(16)
     API_SECRET_TOKEN = new_key  # Update global API_SECRET_TOKEN
+
     print(new_key, "Generated Key")
     print(API_SECRET_TOKEN, "Updated API_SECRET_TOKEN")
 
     # Save the new key in the database
-    user.api_key = new_key
+    new_key_record = APIKey(api_key=new_key)
+    db.add(new_key_record)
+    db.commit()
+    db.refresh(new_key_record)
+
+
+    user.api_key = new_key_record.api_key
     db.commit()
     db.refresh(user)
 
-    return {"user_id": user.id, "key": new_key, "api_secret_token": API_SECRET_TOKEN}
+    return {"user_id": user.id, "key": new_key_record.api_key, "api_secret_token": API_SECRET_TOKEN}
+
 
 @app.post("/upload-audio-curl/")
 async def upload_audio_curl(
@@ -1921,3 +1941,13 @@ def get_potential_data_summarry(
         "counts": count_data,
         "raw_dump": raw_dump_data
     }
+
+
+################### API Key ############################
+
+
+# Get all API keys
+@app.get("/api/get-keys")
+def get_keys(db: Session = Depends(get_db)):
+    keys = db.query(APIKey).all()
+    return [{"api_key": key.api_key, "created_at": key.created_at, "status": key.status} for key in keys]
