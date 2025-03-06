@@ -130,6 +130,7 @@ const Analysis = () => {
   const [pieData, setPieData] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loading1, setLoading1] = useState(false);
   const [scores, setScores] = useState(null);
   const [performers, setPerformers] = useState([]);
   const [barData, setBarData] = useState([]);
@@ -192,7 +193,7 @@ const Analysis = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setLoading1(true);
 
     try {
       const { client_id, start_date, end_date } = formData;
@@ -280,7 +281,7 @@ const Analysis = () => {
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
-      setLoading(false);
+      setLoading1(false);
     }
   };
 
@@ -468,9 +469,10 @@ const Analysis = () => {
 
   return (
     <Layout>
-      <div className="dashboard-container">
+      {/* <div className="dashboard-container"> */}
+      <div className={`dashboard-container ${loading ? "blurred" : ""}`}>
         <header className="header">
-          <h3>DialDesk</h3>
+          <h3>Dial Desk</h3>
           {/* <div className="date-picker">Feb 19, 2025 - Feb 20, 2025</div> */}
           <div className="setdate">
             <form className="setdatewidth" onSubmit={handleSubmit}>
@@ -493,7 +495,7 @@ const Analysis = () => {
                 />
               </label>
               <label>
-                <input type="submit" value="Submit" />
+                <input type="submit" class="setsubmitbtn" value="Submit" />
               </label>
             </form>
           </div>
@@ -811,7 +813,7 @@ const Analysis = () => {
                 </table>
               </div>
 
-              <p>Potential Scam</p>
+              <p>Protetional Scam</p>
               <div className="data-table">
                 <p>No data</p>
               </div>
@@ -1004,6 +1006,12 @@ const Analysis = () => {
             </div>
           </div>
         </div>
+        {loading1 && (
+          <div className="loader-overlay">
+            <div className="windows-spinner"></div>
+            <p className="Loading">Loading...</p>
+          </div>
+        )}
       </div>
     </Layout>
   );

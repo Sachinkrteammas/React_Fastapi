@@ -6,8 +6,8 @@ import "./RawDown.css";
 const RawDownload = () => {
   const [leadId, setLeadId] = useState("");
   const [data, setData] = useState([]);
-  const [startDate, setStartDate] = useState(new Date()); // Stores Date object
-  const [endDate, setEndDate] = useState(new Date()); // Stores Date object
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
   const [loading, setLoading] = useState(false);
 
   const formatDate = (date) => {
@@ -24,18 +24,19 @@ const RawDownload = () => {
 
     try {
       const response = await fetch(
-        `http://127.0.0.1:8097/call_quality_assessments?client_id=375&start_date=${formatDate(startDate)}&end_date=${formatDate(endDate)}`
+        `http://127.0.0.1:8097/call_quality_assessments?client_id=375&start_date=${formatDate(
+          startDate
+        )}&end_date=${formatDate(endDate)}`
       );
       if (!response.ok) throw new Error("Failed to fetch data");
 
       const result = await response.json();
 
-      // Transform API response to match table structure
       const formattedData = result.map((item) => ({
         clientId: item.ClientId,
-        callDate: item.CallDate, // Keeping original format
+        callDate: item.CallDate,
         leadId: item.lead_id,
-        agentName: item.User, // Assuming "User" is the agent name
+        agentName: item.User,
         scenario: item.scenario,
         scenario1: item.scenario1,
         scenario2: item.scenario2,
@@ -51,11 +52,6 @@ const RawDownload = () => {
       setLoading(false);
     }
   };
-
-  // Uncomment this if you want data to load on component mount
-  // useEffect(() => {
-  //   fetchCallQualityDetails();
-  // }, []);
 
   return (
     <Layout>
@@ -78,18 +74,18 @@ const RawDownload = () => {
               />
             </label>
             <label>
-              <input className="setsubmitbtn" value={"Submit"} readOnly onClick={fetchCallQualityDetails}/>
-               
+              <input
+                className="setsubmitbtn"
+                value={"Submit"}
+                readOnly
+                onClick={fetchCallQualityDetails}
+              />
             </label>
           </div>
         </header>
 
-        {loading ? (
-          <div className="loader-container">
-            <div className="windows-spinner"></div>
-            <p className="Loading">Loading...</p>
-          </div>
-        ) : (
+        {/* Content Wrapper */}
+        <div className={`content-wrapper ${loading ? "blurred" : ""}`}>
           <table>
             <thead>
               <tr>
@@ -130,6 +126,14 @@ const RawDownload = () => {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Loader Overlay */}
+        {loading && (
+          <div className="loader-overlay">
+            <div className="windows-spinner"></div>
+            <p className="Loading">Loading...</p>
+          </div>
         )}
       </div>
     </Layout>

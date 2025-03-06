@@ -53,7 +53,8 @@ const Potential = () => {
 
   return (
     <Layout>
-      <div className="dashboard-container-po">
+      {/* <div className="dashboard-container-po"> */}
+      <div className={`dashboard-container-po ${loading ? "blurred" : ""}`}>
         {/* Header Section */}
         <header className="headerPo">
           <h3>DialDesk</h3>
@@ -80,12 +81,7 @@ const Potential = () => {
         </header>
 
         {/* ✅ Show loading state */}
-        {loading ? (
-          <div className="loader-container">
-            <div className="windows-spinner"></div>
-            <p className="Loading">Loading...</p>
-          </div>
-        ) : (
+        
           <div className="content">
             {/* Left Section - Pie Chart */}
             <div className="chart-container">
@@ -145,7 +141,13 @@ const Potential = () => {
               )}
             </div>
           </div>
+          {loading && (
+          <div className="loader-overlay">
+            <div className="windows-spinner"></div>
+            <p className="Loading">Loading...</p>
+          </div>
         )}
+        
       </div>
     </Layout>
   );

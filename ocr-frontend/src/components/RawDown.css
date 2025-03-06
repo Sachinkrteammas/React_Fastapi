@@ -71,3 +71,52 @@ body {
     font-weight: bold;
   }
   
+
+  /* Blur Effect */
+.content-wrapper.blurred {
+  filter: blur(5px); /* Apply blur effect */
+  pointer-events: none; /* Prevent user interaction */
+  opacity: 0.6; /* Slightly dim the background */
+}
+
+/* Loader Overlay */
+.loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.7); /* Semi-transparent white */
+  backdrop-filter: blur(2px); /* Apply blur effect */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensure it overlays everything */
+}
+
+/* Loader Spinner */
+.windows-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #ccc;
+  border-top: 5px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Loading Text */
+.Loading {
+  font-size: 18px;
+  color: #333;
+  font-weight: bold;
+  margin-top: 10px;
+}

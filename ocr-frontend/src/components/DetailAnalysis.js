@@ -390,7 +390,8 @@ const DetailAnalysis = () => {
   const [queryData, setQueryData] = useState([]);
   const [complaintData, setComplaintData] = useState([]);
   const [requestData, setRequestData] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [loading1, setLoading1] = useState(false);
   const [error, setError] = useState(null);
   const clientId = 375;
   const [complaintData1, setComplaintData1] = useState([]);
@@ -411,7 +412,7 @@ const DetailAnalysis = () => {
       return;
     }
   
-    setLoading(true);
+    setLoading1(true);
     setError(null);
   
     try {
@@ -493,7 +494,7 @@ const DetailAnalysis = () => {
       console.error("Error fetching data:", error);
       setError(`Failed to load data: ${error}`);
     } finally {
-      setLoading(false);
+      setLoading1(false);
     }
   };
   
@@ -532,7 +533,8 @@ const DetailAnalysis = () => {
 
   return (
     <Layout>
-      <div className="dashboard-container-de">
+      {/* <div className="dashboard-container-de"> */}
+      <div className={`dashboard-container-de ${loading ? "blurred" : ""}`}>
         {/* Header Section */}
         <header className="header">
           <h3>DialDesk</h3>
@@ -1019,6 +1021,12 @@ const DetailAnalysis = () => {
             </tbody>
           </table>
         </div>
+        {loading1 && (
+          <div className="loader-overlay">
+            <div className="windows-spinner"></div>
+            <p className="Loading">Loading...</p>
+          </div>
+        )}
       </div>
     </Layout>
   );

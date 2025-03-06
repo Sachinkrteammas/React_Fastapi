@@ -62,18 +62,19 @@ const Search = () => {
   };
 
   // Show loading message until all data is fetched
-  if (loading) {
-    return (
-      <div className="loader-container">
-        <div className="windows-spinner"></div>
-        <p className="Loading">Loading...</p>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="loader-container">
+  //       <div className="windows-spinner"></div>
+  //       <p className="Loading">Loading...</p>
+  //     </div>
+  //   );
+  // }
 
   return (
     <Layout>
-      <div className="containers">
+      {/* <div className="containers"> */}
+      <div className={`containers ${loading ? "blurred" : ""}`}>
         {/* Header Section */}
         <header className="header">
           <h3>DialDesk</h3>
@@ -86,7 +87,7 @@ const Search = () => {
               value={leadId}
               onChange={(e) => setLeadId(e.target.value)}
             />
-            <button className="search-button-se" onClick={fetchCallQualityDetails}>
+            <button class="setsubmitbtn" onClick={fetchCallQualityDetails}>
               Search
             </button>
           </div>
@@ -110,6 +111,12 @@ const Search = () => {
             </table>
           )}
         </div>
+        {loading && (
+          <div className="loader-overlay">
+            <div className="windows-spinner"></div>
+            <p className="Loading">Loading...</p>
+          </div>
+        )}
       </div>
     </Layout>
   );

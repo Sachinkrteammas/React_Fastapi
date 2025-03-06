@@ -16,6 +16,7 @@ import "./FatalAnalysis.css";
 const Fatal = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loading1, setLoading1] = useState(false);
   const [error, setError] = useState(null);
   const [startDate, setStartDate] = useState("2025-02-03"); // Default Start Date
   const [endDate, setEndDate] = useState("2025-03-03");
@@ -217,7 +218,7 @@ const Fatal = () => {
 
   const fetchData = async () => {
     try {
-      setLoading(true);
+      setLoading1(true);
       setError(null);
 
       // Fetch all three APIs in parallel
@@ -317,7 +318,7 @@ const Fatal = () => {
       console.error("Fetch Error:", err);
       setError(err.message);
     } finally {
-      setLoading(false);
+      setLoading1(false);
     }
   };
    
@@ -353,7 +354,8 @@ const Fatal = () => {
 
   return (
     <Layout>
-      <div className="dashboard-container">
+      {/* <div className="dashboard-container"> */}
+      <div className={`dashboard-container ${loading ? "blurred" : ""}`}>
         <header className="header">
           {/* <div> */}
             <label>
@@ -622,39 +624,15 @@ const Fatal = () => {
                 </tr>
               ))}
             </tbody>
-            {/* <tfoot>
-              <tr>
-                <td>
-                  <strong>Grand Total</strong>
-                </td>
-                <td>
-                  <strong>{totals.auditCount}</strong>
-                </td>
-                <td>
-                  <strong>{totals.cqScore}%</strong>
-                </td>
-                <td>
-                  <strong>{totals.fatalCount}</strong>
-                </td>
-                <td>
-                  <strong>{totals.fatalPercentage}%</strong>
-                </td>
-                <td>
-                  <strong>{totals.belowAvgCall}%</strong>
-                </td>
-                <td>
-                  <strong>{totals.avgCalls}%</strong>
-                </td>
-                <td>
-                  <strong>{totals.goodCalls}%</strong>
-                </td>
-                <td>
-                  <strong>{totals.excellentCalls}%</strong>
-                </td>
-              </tr>
-            </tfoot> */}
+            
           </table>
         </div>
+        {loading1 && (
+          <div className="loader-overlay">
+            <div className="windows-spinner"></div>
+            <p className="Loading">Loading...</p>
+          </div>
+        )}
       </div>
     </Layout>
   );
