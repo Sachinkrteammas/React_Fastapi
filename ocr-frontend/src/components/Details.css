@@ -282,3 +282,10 @@
     font-family: Arial, sans-serif;
     margin-top: 10px;
   }
+
+  .setheaderdivdetails
+  {
+    display: inline;
+    /* margin-right: 53px; */
+    margin-left: 380px;
+  }

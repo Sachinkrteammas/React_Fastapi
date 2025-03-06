@@ -46,11 +46,6 @@ const Fatal = () => {
       excellentCalls: 0,
     }
   );
-  
-
-
-
-
 
   // const dayWiseData = [
   //   { date: "Feb 19, 2025", fatal: 11 },
@@ -220,27 +215,31 @@ const Fatal = () => {
     },
   ];
 
-
   const fetchData = async () => {
     try {
       setLoading(true);
       setError(null);
-  
+
       // Fetch all three APIs in parallel
-      const [topAgentsResponse, dayWiseResponse, auditSummaryResponse] = await Promise.all([
-        fetch(
-          `http://127.0.0.1:8097/top_agents_fatal_summary?client_id=375&start_date=${startDate}&end_date=${endDate}&limit=5`
-        ),
-        fetch(
-          `http://127.0.0.1:8097/daywise_fatal_summary?client_id=375&start_date=${startDate}&end_date=${endDate}`
-        ),
-        fetch(
-          `http://127.0.0.1:8097/agent_audit_summary?client_id=375&start_date=${startDate}&end_date=${endDate}`
-        ),
-      ]);
-  
+      const [topAgentsResponse, dayWiseResponse, auditSummaryResponse] =
+        await Promise.all([
+          fetch(
+            `http://127.0.0.1:8097/top_agents_fatal_summary?client_id=375&start_date=${startDate}&end_date=${endDate}&limit=5`
+          ),
+          fetch(
+            `http://127.0.0.1:8097/daywise_fatal_summary?client_id=375&start_date=${startDate}&end_date=${endDate}`
+          ),
+          fetch(
+            `http://127.0.0.1:8097/agent_audit_summary?client_id=375&start_date=${startDate}&end_date=${endDate}`
+          ),
+        ]);
+
       // Check if any response failed
-      if (!topAgentsResponse.ok || !dayWiseResponse.ok || !auditSummaryResponse.ok) {
+      if (
+        !topAgentsResponse.ok ||
+        !dayWiseResponse.ok ||
+        !auditSummaryResponse.ok
+      ) {
         throw new Error(
           `API Error: 
           Top Agents: ${topAgentsResponse.status}, 
@@ -248,19 +247,23 @@ const Fatal = () => {
           Audit Summary: ${auditSummaryResponse.status}`
         );
       }
-  
+
       // Parse JSON responses
       const [topAgentsData, dayWiseData, auditSummaryData] = await Promise.all([
         topAgentsResponse.json(),
         dayWiseResponse.json(),
         auditSummaryResponse.json(),
       ]);
-  
+
       // Validate API responses
-      if (!Array.isArray(topAgentsData) || !Array.isArray(dayWiseData) || !Array.isArray(auditSummaryData)) {
+      if (
+        !Array.isArray(topAgentsData) ||
+        !Array.isArray(dayWiseData) ||
+        !Array.isArray(auditSummaryData)
+      ) {
         throw new Error("Invalid data format received from API.");
       }
-  
+
       // Format Top Contributors Data
       const formattedTopContributors = topAgentsData.map((agent) => ({
         name: agent["Agent Name"] || "N/A",
@@ -268,7 +271,7 @@ const Fatal = () => {
         fatal: agent["Fatal Count"] || 0,
         fatalPercent: agent["Fatal%"] || "0%",
       }));
-  
+
       // Format Day-wise Data
       const formattedDayWiseData = dayWiseData.map((entry) => ({
         date: entry["CallDate"]
@@ -280,7 +283,7 @@ const Fatal = () => {
           : "Unknown",
         fatal: entry["Fatal Count"] || 0,
       }));
-  
+
       // Format Agent Audit Summary Data
       const formattedAuditData = auditSummaryData.map((agent) => ({
         agent: agent["Agent Name"] || "N/A",
@@ -293,18 +296,23 @@ const Fatal = () => {
         goodCalls: agent["Good Calls"] || "0%",
         excellentCalls: agent["Excellent Calls"] || "0%",
       }));
-  
+
       // Update state only if data has changed (avoiding unnecessary re-renders)
       setTopContributors((prev) =>
-        JSON.stringify(prev) !== JSON.stringify(formattedTopContributors) ? formattedTopContributors : prev
+        JSON.stringify(prev) !== JSON.stringify(formattedTopContributors)
+          ? formattedTopContributors
+          : prev
       );
       setDayWiseData((prev) =>
-        JSON.stringify(prev) !== JSON.stringify(formattedDayWiseData) ? formattedDayWiseData : prev
+        JSON.stringify(prev) !== JSON.stringify(formattedDayWiseData)
+          ? formattedDayWiseData
+          : prev
       );
       setAuditData((prev) =>
-        JSON.stringify(prev) !== JSON.stringify(formattedAuditData) ? formattedAuditData : prev
+        JSON.stringify(prev) !== JSON.stringify(formattedAuditData)
+          ? formattedAuditData
+          : prev
       );
-  
     } catch (err) {
       console.error("Fetch Error:", err);
       setError(err.message);
@@ -312,7 +320,8 @@ const Fatal = () => {
       setLoading(false);
     }
   };
-  
+   
+
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -332,12 +341,26 @@ const Fatal = () => {
     fetchStats();
   }, []);
 
+  // Show loading message until all data is fetched
+  if (loading) {
+    return (
+      <div className="loader-container">
+        <div className="windows-spinner"></div>
+        <p className="Loading">Loading...</p>
+      </div>
+    );
+  }
+
   return (
     <Layout>
       <div className="dashboard-container">
-      <header className="header">
-          <h3>Dial Desk</h3>
-          <div>
+        <header className="header">
+          {/* <div> */}
+            <label>
+              {" "}
+              <h3>Dial Desk</h3>
+            </label>
+            <div className="setheaderdiv">
             <label>
               <input
                 type="date"
@@ -352,52 +375,57 @@ const Fatal = () => {
                 onChange={(e) => setEndDate(e.target.value)}
               />
             </label>
-            <button onClick={fetchData}>Submit</button>
-          </div>
+            {/* <button onClick={fetchData}>Submit</button> */}
+            <label>
+              <input className="setsubmitbtn" onClick={fetchData} value={"Submit"} readOnly />
+            </label>
+            </div>
+          {/* </div> */}
         </header>
+
         <div className="maincon">
           <div className="leftbody">
-          <div className="stats">
-            <div className="stat-box">
-              <h6>CQ Score%</h6>
-              <p className="score">{stats?.cq_score || "N/A"}%</p>
+            <div className="stats">
+              <div className="stat-box">
+                <h6>CQ Score%</h6>
+                <p className="score">{stats?.cq_score || "N/A"}%</p>
+              </div>
+              <div className="stat-box">
+                <h6>Audit Count</h6>
+                <p className="score">{stats?.audit_cnt || "N/A"}</p>
+              </div>
+              <div className="stat-box">
+                <h6>Fatal Count</h6>
+                <p className="score">{stats?.fatal_count || "N/A"}</p>
+              </div>
+              <div className="stat-box">
+                <h6>Fatal%</h6>
+                <p className="score">{stats?.fatal_percentage || "N/A"}%</p>
+              </div>
             </div>
-            <div className="stat-box">
-              <h6>Audit Count</h6>
-              <p className="score">{stats?.audit_cnt || "N/A"}</p>
-            </div>
-            <div className="stat-box">
-              <h6>Fatal Count</h6>
-              <p className="score">{stats?.fatal_count || "N/A"}</p>
-            </div>
-            <div className="stat-box">
-              <h6>Fatal%</h6>
-              <p className="score">{stats?.fatal_percentage || "N/A"}%</p>
-            </div>
-          </div>
 
             <div className="top-contributors">
               <h5>Top 5 Fatal Contributors</h5>
               <table>
-            <thead>
-              <tr>
-                <th>Agent Name</th>
-                <th>Audit Count</th>
-                <th>Fatal Count</th>
-                <th>Fatal%</th>
-              </tr>
-            </thead>
-            <tbody>
-              {topContributors.map((agent, index) => (
-                <tr key={index}>
-                  <td>{agent.name}</td>
-                  <td>{agent.audit}</td>
-                  <td>{agent.fatal}</td>
-                  <td className="highlight">{agent.fatalPercent}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                <thead>
+                  <tr>
+                    <th>Agent Name</th>
+                    <th>Audit Count</th>
+                    <th>Fatal Count</th>
+                    <th>Fatal%</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {topContributors.map((agent, index) => (
+                    <tr key={index}>
+                      <td>{agent.name}</td>
+                      <td>{agent.audit}</td>
+                      <td>{agent.fatal}</td>
+                      <td className="highlight">{agent.fatalPercent}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
 
             <div className="chart-section">
@@ -583,18 +611,18 @@ const Fatal = () => {
                   <td>{row.agent}</td>
                   <td>{row.auditCount}</td>
                   <td className={row.cqScore < 60 ? "low-score" : ""}>
-                    {row.cqScore}%
+                    {row.cqScore}
                   </td>
                   <td>{row.fatalCount}</td>
-                  <td>{row.fatalPercentage}%</td>
-                  <td>{row.belowAvgCall}%</td>
-                  <td>{row.avgCalls}%</td>
-                  <td>{row.goodCalls}%</td>
-                  <td>{row.excellentCalls}%</td>
+                  <td>{row.fatalPercentage}</td>
+                  <td>{row.belowAvgCall}</td>
+                  <td>{row.avgCalls}</td>
+                  <td>{row.goodCalls}</td>
+                  <td>{row.excellentCalls}</td>
                 </tr>
               ))}
             </tbody>
-            <tfoot>
+            {/* <tfoot>
               <tr>
                 <td>
                   <strong>Grand Total</strong>
@@ -624,7 +652,7 @@ const Fatal = () => {
                   <strong>{totals.excellentCalls}%</strong>
                 </td>
               </tr>
-            </tfoot>
+            </tfoot> */}
           </table>
         </div>
       </div>

@@ -61,6 +61,16 @@ const Search = () => {
     }
   };
 
+  // Show loading message until all data is fetched
+  if (loading) {
+    return (
+      <div className="loader-container">
+        <div className="windows-spinner"></div>
+        <p className="Loading">Loading...</p>
+      </div>
+    );
+  }
+
   return (
     <Layout>
       <div className="containers">
@@ -84,7 +94,7 @@ const Search = () => {
 
         {/* Table Section */}
         <div className="tables-container">
-          {loading && <p>Loading...</p>}
+          {/* {loading && <p>Loading...</p>} */}
           {error && <p style={{ color: "red" }}>{error}</p>}
 
           {data && (

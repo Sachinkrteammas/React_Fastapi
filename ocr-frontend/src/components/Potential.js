@@ -64,24 +64,26 @@ const Potential = () => {
         {/* Header Section */}
         <header className="headerPo">
           <h3>Dial Desk</h3>
-
-          <label>Start Date: </label>
+          <div className="setheaderdivdetails">
+          <label> 
           <input
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
           />
+          </label>
 
-          <label>End Date: </label>
+          <label>
           <input
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
           />
+          </label>
 
-          <button className="setbotton" onClick={fetchCallQualityDetails}>
-            Submit
-          </button>
+          <input className="setsubmitbtn" value={"Submit"} readOnly onClick={fetchCallQualityDetails}/>
+          </div>
+            
         </header>
 
         <div className="content">

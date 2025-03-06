@@ -39,7 +39,7 @@
   }
   
   .score {
-    font-size: 20px;
+    font-size: 14px;
     font-weight: bold;
   }
   
@@ -180,3 +180,23 @@
   {
     display: flex;
   }
+
+  .setheaderdiv
+  {
+    display: inline;
+    /* margin-right: 53px; */
+    margin-left: 450px;
+  }
+
+  .setsubmitbtn
+  {
+    width: 72px;
+    cursor: pointer;
+    background-color: #ccc;
+  }
+
+  .setsubmitbtn:hover {
+    background-color: #4a99ec;
+  }
+  
+  

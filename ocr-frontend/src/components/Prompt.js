@@ -112,7 +112,7 @@ const PromptPage = () => {
               />
             </div>
 
-            <p>Value</p>
+            <p>Suggested Value</p>
             <div className="input-group">
               <input
                 type="text"

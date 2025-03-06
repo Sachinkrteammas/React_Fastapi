@@ -520,13 +520,23 @@ const DetailAnalysis = () => {
     fetchStats();
   }, []);
 
+   // Show loading message until all data is fetched
+   if (loading) {
+    return (
+      <div className="loader-container">
+        <div className="windows-spinner"></div>
+        <p className="Loading">Loading...</p>
+      </div>
+    );
+  }
+
   return (
     <Layout>
       <div className="dashboard-container-de">
         {/* Header Section */}
         <header className="header">
           <h3>Dial Desk</h3>
-          <div className="setheader">
+          <div className="setheaderdivdetails">
             <label>
               <input
                 type="date"
@@ -541,7 +551,7 @@ const DetailAnalysis = () => {
                 onChange={(e) => setEndDate(e.target.value)}
               />
             </label>
-            <button className="setbotton" onClick={fetchScenarios}>Submit</button>
+            <input className="setsubmitbtn" value={"Submit"} readOnly onClick={fetchScenarios}/>
           </div>
         </header>
 
