@@ -61,7 +61,7 @@ const RawDownload = () => {
     <Layout>
       <div className="Down-dashboard">
         <header className="header">
-          <h3>Dial Desk</h3>
+          <h3>DialDesk</h3>
           <div className="setheaderdivdetails">
             <label>
               <input

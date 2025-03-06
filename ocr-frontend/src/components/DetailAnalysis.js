@@ -535,7 +535,7 @@ const DetailAnalysis = () => {
       <div className="dashboard-container-de">
         {/* Header Section */}
         <header className="header">
-          <h3>Dial Desk</h3>
+          <h3>DialDesk</h3>
           <div className="setheaderdivdetails">
             <label>
               <input
@@ -573,7 +573,7 @@ const DetailAnalysis = () => {
                   </div>
                 </>
               ) : (
-                <p>Loading...</p> // Show loading until data is fetched
+                <p></p> // Show loading until data is fetched
               )}
             </div>
             <div className="top-issues-container">

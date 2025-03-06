@@ -1,31 +1,20 @@
 import React, { useState } from "react";
-import DatePicker from "react-datepicker";
 import { PieChart, Pie, Cell, Legend, Tooltip } from "recharts";
-import "react-datepicker/dist/react-datepicker.css";
 import Layout from "../layout"; // Import layout component
 import "../layout.css"; // Import styles
-// import { Layout } from "lucide-react";
 import "./Potential.css";
 
 const Potential = () => {
-  // Date State
-  // const [dateRange, setDateRange] = useState([null, null]);
-  // const [startDate, endDate] = dateRange;
-
-  const [clientId, setClientId] = useState("375"); // Added Client ID input
+  const [clientId, setClientId] = useState("375");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [escalationData, setEscalationData] = useState(null);
   const [escalations, setEscalations] = useState([]);
+  const [loading, setLoading] = useState(false); // ✅ Added loading state
 
-  
   const pieChartData = [
     { name: "Top Negative Signals", value: 2, color: "#c0392b" },
-    {
-      name: "Social Media and Consumer Court Threat",
-      value: 3,
-      color: "#e74c3c",
-    },
+    { name: "Social Media and Consumer Court Threat", value: 3, color: "#e74c3c" },
   ];
 
   const fetchCallQualityDetails = async () => {
@@ -33,6 +22,8 @@ const Potential = () => {
       alert("Please enter Client ID and select Start and End dates.");
       return;
     }
+
+    setLoading(true); // ✅ Start loading before fetching data
 
     try {
       const response = await fetch(
@@ -47,7 +38,7 @@ const Potential = () => {
 
       if (result.length > 0) {
         setEscalationData(result[0]);
-        setEscalations(result); // Store first record
+        setEscalations(result);
       } else {
         setEscalationData(null);
         setEscalations([]);
@@ -55,6 +46,8 @@ const Potential = () => {
       }
     } catch (error) {
       console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false); // ✅ Stop loading after fetching data
     }
   };
 
@@ -63,7 +56,7 @@ const Potential = () => {
       <div className="dashboard-container-po">
         {/* Header Section */}
         <header className="headerPo">
-          <h3>Dial Desk</h3>
+          <h3>DialDesk</h3>
           <div className="setheaderdivdetails">
           <label> 
           <input
@@ -86,71 +79,73 @@ const Potential = () => {
             
         </header>
 
-        <div className="content">
-          {/* Left Section - Pie Chart */}
-          <div className="chart-container">
-            <h3 className="Po-text">Recent Escalation</h3>
-            <PieChart width={250} height={250}>
-              <Pie
-                data={pieChartData}
-                dataKey="value"
-                outerRadius={80}
-                fill="#8884d8"
-                label
-              >
-                {pieChartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend
-                wrapperStyle={{
-                  position: "absolute",
-                  width: "210px",
-                  height: "auto",
-                  left: "215px",
-                  bottom: "115px",
-                  fontSize: "12px",
-                }}
-              />
-            </PieChart>
+        {/* ✅ Show loading state */}
+        {loading ? (
+          <div className="loader-container">
+            <div className="windows-spinner"></div>
+            <p className="Loading">Loading...</p>
+          </div>
+        ) : (
+          <div className="content">
+            {/* Left Section - Pie Chart */}
+            <div className="chart-container">
+              <h3 className="Po-text">Recent Escalation</h3>
+              <PieChart width={250} height={250}>
+                <Pie data={pieChartData} dataKey="value" outerRadius={80} fill="#8884d8" label>
+                  {pieChartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend
+                  wrapperStyle={{
+                    position: "absolute",
+                    width: "210px",
+                    height: "auto",
+                    left: "215px",
+                    bottom: "115px",
+                    fontSize: "12px",
+                  }}
+                />
+              </PieChart>
 
-            {/* List of Recent Escalations */}
-            <div className="scrollable-list">
-              <div className="escalation-list">
-                {escalations.map((item, index) => (
-                  <div key={index} className="escalations-items">
-                    <p>{item.alert}</p>
-                    <p>
-                      <strong>{item.CallDate}</strong>
-                    </p>
-                    <p>
-                      Lead ID: <strong>{item.lead_id}</strong>
-                    </p>
-                    <p>{item.Campaign}</p>
-                  </div>
-                ))}
+              {/* List of Recent Escalations */}
+              <div className="scrollable-list">
+                <div className="escalation-list">
+                  {escalations.map((item, index) => (
+                    <div key={index} className="escalations-items">
+                      <p>{item.alert}</p>
+                      <p>
+                        <strong>{item.CallDate}</strong>
+                      </p>
+                      <p>
+                        Lead ID: <strong>{item.lead_id}</strong>
+                      </p>
+                      <p>{item.Campaign}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Right Section - Escalation Table */}
-          <div className="table-container">
-            <h3 className="Po-text">Potential Escalation - Sensitive Cases</h3>
-            {escalationData && (
-              <table>
-                <tbody>
-                  {Object.entries(escalationData).map(([key, value]) => (
-                    <tr key={key}>
-                      <td className="fields">{key}</td>
-                      <td className="values">{value}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+            {/* Right Section - Escalation Table */}
+            <div className="table-container">
+              <h3 className="Po-text">Potential Escalation - Sensitive Cases</h3>
+              {escalationData && (
+                <table>
+                  <tbody>
+                    {Object.entries(escalationData).map(([key, value]) => (
+                      <tr key={key}>
+                        <td className="fields">{key}</td>
+                        <td className="values">{value}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </Layout>
   );

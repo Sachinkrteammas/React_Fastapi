@@ -358,7 +358,7 @@ const Fatal = () => {
           {/* <div> */}
             <label>
               {" "}
-              <h3>Dial Desk</h3>
+              <h3>DialDesk</h3>
             </label>
             <div className="setheaderdiv">
             <label>

@@ -35,7 +35,7 @@ export default function Settings() {
         <label>Payment Info:</label>
         <select value={paymentInfo} onChange={(e) => setPaymentInfo(e.target.value)}>
           <option value="UPI">UPI</option>
-          <option value="Networking">Networking</option>
+          <option value="Networking">NetBanking</option>
           <option value="Free">Free</option>
         </select>
 

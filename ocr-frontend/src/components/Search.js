@@ -76,7 +76,7 @@ const Search = () => {
       <div className="containers">
         {/* Header Section */}
         <header className="header">
-          <h3>Dial Desk</h3>
+          <h3>DialDesk</h3>
 
           <div className="search-container-se">
             <input

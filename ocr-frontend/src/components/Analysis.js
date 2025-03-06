@@ -470,7 +470,7 @@ const Analysis = () => {
     <Layout>
       <div className="dashboard-container">
         <header className="header">
-          <h3>Dial Desk</h3>
+          <h3>DialDesk</h3>
           {/* <div className="date-picker">Feb 19, 2025 - Feb 20, 2025</div> */}
           <div className="setdate">
             <form className="setdatewidth" onSubmit={handleSubmit}>
@@ -811,7 +811,7 @@ const Analysis = () => {
                 </table>
               </div>
 
-              <p>Protetional Scam</p>
+              <p>Potential Scam</p>
               <div className="data-table">
                 <p>No data</p>
               </div>
