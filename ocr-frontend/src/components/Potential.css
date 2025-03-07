@@ -157,5 +157,13 @@
     bottom: 115px;
   }
    */
+
+   .recharts-wrapper {
+    position: relative;
+    cursor: default;
+    width: 250px;
+    height: 300px !important;
+  }
+  
   
   
