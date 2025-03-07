@@ -1759,6 +1759,152 @@ def get_day_performance_summary(
 
     return response_data
 
+######################### Week wise ####################
+@app.get("/week_performance_summary")
+def get_week_performance_summary(
+        client_id: str = Query(..., description="Client ID"),
+        start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
+        end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
+        db: Session = Depends(get_db2)
+):
+    query = text(f"""
+        SELECT 
+            YEAR(CallDate) AS year,
+            WEEK(CallDate, 1) AS week_number,  -- ISO Week starts on Monday
+            COUNT(*) AS audit_count,
+            ROUND(AVG(quality_percentage), 2) AS cq_score,
+            SUM(CASE WHEN professionalism_maintained = 0 THEN 1 ELSE 0 END) AS fatal_count,
+            ROUND((SUM(CASE WHEN professionalism_maintained = 0 THEN 1 ELSE 0 END) * 100.0) / NULLIF(COUNT(*), 0), 2) AS fatal_percentage,
+
+            ROUND(AVG(
+                CASE 
+                    WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                    WHEN customer_concern_acknowledged = TRUE THEN 1
+                    ELSE 0
+                END
+            ), 2) AS opening_score,
+
+            ROUND(AVG(
+                CASE 
+                    WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                    ELSE 
+                        (IF(professionalism_maintained = TRUE, 0.111111, 0) +
+                         IF(assurance_or_appreciation_provided = TRUE, 0.111111, 0) +
+                         IF(express_empathy = TRUE, 0.111111, 0) +
+                         IF(pronunciation_and_clarity = TRUE, 0.111111, 0) +
+                         IF(enthusiasm_and_no_fumbling = TRUE, 0.111111, 0) +
+                         IF(active_listening = TRUE, 0.111111, 0) +
+                         IF(politeness_and_no_sarcasm = TRUE, 0.111111, 0) +
+                         IF(proper_grammar = TRUE, 0.111111, 0) +
+                         IF(accurate_issue_probing = TRUE, 0.111111, 0))
+                END
+            ), 2) AS soft_skills_score,
+
+            ROUND(AVG(
+                CASE 
+                    WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                    ELSE 
+                        (IF(proper_hold_procedure = TRUE, 0.5, 0) +
+                         IF(proper_transfer_and_language = TRUE, 0.5, 0))
+                END
+            ), 2) AS hold_procedure_score,
+
+            ROUND(AVG(
+                CASE 
+                    WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                    ELSE 
+                        (IF(address_recorded_completely = TRUE, 0.5, 0) +
+                         IF(correct_and_complete_information = TRUE, 0.5, 0))
+                END
+            ), 2) AS resolution_score,
+
+            ROUND(AVG(
+                CASE 
+                    WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                    WHEN professionalism_maintained = TRUE THEN 1
+                    ELSE 0
+                END
+            ), 2) AS closing_score,
+
+            ROUND((AVG(
+                    CASE 
+                        WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                        WHEN customer_concern_acknowledged = TRUE THEN 1
+                        ELSE 0
+                    END
+                ) +
+                AVG(
+                    CASE 
+                        WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                        ELSE 
+                            (IF(professionalism_maintained = TRUE, 0.111111, 0) +
+                             IF(assurance_or_appreciation_provided = TRUE, 0.111111, 0) +
+                             IF(express_empathy = TRUE, 0.111111, 0) +
+                             IF(pronunciation_and_clarity = TRUE, 0.111111, 0) +
+                             IF(enthusiasm_and_no_fumbling = TRUE, 0.111111, 0) +
+                             IF(active_listening = TRUE, 0.111111, 0) +
+                             IF(politeness_and_no_sarcasm = TRUE, 0.111111, 0) +
+                             IF(proper_grammar = TRUE, 0.111111, 0) +
+                             IF(accurate_issue_probing = TRUE, 0.111111, 0))
+                    END
+                ) +
+                AVG(
+                    CASE 
+                        WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                        ELSE 
+                            (IF(proper_hold_procedure = TRUE, 0.5, 0) +
+                             IF(proper_transfer_and_language = TRUE, 0.5, 0))
+                    END
+                ) +
+                AVG(
+                    CASE 
+                        WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                        ELSE 
+                            (IF(address_recorded_completely = TRUE, 0.5, 0) +
+                             IF(correct_and_complete_information = TRUE, 0.5, 0))
+                    END
+                ) +
+                AVG(
+                    CASE 
+                        WHEN scenario1 IN ('Call Drop in between', 'Short Call/Blank Call') THEN 1
+                        WHEN professionalism_maintained = TRUE THEN 1
+                        ELSE 0
+                    END
+                )
+            ) / 5, 2) AS avg_score 
+
+        FROM call_quality_assessment
+        WHERE ClientId = :client_id
+        AND DATE(CallDate) BETWEEN :start_date AND :end_date
+        GROUP BY year, week_number
+        ORDER BY year DESC, week_number DESC;
+    """)
+
+    result = db.execute(query, {
+        "client_id": client_id,
+        "start_date": start_date,
+        "end_date": end_date
+    }).fetchall()
+
+    response_data = []
+    for row in result:
+        response_data.append({
+            "Year": row[0],
+            "Week Number": row[1],
+            "Audit Count": row[2],
+            "CQ Score%": f"{row[3] or 0}%",
+            "Fatal Count": row[4] or 0,
+            "Fatal%": f"{row[5] or 0}%",
+            "Opening Score%": f"{row[6] or 0}%",
+            "Soft Skills Score%": f"{row[7] or 0}%",
+            "Hold Procedure Score%": f"{row[8] or 0}%",
+            "Resolution Score%": f"{row[9] or 0}%",
+            "Closing Score%": f"{row[10] or 0}%",
+            "Average Score%": f"{row[11] or 0}%"
+        })
+
+    return response_data
+
 
 ###############  Search Lead##########################
 class CallQualityAssessment(BaseModel):

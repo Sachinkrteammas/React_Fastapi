@@ -612,7 +612,7 @@ const Fatal = () => {
                 <tr key={index}>
                   <td>{row.agent}</td>
                   <td>{row.auditCount}</td>
-                  <td className={row.cqScore < 60 ? "low-score" : ""}>
+                  <td style={{ backgroundColor: row.cqScore < 70 ? "#ef2d2d" : "#d4ac2e" }}>
                     {row.cqScore}
                   </td>
                   <td>{row.fatalCount}</td>

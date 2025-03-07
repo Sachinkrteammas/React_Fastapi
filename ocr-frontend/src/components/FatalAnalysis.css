@@ -72,7 +72,7 @@
   }
   
   .highlight {
-    background-color: orange;
+    background-color: rgb(212, 172, 46);
     color: white;
     font-weight: bold;
     text-align: center;
@@ -139,9 +139,9 @@
     font-weight: bold;
   }
   
-  .highlight {
+  /* .highlight {
     background-color: #ffcccc;
-  }
+  } */
   
   .leftbody, .rightbody {
     width: 49%; /* Make each section take 50% width */

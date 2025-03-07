@@ -575,7 +575,7 @@ const Analysis = () => {
                       >
                         <td>{item["ACH Category"]}</td>
                         <td>{item["Audit Count"]}</td>
-                        <td>{item["Fatal%"]}</td>
+                        <td style={{ backgroundColor: parseFloat(item["Fatal%"]) > 50.0  ? "#ef2d2d" : "#d4ac2e" }}>{item["Fatal%"]}</td>
                         <td>{item["Score%"]}</td>
                       </tr>
                     ))}
@@ -660,7 +660,7 @@ const Analysis = () => {
                       <td>{performer.audit_count}</td>
                       <td>{performer.cq_percentage}%</td>
                       <td>{performer.fatal_count}</td>
-                      <td>{performer.fatal_percentage}%</td>
+                      <td style={{ backgroundColor:"#d4ac2e" }}>{performer.fatal_percentage}%</td>
                     </tr>
                   ))
                 ) : (

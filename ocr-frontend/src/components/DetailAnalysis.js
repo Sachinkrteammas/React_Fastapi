@@ -320,69 +320,66 @@ const datadaywise = [
 ];
 
 // 4th page data
-const dataweek = [
-  {
-    week: "Week 1",
-    audit: "2,861",
-    cqScore: "77%",
-    fatalCount: 109,
-    fatal: "4%",
-    opening: "76%",
-    softSkills: "78%",
-    hold: "77%",
-    resolution: "74%",
-    closing: "90%",
-  },
-  {
-    week: "Week 2",
-    audit: "3,557",
-    cqScore: "78%",
-    fatalCount: 126,
-    fatal: "4%",
-    opening: "76%",
-    softSkills: "76%",
-    hold: "78%",
-    resolution: "74%",
-    closing: "90%",
-  },
-  {
-    week: "Week 3",
-    audit: "2,182",
-    cqScore: "78%",
-    fatalCount: 72,
-    fatal: "3%",
-    opening: "76%",
-    softSkills: "79%",
-    hold: "79%",
-    resolution: "74%",
-    closing: "90%",
-  },
-  {
-    week: "Week 4",
-    audit: "1,699",
-    cqScore: "75%",
-    fatalCount: 88,
-    fatal: "5%",
-    opening: "72%",
-    softSkills: "77%",
-    hold: "75%",
-    resolution: "74%",
-    closing: "87%",
-  },
-];
+// const dataweek = [
+//   {
+//     week: "Week 1",
+//     audit: "2,861",
+//     cqScore: "77%",
+//     fatalCount: 109,
+//     fatal: "4%",
+//     opening: "76%",
+//     softSkills: "78%",
+//     hold: "77%",
+//     resolution: "74%",
+//     closing: "90%",
+//   },
+//   {
+//     week: "Week 2",
+//     audit: "3,557",
+//     cqScore: "78%",
+//     fatalCount: 126,
+//     fatal: "4%",
+//     opening: "76%",
+//     softSkills: "76%",
+//     hold: "78%",
+//     resolution: "74%",
+//     closing: "90%",
+//   },
+//   {
+//     week: "Week 3",
+//     audit: "2,182",
+//     cqScore: "78%",
+//     fatalCount: 72,
+//     fatal: "3%",
+//     opening: "76%",
+//     softSkills: "79%",
+//     hold: "79%",
+//     resolution: "74%",
+//     closing: "90%",
+//   },
+//   {
+//     week: "Week 4",
+//     audit: "1,699",
+//     cqScore: "75%",
+//     fatalCount: 88,
+//     fatal: "5%",
+//     opening: "72%",
+//     softSkills: "77%",
+//     hold: "75%",
+//     resolution: "74%",
+//     closing: "87%",
+//   },
+// ];
 
 const DetailAnalysis = () => {
-  
   const [stats, setStats] = useState(null);
- 
 
   const [auditData, setAuditData] = useState([]);
 
   const [dateRange, setDateRange] = useState([null, null]);
- 
-  const [selectedScenario, setSelectedScenario] = useState(""); 
-  const [selectedAgent, setSelectedAgent] = useState(""); 
 
+  const [selectedScenario, setSelectedScenario] = useState("");
+  const [selectedAgent, setSelectedAgent] = useState("");
 
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -399,72 +396,78 @@ const DetailAnalysis = () => {
   const [queryData1, setQueryData1] = useState([]);
   const [agentData, setAgentData] = useState([]);
   const [daywiseData, setDatadaywise] = useState([]);
+  const [dataweek, setDataweek] = useState([]);
 
-  
-
-  
   const COLORS = ["#4caf50", "#26a69a", "#ffca28", "#f57c00", "#d32f2f"];
 
-  
   const fetchScenarios = async () => {
     if (!startDate || !endDate) {
       alert("Please select both start and end dates.");
       return;
     }
-  
+
     setLoading1(true);
     setError(null);
-  
+
     try {
       if (!clientId) {
         throw new Error("Client ID is missing!");
       }
-  
+
       // API URLs
       const url1 = `http://127.0.0.1:8097/top_scenarios_with_counts?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}&limit=5`;
       const url2 = `http://127.0.0.1:8097/agent_performance_summary?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}`;
       const url3 = `http://127.0.0.1:8097/day_performance_summary?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}`;
-  
-      // Fetch all APIs in parallel with error handling
+      const url4 = `http://127.0.0.1:8097/week_performance_summary?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}`;
+
+      // Fetch all APIs in parallel
       const results = await Promise.allSettled([
-        fetch(url1).then((res) => res.ok ? res.json() : Promise.reject(res.status)),
-        fetch(url2).then((res) => res.ok ? res.json() : Promise.reject(res.status)),
-        fetch(url3).then((res) => res.ok ? res.json() : Promise.reject(res.status)),
+        fetch(url1).then((res) =>
+          res.ok ? res.json() : Promise.reject(res.status)
+        ),
+        fetch(url2).then((res) =>
+          res.ok ? res.json() : Promise.reject(res.status)
+        ),
+        fetch(url3).then((res) =>
+          res.ok ? res.json() : Promise.reject(res.status)
+        ),
+        fetch(url4).then((res) =>
+          res.ok ? res.json() : Promise.reject(res.status)
+        ),
       ]);
-  
-      // Check API responses
+
+      // Extract API responses
       const data1 = results[0].status === "fulfilled" ? results[0].value : null;
       const data2 = results[1].status === "fulfilled" ? results[1].value : null;
       const data3 = results[2].status === "fulfilled" ? results[2].value : null;
-  
+      const data4 = results[3].status === "fulfilled" ? results[3].value : null;
+
       console.log("API Response 1 (Scenarios):", data1);
       console.log("API Response 2 (Agent Performance):", data2);
       console.log("API Response 3 (Day-wise Performance):", data3);
-  
+      console.log("API Response 4 (Week-wise Performance):", data4);
+
       // Process first API response (Scenario Data)
       const queryData = data1?.Query || [];
       const complaintData = data1?.Complaint || [];
       const requestData = data1?.Request || [];
-  
-      // Transform data for PieChart
+
       const queryData1 = queryData.map((item) => ({
         name: item.Reason,
         count: item.Count,
       }));
-  
       const complaintData1 = complaintData.map((item) => ({
         name: item.Reason,
         count: item.Count,
       }));
-  
       const requestData1 = requestData.map((item) => ({
         name: item.Reason,
         count: item.Count,
       }));
-  
+
       // Process second API response (Agent Performance Data)
       const agentData = data2 || [];
-  
+
       // Process third API response (Day-wise Performance Data)
       const daywiseData = Array.isArray(data3)
         ? data3.map((item) => ({
@@ -480,8 +483,24 @@ const DetailAnalysis = () => {
             closing: item["Closing Score%"] || "N/A",
           }))
         : [];
-  
-      // Efficient single state update
+
+      // Process fourth API response (Week-wise Performance Data)
+      const weekwiseData = Array.isArray(data4)
+        ? data4.map((item) => ({
+            week: item["Week Number"] || "N/A",
+            audit: item["Audit Count"] || "N/A",
+            cqScore: item["CQ Score%"] || "N/A",
+            fatalCount: item["Fatal Count"] || "N/A",
+            fatal: item["Fatal%"] || "N/A",
+            opening: item["Opening Score%"] || "N/A",
+            softSkills: item["Soft Skills Score%"] || "N/A",
+            hold: item["Hold Procedure Score%"] || "N/A",
+            resolution: item["Resolution Score%"] || "N/A",
+            closing: item["Closing Score%"] || "N/A",
+          }))
+        : [];
+
+      // Update state efficiently
       setQueryData(queryData);
       setQueryData1(queryData1);
       setComplaintData(complaintData);
@@ -490,6 +509,7 @@ const DetailAnalysis = () => {
       setRequestData1(requestData1);
       setAgentData(agentData);
       setDatadaywise(daywiseData);
+      setDataweek(weekwiseData); // Added missing state update for week-wise data
     } catch (error) {
       console.error("Error fetching data:", error);
       setError(`Failed to load data: ${error}`);
@@ -497,11 +517,6 @@ const DetailAnalysis = () => {
       setLoading1(false);
     }
   };
-  
-  
-  
-  
-
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -521,8 +536,8 @@ const DetailAnalysis = () => {
     fetchStats();
   }, []);
 
-   // Show loading message until all data is fetched
-   if (loading) {
+  // Show loading message until all data is fetched
+  if (loading) {
     return (
       <div className="loader-container">
         <div className="windows-spinner"></div>
@@ -553,7 +568,12 @@ const DetailAnalysis = () => {
                 onChange={(e) => setEndDate(e.target.value)}
               />
             </label>
-            <input className="setsubmitbtn" value={"Submit"} readOnly onClick={fetchScenarios}/>
+            <input
+              className="setsubmitbtn"
+              value={"Submit"}
+              readOnly
+              onClick={fetchScenarios}
+            />
           </div>
         </header>
 
@@ -582,29 +602,29 @@ const DetailAnalysis = () => {
               {/* Top 5 Queries */}
               <h4>Top 5 - Query</h4>
               <div className="issue-card">
-              <div className="issue-card-container">
-              <table>
-            <thead>
-              <tr>
-                <th>Query Type</th>
-                <th>Count</th>
-              </tr>
-            </thead>
-            <tbody>
-              {queryData.length > 0 ? (
-                queryData.map((query, index) => (
-                  <tr key={index}>
-                    <td>{query.Reason}</td>
-                    <td className="count">{query.Count}</td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="2">No data available</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                <div className="issue-card-container">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Query Type</th>
+                        <th>Count</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {queryData.length > 0 ? (
+                        queryData.map((query, index) => (
+                          <tr key={index}>
+                            <td>{query.Reason}</td>
+                            <td className="count">{query.Count}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="2">No data available</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
                 </div>
 
                 <div className="chart-detail">
@@ -635,28 +655,28 @@ const DetailAnalysis = () => {
               <h4>Top 5 - Complaint</h4>
               <div className="issue-card">
                 <div className="issue-card-container">
-                <table>
-            <thead>
-              <tr>
-                <th>Complaint Type</th>
-                <th>Count</th>
-              </tr>
-            </thead>
-            <tbody>
-              {complaintData.length > 0 ? (
-                complaintData.map((complaint, index) => (
-                  <tr key={index}>
-                    <td>{complaint.Reason}</td>
-                    <td className="count">{complaint.Count}</td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="2">No data available</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Complaint Type</th>
+                        <th>Count</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {complaintData.length > 0 ? (
+                        complaintData.map((complaint, index) => (
+                          <tr key={index}>
+                            <td>{complaint.Reason}</td>
+                            <td className="count">{complaint.Count}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="2">No data available</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
                 </div>
                 <div className="chart-detail">
                   <PieChart width={250} height={330}>
@@ -686,28 +706,28 @@ const DetailAnalysis = () => {
               <h4>Top 5 - Request</h4>
               <div className="issue-card">
                 <div className="issue-card-container">
-                <table>
-            <thead>
-              <tr>
-                <th>Request Type</th>
-                <th>Count</th>
-              </tr>
-            </thead>
-            <tbody>
-              {requestData.length > 0 ? (
-                requestData.map((request, index) => (
-                  <tr key={index}>
-                    <td>{request.Reason}</td>
-                    <td className="count">{request.Count}</td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="2">No data available</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Request Type</th>
+                        <th>Count</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {requestData.length > 0 ? (
+                        requestData.map((request, index) => (
+                          <tr key={index}>
+                            <td>{request.Reason}</td>
+                            <td className="count">{request.Count}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="2">No data available</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
                 </div>
                 <div className="chart-detail">
                   <PieChart width={250} height={330}>
@@ -844,30 +864,30 @@ const DetailAnalysis = () => {
           </div>
 
           <table className="cq-table">
-              <thead>
-                <tr>
-                  {agentData.length > 0 &&
-                    Object.keys(agentData[0]).map((key, index) => (
-                      <th key={index}>{key}</th>
+            <thead>
+              <tr>
+                {agentData.length > 0 &&
+                  Object.keys(agentData[0]).map((key, index) => (
+                    <th key={index}>{key}</th>
+                  ))}
+              </tr>
+            </thead>
+            <tbody>
+              {agentData.length > 0 ? (
+                agentData.map((row, index) => (
+                  <tr key={index}>
+                    {Object.values(row).map((value, i) => (
+                      <td key={i}>{value}</td>
                     ))}
-                </tr>
-              </thead>
-              <tbody>
-                {agentData.length > 0 ? (
-                  agentData.map((row, index) => (
-                    <tr key={index}>
-                      {Object.values(row).map((value, i) => (
-                        <td key={i}>{value}</td>
-                      ))}
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="10">No data available</td>
                   </tr>
-                )}
-              </tbody>
-            </table>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="10">No data available</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
 
         {/* 3rd page */}
@@ -904,43 +924,43 @@ const DetailAnalysis = () => {
           </div>
 
           <table className="daywise-table">
-  <thead>
-    <tr>
-      <th>Date</th>
-      <th>Audit Count</th>
-      <th>CQ Score%</th>
-      <th>Fatal Count</th>
-      <th>Fatal%</th>
-      <th>Opening Score%</th>
-      <th>Soft Skills Score%</th>
-      <th>Hold Procedure Score%</th>
-      <th>Resolution Score%</th>
-      <th>Closing Score%</th>
-    </tr>
-  </thead>
-  <tbody>
-    {daywiseData.length > 0 ? (
-      daywiseData.map((row, index) => (
-        <tr key={index}>
-          <td>{row.date}</td>
-          <td>{row.audit}</td>
-          <td>{row.cqScore}</td>
-          <td>{row.fatalCount}</td>
-          <td>{row.fatal}</td>
-          <td>{row.opening}</td>
-          <td>{row.softSkills}</td>
-          <td>{row.hold}</td>
-          <td>{row.resolution}</td>
-          <td>{row.closing}</td>
-        </tr>
-      ))
-    ) : (
-      <tr>
-        <td colSpan="10">No data available</td>
-      </tr>
-    )}
-  </tbody>
-</table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Audit Count</th>
+                <th>CQ Score%</th>
+                <th>Fatal Count</th>
+                <th>Fatal%</th>
+                <th>Opening Score%</th>
+                <th>Soft Skills Score%</th>
+                <th>Hold Procedure Score%</th>
+                <th>Resolution Score%</th>
+                <th>Closing Score%</th>
+              </tr>
+            </thead>
+            <tbody>
+              {daywiseData.length > 0 ? (
+                daywiseData.map((row, index) => (
+                  <tr key={index}>
+                    <td>{row.date}</td>
+                    <td>{row.audit}</td>
+                    <td>{row.cqScore}</td>
+                    <td>{row.fatalCount}</td>
+                    <td>{row.fatal}</td>
+                    <td>{row.opening}</td>
+                    <td>{row.softSkills}</td>
+                    <td>{row.hold}</td>
+                    <td>{row.resolution}</td>
+                    <td>{row.closing}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="10">No data available</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
 
         {/* 4th page */}
@@ -992,32 +1012,26 @@ const DetailAnalysis = () => {
               </tr>
             </thead>
             <tbody>
-              {dataweek.map((row, index) => (
-                <tr key={index}>
-                  <td>{row.week}</td>
-                  <td>{row.audit}</td>
-                  <td>{row.cqScore}</td>
-                  <td>{row.fatalCount}</td>
-                  <td>{row.fatal}</td>
-                  <td>{row.opening}</td>
-                  <td>{row.softSkills}</td>
-                  <td>{row.hold}</td>
-                  <td>{row.resolution}</td>
-                  <td>{row.closing}</td>
+              {dataweek.length > 0 ? (
+                dataweek.map((row, index) => (
+                  <tr key={index}>
+                    <td>Week {row.week}</td>
+                    <td>{row.audit}</td>
+                    <td>{row.cqScore}</td>
+                    <td>{row.fatalCount}</td>
+                    <td>{row.fatal}</td>
+                    <td>{row.opening}</td>
+                    <td>{row.softSkills}</td>
+                    <td>{row.hold}</td>
+                    <td>{row.resolution}</td>
+                    <td>{row.closing}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="10">No data available</td>
                 </tr>
-              ))}
-              <tr className="total-row">
-                <td>Grand total</td>
-                <td>10,299</td>
-                <td>77%</td>
-                <td>395</td>
-                <td>4%</td>
-                <td>75%</td>
-                <td>79%</td>
-                <td>77%</td>
-                <td>74%</td>
-                <td>89%</td>
-              </tr>
+              )}
             </tbody>
           </table>
         </div>
