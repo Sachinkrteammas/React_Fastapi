@@ -220,43 +220,58 @@ const Fatal = () => {
     try {
       setLoading1(true);
       setError(null);
-
-      // Fetch all three APIs in parallel
-      const [topAgentsResponse, dayWiseResponse, auditSummaryResponse] =
-        await Promise.all([
-          fetch(
-            `http://127.0.0.1:8097/top_agents_fatal_summary?client_id=375&start_date=${startDate}&end_date=${endDate}&limit=5`
-          ),
-          fetch(
-            `http://127.0.0.1:8097/daywise_fatal_summary?client_id=375&start_date=${startDate}&end_date=${endDate}`
-          ),
-          fetch(
-            `http://127.0.0.1:8097/agent_audit_summary?client_id=375&start_date=${startDate}&end_date=${endDate}`
-          ),
-        ]);
-
-      // Check if any response failed
+  
+      // Fetch all APIs in parallel
+      const [
+        topAgentsResponse,
+        dayWiseResponse,
+        auditSummaryResponse,
+        fatalCountResponse, // ✅ Added missing API response
+      ] = await Promise.all([
+        fetch(
+          `http://127.0.0.1:8097/top_agents_fatal_summary?client_id=375&start_date=${startDate}&end_date=${endDate}&limit=5`
+        ),
+        fetch(
+          `http://127.0.0.1:8097/daywise_fatal_summary?client_id=375&start_date=${startDate}&end_date=${endDate}`
+        ),
+        fetch(
+          `http://127.0.0.1:8097/agent_audit_summary?client_id=375&start_date=${startDate}&end_date=${endDate}`
+        ),
+        fetch(
+          `http://127.0.0.1:8097/fatal_count?client_id=375&start_date=${startDate}&end_date=${endDate}`
+        ), 
+      ]);
+  
+      
       if (
         !topAgentsResponse.ok ||
         !dayWiseResponse.ok ||
-        !auditSummaryResponse.ok
+        !auditSummaryResponse.ok ||
+        !fatalCountResponse.ok // ✅ Ensure it's checked
       ) {
         throw new Error(
           `API Error: 
           Top Agents: ${topAgentsResponse.status}, 
           Day Wise: ${dayWiseResponse.status}, 
-          Audit Summary: ${auditSummaryResponse.status}`
+          Audit Summary: ${auditSummaryResponse.status}, 
+          Fatal Count: ${fatalCountResponse.status}`
         );
       }
-
-      // Parse JSON responses
-      const [topAgentsData, dayWiseData, auditSummaryData] = await Promise.all([
+  
+      
+      const [
+        topAgentsData,
+        dayWiseData,
+        auditSummaryData,
+        fatalCountData, // ✅ Ensure it's processed
+      ] = await Promise.all([
         topAgentsResponse.json(),
         dayWiseResponse.json(),
         auditSummaryResponse.json(),
+        fatalCountResponse.json(),
       ]);
-
-      // Validate API responses
+  
+      
       if (
         !Array.isArray(topAgentsData) ||
         !Array.isArray(dayWiseData) ||
@@ -264,16 +279,16 @@ const Fatal = () => {
       ) {
         throw new Error("Invalid data format received from API.");
       }
-
-      // Format Top Contributors Data
+  
+      
       const formattedTopContributors = topAgentsData.map((agent) => ({
         name: agent["Agent Name"] || "N/A",
         audit: agent["Audit Count"] || 0,
         fatal: agent["Fatal Count"] || 0,
         fatalPercent: agent["Fatal%"] || "0%",
       }));
-
-      // Format Day-wise Data
+  
+      
       const formattedDayWiseData = dayWiseData.map((entry) => ({
         date: entry["CallDate"]
           ? new Date(entry["CallDate"]).toLocaleDateString("en-US", {
@@ -284,8 +299,8 @@ const Fatal = () => {
           : "Unknown",
         fatal: entry["Fatal Count"] || 0,
       }));
-
-      // Format Agent Audit Summary Data
+  
+      
       const formattedAuditData = auditSummaryData.map((agent) => ({
         agent: agent["Agent Name"] || "N/A",
         auditCount: agent["Audit Count"] || 0,
@@ -297,23 +312,28 @@ const Fatal = () => {
         goodCalls: agent["Good Calls"] || "0%",
         excellentCalls: agent["Excellent Calls"] || "0%",
       }));
-
-      // Update state only if data has changed (avoiding unnecessary re-renders)
+  
+     
       setTopContributors((prev) =>
         JSON.stringify(prev) !== JSON.stringify(formattedTopContributors)
           ? formattedTopContributors
           : prev
       );
+  
       setDayWiseData((prev) =>
         JSON.stringify(prev) !== JSON.stringify(formattedDayWiseData)
           ? formattedDayWiseData
           : prev
       );
+  
       setAuditData((prev) =>
         JSON.stringify(prev) !== JSON.stringify(formattedAuditData)
           ? formattedAuditData
           : prev
       );
+  
+      setStats(fatalCountData); 
+  
     } catch (err) {
       console.error("Fetch Error:", err);
       setError(err.message);
@@ -326,8 +346,9 @@ const Fatal = () => {
 
   useEffect(() => {
     const fetchStats = async () => {
+      const clientId = 375;
       try {
-        const response = await fetch("http://127.0.0.1:8097/fatal_count");
+        const response = await fetch(`http://127.0.0.1:8097/fatal_count?client_id=${clientId}`);
         if (!response.ok) throw new Error("Failed to fetch statistics");
 
         const data = await response.json();
@@ -342,7 +363,6 @@ const Fatal = () => {
     fetchStats();
   }, []);
 
-  // Show loading message until all data is fetched
   if (loading) {
     return (
       <div className="loader-container">

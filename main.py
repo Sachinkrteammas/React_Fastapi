@@ -558,7 +558,17 @@ def get_audio_stats(request: AudioStatsRequest, db: Session = Depends(get_db)):
 
 
 @app.get("/audit_count")
-def get_audit_count(db: Session = Depends(get_db2)):
+def get_audit_count(
+    client_id: str = Query(..., description="Client ID"),
+    start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
+    end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
+    db: Session = Depends(get_db2)
+):
+    # Use current date if start_date or end_date is not provided
+    today = date.today()
+    start_date = start_date or today
+    end_date = end_date or today
+
     query = text("""
     SELECT
         COUNT(lead_id) AS audit_cnt,
@@ -572,11 +582,11 @@ def get_audit_count(db: Session = Depends(get_db2)):
         SUM(CASE WHEN quality_percentage BETWEEN 85 AND 89 THEN 1 ELSE 0 END) AS avg_call,
         SUM(CASE WHEN quality_percentage <= 84 THEN 1 ELSE 0 END) AS below_avg_call
     FROM call_quality_assessment 
-    WHERE ClientId = :ClientId
-    AND DATE(CallDate) = CURDATE()
+    WHERE ClientId = :client_id
+    AND DATE(CallDate) BETWEEN :start_date AND :end_date;
     """)
 
-    result = db.execute(query, {"ClientId": 375}).fetchone()
+    result = db.execute(query, {"client_id": client_id, "start_date": start_date, "end_date": end_date}).fetchone()
 
     # Handle None case to avoid errors
     if not result:
@@ -593,7 +603,16 @@ def get_audit_count(db: Session = Depends(get_db2)):
 
 
 @app.get("/call_length_categorization")
-def get_call_length_categorization(db: Session = Depends(get_db2)):
+def get_call_length_categorization(
+    client_id: str = Query(..., description="Client ID"),
+    start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
+    end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
+    db: Session = Depends(get_db2)
+):
+    # Use current date if start_date or end_date is not provided
+    today = date.today()
+    start_date = start_date or today
+    end_date = end_date or today
     query = text("""
     SELECT 
     CASE
@@ -609,12 +628,12 @@ def get_call_length_categorization(db: Session = Depends(get_db2)):
     ) AS fatal_percentage,
     ROUND(AVG(quality_percentage), 2) AS score_percentage
 FROM call_quality_assessment
-WHERE ClientId = :ClientId
-AND DATE(CallDate) = CURDATE()
+WHERE ClientId = :client_id
+AND DATE(CallDate) BETWEEN :start_date AND :end_date
 GROUP BY category
 WITH ROLLUP; """)
 
-    result = db.execute(query, {"ClientId": 375}).fetchall()
+    result = db.execute(query, {"client_id": client_id, "start_date": start_date, "end_date": end_date}).fetchall()
 
     response_data = []
     for row in result:
@@ -631,10 +650,14 @@ WITH ROLLUP; """)
 @app.get("/agent_scores")
 def get_agent_scores(
     client_id: str = Query(..., description="Client ID"),
-    start_date: date = Query(..., description="Start Date in YYYY-MM-DD format"),
-    end_date: date = Query(..., description="End Date in YYYY-MM-DD format"),
+    start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
+    end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
     db: Session = Depends(get_db2)
 ):
+    # Use current date if start_date or end_date is not provided
+    today = date.today()
+    start_date = start_date or today
+    end_date = end_date or today
     query = text("""
         SELECT 
             ROUND(AVG(
@@ -1193,7 +1216,16 @@ def get_competitor_data(
 ####################  Fatal Details##############################
 
 @app.get("/fatal_count")
-def get_fatal_count(db: Session = Depends(get_db2)):
+def get_fatal_count(
+    client_id: str = Query(..., description="Client ID"),
+    start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
+    end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
+    db: Session = Depends(get_db2)
+):
+    # Use current date if start_date or end_date is not provided
+    today = date.today()
+    start_date = start_date or today
+    end_date = end_date or today
     query = text("""
     SELECT
         COUNT(lead_id) AS audit_cnt,
@@ -1209,11 +1241,11 @@ def get_fatal_count(db: Session = Depends(get_db2)):
         SUM(CASE WHEN scenario = 'Request' AND professionalism_maintained = 0 THEN 1 ELSE 0 END) AS Request_fatal,
         SUM(CASE WHEN scenario = 'Sale Done' AND professionalism_maintained = 0 THEN 1 ELSE 0 END) AS sale_fatal
     FROM call_quality_assessment 
-    WHERE ClientId = :ClientId
-    AND DATE(CallDate) = CURDATE()
+    WHERE ClientId = :client_id  
+    AND DATE(CallDate) BETWEEN :start_date AND :end_date
     """)
 
-    result = db.execute(query, {"ClientId": 375}).fetchone()
+    result = db.execute(query, {"client_id": client_id, "start_date": start_date, "end_date": end_date}).fetchone()
     print(result)
     # Handle None case to avoid errors
     if not result:
@@ -1389,7 +1421,16 @@ def get_agent_audit_summary(
 
 ##################   Detailed Analysis##########################
 @app.get("/details_count")
-def get_details_count(db: Session = Depends(get_db2)):
+def get_details_count(
+    client_id: str = Query(..., description="Client ID"),
+    start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
+    end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
+    db: Session = Depends(get_db2)
+):
+    # Use current date if start_date or end_date is not provided
+    today = date.today()
+    start_date = start_date or today
+    end_date = end_date or today
     query = text("""
     SELECT
         COUNT(lead_id) AS audit_cnt,
@@ -1405,11 +1446,11 @@ def get_details_count(db: Session = Depends(get_db2)):
         SUM(CASE WHEN scenario = 'Request' THEN 1 ELSE 0 END) AS Request_fatal,
         SUM(CASE WHEN scenario = 'Sale Done' THEN 1 ELSE 0 END) AS sale_fatal
     FROM call_quality_assessment 
-    WHERE ClientId = :ClientId
-    AND DATE(CallDate) = CURDATE()
+    WHERE ClientId = :client_id  
+    AND DATE(CallDate) BETWEEN :start_date AND :end_date
     """)
 
-    result = db.execute(query, {"ClientId": 375}).fetchone()
+    result = db.execute(query, {"client_id": client_id, "start_date": start_date, "end_date": end_date}).fetchone()
     #print(result)
     # Handle None case to avoid errors
     if not result:

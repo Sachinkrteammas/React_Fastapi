@@ -194,10 +194,10 @@ const Analysis = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading1(true);
-
+  
     try {
       const { client_id, start_date, end_date } = formData;
-
+  
       const urls = [
         `http://127.0.0.1:8097/potential_escalation?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`,
         `http://127.0.0.1:8097/agent_scores?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`,
@@ -205,14 +205,16 @@ const Analysis = () => {
         `http://127.0.0.1:8097/potential_escalations_data/?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`,
         `http://127.0.0.1:8097/negative_data/?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`,
         `http://127.0.0.1:8097/competitor_data/?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`, // ✅ Fetch competitor data
+        `http://127.0.0.1:8097/audit_count?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`, // ✅ Added Audit Count API
+        `http://127.0.0.1:8097/call_length_categorization?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`, // ✅ Added Call Length Categorization API
       ];
-
+  
       const responses = await Promise.all(urls.map((url) => fetch(url)));
-
+  
       if (responses.some((response) => !response.ok)) {
         throw new Error("Failed to fetch one or more datasets");
       }
-
+  
       const [
         escalationData,
         scoresData,
@@ -220,12 +222,18 @@ const Analysis = () => {
         potentialEscalationsData,
         negativeDataResponse,
         competitorDataResponse,
+        auditData, // ✅ Audit Count Response
+        callLengthData, // ✅ Call Length Categorization Response
       ] = await Promise.all(responses.map((response) => response.json()));
-
+  
       console.log("Competitor Data API Response:", competitorDataResponse);
-
+      console.log("Audit Count API Response:", auditData);
+      console.log("Call Length Categorization API Response:", callLengthData);
+  
       setCompetitorData(competitorDataResponse);
-
+      setAuditData(auditData);
+      setCategories(callLengthData);
+  
       const labels = competitorDataResponse.map((item) => item.Competitor_Name);
       const counts = competitorDataResponse.map((item) => item.Count);
       setDoughnutChartData({
@@ -245,7 +253,7 @@ const Analysis = () => {
           },
         ],
       });
-
+  
       setEscalationData({
         social_media_threat:
           escalationData?.potential_escalation?.social_media_threat || 0,
@@ -254,7 +262,7 @@ const Analysis = () => {
         potential_scam:
           escalationData?.potential_escalation?.potential_scam || 0,
       });
-
+  
       setTopNegativeSignals([
         {
           category: "Abuse",
@@ -273,7 +281,15 @@ const Analysis = () => {
           count: escalationData?.negative_signals?.slang || 0,
         },
       ]);
-
+  
+      // ✅ Update pie chart dynamically with audit data
+      setPieData([
+        { name: "Excellent", value: auditData.excellent || 0, color: "#4CAF50" },
+        { name: "Good", value: auditData.good || 0, color: "#8BC34A" },
+        { name: "Average", value: auditData.avg_call || 0, color: "#990000" },
+        { name: "Below Average", value: auditData.b_avg || 0, color: "#F44336" },
+      ]);
+  
       setScores(scoresData);
       setPerformers(performersData?.top_performers || []);
       setPotentialEscalations(potentialEscalationsData);
@@ -284,6 +300,7 @@ const Analysis = () => {
       setLoading1(false);
     }
   };
+  
 
   useEffect(() => {
     const fetchAuditData = async () => {
@@ -354,7 +371,8 @@ const Analysis = () => {
 
     const fetchAuditCount = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:8097/audit_count");
+        const clientId = 375;
+        const response = await fetch(`http://127.0.0.1:8097/audit_count?client_id=${clientId}`);
         if (!response.ok) throw new Error("Failed to fetch audit count");
 
         const data = await response.json();
@@ -404,9 +422,8 @@ const Analysis = () => {
 
     const fetchCategories = async () => {
       try {
-        const response = await fetch(
-          "http://127.0.0.1:8097/call_length_categorization"
-        );
+        const clientId = 375;
+        const response = await fetch(`http://127.0.0.1:8097/call_length_categorization?client_id=${clientId}`);
         if (!response.ok)
           throw new Error("Failed to fetch call length categorization");
 
@@ -438,9 +455,25 @@ const Analysis = () => {
       }
     };
 
+    const fetchAgentScores = async () => {
+      const clientId = 375;
+      try {
+        const response = await fetch(
+          `http://127.0.0.1:8097/agent_scores?client_id=${clientId}`
+        );
+        if (!response.ok) throw new Error("Failed to fetch agent scores");
+  
+        const data = await response.json();
+        setScores(data); // Make sure you have a state variable for agent scores
+      } catch (error) {
+        console.error("Error fetching agent scores:", error);
+      }
+    };
+
     const fetchData = async () => {
       try {
         await Promise.all([
+          fetchAgentScores(),
           fetchAuditData(),
           fetchAuditCount(),
           fetchCategories(),
