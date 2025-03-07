@@ -34,7 +34,7 @@ const RawDownload = () => {
 
       const formattedData = result.map((item) => ({
         clientId: item.ClientId,
-        callDate: item.CallDate,
+        callDate: item.CallDate.split("T")[0],
         leadId: item.lead_id,
         agentName: item.User,
         scenario: item.scenario,

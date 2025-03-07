@@ -1,26 +1,19 @@
 import React, { useState } from "react";
 import { PieChart, Pie, Cell, Legend, Tooltip } from "recharts";
-import Layout from "../layout"; // Import layout component
-import "../layout.css"; // Import styles
+import Layout from "../layout";
+import "../layout.css";
 import "./Potential.css";
 
 const Potential = () => {
   const [clientId] = useState("375");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [escalationData, setEscalationData] = useState(null);
   const [escalations, setEscalations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [pieChartData, setPieChartData] = useState([]);
 
-  // const pieChartData = [
-  //   { name: "Top Negative Signals", value: 2, color: "#c0392b" },
-  //   {
-  //     name: "Social Media and Consumer Court Threat",
-  //     value: 3,
-  //     color: "#e74c3c",
-  //   },
-  // ];
+  // Pagination State (1 item per page)
+  const [currentPage, setCurrentPage] = useState(1);
 
   const fetchCallQualityDetails = async () => {
     if (!clientId || !startDate || !endDate) {
@@ -42,10 +35,8 @@ const Potential = () => {
       const result = await response.json();
       console.log("Fetched data:", result);
 
-      if (result.counts && Object.keys(result.counts).length > 0) {
-        setEscalationData(result.counts);
+      if (result.raw_dump && result.raw_dump.length > 0) {
         setEscalations(result.raw_dump);
-        
 
         const { 
           social_media_threat = 0, 
@@ -64,13 +55,10 @@ const Potential = () => {
   
         
         setPieChartData([
-          { name: "Top Negative Signals", value: topNegativeSignals, color: "#c0392b" },
-          { name: "Social Media and Consumer Court Threat", value: socialMediaThreats, color: "#e74c3c" }
+          { name: "Top Negative Signals", value: topNegativeSignals, color: "#82c6fc" },
+          { name: "Social Media and Consumer Court Threat", value: socialMediaThreats, color: "#d3388d" }
         ]);
-
-
       } else {
-        setEscalationData(null);
         setEscalations([]);
         alert("No escalation data found for selected criteria.");
       }
@@ -82,6 +70,23 @@ const Potential = () => {
     }
   };
 
+  // **Pagination Logic (1 item per page)**
+  const totalPages = escalations.length;
+  const currentEscalation = escalations[currentPage - 1];
+
+  // **Pagination Handlers**
+  const nextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
   return (
     <Layout>
       <div className={`dashboard-container-po ${loading ? "blurred" : ""}`}>
@@ -89,25 +94,12 @@ const Potential = () => {
           <h3>DialDesk</h3>
           <div className="setheaderdivdetails">
             <label>
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-              />
+              <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
             </label>
             <label>
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-              />
+              <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
             </label>
-            <input
-              className="setsubmitbtn"
-              type="button"
-              value="Submit"
-              onClick={fetchCallQualityDetails}
-            />
+            <input className="setsubmitbtn" type="button" value="Submit" onClick={fetchCallQualityDetails} />
           </div>
         </header>
 
@@ -132,7 +124,7 @@ const Potential = () => {
               />
             </PieChart>
 
-            {/* 🔹 Fixed Escalations List Rendering */}
+            {/* 🔹 Single Escalation Per Page */}
             <div className="scrollable-list">
               <h3 className="Po-text">Recent Escalations</h3>
               {escalations.length > 0 ? (
@@ -161,10 +153,10 @@ const Potential = () => {
             </div>
           </div>
 
-          {/* 🔹 Fixed Escalation Data Table */}
+          {/* 🔹 Single Escalation Per Page - Table Format */}
           <div className="table-container">
             <h3 className="Po-text">Potential Escalation - Sensitive Cases</h3>
-            {Array.isArray(escalations) && escalations.length > 0 ? (
+            {currentEscalation ? (
               <div className="table-wrapper">
                 <table>
                   <thead>
@@ -174,22 +166,25 @@ const Potential = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {escalations.map((item, index) =>
-                      Object.entries(item).map(([key, value]) => (
-                        <tr key={`${index}-${key}`}>
-                          <td className="fields">{key.replace(/_/g, " ")}</td>
-                          <td className="values">
-                            {value !== null ? String(value) : "N/A"}
-                          </td>
-                        </tr>
-                      ))
-                    )}
+                    {Object.entries(currentEscalation).map(([key, value], index) => (
+                      <tr key={`${currentPage}-${index}`}>
+                        <td className="fields">{key.replace(/_/g, " ")}</td>
+                        <td className="values">{value !== null ? String(value) : "N/A"}</td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
             ) : (
               <p>No data available.</p>
             )}
+
+            {/* Pagination Controls */}
+            <div className="pagination-controls">
+              <button onClick={prevPage} disabled={currentPage === 1}>Previous</button>
+              <span> Page {currentPage} - {totalPages} </span>
+              <button onClick={nextPage} disabled={currentPage === totalPages}>Next</button>
+            </div>
           </div>
         </div>
 
