@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState , useEffect  } from "react";
 import { PieChart, Pie, Cell, Legend, Tooltip } from "recharts";
 import Layout from "../layout";
 import "../layout.css";
@@ -11,6 +11,7 @@ const Potential = () => {
   const [escalations, setEscalations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [pieChartData, setPieChartData] = useState([]);
+  const [error, setError] = useState(null);
 
   // Pagination State (1 item per page)
   const [currentPage, setCurrentPage] = useState(1);
@@ -86,6 +87,61 @@ const Potential = () => {
       setCurrentPage(currentPage - 1);
     }
   };
+
+  useEffect(() => {
+    if (!clientId) return; // ✅ Prevents running effect if clientId is missing
+  
+    setLoading(true);
+    setError(null);
+  
+    const fetchCallQualityDetails = async () => {
+      try {
+        const response = await fetch(
+          `http://127.0.0.1:8097/potential_data_summarry?client_id=${clientId}`
+        );
+  
+        if (!response.ok) {
+          throw new Error(`Failed to fetch data: ${response.status}`);
+        }
+  
+        const result = await response.json();
+        console.log("Fetched data:", result);
+  
+        if (result.raw_dump && result.raw_dump.length > 0) {
+          setEscalations(result.raw_dump);
+  
+          const { 
+            social_media_threat = 0, 
+            consumer_court_threat = 0, 
+            potential_scam = 0, 
+            abuse = 0, 
+            threat = 0, 
+            frustration = 0, 
+            slang = 0, 
+            sarcasm = 0 
+          } = result.counts || {};
+    
+          const topNegativeSignals = social_media_threat + consumer_court_threat;
+          const socialMediaThreats = potential_scam + abuse + threat + frustration + slang + sarcasm;
+    
+          setPieChartData([
+            { name: "Top Negative Signals", value: topNegativeSignals, color: "#82c6fc" },
+            { name: "Social Media and Consumer Court Threat", value: socialMediaThreats, color: "#d3388d" }
+          ]);
+        } else {
+          setEscalations([]);
+          console.warn("No escalation data found for selected criteria.");
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setError(`Error fetching data: ${error.message}`);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchCallQualityDetails();
+  }, [clientId]); // ✅ Runs only when clientId changes
 
   return (
     <Layout>

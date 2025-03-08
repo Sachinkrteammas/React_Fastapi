@@ -194,10 +194,10 @@ const Analysis = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading1(true);
-  
+
     try {
       const { client_id, start_date, end_date } = formData;
-  
+
       const urls = [
         `http://127.0.0.1:8097/potential_escalation?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`,
         `http://127.0.0.1:8097/agent_scores?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`,
@@ -208,13 +208,13 @@ const Analysis = () => {
         `http://127.0.0.1:8097/audit_count?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`, // ✅ Added Audit Count API
         `http://127.0.0.1:8097/call_length_categorization?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`, // ✅ Added Call Length Categorization API
       ];
-  
+
       const responses = await Promise.all(urls.map((url) => fetch(url)));
-  
+
       if (responses.some((response) => !response.ok)) {
         throw new Error("Failed to fetch one or more datasets");
       }
-  
+
       const [
         escalationData,
         scoresData,
@@ -225,15 +225,15 @@ const Analysis = () => {
         auditData, // ✅ Audit Count Response
         callLengthData, // ✅ Call Length Categorization Response
       ] = await Promise.all(responses.map((response) => response.json()));
-  
+
       console.log("Competitor Data API Response:", competitorDataResponse);
       console.log("Audit Count API Response:", auditData);
       console.log("Call Length Categorization API Response:", callLengthData);
-  
+
       setCompetitorData(competitorDataResponse);
       setAuditData(auditData);
       setCategories(callLengthData);
-  
+
       const labels = competitorDataResponse.map((item) => item.Competitor_Name);
       const counts = competitorDataResponse.map((item) => item.Count);
       setDoughnutChartData({
@@ -253,7 +253,7 @@ const Analysis = () => {
           },
         ],
       });
-  
+
       setEscalationData({
         social_media_threat:
           escalationData?.potential_escalation?.social_media_threat || 0,
@@ -262,7 +262,7 @@ const Analysis = () => {
         potential_scam:
           escalationData?.potential_escalation?.potential_scam || 0,
       });
-  
+
       setTopNegativeSignals([
         {
           category: "Abuse",
@@ -281,15 +281,23 @@ const Analysis = () => {
           count: escalationData?.negative_signals?.slang || 0,
         },
       ]);
-  
+
       // ✅ Update pie chart dynamically with audit data
       setPieData([
-        { name: "Excellent", value: auditData.excellent || 0, color: "#4CAF50" },
+        {
+          name: "Excellent",
+          value: auditData.excellent || 0,
+          color: "#4CAF50",
+        },
         { name: "Good", value: auditData.good || 0, color: "#8BC34A" },
         { name: "Average", value: auditData.avg_call || 0, color: "#990000" },
-        { name: "Below Average", value: auditData.b_avg || 0, color: "#F44336" },
+        {
+          name: "Below Average",
+          value: auditData.b_avg || 0,
+          color: "#F44336",
+        },
       ]);
-  
+
       setScores(scoresData);
       setPerformers(performersData?.top_performers || []);
       setPotentialEscalations(potentialEscalationsData);
@@ -300,7 +308,6 @@ const Analysis = () => {
       setLoading1(false);
     }
   };
-  
 
   useEffect(() => {
     const fetchAuditData = async () => {
@@ -372,7 +379,9 @@ const Analysis = () => {
     const fetchAuditCount = async () => {
       try {
         const clientId = 375;
-        const response = await fetch(`http://127.0.0.1:8097/audit_count?client_id=${clientId}`);
+        const response = await fetch(
+          `http://127.0.0.1:8097/audit_count?client_id=${clientId}`
+        );
         if (!response.ok) throw new Error("Failed to fetch audit count");
 
         const data = await response.json();
@@ -423,7 +432,9 @@ const Analysis = () => {
     const fetchCategories = async () => {
       try {
         const clientId = 375;
-        const response = await fetch(`http://127.0.0.1:8097/call_length_categorization?client_id=${clientId}`);
+        const response = await fetch(
+          `http://127.0.0.1:8097/call_length_categorization?client_id=${clientId}`
+        );
         if (!response.ok)
           throw new Error("Failed to fetch call length categorization");
 
@@ -462,9 +473,139 @@ const Analysis = () => {
           `http://127.0.0.1:8097/agent_scores?client_id=${clientId}`
         );
         if (!response.ok) throw new Error("Failed to fetch agent scores");
-  
+
         const data = await response.json();
         setScores(data); // Make sure you have a state variable for agent scores
+      } catch (error) {
+        console.error("Error fetching agent scores:", error);
+      }
+    };
+
+    const fetchTopPerformers = async () => {
+      const clientId = 375;
+
+      try {
+        const response = await fetch(
+          `http://127.0.0.1:8097/top_performers?client_id=${clientId}`
+        );
+        if (!response.ok) throw new Error("Failed to fetch agent scores");
+
+        const data = await response.json();
+
+        setPerformers(data?.top_performers || []); // ✅ Corrected: Set fetched data properly
+      } catch (error) {
+        console.error("Error fetching agent scores:", error);
+      }
+    };
+
+    const fetchPotentialEscalations = async () => {
+      const clientId = 375;
+
+      try {
+        const response = await fetch(
+          `http://127.0.0.1:8097/potential_escalation?client_id=${clientId}`
+        );
+        if (!response.ok) throw new Error("Failed to fetch escalation data");
+
+        const data = await response.json();
+
+        setEscalationData({
+          social_media_threat:
+            data?.potential_escalation?.social_media_threat || 0,
+          consumer_court_threat:
+            data?.potential_escalation?.consumer_court_threat || 0,
+          potential_scam: data?.potential_escalation?.potential_scam || 0,
+        });
+
+        setTopNegativeSignals([
+          {
+            category: "Abuse",
+            count: data?.negative_signals?.abuse || 0,
+          },
+          {
+            category: "Threat",
+            count: data?.negative_signals?.threat || 0,
+          },
+          {
+            category: "Frustration",
+            count: data?.negative_signals?.frustration || 0,
+          },
+          {
+            category: "Slang",
+            count: data?.negative_signals?.slang || 0,
+          },
+        ]);
+      } catch (error) {
+        console.error("Error fetching escalation data:", error);
+      }
+    };
+
+    const fetchPotentialEscalationsData = async () => {
+      const clientId = 375;
+
+      try {
+        const response = await fetch(
+          `http://127.0.0.1:8097/potential_escalations_data?client_id=${clientId}`
+        );
+        if (!response.ok) throw new Error("Failed to fetch agent scores");
+
+        const data = await response.json();
+
+        setPotentialEscalations(data); // ✅ Corrected: Set fetched data properly
+      } catch (error) {
+        console.error("Error fetching agent scores:", error);
+      }
+    };
+
+    const fetchNegativeData = async () => {
+      const clientId = 375;
+
+      try {
+        const response = await fetch(
+          `http://127.0.0.1:8097/negative_data?client_id=${clientId}`
+        );
+        if (!response.ok) throw new Error("Failed to fetch agent scores");
+
+        const data = await response.json();
+
+        setNegativeData(data); 
+      } catch (error) {
+        console.error("Error fetching agent scores:", error);
+      }
+    };
+
+    const fetchCompetitorData = async () => {
+      const clientId = 375;
+
+      try {
+        const response = await fetch(
+          `http://127.0.0.1:8097/competitor_data?client_id=${clientId}`
+        );
+        if (!response.ok) throw new Error("Failed to fetch agent scores");
+
+        const data = await response.json();
+
+        setCompetitorData(data);
+	  
+	  const labels = data.map((item) => item.Competitor_Name);
+      const counts = data.map((item) => item.Count);
+      setDoughnutChartData({
+        labels: labels,
+        datasets: [
+          {
+            data: counts,
+            backgroundColor: [
+              "blue",
+              "green",
+              "red",
+              "purple",
+              "orange",
+              "cyan",
+              "yellow",
+            ],
+          },
+        ],
+      }); 
       } catch (error) {
         console.error("Error fetching agent scores:", error);
       }
@@ -473,6 +614,11 @@ const Analysis = () => {
     const fetchData = async () => {
       try {
         await Promise.all([
+          fetchCompetitorData(),
+          fetchNegativeData(),
+          fetchPotentialEscalationsData(),
+          fetchPotentialEscalations(),
+          fetchTopPerformers(),
           fetchAgentScores(),
           fetchAuditData(),
           fetchAuditCount(),
@@ -608,7 +754,16 @@ const Analysis = () => {
                       >
                         <td>{item["ACH Category"]}</td>
                         <td>{item["Audit Count"]}</td>
-                        <td style={{ backgroundColor: parseFloat(item["Fatal%"]) > 50.0  ? "#ef2d2d" : "#d4ac2e" }}>{item["Fatal%"]}</td>
+                        <td
+                          style={{
+                            backgroundColor:
+                              parseFloat(item["Fatal%"]) > 50.0
+                                ? "#ef2d2d"
+                                : "#d4ac2e",
+                          }}
+                        >
+                          {item["Fatal%"]}
+                        </td>
                         <td>{item["Score%"]}</td>
                       </tr>
                     ))}
@@ -693,7 +848,9 @@ const Analysis = () => {
                       <td>{performer.audit_count}</td>
                       <td>{performer.cq_percentage}%</td>
                       <td>{performer.fatal_count}</td>
-                      <td style={{ backgroundColor:"#d4ac2e" }}>{performer.fatal_percentage}%</td>
+                      <td style={{ backgroundColor: "#d4ac2e" }}>
+                        {performer.fatal_percentage}%
+                      </td>
                     </tr>
                   ))
                 ) : (

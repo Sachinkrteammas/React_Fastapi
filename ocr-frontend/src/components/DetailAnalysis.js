@@ -518,23 +518,116 @@ const DetailAnalysis = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const response = await fetch("http://127.0.0.1:8097/details_count");
-        if (!response.ok) throw new Error("Failed to fetch statistics");
 
-        const data = await response.json();
-        setStats(data);
-      } catch (err) {
-        setError(err.message);
+
+  useEffect(() => {
+    if (!clientId) return; // ✅ Prevents running effect if clientId is missing
+  
+    setLoading(true);
+    setError(null);
+  
+    const fetchData = async () => {
+      try {
+        // API URLs (Only passing client_id)
+        const url1 = `http://127.0.0.1:8097/top_scenarios_with_counts?client_id=${clientId}`;
+        const url2 = `http://127.0.0.1:8097/agent_performance_summary?client_id=${clientId}`;
+        const url3 = `http://127.0.0.1:8097/day_performance_summary?client_id=${clientId}`;
+        const url4 = `http://127.0.0.1:8097/week_performance_summary?client_id=${clientId}`;
+        const url5 = `http://127.0.0.1:8097/details_count?client_id=${clientId}`;
+  
+        // Fetch all APIs in parallel
+        const results = await Promise.allSettled([
+          fetch(url1).then((res) => (res.ok ? res.json() : Promise.reject(res.status))),
+          fetch(url2).then((res) => (res.ok ? res.json() : Promise.reject(res.status))),
+          fetch(url3).then((res) => (res.ok ? res.json() : Promise.reject(res.status))),
+          fetch(url4).then((res) => (res.ok ? res.json() : Promise.reject(res.status))),
+          fetch(url5).then((res) => (res.ok ? res.json() : Promise.reject(res.status))),
+        ]);
+  
+        // Extract API responses
+        const data1 = results[0].status === "fulfilled" ? results[0].value : [];
+        const data2 = results[1].status === "fulfilled" ? results[1].value : [];
+        const data3 = results[2].status === "fulfilled" ? results[2].value : [];
+        const data4 = results[3].status === "fulfilled" ? results[3].value : [];
+        const data5 = results[4].status === "fulfilled" ? results[4].value : [];
+  
+        // Process first API response (Scenario Data)
+        const queryData = data1?.Query || [];
+        const complaintData = data1?.Complaint || [];
+        const requestData = data1?.Request || [];
+  
+        const queryData1 = queryData.map((item) => ({
+          name: item.Reason,
+          count: item.Count,
+        }));
+        const complaintData1 = complaintData.map((item) => ({
+          name: item.Reason,
+          count: item.Count,
+        }));
+        const requestData1 = requestData.map((item) => ({
+          name: item.Reason,
+          count: item.Count,
+        }));
+  
+        setQueryData(queryData);
+        setQueryData1(queryData1);
+        setComplaintData(complaintData);
+        setComplaintData1(complaintData1);
+        setRequestData(requestData);
+        setRequestData1(requestData1);
+  
+        // Process second API response (Agent Performance Data)
+        setAgentData(data2);
+  
+        // Process third API response (Day-wise Performance Data)
+        setDatadaywise(
+          Array.isArray(data3)
+            ? data3.map((item) => ({
+                date: item["Call Date"] || "N/A",
+                audit: item["Audit Count"] || "N/A",
+                cqScore: item["CQ Score%"] || "N/A",
+                fatalCount: item["Fatal Count"] || "N/A",
+                fatal: item["Fatal%"] || "N/A",
+                opening: item["Opening Score%"] || "N/A",
+                softSkills: item["Soft Skills Score%"] || "N/A",
+                hold: item["Hold Procedure Score%"] || "N/A",
+                resolution: item["Resolution Score%"] || "N/A",
+                closing: item["Closing Score%"] || "N/A",
+              }))
+            : []
+        );
+  
+        // Process fourth API response (Week-wise Performance Data)
+        setDataweek(
+          Array.isArray(data4)
+            ? data4.map((item) => ({
+                week: item["Week Number"] || "N/A",
+                audit: item["Audit Count"] || "N/A",
+                cqScore: item["CQ Score%"] || "N/A",
+                fatalCount: item["Fatal Count"] || "N/A",
+                fatal: item["Fatal%"] || "N/A",
+                opening: item["Opening Score%"] || "N/A",
+                softSkills: item["Soft Skills Score%"] || "N/A",
+                hold: item["Hold Procedure Score%"] || "N/A",
+                resolution: item["Resolution Score%"] || "N/A",
+                closing: item["Closing Score%"] || "N/A",
+              }))
+            : []
+        );
+  
+        // Process fifth API response (Stats Data)
+        setStats(data5);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setError(`Failed to load data: ${error}`);
       } finally {
         setLoading(false);
       }
     };
+  
+    fetchData();
+  }, [clientId]); // ✅ Runs when clientId changes
 
-    fetchStats();
-  }, []);
 
   // Show loading message until all data is fetched
   if (loading) {

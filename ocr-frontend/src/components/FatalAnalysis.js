@@ -345,23 +345,141 @@ const Fatal = () => {
 
 
   useEffect(() => {
+    const clientId = 375;
+  
     const fetchStats = async () => {
-      const clientId = 375;
       try {
         const response = await fetch(`http://127.0.0.1:8097/fatal_count?client_id=${clientId}`);
         if (!response.ok) throw new Error("Failed to fetch statistics");
-
+  
         const data = await response.json();
         setStats(data);
       } catch (err) {
         setError(err.message);
-      } finally {
-        setLoading(false);
+      }
+    };
+  
+    const fetchTopFive = async () => {
+      try {
+        const response = await fetch(
+          `http://127.0.0.1:8097/top_agents_fatal_summary?client_id=${clientId}&limit=5`
+        );
+        if (!response.ok) throw new Error("Failed to fetch top agents");
+    
+        const data = await response.json();
+    
+        // Properly format the data before setting state
+        const formattedTopContributors = data.map((agent) => ({
+          name: agent["Agent Name"] || "N/A",
+          audit: agent["Audit Count"] || 0,
+          fatal: agent["Fatal Count"] || 0,
+          fatalPercent: agent["Fatal%"] || "0%",
+        }));
+    
+        setTopContributors(formattedTopContributors); // Use formatted data
+      } catch (err) {
+        console.error("Error fetching top agents:", err);
+        setError(err.message);
+      }
+    };
+    
+    const fetchDayWise = async () => {
+      try {
+        setError(null);
+    
+        const clientId = 375; // Make sure clientId is correctly assigned
+    
+        const response = await fetch(
+          `http://127.0.0.1:8097/daywise_fatal_summary?client_id=${clientId}`
+        );
+    
+        if (!response.ok) {
+          throw new Error(
+            `Failed to fetch daywise statistics: ${response.status} ${response.statusText}`
+          );
+        }
+    
+        const data = await response.json();
+    
+        const formattedDayWiseData = data.map((entry) => ({
+          date: entry["CallDate"]
+            ? new Date(entry["CallDate"]).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "short",
+                day: "2-digit",
+              })
+            : "Unknown",
+          fatal: entry["Fatal Count"] || 0,
+        }));
+    
+        setDayWiseData((prev) =>
+          JSON.stringify(prev) !== JSON.stringify(formattedDayWiseData)
+            ? formattedDayWiseData
+            : prev
+        );
+    
+      } catch (err) {
+        console.error("Error fetching daywise statistics:", err);
+        setError(err.message);
       }
     };
 
-    fetchStats();
+    const fetchAuditData = async () => { 
+      try {
+        setError(null); // Clear previous errors
+    
+        const clientId = 375; // Ensure clientId is defined
+    
+        const response = await fetch(
+          `http://127.0.0.1:8097/agent_audit_summary?client_id=${clientId}`
+        );
+    
+        if (!response.ok) {
+          throw new Error(
+            `Failed to fetch audit data: ${response.status} ${response.statusText}`
+          );
+        }
+    
+        const data = await response.json();
+    
+        // Format the response data properly
+        const formattedAuditData = data.map((agent) => ({
+          agent: agent["Agent Name"] || "N/A",
+          auditCount: agent["Audit Count"] || 0,
+          cqScore: parseFloat(agent["CQ Score%"]) || 0,
+          fatalCount: agent["Fatal Count"] || 0,
+          fatalPercentage: agent["Fatal%"] || "0%",
+          belowAvgCall: agent["Below Average Calls"] || "0%",
+          avgCalls: agent["Average Calls"] || "0%",
+          goodCalls: agent["Good Calls"] || "0%",
+          excellentCalls: agent["Excellent Calls"] || "0%",
+        }));
+    
+        // Update state only if the data has changed
+        setAuditData((prev) =>
+          JSON.stringify(prev) !== JSON.stringify(formattedAuditData)
+            ? formattedAuditData
+            : prev
+        );
+    
+      } catch (err) {
+        console.error("Error fetching audit data:", err);
+        setError(err.message);
+      }
+    };
+    
+    
+    
+  
+    const fetchData = async () => {
+      setLoading(true);
+      await Promise.all([fetchStats(), fetchTopFive(),fetchDayWise(),fetchAuditData()]); // Run both functions in parallel
+      setLoading(false); // Set loading to false after both complete
+    };
+  
+    fetchData();
   }, []);
+  
 
   if (loading) {
     return (

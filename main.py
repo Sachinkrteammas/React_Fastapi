@@ -779,11 +779,15 @@ def get_agent_scores(
 
 @app.get("/top_performers")
 def get_top_performers(
-    client_id: str = Query(..., description="Client ID"),
-    start_date: date = Query(..., description="Start Date in YYYY-MM-DD format"),
-    end_date: date = Query(..., description="End Date in YYYY-MM-DD format"),
-    db: Session = Depends(get_db2)
+        client_id: str = Query(..., description="Client ID"),
+        start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
+        end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
+        db: Session = Depends(get_db2)
 ):
+    # Use current date if start_date or end_date is not provided
+    today = date.today()
+    start_date = start_date or today
+    end_date = end_date or today
     query = text("""
         SELECT 
             User,
@@ -885,10 +889,14 @@ class EscalationResponse(BaseModel):
 @app.get("/potential_escalation", response_model=EscalationResponse)
 def get_potential_escalation(
         client_id: str = Query(..., description="Client ID"),
-        start_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
-        end_date: str = Query(..., description="End date (YYYY-MM-DD)"),
+        start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
+        end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
         db: Session = Depends(get_db2)
 ):
+    # Use current date if start_date or end_date is not provided
+    today = date.today()
+    start_date = start_date or today
+    end_date = end_date or today
     query = text("""
         SELECT
             SUM(CASE WHEN LOWER(sensetive_word) LIKE '%social%' THEN 1 ELSE 0 END) AS social_media_threat,
@@ -931,10 +939,14 @@ def get_potential_escalation(
 @app.get("/potential_escalations_data/")
 def get_potential_escalations_data(
         client_id: str = Query(..., description="Client ID"),
-        start_date: date = Query(..., description="Start Date in YYYY-MM-DD format"),
-        end_date: date = Query(..., description="End Date in YYYY-MM-DD format"),
+        start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
+        end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
         db: Session = Depends(get_db2)
 ):
+    # Use current date if start_date or end_date is not provided
+    today = date.today()
+    start_date = start_date or today
+    end_date = end_date or today
     query = text("""
         SELECT 
             scenario, 
@@ -972,10 +984,14 @@ def get_potential_escalations_data(
 @app.get("/negative_data/")
 def get_negative_data(
         client_id: str = Query(..., description="Client ID"),
-        start_date: date = Query(..., description="Start Date in YYYY-MM-DD format"),
-        end_date: date = Query(..., description="End Date in YYYY-MM-DD format"),
+        start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
+        end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
         db: Session = Depends(get_db2)
 ):
+    # Use current date if start_date or end_date is not provided
+    today = date.today()
+    start_date = start_date or today
+    end_date = end_date or today
     query = text("""
         SELECT 
             scenario, 
@@ -1264,12 +1280,16 @@ def get_fatal_count(
 
 @app.get("/top_agents_fatal_summary")
 def get_top_agents_fatal_summary(
-    client_id: str = Query(..., description="Client ID"),
-    start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
-    end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
-    limit: int = Query(5, description="Number of top agents to fetch (default: 5)"),
-    db: Session = Depends(get_db2)
+        client_id: str = Query(..., description="Client ID"),
+        start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
+        end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
+        limit: int = Query(5, description="Number of top agents to fetch (default: 5)"),
+        db: Session = Depends(get_db2)
 ):
+    # Use current date if start_date or end_date is not provided
+    today = date.today()
+    start_date = start_date or today
+    end_date = end_date or today
     query = text("""
         SELECT 
             User as Agent_Name,
@@ -1305,12 +1325,15 @@ def get_top_agents_fatal_summary(
 
 @app.get("/daywise_fatal_summary")
 def get_daywise_fatal_summary(
-    client_id: str = Query(..., description="Client ID"),
-    start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
-    end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
-    #limit: int = Query(5, description="Number of top agents to fetch (default: 5)"),
-    db: Session = Depends(get_db2)
+        client_id: str = Query(..., description="Client ID"),
+        start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
+        end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
+        db: Session = Depends(get_db2)
 ):
+    # Use current date if start_date or end_date is not provided
+    today = date.today()
+    start_date = start_date or today
+    end_date = end_date or today
     query = text("""
         SELECT 
             date(CallDate) as CallDate,
@@ -1342,12 +1365,15 @@ def get_daywise_fatal_summary(
 
 @app.get("/agent_audit_summary")
 def get_agent_audit_summary(
-    client_id: str = Query(..., description="Client ID"),
-    start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
-    end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
-    #limit: int = Query(10, description="Number of agents to fetch (default: 10)"),
-    db: Session = Depends(get_db2)
+        client_id: str = Query(..., description="Client ID"),
+        start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
+        end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
+        db: Session = Depends(get_db2)
 ):
+    # Use current date if start_date or end_date is not provided
+    today = date.today()
+    start_date = start_date or today
+    end_date = end_date or today
     query = text("""
         SELECT 
             User as Agent_Name,
@@ -1469,12 +1495,17 @@ def get_details_count(
 
 @app.get("/top_scenarios_with_counts")
 def get_top_scenarios_with_counts(
-    client_id: str = Query(..., description="Client ID"),
-    start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
-    end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
-    limit: int = Query(5, description="Number of top reasons to fetch per category (default: 5)"),
-    db: Session = Depends(get_db2)
+        client_id: str = Query(..., description="Client ID"),
+        start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
+        end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
+        limit: int = Query(5, description="Number of top reasons to fetch per category (default: 5)"),
+
+        db: Session = Depends(get_db2)
 ):
+    # Use current date if start_date or end_date is not provided
+    today = date.today()
+    start_date = start_date or today
+    end_date = end_date or today
     scenarios = ["Query", "Complaint", "Request"]
     response_data = {}
 
@@ -1508,11 +1539,14 @@ def get_top_scenarios_with_counts(
 @app.get("/agent_performance_summary")
 def get_agent_performance_summary(
         client_id: str = Query(..., description="Client ID"),
-        start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
-        end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
-        #limit: int = Query(10, description="Number of top agents to fetch (default: 10)"),
+        start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
+        end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
         db: Session = Depends(get_db2)
 ):
+    # Use current date if start_date or end_date is not provided
+    today = date.today()
+    start_date = start_date or today
+    end_date = end_date or today
     query = text(f"""
         SELECT 
             User asAgent_Name,
@@ -1656,11 +1690,14 @@ def get_agent_performance_summary(
 @app.get("/day_performance_summary")
 def get_day_performance_summary(
         client_id: str = Query(..., description="Client ID"),
-        start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
-        end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
-        #limit: int = Query(10, description="Number of top agents to fetch (default: 10)"),
+        start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
+        end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
         db: Session = Depends(get_db2)
 ):
+    # Use current date if start_date or end_date is not provided
+    today = date.today()
+    start_date = start_date or today
+    end_date = end_date or today
     query = text(f"""
         SELECT 
             date(CallDate) as CallDate,
@@ -1804,10 +1841,14 @@ def get_day_performance_summary(
 @app.get("/week_performance_summary")
 def get_week_performance_summary(
         client_id: str = Query(..., description="Client ID"),
-        start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
-        end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
+        start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
+        end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
         db: Session = Depends(get_db2)
 ):
+    # Use current date if start_date or end_date is not provided
+    today = date.today()
+    start_date = start_date or today
+    end_date = end_date or today
     query = text(f"""
         SELECT 
             YEAR(CallDate) AS year,
@@ -2063,11 +2104,15 @@ def get_call_quality_assessments(
 
 @app.get("/potential_data_summarry")
 def get_potential_data_summarry(
-    client_id: str = Query(..., description="Client ID"),
-    start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
-    end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
-    db: Session = Depends(get_db2)
+        client_id: str = Query(..., description="Client ID"),
+        start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
+        end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
+        db: Session = Depends(get_db2)
 ):
+    # Use current date if start_date or end_date is not provided
+    today = date.today()
+    start_date = start_date or today
+    end_date = end_date or today
     # Query to get the summarized count
     query_counts = text("""
         SELECT 
