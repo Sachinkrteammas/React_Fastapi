@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Layout from "../layout"; // Import layout component
 import "../layout.css"; // Import styles
 import "./RawDown.css";
-
+import { BASE_URL } from "./config";
 const RawDownload = () => {
   const [leadId, setLeadId] = useState("");
   const [data, setData] = useState([]);
@@ -24,7 +24,7 @@ const RawDownload = () => {
 
     try {
       const response = await fetch(
-        `http://127.0.0.1:8097/call_quality_assessments?client_id=375&start_date=${formatDate(
+        `${BASE_URL}/call_quality_assessments?client_id=375&start_date=${formatDate(
           startDate
         )}&end_date=${formatDate(endDate)}`
       );

@@ -5,6 +5,7 @@ import { Eye, EyeOff } from "lucide-react"; // ✅ Import professional eye icons
 import "./App.css";
 import myImage from "./assets/image.jpg";
 import logo from "./assets/logo.png";
+import { BASE_URL } from "./components/config";
 
 const Signup = () => {
     const [formData, setFormData] = useState({
@@ -56,7 +57,7 @@ const Signup = () => {
         }
 
         try {
-            const response = await axios.post("http://172.12.13.74:8097/register", formData);
+            const response = await axios.post(`${BASE_URL}/register`, formData);
             setMessage(`✅ ${response.data.detail || "Registration successful!"}`);
         } catch (error) {
             console.error("Registration error:", error);

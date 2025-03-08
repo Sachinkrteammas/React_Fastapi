@@ -4,6 +4,7 @@ import axios from "axios"; // Import axios
 import "./PromptPage.css";
 import Layout from "../layout";
 import "../layout.css";
+import { BASE_URL } from "./config";
 
 const PromptPage = () => {
   const navigate = useNavigate();
@@ -42,7 +43,7 @@ const PromptPage = () => {
     setMessage("");
 
     try {
-      const response = await axios.post("http://172.12.13.74:8097/prompts/", {
+      const response = await axios.post(`${BASE_URL}/prompts/`, {
         ClientId: parseInt(id, 10), // Convert id to integer
         PromptName: name,
         prompt: generatePromptString(), // Send prompt as a string (NOT JSON)

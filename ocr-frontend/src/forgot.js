@@ -4,7 +4,7 @@ import axios from "axios";
 import "./App.css";
 import myImage from "./assets/image.jpg";
 import logo from "./assets/logo.png";
-
+import { BASE_URL } from "./components/config";
 const ForgotPassword = () => {
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
@@ -23,7 +23,7 @@ const ForgotPassword = () => {
 
         try {
             // Sending the email to the backend
-            const response = await axios.post("http://172.12.13.74:8097/forgot-password", {
+            const response = await axios.post(`${BASE_URL}/forgot-password`, {
                 email_id: email
             });
 

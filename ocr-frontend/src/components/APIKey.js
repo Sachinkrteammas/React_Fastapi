@@ -3,8 +3,8 @@ import Layout from "../layout";
 import "../layout.css";
 import "./APIKey.css";
 import axios from "axios";
-
-const API_BASE_URL = process.env.REACT_APP_API_URL || "http://127.0.0.1:8097"; // Use env variable for API URL
+import { BASE_URL } from "./config";
+const API_BASE_URL = process.env.REACT_APP_API_URL || `${BASE_URL}`; // Use env variable for API URL
 
 export default function APIKey() {
   const [apiKeys, setApiKeys] = useState([]);

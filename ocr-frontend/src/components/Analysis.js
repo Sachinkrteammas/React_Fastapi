@@ -22,6 +22,7 @@ import Layout from "../layout"; // Import layout component
 import "../layout.css"; // Import styles
 import { Doughnut } from "react-chartjs-2";
 import "chart.js/auto";
+import { BASE_URL } from "./config";
 const Analysis = () => {
   const navigate = useNavigate();
   const handleLogout = () => {
@@ -199,14 +200,14 @@ const Analysis = () => {
       const { client_id, start_date, end_date } = formData;
 
       const urls = [
-        `http://127.0.0.1:8097/potential_escalation?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`,
-        `http://127.0.0.1:8097/agent_scores?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`,
-        `http://127.0.0.1:8097/top_performers?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`,
-        `http://127.0.0.1:8097/potential_escalations_data/?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`,
-        `http://127.0.0.1:8097/negative_data/?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`,
-        `http://127.0.0.1:8097/competitor_data/?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`, // ✅ Fetch competitor data
-        `http://127.0.0.1:8097/audit_count?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`, // ✅ Added Audit Count API
-        `http://127.0.0.1:8097/call_length_categorization?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`, // ✅ Added Call Length Categorization API
+        `${BASE_URL}/potential_escalation?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`,
+        `${BASE_URL}/agent_scores?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`,
+        `${BASE_URL}/top_performers?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`,
+        `${BASE_URL}/potential_escalations_data/?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`,
+        `${BASE_URL}/negative_data/?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`,
+        `${BASE_URL}/competitor_data/?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`, // ✅ Fetch competitor data
+        `${BASE_URL}/audit_count?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`, // ✅ Added Audit Count API
+        `${BASE_URL}/call_length_categorization?client_id=${client_id}&start_date=${start_date}&end_date=${end_date}`, // ✅ Added Call Length Categorization API
       ];
 
       const responses = await Promise.all(urls.map((url) => fetch(url)));
@@ -313,7 +314,7 @@ const Analysis = () => {
     const fetchAuditData = async () => {
       try {
         const response = await fetch(
-          "http://127.0.0.1:8097/negative_data_summary/?client_id=375"
+         `${BASE_URL}/negative_data_summary?client_id=375`
         );
         if (!response.ok) throw new Error("Failed to fetch negative data");
 
@@ -380,7 +381,7 @@ const Analysis = () => {
       try {
         const clientId = 375;
         const response = await fetch(
-          `http://127.0.0.1:8097/audit_count?client_id=${clientId}`
+          `${BASE_URL}/audit_count?client_id=${clientId}`
         );
         if (!response.ok) throw new Error("Failed to fetch audit count");
 
@@ -402,7 +403,7 @@ const Analysis = () => {
     const fetchCQTrendData = async () => {
       try {
         const response = await fetch(
-          "http://127.0.0.1:8097/target_vs_cq_trend?client_id=375"
+          `${BASE_URL}/target_vs_cq_trend?client_id=375`
         );
         if (!response.ok) throw new Error("Failed to fetch CQ trend data");
 
@@ -433,7 +434,7 @@ const Analysis = () => {
       try {
         const clientId = 375;
         const response = await fetch(
-          `http://127.0.0.1:8097/call_length_categorization?client_id=${clientId}`
+          `${BASE_URL}/call_length_categorization?client_id=${clientId}`
         );
         if (!response.ok)
           throw new Error("Failed to fetch call length categorization");
@@ -448,7 +449,7 @@ const Analysis = () => {
     const fetchComplaintData = async () => {
       try {
         const response = await fetch(
-          "http://127.0.0.1:8097/complaints_by_date?client_id=375"
+          `${BASE_URL}/complaints_by_date?client_id=375`
         );
         if (!response.ok) throw new Error("Failed to fetch complaint data");
 
@@ -470,7 +471,7 @@ const Analysis = () => {
       const clientId = 375;
       try {
         const response = await fetch(
-          `http://127.0.0.1:8097/agent_scores?client_id=${clientId}`
+          `${BASE_URL}/agent_scores?client_id=${clientId}`
         );
         if (!response.ok) throw new Error("Failed to fetch agent scores");
 
@@ -486,7 +487,7 @@ const Analysis = () => {
 
       try {
         const response = await fetch(
-          `http://127.0.0.1:8097/top_performers?client_id=${clientId}`
+          `${BASE_URL}/top_performers?client_id=${clientId}`
         );
         if (!response.ok) throw new Error("Failed to fetch agent scores");
 
@@ -503,7 +504,7 @@ const Analysis = () => {
 
       try {
         const response = await fetch(
-          `http://127.0.0.1:8097/potential_escalation?client_id=${clientId}`
+          `${BASE_URL}/potential_escalation?client_id=${clientId}`
         );
         if (!response.ok) throw new Error("Failed to fetch escalation data");
 
@@ -545,7 +546,7 @@ const Analysis = () => {
 
       try {
         const response = await fetch(
-          `http://127.0.0.1:8097/potential_escalations_data?client_id=${clientId}`
+          `${BASE_URL}/potential_escalations_data?client_id=${clientId}`
         );
         if (!response.ok) throw new Error("Failed to fetch agent scores");
 
@@ -562,7 +563,7 @@ const Analysis = () => {
 
       try {
         const response = await fetch(
-          `http://127.0.0.1:8097/negative_data?client_id=${clientId}`
+          `${BASE_URL}/negative_data?client_id=${clientId}`
         );
         if (!response.ok) throw new Error("Failed to fetch agent scores");
 
@@ -579,7 +580,7 @@ const Analysis = () => {
 
       try {
         const response = await fetch(
-          `http://127.0.0.1:8097/competitor_data?client_id=${clientId}`
+          `${BASE_URL}/competitor_data?client_id=${clientId}`
         );
         if (!response.ok) throw new Error("Failed to fetch agent scores");
 

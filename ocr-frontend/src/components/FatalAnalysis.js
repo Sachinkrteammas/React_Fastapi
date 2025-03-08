@@ -12,6 +12,7 @@ import {
 import Layout from "../layout";
 import "../layout.css";
 import "./FatalAnalysis.css";
+import { BASE_URL } from "./config";
 
 const Fatal = () => {
   const [stats, setStats] = useState(null);
@@ -229,16 +230,16 @@ const Fatal = () => {
         fatalCountResponse, // ✅ Added missing API response
       ] = await Promise.all([
         fetch(
-          `http://127.0.0.1:8097/top_agents_fatal_summary?client_id=375&start_date=${startDate}&end_date=${endDate}&limit=5`
+          `${BASE_URL}/top_agents_fatal_summary?client_id=375&start_date=${startDate}&end_date=${endDate}&limit=5`
         ),
         fetch(
-          `http://127.0.0.1:8097/daywise_fatal_summary?client_id=375&start_date=${startDate}&end_date=${endDate}`
+          `${BASE_URL}/daywise_fatal_summary?client_id=375&start_date=${startDate}&end_date=${endDate}`
         ),
         fetch(
-          `http://127.0.0.1:8097/agent_audit_summary?client_id=375&start_date=${startDate}&end_date=${endDate}`
+          `${BASE_URL}/agent_audit_summary?client_id=375&start_date=${startDate}&end_date=${endDate}`
         ),
         fetch(
-          `http://127.0.0.1:8097/fatal_count?client_id=375&start_date=${startDate}&end_date=${endDate}`
+          `${BASE_URL}/fatal_count?client_id=375&start_date=${startDate}&end_date=${endDate}`
         ), 
       ]);
   
@@ -349,7 +350,7 @@ const Fatal = () => {
   
     const fetchStats = async () => {
       try {
-        const response = await fetch(`http://127.0.0.1:8097/fatal_count?client_id=${clientId}`);
+        const response = await fetch(`${BASE_URL}/fatal_count?client_id=${clientId}`);
         if (!response.ok) throw new Error("Failed to fetch statistics");
   
         const data = await response.json();
@@ -362,7 +363,7 @@ const Fatal = () => {
     const fetchTopFive = async () => {
       try {
         const response = await fetch(
-          `http://127.0.0.1:8097/top_agents_fatal_summary?client_id=${clientId}&limit=5`
+          `${BASE_URL}/top_agents_fatal_summary?client_id=${clientId}&limit=5`
         );
         if (!response.ok) throw new Error("Failed to fetch top agents");
     
@@ -390,7 +391,7 @@ const Fatal = () => {
         const clientId = 375; // Make sure clientId is correctly assigned
     
         const response = await fetch(
-          `http://127.0.0.1:8097/daywise_fatal_summary?client_id=${clientId}`
+          `${BASE_URL}/daywise_fatal_summary?client_id=${clientId}`
         );
     
         if (!response.ok) {
@@ -431,7 +432,7 @@ const Fatal = () => {
         const clientId = 375; // Ensure clientId is defined
     
         const response = await fetch(
-          `http://127.0.0.1:8097/agent_audit_summary?client_id=${clientId}`
+          `${BASE_URL}/agent_audit_summary?client_id=${clientId}`
         );
     
         if (!response.ok) {

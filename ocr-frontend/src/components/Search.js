@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Layout from "../layout"; // Import layout component
 import "../layout.css"; // Import styles
 import "./Search.css";
-
+import { BASE_URL } from "./config";
 const Search = () => {
   const [leadId, setLeadId] = useState(""); // Input field state
   const [data, setData] = useState(null); // Store API response
@@ -21,7 +21,7 @@ const Search = () => {
 
     try {
       const response = await fetch(
-        `http://127.0.0.1:8097/call_quality_details/?client_id=375&lead_id=${leadId}`
+        `${BASE_URL}/call_quality_details/?client_id=375&lead_id=${leadId}`
       );
       if (!response.ok) throw new Error("Failed to fetch call quality details");
 

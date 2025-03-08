@@ -5,6 +5,7 @@ import "../layout.css"; // Import styles
 import { PieChart, Pie as RePie, Cell, Tooltip, Legend } from "recharts";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { BASE_URL } from "./config";
 
 const data = [
   {
@@ -415,10 +416,10 @@ const DetailAnalysis = () => {
       }
 
       // API URLs
-      const url1 = `http://127.0.0.1:8097/top_scenarios_with_counts?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}&limit=5`;
-      const url2 = `http://127.0.0.1:8097/agent_performance_summary?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}`;
-      const url3 = `http://127.0.0.1:8097/day_performance_summary?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}`;
-      const url4 = `http://127.0.0.1:8097/week_performance_summary?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}`;
+      const url1 = `${BASE_URL}/top_scenarios_with_counts?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}&limit=5`;
+      const url2 = `${BASE_URL}/agent_performance_summary?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}`;
+      const url3 = `${BASE_URL}/day_performance_summary?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}`;
+      const url4 = `${BASE_URL}/week_performance_summary?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}`;
 
       // Fetch all APIs in parallel
       const results = await Promise.allSettled([
@@ -529,11 +530,11 @@ const DetailAnalysis = () => {
     const fetchData = async () => {
       try {
         // API URLs (Only passing client_id)
-        const url1 = `http://127.0.0.1:8097/top_scenarios_with_counts?client_id=${clientId}`;
-        const url2 = `http://127.0.0.1:8097/agent_performance_summary?client_id=${clientId}`;
-        const url3 = `http://127.0.0.1:8097/day_performance_summary?client_id=${clientId}`;
-        const url4 = `http://127.0.0.1:8097/week_performance_summary?client_id=${clientId}`;
-        const url5 = `http://127.0.0.1:8097/details_count?client_id=${clientId}`;
+        const url1 = `${BASE_URL}/top_scenarios_with_counts?client_id=${clientId}`;
+        const url2 = `${BASE_URL}/agent_performance_summary?client_id=${clientId}`;
+        const url3 = `${BASE_URL}/day_performance_summary?client_id=${clientId}`;
+        const url4 = `${BASE_URL}/week_performance_summary?client_id=${clientId}`;
+        const url5 = `${BASE_URL}/details_count?client_id=${clientId}`;
   
         // Fetch all APIs in parallel
         const results = await Promise.allSettled([
@@ -684,7 +685,7 @@ const DetailAnalysis = () => {
                     Fatal Count {stats.fatal_count}
                   </div>
                   <div className="stat-card">
-                    Fatal% {stats.fatal_percentage}%
+                    Fatal {stats.fatal_percentage}%
                   </div>
                 </>
               ) : (

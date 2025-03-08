@@ -7,7 +7,7 @@ import { Check} from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend} from "recharts";
 import Layout from "./layout"; 
 import "./layout.css";
-
+import { BASE_URL } from "./components/config";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -37,7 +37,7 @@ const Dashboard = () => {
     try {
         console.log("Fetching data for:", startDate, "to", endDate);
 
-        const response = await fetch("http://172.12.13.74:8097/get-audio-stats/", {
+        const response = await fetch(`${BASE_URL}/get-audio-stats/`, {
             method: "POST", // Use POST instead of GET
             headers: {
                 "Content-Type": "application/json",

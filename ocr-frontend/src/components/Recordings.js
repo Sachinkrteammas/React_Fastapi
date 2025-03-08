@@ -5,6 +5,7 @@ import "./Recording.css";
 import Layout from "../layout";
 import "../layout.css";
 import { Copy, CopyCheck } from "lucide-react";
+import { BASE_URL } from "./config";
 
 const Recordings = () => {
   const navigate = useNavigate();
@@ -63,7 +64,7 @@ const Recordings = () => {
       formData.append("category", selectedCategory);
 
       try {
-        await axios.post("http://127.0.0.1:8097/upload-audio/", formData, {
+        await axios.post(`${BASE_URL}/upload-audio/`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         successCount++;
@@ -103,7 +104,7 @@ const Recordings = () => {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8097/generate-key/",
+        `${BASE_URL}/generate-key/`,
         { user_id: parseInt(userid) }, // Send user_id as JSON
         { headers: { "Content-Type": "application/json" } }
       );

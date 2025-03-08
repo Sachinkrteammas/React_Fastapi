@@ -5,6 +5,7 @@ import { Eye, EyeOff } from "lucide-react"; // ✅ Import professional eye icons
 import './App.css';
 import myImage from './assets/image.jpg';
 import logo from './assets/logo.png';
+import { BASE_URL } from "./components/config";
 
 const ResetPassword = () => {
     const location = useLocation();
@@ -27,7 +28,7 @@ const ResetPassword = () => {
         }
 
         try {
-            const response = await axios.post("http://172.12.13.74:8097/reset-password", {
+            const response = await axios.post(`${BASE_URL}/reset-password`, {
                 email_id: email,  // API requires email_id as a key
                 new_password: password,
                 confirm_password: confirmPassword

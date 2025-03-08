@@ -3,6 +3,7 @@ import { PieChart, Pie, Cell, Legend, Tooltip } from "recharts";
 import Layout from "../layout";
 import "../layout.css";
 import "./Potential.css";
+import { BASE_URL } from "./config";
 
 const Potential = () => {
   const [clientId] = useState("375");
@@ -26,7 +27,7 @@ const Potential = () => {
 
     try {
       const response = await fetch(
-        `http://127.0.0.1:8097/potential_data_summarry?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}`
+        `${BASE_URL}/potential_data_summarry?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}`
       );
 
       if (!response.ok) {
@@ -97,7 +98,7 @@ const Potential = () => {
     const fetchCallQualityDetails = async () => {
       try {
         const response = await fetch(
-          `http://127.0.0.1:8097/potential_data_summarry?client_id=${clientId}`
+          `${BASE_URL}/potential_data_summarry?client_id=${clientId}`
         );
   
         if (!response.ok) {

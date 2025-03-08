@@ -5,7 +5,7 @@ import { Eye, EyeOff } from "lucide-react"; // Professional eye toggle icons
 import "./App.css";
 import myImage from "./assets/image.jpg";
 import logo from "./assets/logo.png";
-
+import { BASE_URL } from "./components/config";
 const Login = ({ onLogin }) => {
   const navigate = useNavigate();
   const [email_id, setEmail] = useState("");
@@ -23,7 +23,7 @@ const Login = ({ onLogin }) => {
     }
 
     try {
-      const response = await axios.post("http://172.12.13.74:8097/login", {
+      const response = await axios.post(`${BASE_URL}/login`, {
         email_id,
         password
       });

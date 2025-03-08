@@ -4,7 +4,7 @@ import axios from "axios";  // Import axios for API requests
 import "./App.css";
 import myImage from "./assets/image.jpg";
 import logo from "./assets/logo.png";
-
+import { BASE_URL } from "./components/config";
 const VerifyPassword = () => {
     const location = useLocation();
     const navigate = useNavigate();
@@ -25,7 +25,7 @@ const VerifyPassword = () => {
 
         try {
             // Make API call to verify OTP
-            const response = await axios.post("http://172.12.13.74:8097/verify-otp", {
+            const response = await axios.post(`${BASE_URL}/verify-otp`, {
                 email_id: email,
                 otp: otp
             });
