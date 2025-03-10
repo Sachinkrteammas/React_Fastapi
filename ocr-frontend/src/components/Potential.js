@@ -238,9 +238,9 @@ const Potential = () => {
 
             {/* Pagination Controls */}
             <div className="pagination-controls">
-              <button onClick={prevPage} disabled={currentPage === 1}>Previous</button>
+              <button className="paging_btn" onClick={prevPage} disabled={currentPage === 1}>Previous</button>
               <span> Page {currentPage} - {totalPages} </span>
-              <button onClick={nextPage} disabled={currentPage === totalPages}>Next</button>
+              <button className="paging_btn" onClick={nextPage} disabled={currentPage === totalPages}>Next</button>
             </div>
           </div>
         </div>
