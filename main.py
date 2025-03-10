@@ -194,11 +194,12 @@ def login_user(user: LoginRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Incorrect password")
 
     # Generate JWT Token for session management
-    token = jwt.encode(
-        {"email_id": user.email_id, "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=2)},
-        SECRET_KEY,
-        algorithm="HS256"
-    )
+    # token = jwt.encode(
+    #     {"email_id": user.email_id, "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=2)},
+    #     SECRET_KEY,
+    #     algorithm="HS256"
+    # )
+    token = ''
 
     return {"message": "Login successful","token": token,"username": db_user.username,"id":db_user.id}
 
