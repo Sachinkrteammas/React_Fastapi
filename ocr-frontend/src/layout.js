@@ -14,6 +14,7 @@ import {
   ChevronDown,
   ChevronRight,
   Search,
+  DollarSign,
 } from "lucide-react";
 
 const Layout = ({ onLogout, children }) => {
@@ -86,6 +87,20 @@ const Layout = ({ onLogout, children }) => {
         { path: "/RawDownload", label: "Raw Download" },
         // { path: "/RawDump", label: "Raw Dump" },
         { path: "/Potential", label: "Potential Escalation" },
+      ],
+    },
+    {
+      label: "Sales",
+      Icon: DollarSign,
+      submenu: [
+        { path: "/Sales", label: "Dashboard" },
+        { path: "/Opportunity", label: "Opportunity Analysis" },
+        { path: "/Estimated", label: "Estimated NPS & CSAT" },
+        { path: "/DetailSales", label: "Detail Analysis" },
+        // { path: "/Search", label: "Search Lead", Icon: Search },
+        { path: "/RawSales", label: "Raw Download" },
+        // { path: "/RawDump", label: "Raw Dump" },
+        // { path: "/Potential", label: "Potential Escalation" },
       ],
     },
   ];

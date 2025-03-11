@@ -391,7 +391,7 @@ const DetailAnalysis = () => {
   const [loading, setLoading] = useState(true);
   const [loading1, setLoading1] = useState(false);
   const [error, setError] = useState(null);
-  const clientId = 375;
+  const clientId = localStorage.getItem("client_id");
   const [complaintData1, setComplaintData1] = useState([]);
   const [requestData1, setRequestData1] = useState([]);
   const [queryData1, setQueryData1] = useState([]);

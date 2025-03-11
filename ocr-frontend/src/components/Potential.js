@@ -6,7 +6,7 @@ import "./Potential.css";
 import { BASE_URL } from "./config";
 
 const Potential = () => {
-  const [clientId] = useState("375");
+  const [clientId] = useState(localStorage.getItem("client_id"));
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [escalations, setEscalations] = useState([]);

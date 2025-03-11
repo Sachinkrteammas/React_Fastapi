@@ -142,6 +142,8 @@ const Analysis = () => {
   const [monthWiseData, setMonthWiseData] = useState([]);
   const [lastTwoDaysData, setLastTwoDaysData] = useState([]);
   const [competitorData, setCompetitorData] = useState([]);
+  const client_id = localStorage.getItem("client_id");
+  
   const [doughnutChartData, setDoughnutChartData] = useState({
     labels: [],
     datasets: [
@@ -175,14 +177,16 @@ const Analysis = () => {
 
   const today = new Date().toISOString().split("T")[0];
   const [formData, setFormData] = useState({
-    client_id: "375",
+    // client_id: "375",
     start_date: "",
     end_date: "",
   });
 
   useEffect(() => {
     setFormData({
-      client_id: "375",
+      // client_id: "375",
+      client_id : localStorage.getItem("client_id"),
+      
       start_date: today,
       end_date: today,
     });
@@ -314,7 +318,7 @@ const Analysis = () => {
     const fetchAuditData = async () => {
       try {
         const response = await fetch(
-         `${BASE_URL}/negative_data_summary?client_id=375`
+         `${BASE_URL}/negative_data_summary?client_id=${client_id}`
         );
         if (!response.ok) throw new Error("Failed to fetch negative data");
 
@@ -379,9 +383,9 @@ const Analysis = () => {
 
     const fetchAuditCount = async () => {
       try {
-        const clientId = 375;
+        // const clientId = 375;
         const response = await fetch(
-          `${BASE_URL}/audit_count?client_id=${clientId}`
+          `${BASE_URL}/audit_count?client_id=${client_id}`
         );
         if (!response.ok) throw new Error("Failed to fetch audit count");
 
@@ -403,7 +407,7 @@ const Analysis = () => {
     const fetchCQTrendData = async () => {
       try {
         const response = await fetch(
-          `${BASE_URL}/target_vs_cq_trend?client_id=375`
+          `${BASE_URL}/target_vs_cq_trend?client_id=${client_id}`
         );
         if (!response.ok) throw new Error("Failed to fetch CQ trend data");
 
@@ -432,9 +436,9 @@ const Analysis = () => {
 
     const fetchCategories = async () => {
       try {
-        const clientId = 375;
+        // const clientId = 375;
         const response = await fetch(
-          `${BASE_URL}/call_length_categorization?client_id=${clientId}`
+          `${BASE_URL}/call_length_categorization?client_id=${client_id}`
         );
         if (!response.ok)
           throw new Error("Failed to fetch call length categorization");
@@ -449,7 +453,7 @@ const Analysis = () => {
     const fetchComplaintData = async () => {
       try {
         const response = await fetch(
-          `${BASE_URL}/complaints_by_date?client_id=375`
+          `${BASE_URL}/complaints_by_date?client_id=${client_id}`
         );
         if (!response.ok) throw new Error("Failed to fetch complaint data");
 
@@ -468,10 +472,10 @@ const Analysis = () => {
     };
 
     const fetchAgentScores = async () => {
-      const clientId = 375;
+      // const clientId = 375;
       try {
         const response = await fetch(
-          `${BASE_URL}/agent_scores?client_id=${clientId}`
+          `${BASE_URL}/agent_scores?client_id=${client_id}`
         );
         if (!response.ok) throw new Error("Failed to fetch agent scores");
 
@@ -483,11 +487,11 @@ const Analysis = () => {
     };
 
     const fetchTopPerformers = async () => {
-      const clientId = 375;
+      // const clientId = 375;
 
       try {
         const response = await fetch(
-          `${BASE_URL}/top_performers?client_id=${clientId}`
+          `${BASE_URL}/top_performers?client_id=${client_id}`
         );
         if (!response.ok) throw new Error("Failed to fetch agent scores");
 
@@ -500,11 +504,11 @@ const Analysis = () => {
     };
 
     const fetchPotentialEscalations = async () => {
-      const clientId = 375;
+      // const clientId = 375;
 
       try {
         const response = await fetch(
-          `${BASE_URL}/potential_escalation?client_id=${clientId}`
+          `${BASE_URL}/potential_escalation?client_id=${client_id}`
         );
         if (!response.ok) throw new Error("Failed to fetch escalation data");
 
@@ -542,11 +546,11 @@ const Analysis = () => {
     };
 
     const fetchPotentialEscalationsData = async () => {
-      const clientId = 375;
+      // const clientId = 375;
 
       try {
         const response = await fetch(
-          `${BASE_URL}/potential_escalations_data?client_id=${clientId}`
+          `${BASE_URL}/potential_escalations_data?client_id=${client_id}`
         );
         if (!response.ok) throw new Error("Failed to fetch agent scores");
 
@@ -559,11 +563,11 @@ const Analysis = () => {
     };
 
     const fetchNegativeData = async () => {
-      const clientId = 375;
+      // const clientId = 375;
 
       try {
         const response = await fetch(
-          `${BASE_URL}/negative_data?client_id=${clientId}`
+          `${BASE_URL}/negative_data?client_id=${client_id}`
         );
         if (!response.ok) throw new Error("Failed to fetch agent scores");
 
@@ -576,11 +580,11 @@ const Analysis = () => {
     };
 
     const fetchCompetitorData = async () => {
-      const clientId = 375;
+      // const clientId = 375;
 
       try {
         const response = await fetch(
-          `${BASE_URL}/competitor_data?client_id=${clientId}`
+          `${BASE_URL}/competitor_data?client_id=${client_id}`
         );
         if (!response.ok) throw new Error("Failed to fetch agent scores");
 

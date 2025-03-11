@@ -68,6 +68,7 @@ class User(Base):
     contact_number = Column(String(15), unique=True, nullable=False)
     password = Column(String(255), nullable=False)
     api_key = Column(String(255), unique=True, nullable=True)
+    clientid = Column(String, nullable=True)
 
 
 
@@ -201,7 +202,7 @@ def login_user(user: LoginRequest, db: Session = Depends(get_db)):
     # )
     token = ''
 
-    return {"message": "Login successful","token": token,"username": db_user.username,"id":db_user.id}
+    return {"message": "Login successful","token": token,"username": db_user.username,"id":db_user.id, "client_id":db_user.clientid}
 
 
 class VerifyOtpRequest(BaseModel):

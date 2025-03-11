@@ -1,0 +1,122 @@
+/* Dashboard Container */
+.dashboard-container {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+/* Key Metrics */
+.metrics-container {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+/* Metric Cards */
+.metric-container {
+    display: flex;
+    gap: 10px;
+}
+
+.metric-card {
+    padding: 15px;
+    border-radius: 10px;
+    width:50%;
+    /* text-align: center; */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.green {
+    background-color: #28a745;
+    color: white;
+}
+
+.blue {
+    background-color: #007bff;
+    color: white;
+}
+
+.metrics {
+    display: flex;
+    /* flex-direction: column; */
+    gap: 27px;
+    /* margin-top: 10px; */
+    background-color: black;
+    border-radius: 8px;
+    justify-content: space-around;
+}
+
+.metrics div {
+    font-size: 14px;
+}
+
+.metrics b {
+    font-size: 24px;
+    display: block;
+}
+
+/* Charts */
+.chart-container {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+h2 {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 10px;
+    font-size: 14px;
+    color: gray;
+}
+
+/* Custom Bullet Legend */
+.legend {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 10px;
+    padding: 0;
+}
+
+.legend li {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+.bullet {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 5px;
+}
+.block1div
+{
+    width: 100%;
+    display: flex;
+    gap: 70px;
+    margin-left: 11px;
+    margin-top: 33px;
+}
+.block2div
+{
+    width: 100%;
+    display: flex;
+    gap: 70px;
+    margin-left: 11px;
+    margin-top: 33px;
+}
+.recharts-surface
+{
+    width: 102% !important;
+}

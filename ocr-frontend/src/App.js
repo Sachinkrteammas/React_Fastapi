@@ -19,6 +19,14 @@ import RawDownload from "./components/RawDownload";
 import Fatal from "./components/FatalAnalysis";
 import Details from "./components/DetailAnalysis";
 import Potential from "./components/Potential";
+
+import Sales_dashboard from "./components/Sales_dashboard";
+import Opportunity from "./components/Opportunity";
+import Estimated from "./components/Estimated";
+import DetailSales from "./components/DetailSales";
+import RawSales from "./components/RawSales";
+
+
 import "./Pages.css";
 
 const ProtectedRoute = ({ element, isLoggedIn }) => {
@@ -96,7 +104,13 @@ const App = () => {
         <Route path="/DetailAnalysis" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Details onLogout={handleLogout}/>} />} />
         <Route path="/Potential" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Potential onLogout={handleLogout}/>} />} />
 
+        <Route path="/Sales" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Sales_dashboard onLogout={handleLogout}/>} />} />
+        <Route path="/Opportunity" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Opportunity onLogout={handleLogout}/>} />} />
+        <Route path="/Estimated" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Estimated onLogout={handleLogout}/>} />} />
+        <Route path="/DetailSales" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<DetailSales onLogout={handleLogout}/>} />} />
+        <Route path="/RawSales" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<RawSales onLogout={handleLogout}/>} />} />
 
+        
         {/* Catch-all route (redirect unknown paths to login) */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

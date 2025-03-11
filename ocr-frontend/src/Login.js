@@ -32,6 +32,7 @@ const Login = ({ onLogin }) => {
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("username", response.data.username);
         localStorage.setItem("id", response.data.id);
+        localStorage.setItem("client_id", response.data.client_id);
         localStorage.setItem("isLoggedIn", JSON.stringify(true));
 
         onLogin();

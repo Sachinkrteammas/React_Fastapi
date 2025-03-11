@@ -23,8 +23,9 @@ const RawDownload = () => {
     setLoading(true);
 
     try {
+      const clientId = localStorage.getItem("client_id");
       const response = await fetch(
-        `${BASE_URL}/call_quality_assessments?client_id=375&start_date=${formatDate(
+        `${BASE_URL}/call_quality_assessments?client_id=${clientId}&start_date=${formatDate(
           startDate
         )}&end_date=${formatDate(endDate)}`
       );

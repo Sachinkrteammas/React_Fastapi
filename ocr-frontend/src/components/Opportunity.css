@@ -1,0 +1,68 @@
+.graphdiv
+{
+    width: 40%;
+    height: 400px;
+    
+}
+.tablediv
+{
+    width: 60%;
+    height: 400px;
+   
+}
+.firstdivno
+{
+    display: flex;
+    
+}
+.divide
+{
+    display: flex;
+    margin: 8px;
+    gap: 8px;
+    border-radius:10px;
+}
+
+.table-container1
+{
+    height: 430px;
+}
+.tablebody
+{
+    height: 356px;
+}
+
+.chart-containernew {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;  /* Rounded corners */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Style for the list */
+.chart-legend {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    padding: 0;
+    margin-top: 15px;
+}
+
+.chart-legend li {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* Bullet color */
+.legend-bullet {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 5px;
+}

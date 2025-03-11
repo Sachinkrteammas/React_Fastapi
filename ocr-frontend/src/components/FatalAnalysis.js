@@ -346,7 +346,7 @@ const Fatal = () => {
 
 
   useEffect(() => {
-    const clientId = 375;
+    const clientId = localStorage.getItem("client_id");
   
     const fetchStats = async () => {
       try {
@@ -388,7 +388,7 @@ const Fatal = () => {
       try {
         setError(null);
     
-        const clientId = 375; // Make sure clientId is correctly assigned
+        const clientId = localStorage.getItem("client_id"); // Make sure clientId is correctly assigned
     
         const response = await fetch(
           `${BASE_URL}/daywise_fatal_summary?client_id=${clientId}`
@@ -429,7 +429,7 @@ const Fatal = () => {
       try {
         setError(null); // Clear previous errors
     
-        const clientId = 375; // Ensure clientId is defined
+        const clientId = localStorage.getItem("client_id"); // Ensure clientId is defined
     
         const response = await fetch(
           `${BASE_URL}/agent_audit_summary?client_id=${clientId}`
