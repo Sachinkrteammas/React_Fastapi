@@ -1202,11 +1202,15 @@ def get_negative_data_summary(
 
 @app.get("/competitor_data/")
 def get_competitor_data(
-        client_id: str = Query(..., description="Client ID"),
-        start_date: date = Query(..., description="Start Date in YYYY-MM-DD format"),
-        end_date: date = Query(..., description="End Date in YYYY-MM-DD format"),
-        db: Session = Depends(get_db2)
+    client_id: str = Query(..., description="Client ID"),
+    start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
+    end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
+    db: Session = Depends(get_db2)
 ):
+    # Use current date if start_date or end_date is not provided
+    today = date.today()
+    start_date = start_date or today
+    end_date = end_date or today
     query = text("""
         SELECT
             Competitor_Name,

@@ -221,6 +221,28 @@ export default function Opportunity() {
                     <td>340</td>
                     <td>11%</td>
                   </tr>
+                  <tr>
+                    <td>Product</td>
+                    <td>Not Interested  Perfumes.</td>
+                    <td>Non </td>
+                    <td>30</td>
+                    <td>11%</td>
+                  </tr>
+                  <tr>
+                    <td>Disinterest</td>
+                    <td>Not  in Perfumes.</td>
+                    <td>Non Workable</td>
+                    <td>40</td>
+                    <td>12%</td>
+                  </tr>
+                  <tr>
+                    <td>Product Disinterest</td>
+                    <td>Not Interested .</td>
+                    <td>Non Workable</td>
+                    <td>34</td>
+                    <td>21%</td>
+                  </tr>
+       
                 </tbody>
               </table>
             </div>
