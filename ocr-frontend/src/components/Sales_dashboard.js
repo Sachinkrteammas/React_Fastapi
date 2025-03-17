@@ -1,4 +1,4 @@
-import React from "react";
+import React,{useState,useEffect} from "react";
 import {
   PieChart,
   Pie,
@@ -21,6 +21,7 @@ const successData = [
   { name: "Opening Success", value: 18.1, color: "#4CAF50" },
   { name: "Offering Success", value: 14.5, color: "#FF5722" },
   { name: "Context Success", value: 64.2, color: "#FFC107" },
+  { name: "Sale Done", value: 10.5, color: "#e90886" },
 ];
 
 const rejectedData = [
@@ -46,6 +47,25 @@ const crtFunnelData = [
 ];
 
 export default function SalesDashboard() {
+  //loading code start===>
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+   
+    setTimeout(() => {
+      setLoading(false);
+    }, 2000); 
+  }, []);
+ 
+  if (loading) {
+    return (
+      <div className="loader-container">
+        <div className="windows-spinner"></div>
+        <p className="Loading">Loading...</p>
+      </div>
+    );
+  }
+  //loading code end==>
   return (
     <Layout>
       <div className="dashboard-container">
@@ -138,7 +158,7 @@ export default function SalesDashboard() {
         <div className="fullbodydiv">
           <div className="block1div">
             <div className="chart-container">
-              <h2>Success Calls Breakdown (SCB)</h2>
+              <h2 className="scb_rcb_fontclass">Success Calls Breakdown (SCB)</h2>
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
@@ -174,7 +194,7 @@ export default function SalesDashboard() {
             {/* 3️⃣ Rejected Calls Breakdown */}
             {/* 3️⃣ Rejected Calls Breakdown (RCB) */}
             <div className="chart-container">
-              <h2>CST Funnel</h2>
+              <h2 className="cst_crt_fontclass">CST Funnel</h2>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={cstFunnelData} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" />
@@ -192,7 +212,7 @@ export default function SalesDashboard() {
           <div className="block2div">
             {/* 3️⃣ Rejected Calls Breakdown (RCB) */}
             <div className="chart-container">
-              <h2>Rejected Calls Breakdown (RCB)</h2>
+              <h2 className="scb_rcb_fontclass">Rejected Calls Breakdown (RCB)</h2>
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
@@ -227,7 +247,7 @@ export default function SalesDashboard() {
 
             {/* 5️⃣ CRT Funnel */}
             <div className="chart-container">
-              <h2>CRT Funnel</h2>
+              <h2 className="cst_crt_fontclass">CRT Funnel</h2>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={crtFunnelData} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" />

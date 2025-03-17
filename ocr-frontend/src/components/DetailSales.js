@@ -1,9 +1,29 @@
-import React from "react";
+import React,{useState,useEffect} from "react";
 import Layout from "../layout"; // Import layout component
 import "../layout.css"; // Import styles
 import "./DetailSales.css";
 
 export default function DetailSales() {
+  //loading code start===>
+      const [loading, setLoading] = useState(true);
+    
+      useEffect(() => {
+       
+        setTimeout(() => {
+          setLoading(false);
+        }, 2000); 
+      }, []);
+     
+      if (loading) {
+        return (
+          <div className="loader-container">
+            <div className="windows-spinner"></div>
+            <p className="Loading">Loading...</p>
+          </div>
+        );
+      }
+      //loading code end==>
+        
   return (
     <Layout>
       <div className="header">
@@ -114,7 +134,7 @@ export default function DetailSales() {
             <tbody>
               <tr>
                 <td>New Pitch A</td>
-                <td>157</td>
+                <td className="greenclr">157</td>
                 <td>135</td>
                 <td className="green-cell">86%</td>
                 <td>22</td>
@@ -124,7 +144,7 @@ export default function DetailSales() {
               </tr>
               <tr>
                 <td>New Pitch D</td>
-                <td>59</td>
+                <td className="greenclrnew">59</td>
                 <td>46</td>
                 <td className="green-cell">78%</td>
                 <td>13</td>
@@ -167,7 +187,7 @@ export default function DetailSales() {
             <tbody>
               <tr>
                 <td>Feedback First Approach</td>
-                <td>4,514</td>
+                <td className="greenclr">4,514</td>
                 <td>3,220</td>
                 <td className="green-cell">71%</td>
                 <td>1,294</td>
@@ -177,7 +197,7 @@ export default function DetailSales() {
               </tr>
               <tr>
                 <td>Dual Approach: Feedback & Offer</td>
-                <td>903</td>
+                <td className="greenclrnew">903</td>
                 <td>667</td>
                 <td className="green-cell">74%</td>
                 <td>236</td>
@@ -220,7 +240,7 @@ export default function DetailSales() {
             <tbody>
               <tr>
                 <td>Rs. 299 discount</td>
-                <td>1,080</td>
+                <td className="greenclr">1,080</td>
                 <td>604</td>
                 <td className="red-cell">56%</td>
                 <td>476</td>
@@ -230,7 +250,7 @@ export default function DetailSales() {
               </tr>
               <tr>
                 <td>Limited-time offer</td>
-                <td>882</td>
+                <td className="greenclrnew">882</td>
                 <td>414</td>
                 <td className="red-cell">47%</td>
                 <td>468</td>
@@ -276,7 +296,7 @@ export default function DetailSales() {
             <tr>
               <td>Not Interested in Perfumes</td>
               <td>Provide Other Product Variety</td>
-              <td>390</td>
+              <td className="greenclr">390</td>
               <td className="red-cell">96%</td>
               <td>375</td>
               <td className="green-cell">4%</td>
@@ -305,7 +325,7 @@ export default function DetailSales() {
           <tbody>
             <tr>
               <td>Already has too many perfumes</td>
-              <td>1,180</td>
+              <td className="greenclr">1,180</td>
               <td className="red-cell">94%</td>
               <td>1,108</td>
               <td className="green-cell">6%</td>
@@ -334,7 +354,7 @@ export default function DetailSales() {
           <tbody>
             <tr>
               <td>Old Pitch</td>
-              <td>1,742</td>
+              <td className="greenclr">1,742</td>
               <td className="red-cell">91%</td>
               <td>1,591</td>
               <td className="green-cell">9%</td>

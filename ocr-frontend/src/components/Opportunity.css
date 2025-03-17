@@ -31,6 +31,10 @@
 {
     height: 356px;
 }
+.tablebodysec
+{
+    height: 555px;
+}
 
 .chart-containernew {
     background: white;
@@ -52,10 +56,10 @@
 }
 
 .chart-legend li {
-    display: flex;
-    align-items: center;
-    font-size: 14px;
-    font-weight: bold;
+    /* display: flex;
+    align-items: center; */
+    font-size: 12px;
+    /* font-weight: bold; */
 }
 
 /* Bullet color */
@@ -69,5 +73,5 @@
 
 .table-container2
 {
-    height: 612px;
+    height: 560px;
 }

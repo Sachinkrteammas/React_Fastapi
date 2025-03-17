@@ -1,4 +1,4 @@
-import React from "react";
+import React,{useState,useEffect} from "react";
 import Layout from "../layout"; // Import layout component
 import "../layout.css"; // Import styles
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
@@ -17,6 +17,26 @@ const moBreakupData = [
 ];
 
 export default function Opportunity() {
+  //loading code start===>
+    const [loading, setLoading] = useState(true);
+  
+    useEffect(() => {
+     
+      setTimeout(() => {
+        setLoading(false);
+      }, 2000); 
+    }, []);
+   
+    if (loading) {
+      return (
+        <div className="loader-container">
+          <div className="windows-spinner"></div>
+          <p className="Loading">Loading...</p>
+        </div>
+      );
+    }
+    //loading code end==>
+      
   return (
     <Layout>
       <div className="dashboard-container">
@@ -46,24 +66,26 @@ export default function Opportunity() {
             </label>
           </div>
         </div>
+        <h5 style={{fontWeight:"bolder"}}>Missed Opportunity Analysis (MOA)</h5>
 
         <div className="firstdivno">
           <div className="graphdiv">
+          
             <div className="divide">
               <div className="metric-card white">
-                <h5>Total Opportunities</h5>
-                <b>4,468</b>
+                <h5 style={{fontSize:"19px"}}>Total Opportunities</h5>
+                <b style={{fontWeight:"100"}}>4,468</b>
               </div>
               <div className="metric-card white">
-                <h5>MO Count</h5>
-                <b>3,549</b>
+                <h5 style={{fontSize:"19px"}}>MO Count</h5>
+                <b style={{fontWeight:"100"}}>3,549</b>
               </div>
             </div>
             {/* Charts Section */}
             <div className="charts-containermew">
               {/* MO Breakdown */}
               <div className="chart-containernew">
-                <h5>MO Breakdown</h5>
+                <h5 style={{ textAlign: "left" }}>MO Breakdown</h5>
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
                     <Pie
@@ -96,7 +118,7 @@ export default function Opportunity() {
               </div>
             </div>
             <div className="chart-containernew">
-              <h3>MO Breakup</h3>
+              <h3 style={{ textAlign: "left" }}>MO Breakup</h3>
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
@@ -133,7 +155,7 @@ export default function Opportunity() {
             <div className="tables-container1">
               {/* First Table - MO Category */}
               <div className="table-container1">
-                <h3>MO Category</h3>
+                {/* <h3>MO Category</h3> */}
                 <table className="tablebody">
                   <thead>
                     <tr>
@@ -174,13 +196,13 @@ export default function Opportunity() {
             </div>
 
             <div className="table-container2">
-              <h3>NED/ED Category</h3>
-              <table className="tablebody">
+              {/* <h3>NED/ED Category</h3> */}
+              <table className="tablebodysec">
                 <thead>
                   <tr>
-                    <th>Category</th>
-                    <th>Observations</th>
-                    <th>Status</th>
+                    <th>NED/ED Category</th>
+                    <th>NED/ED-QS</th>
+                    <th>NED/ED Status</th>
                     <th>Count</th>
                     <th>Contr%</th>
                   </tr>

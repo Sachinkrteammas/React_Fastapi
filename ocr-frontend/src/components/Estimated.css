@@ -44,7 +44,7 @@
 table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 14px;
+    font-size: 12px;
 }
 
 th, td {
@@ -52,6 +52,36 @@ th, td {
     padding: 10px;
     text-align: center;
 }
+
+/* Column-based styling using class names */
+.detractor {
+    background-color: #d9534f;
+    color: white;
+  }
+  
+  .passive {
+    background-color: #f0ad4e;
+    color: black;
+  }
+  
+  .promoter {
+    background-color: #5cb85c;
+    color: white;
+  }
+  
+  .nps {
+    background-color: white;
+  }
+  
+  .csat {
+    background-color: white;
+   
+  }
+  
+  .total-feedback {
+    background-color: #dff0d8;
+    color: black;
+  }
 
 
 th {
@@ -82,6 +112,7 @@ tr:hover {
 }
 
 .feedback-legend {
+    display: inline-flex;
     list-style-type: none;
     padding: 0;
     margin-top: 10px;
@@ -103,3 +134,7 @@ tr:hover {
     border-radius: 3px;
   }
  
+  .leftside
+  {
+    text-align: left;
+  }

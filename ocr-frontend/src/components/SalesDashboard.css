@@ -88,9 +88,9 @@ h2 {
 }
 
 .legend li {
-    display: flex;
-    align-items: center;
-    font-size: 14px;
+    /* display: flex;
+    align-items: center; */
+    font-size: 12px;
 }
 
 .bullet {
@@ -119,4 +119,17 @@ h2 {
 .recharts-surface
 {
     width: 102% !important;
+}
+
+.scb_rcb_fontclass
+{
+    font-size: 24px;
+    text-align: justify;
+    font-weight: bold;
+}
+.cst_crt_fontclass
+{
+    font-size: 24px;
+    text-align: center;
+    font-weight: bold;
 }

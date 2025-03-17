@@ -1,4 +1,4 @@
-import React from "react";
+import React,{useState,useEffect} from "react";
 import Layout from "../layout"; 
 import "../layout.css"; 
 
@@ -34,6 +34,26 @@ export default function RawSales() {
       transcript: "Hello? Very good after..."
     },
   ];
+
+  //loading code start===>
+      const [loading, setLoading] = useState(true);
+    
+      useEffect(() => {
+       
+        setTimeout(() => {
+          setLoading(false);
+        }, 2000); 
+      }, []);
+     
+      if (loading) {
+        return (
+          <div className="loader-container">
+            <div className="windows-spinner"></div>
+            <p className="Loading">Loading...</p>
+          </div>
+        );
+      }
+      //loading code end==>
 
   return (
     <Layout>
