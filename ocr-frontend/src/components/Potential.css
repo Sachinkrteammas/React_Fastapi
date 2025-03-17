@@ -69,7 +69,7 @@
   
   /* Pie Chart Section */
   .chart-container {
-    width: 45%;
+    width: 48%;
     background: white;
     padding: 10px;
     border-radius: 5px;
@@ -162,7 +162,7 @@
     position: relative;
     cursor: default;
     width: 250px;
-    height: 300px !important;
+    height: 365px !important;
   }
   
 
@@ -207,3 +207,4 @@
   {
     width: 79px;
   }
+  
