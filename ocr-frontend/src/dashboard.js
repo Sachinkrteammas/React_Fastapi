@@ -159,10 +159,10 @@ const Dashboard = () => {
             </select>
 
             <h4>Start Date</h4>
-            <DatePicker className="datepic" selected={startDate} onChange={(date) => handleDateChange(date, "start")} readOnly={!isCustom} dateFormat="yyyy-MM-dd" />
+            <DatePicker className="datepic" selected={startDate} onChange={(date) => handleDateChange(date, "start")} readOnly={!isCustom} dateFormat="yyyy-MM-dd"  portalId="root"/>
 
             <h4>End Date</h4>
-            <DatePicker className="datepic" selected={endDate} onChange={(date) => handleDateChange(date, "end")} readOnly={!isCustom} dateFormat="yyyy-MM-dd" />
+            <DatePicker className="datepic" selected={endDate} onChange={(date) => handleDateChange(date, "end")} readOnly={!isCustom} dateFormat="yyyy-MM-dd"  portalId="root"/>
 
             <button className="submit" onClick={handleSubmit}>Submit</button>
 

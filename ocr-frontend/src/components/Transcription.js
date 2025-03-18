@@ -13,14 +13,12 @@ const Transcription = ({ onLogout }) => {
   const [endDate, setEndDate] = useState(new Date());
   const [dateOption, setDateOption] = useState("Today");
   const [isCustom, setIsCustom] = useState(false);
-  // const [page, setPage] = useState(1);
-  // const [totalPages, setTotalPages] = useState(1);
+  const [dateBy, setDateBy] = useState("Document Date");
+  const [bucket, setBucket] = useState("Active");
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const itemsPerPage = 6;
-
-  const [selectedFile, setSelectedFile] = useState(null);
   const audioRef = useRef(null);
 
   const firstname = localStorage.getItem("username");
@@ -33,12 +31,10 @@ const Transcription = ({ onLogout }) => {
     navigate("/");
   };
 
- 
-
   useEffect(() => {
     const fetchRecordings = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/recordings/`); // Update API URL if deployed
+        const response = await fetch(`${BASE_URL}/recordings/`);
         const result = await response.json();
         setData(result);
         setTotalPages(Math.ceil(result.length / itemsPerPage));
@@ -62,19 +58,22 @@ const Transcription = ({ onLogout }) => {
     }
   };
 
-  // Slice data for pagination
   const startIndex = (page - 1) * itemsPerPage;
   const currentItems = data.slice(startIndex, startIndex + itemsPerPage);
-
-
-  
 
   return (
     <Layout>
       <div className="dateboard">
         <div className="date-page1">
           <h1 className="word">Pre Set</h1>
-          <select className="predate" value={dateOption} onChange={(e) => setDateOption(e.target.value)}>
+          <select
+            className="predate"
+            value={dateOption}
+            onChange={(e) => {
+              setDateOption(e.target.value);
+              setIsCustom(e.target.value === "Custom"); // Enable date pickers when "Custom" is selected
+            }}
+          >
             <option>Today</option>
             <option>Yesterday</option>
             <option>Week</option>
@@ -87,8 +86,9 @@ const Transcription = ({ onLogout }) => {
             className="datepic1"
             selected={startDate}
             onChange={(date) => setStartDate(date)}
-            readOnly={!isCustom}
+            disabled={!isCustom} // Enable only if "Custom" is selected
             dateFormat="yyyy-MM-dd"
+            portalId="root"
           />
 
           <h1 className="word1">End Date</h1>
@@ -96,58 +96,56 @@ const Transcription = ({ onLogout }) => {
             className="datepic1"
             selected={endDate}
             onChange={(date) => setEndDate(date)}
-            readOnly={!isCustom}
+            disabled={!isCustom}
             dateFormat="yyyy-MM-dd"
+            portalId="root"
           />
 
           <h1 className="word">Date by</h1>
-          <select className="predate" value={dateOption} onChange={(e) => setDateOption(e.target.value)}>
+          <select className="predate" value={dateBy} onChange={(e) => setDateBy(e.target.value)}>
             <option>Document Date</option>
             <option>Created Date</option>
           </select>
 
           <h1 className="word">Bucket</h1>
-          <select className="predate" value={dateOption} onChange={(e) => setDateOption(e.target.value)}>
+          <select className="predate" value={bucket} onChange={(e) => setBucket(e.target.value)}>
             <option>Active</option>
             <option>Not Viewed</option>
             <option>Archived</option>
             <option>All</option>
           </select>
 
-          <button className="view" style={{ marginLeft: "10px" , height: "30px" }}>View</button>
+          <button className="view" style={{ marginLeft: "10px", height: "30px" }}>View</button>
         </div>
 
-        {/* Table with Paginated Data */}
         <div className="table-containers1">
-        <table className="custom-table">
-          <thead>
-            <tr>
-              <th>Preview</th>
-              <th>Recording Date</th>
-              <th>Recording File</th>
-              <th>Category</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentItems.map((item, index) => (
-              <tr key={index}>
-                <td>{item.preview}</td>
-                <td>{item.recordingDate}</td>
-                <td>
-                  <audio className="audio-controls" controls>
-                    <source src={`/audio/${item.file}`} type={item.file.endsWith(".wav") ? "audio/mpeg" : "audio/wav"} />
-                    
-                    Your browser does not support the audio element.
-                  </audio>
-                </td>
-                <td>{item.category}</td>
+          <table className="custom-table">
+            <thead>
+              <tr>
+                <th>Preview</th>
+                <th>Recording Date</th>
+                <th>Recording File</th>
+                <th>Category</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {currentItems.map((item, index) => (
+                <tr key={index}>
+                  <td>{item.preview}</td>
+                  <td>{item.recordingDate}</td>
+                  <td>
+                    <audio className="audio-controls" controls>
+                      <source src={`/audio/${item.file}`} type={item.file.endsWith(".wav") ? "audio/mpeg" : "audio/wav"} />
+                      Your browser does not support the audio element.
+                    </audio>
+                  </td>
+                  <td>{item.category}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
 
-        {/* Pagination Controls */}
         <div className="pagination">
           <button onClick={prevPage} disabled={page === 1} className="pagination-button">
             Previous
