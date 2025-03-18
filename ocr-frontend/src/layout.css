@@ -3,11 +3,21 @@
   flex-direction: column;
   height: 100dvh;
   width: 100vw;
-  
+  overflow: hidden; /* Prevents body scrolling */
 }
 
+.main-content {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 20px;
+  background: #ffffff;
+  height: calc(100vh - 60px); /* Ensures content fills remaining space */
+}
 /* Top Navbar */
 .top-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 10000;
   height: 60px;
   background: #f4f4f4;
   border-bottom: 2px solid #ddd;
@@ -15,9 +25,8 @@
   align-items: center;
   padding: 5px 15px;
   justify-content: space-between;
- 
+  width: 100%;
 }
-
 .top-logo {
   height: 3rem;
   width: auto;
@@ -54,14 +63,16 @@
 .content-layout5 {
   display: flex;
   flex: 1;
+  overflow: hidden; /* Prevents unwanted body scrolling */
   margin: 10px;
   gap: 10px;
+  height: calc(100vh - 60px); /* Adjust based on navbar height */
 }
 
 /* Sidebar */
 .sidebar5 {
-  margin-top: 20px;
   width: 200px;
+  height: 100vh;
   background-color: rgb(255, 251, 251);
   display: flex;
   flex-direction: column;
@@ -70,6 +81,19 @@
   border-radius: 10px;
   box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2), 0 12px 25px rgba(0, 0, 0, 0.25);
   transition: transform 0.3s ease-in-out;
+  
+  /* Allow scrolling */
+  overflow-y: auto; 
+}
+
+/* Hide scrollbar but keep scrolling */
+.sidebar5::-webkit-scrollbar {
+  display: none; /* Hides scrollbar for Chrome, Safari */
+}
+
+.sidebar5 {
+  scrollbar-width: none; /* Hides scrollbar for Firefox */
+  -ms-overflow-style: none; /* Hides scrollbar for Edge */
 }
 
 .nav-button {
