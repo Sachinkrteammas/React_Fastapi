@@ -2208,3 +2208,43 @@ def get_recordings(db: Session = Depends(get_db)):
     ]
     return response_data
 
+
+@app.get("/recordings_datewise/")
+def get_recordings_datewise(
+        start_date: str = Query(None,description="Start Date in YYYY-MM-DD format"),
+        end_date: str = Query(None, description="End Date in YYYY-MM-DD format"),
+        db: Session = Depends(get_db),
+):
+    from datetime import datetime
+    query = db.query(AudioFile)
+    today = date.today()
+    start_date = start_date or today.strftime("%Y-%m-%d")
+    end_date = end_date or today.strftime("%Y-%m-%d")
+
+    if start_date and end_date:
+        try:
+
+            start_dt = datetime.strptime(start_date, "%Y-%m-%d")
+            end_dt = datetime.strptime(end_date, "%Y-%m-%d") + timedelta(days=1) - timedelta(seconds=1)
+
+
+            if start_dt > end_dt:
+                raise HTTPException(status_code=400, detail="start_date cannot be after end_date")
+
+            query = query.filter(AudioFile.upload_time >= start_dt, AudioFile.upload_time <= end_dt)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD.")
+
+    recordings = query.all()
+
+    response_data = [
+        {
+            "preview": "🔍",
+            "recordingDate": rec.upload_time.strftime("%Y-%m-%d"),
+            "file": rec.filename,
+            "category": rec.category if rec.category else "Unknown"
+        }
+        for rec in recordings
+    ]
+
+    return response_data

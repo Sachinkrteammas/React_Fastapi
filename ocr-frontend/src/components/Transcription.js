@@ -9,8 +9,8 @@ import { BASE_URL } from "./config";
 
 const Transcription = ({ onLogout }) => {
   const navigate = useNavigate();
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
+  const [startDate, setStartDate] =  useState(new Date().toISOString().split("T")[0]);
+  const [endDate, setEndDate] =  useState(new Date().toISOString().split("T")[0]);
   const [dateOption, setDateOption] = useState("Today");
   const [isCustom, setIsCustom] = useState(false);
   const [dateBy, setDateBy] = useState("Document Date");
@@ -59,7 +59,60 @@ const Transcription = ({ onLogout }) => {
   };
 
   const startIndex = (page - 1) * itemsPerPage;
-  const currentItems = data.slice(startIndex, startIndex + itemsPerPage);
+  // const currentItems = data.slice(startIndex, startIndex + itemsPerPage);
+  const currentItems = Array.isArray(data) ? data.slice(startIndex, startIndex + itemsPerPage) : [];
+
+
+  const handleDateChange = (date, type) => {
+    if (!date) return; 
+
+    const formattedDate = date.toISOString().split("T")[0]; 
+
+    if (type === "start") setStartDate(formattedDate);
+    else setEndDate(formattedDate);
+  };
+
+  const handleDateOptionChange = (event) => {
+    const option = event.target.value;
+    setDateOption(option);
+    setIsCustom(option === "Custom");
+
+    let today = new Date();
+    let newStartDate = today;
+    let newEndDate = today;
+
+    if (option === "Today") {
+      newStartDate = new Date();
+      newEndDate = new Date();
+    } else if (option === "Yesterday") {
+      newStartDate = new Date();
+      newStartDate.setDate(today.getDate() - 1);
+      newEndDate = new Date();
+    } else if (option === "Week") {
+      newStartDate = new Date();
+      newStartDate.setDate(today.getDate() - 7);
+      newEndDate = new Date();
+    } else if (option === "Month") {
+      newStartDate = new Date();
+      newStartDate.setMonth(today.getMonth() - 1);
+      newEndDate = new Date();
+    }
+
+    setStartDate(newStartDate.toISOString().split("T")[0]);
+    setEndDate(newEndDate.toISOString().split("T")[0]);
+  };
+
+  const handleView = async () => {
+    console.log("Fetching data from", startDate, "to", endDate);
+  
+    try {
+      const response = await fetch(`${BASE_URL}/recordings_datewise/?start_date=${startDate}&end_date=${endDate}`);
+      const result = await response.json();
+      setData(result);
+    } catch (error) {
+      console.error("Error fetching filtered recordings:", error);
+    }
+  };
 
   return (
     <Layout>
@@ -69,10 +122,8 @@ const Transcription = ({ onLogout }) => {
           <select
             className="predate"
             value={dateOption}
-            onChange={(e) => {
-              setDateOption(e.target.value);
-              setIsCustom(e.target.value === "Custom"); // Enable date pickers when "Custom" is selected
-            }}
+            onChange={handleDateOptionChange} // Enable date pickers when "Custom" is selected
+            
           >
             <option>Today</option>
             <option>Yesterday</option>
@@ -85,7 +136,7 @@ const Transcription = ({ onLogout }) => {
           <DatePicker
             className="datepic1"
             selected={startDate}
-            onChange={(date) => setStartDate(date)}
+            onChange={(date) => handleDateChange(date, "start")}
             disabled={!isCustom} // Enable only if "Custom" is selected
             dateFormat="yyyy-MM-dd"
             portalId="root"
@@ -95,7 +146,7 @@ const Transcription = ({ onLogout }) => {
           <DatePicker
             className="datepic1"
             selected={endDate}
-            onChange={(date) => setEndDate(date)}
+            onChange={(date) => handleDateChange(date, "end")}
             disabled={!isCustom}
             dateFormat="yyyy-MM-dd"
             portalId="root"
@@ -115,7 +166,7 @@ const Transcription = ({ onLogout }) => {
             <option>All</option>
           </select>
 
-          <button className="view" style={{ marginLeft: "10px", height: "30px" }}>View</button>
+          <button className="view" style={{ marginLeft: "10px", height: "30px" }} onClick={handleView}>View</button>
         </div>
 
         <div className="table-containers1">
