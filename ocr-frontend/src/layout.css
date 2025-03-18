@@ -6,12 +6,21 @@
   overflow: hidden; /* Prevents body scrolling */
 }
 
+/* Ensure main content is scrollable but scrollbar is hidden */
 .main-content {
   flex-grow: 1;
-  overflow-y: auto;
+  overflow-y: auto; /* Enable scrolling */
   padding: 20px;
   background: #ffffff;
-  height: calc(100vh - 60px); /* Ensures content fills remaining space */
+  /* height: calc(100vh - 60px); */
+  scrollbar-width: none; /* Hide scrollbar in Firefox */
+  -ms-overflow-style: none; /* Hide scrollbar in Edge */
+}
+
+/* Hide scrollbar for Chrome & Safari */
+.main-content::-webkit-scrollbar {
+  width: 0px;
+  display: none;
 }
 /* Top Navbar */
 .top-navbar {
