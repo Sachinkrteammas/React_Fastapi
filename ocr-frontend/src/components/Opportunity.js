@@ -84,7 +84,7 @@ export default function Opportunity() {
             {/* Charts Section */}
             <div className="charts-containermew">
               {/* MO Breakdown */}
-              <div className="chart-containernew">
+              <div className="chart-containernew1">
                 <h5 style={{ textAlign: "left" }}>MO Breakdown</h5>
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
@@ -117,7 +117,7 @@ export default function Opportunity() {
                 </ul>
               </div>
             </div>
-            <div className="chart-containernew">
+            <div className="chart-containernew1">
               <h3 style={{ textAlign: "left" }}>MO Breakup</h3>
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
