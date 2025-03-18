@@ -2,6 +2,7 @@
 {
     width: 40%;
     height: 400px;
+    margin-right: 6px;
     
 }
 .tablediv
@@ -36,7 +37,7 @@
     height: 555px;
 }
 
-.chart-containernew {
+.chart-containernew1 {
     background: white;
     padding: 20px;
     border-radius: 15px; 
