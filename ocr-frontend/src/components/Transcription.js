@@ -5,6 +5,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import Layout from "../layout";
 import "../layout.css";
 import "./Transcription.css";
+import { BASE_URL } from "./config";
 
 const Transcription = ({ onLogout }) => {
   const navigate = useNavigate();
@@ -37,7 +38,7 @@ const Transcription = ({ onLogout }) => {
   useEffect(() => {
     const fetchRecordings = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:8097/recordings/"); // Update API URL if deployed
+        const response = await fetch(`${BASE_URL}/recordings/`); // Update API URL if deployed
         const result = await response.json();
         setData(result);
         setTotalPages(Math.ceil(result.length / itemsPerPage));
