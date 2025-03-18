@@ -349,7 +349,7 @@ class AudioFile(Base):
 
 
 BASE_DIR = Path(__file__).resolve().parent
-UPLOAD_DIR = BASE_DIR / "audio_file"
+UPLOAD_DIR = BASE_DIR / "ocr-frontend/public/audio"
 # UPLOAD_DIR = r"C:\Users\admin\Desktop"  # Explicit path to Windows Downloads
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -481,7 +481,9 @@ async def upload_audio_curl(
                 raise HTTPException(status_code=400, detail=f"Invalid file type: {file.filename} (Content-Type: {file.content_type})")
 
             # Save file
-            UPLOAD_DIR = "uploads"  # Define upload directory
+            #UPLOAD_DIR = "uploads"  # Define upload directory
+            # BASE_DIR = Path(__file__).resolve().parent
+            # UPLOAD_DIR = BASE_DIR / "ocr-frontend/public/audio"
             os.makedirs(UPLOAD_DIR, exist_ok=True)
             file_path = os.path.join(UPLOAD_DIR, file.filename)
             with open(file_path, "wb") as buffer:
@@ -2189,3 +2191,20 @@ def get_potential_data_summarry(
 def get_keys(db: Session = Depends(get_db)):
     keys = db.query(APIKey).all()
     return [{"api_key": key.api_key, "created_at": key.created_at, "status": key.status} for key in keys]
+
+
+
+@app.get("/recordings/")
+def get_recordings(db: Session = Depends(get_db)):
+    recordings = db.query(AudioFile).all()
+    response_data = [
+        {
+            "preview": "🔍",
+            "recordingDate": rec.upload_time.strftime("%Y-%m-%d"),
+            "file": rec.filename,
+            "category": rec.category if rec.category else "Unknown"
+        }
+        for rec in recordings
+    ]
+    return response_data
+

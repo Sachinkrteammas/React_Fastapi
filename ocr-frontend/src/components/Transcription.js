@@ -12,6 +12,9 @@ const Transcription = ({ onLogout }) => {
   const [endDate, setEndDate] = useState(new Date());
   const [dateOption, setDateOption] = useState("Today");
   const [isCustom, setIsCustom] = useState(false);
+  // const [page, setPage] = useState(1);
+  // const [totalPages, setTotalPages] = useState(1);
+  const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const itemsPerPage = 6;
@@ -29,31 +32,22 @@ const Transcription = ({ onLogout }) => {
     navigate("/");
   };
 
-  const data = [
-    { preview: "🔍", recordingDate: "2024-02-19", file: "song1.mp3", category: "Interview" },
-    { preview: "🔍", recordingDate: "2024-02-18", file: "song1 copy.mp3", category: "Lecture" },
-    { preview: "🔍", recordingDate: "2024-02-17", file: "song1 copy 2.mp3", category: "Podcast" },
-    { preview: "🔍", recordingDate: "2024-02-19", file: "song1.mp3", category: "Interview" },
-    { preview: "🔍", recordingDate: "2024-02-18", file: "song1 copy.mp3", category: "Lecture" },
-    { preview: "🔍", recordingDate: "2024-02-17", file: "song1 copy 2.mp3", category: "Podcast" },
-    { preview: "🔍", recordingDate: "2024-02-19", file: "song1.mp3", category: "Interview" },
-    { preview: "🔍", recordingDate: "2024-02-18", file: "song1 copy.mp3", category: "Lecture" },
-    { preview: "🔍", recordingDate: "2024-02-17", file: "song1 copy 2.mp3", category: "Podcast" },
-    { preview: "🔍", recordingDate: "2024-02-19", file: "song1.mp3", category: "Interview" },
-    { preview: "🔍", recordingDate: "2024-02-18", file: "song1 copy.mp3", category: "Lecture" },
-    { preview: "🔍", recordingDate: "2024-02-17", file: "song1 copy 2.mp3", category: "Podcast" },
-    { preview: "🔍", recordingDate: "2024-02-19", file: "song1.mp3", category: "Interview" },
-    { preview: "🔍", recordingDate: "2024-02-18", file: "song1 copy.mp3", category: "Lecture" },
-    { preview: "🔍", recordingDate: "2024-02-17", file: "song1 copy 2.mp3", category: "Podcast" },
-    { preview: "🔍", recordingDate: "2024-02-19", file: "song1.mp3", category: "Interview" },
-    { preview: "🔍", recordingDate: "2024-02-18", file: "song1 copy.mp3", category: "Lecture" },
-    { preview: "🔍", recordingDate: "2024-02-17", file: "song1 copy 2.mp3", category: "Podcast" },
-
-  ];
+ 
 
   useEffect(() => {
-    setTotalPages(Math.ceil(data.length / itemsPerPage));
-  }, [data]);
+    const fetchRecordings = async () => {
+      try {
+        const response = await fetch("http://127.0.0.1:8097/recordings/"); // Update API URL if deployed
+        const result = await response.json();
+        setData(result);
+        setTotalPages(Math.ceil(result.length / itemsPerPage));
+      } catch (error) {
+        console.error("Error fetching recordings:", error);
+      }
+    };
+
+    fetchRecordings();
+  }, []);
 
   const nextPage = () => {
     if (page < totalPages) {
@@ -70,6 +64,9 @@ const Transcription = ({ onLogout }) => {
   // Slice data for pagination
   const startIndex = (page - 1) * itemsPerPage;
   const currentItems = data.slice(startIndex, startIndex + itemsPerPage);
+
+
+  
 
   return (
     <Layout>
@@ -121,32 +118,32 @@ const Transcription = ({ onLogout }) => {
 
         {/* Table with Paginated Data */}
         <div className="table-containers1">
-          <table className="custom-table">
-            <thead>
-              <tr>
-                <th>Preview</th>
-                <th>Recording Date</th>
-                <th>Recording File</th>
-                <th>Category</th>
+        <table className="custom-table">
+          <thead>
+            <tr>
+              <th>Preview</th>
+              <th>Recording Date</th>
+              <th>Recording File</th>
+              <th>Category</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentItems.map((item, index) => (
+              <tr key={index}>
+                <td>{item.preview}</td>
+                <td>{item.recordingDate}</td>
+                <td>
+                  <audio className="audio-controls" controls>
+                    <source src={`/audio/${item.file}`} type={item.file.endsWith(".wav") ? "audio/mpeg" : "audio/wav"} />
+                    
+                    Your browser does not support the audio element.
+                  </audio>
+                </td>
+                <td>{item.category}</td>
               </tr>
-            </thead>
-            <tbody>
-              {currentItems.map((item, index) => (
-                <tr key={index}>
-                  <td>{item.preview}</td>
-                  <td>{item.recordingDate}</td>
-                  <td>
-                    <audio className="audio-controls" controls>
-                      <source src={`/audio/${item.file}`} type="audio/mp3" />
-                      Your browser does not support the audio element.
-                    </audio>
-                  </td>
-
-                  <td>{item.category}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+            ))}
+          </tbody>
+        </table>
         </div>
 
         {/* Pagination Controls */}
