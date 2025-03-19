@@ -7,8 +7,8 @@ import { BASE_URL } from "./config";
 
 const Potential = () => {
   const [clientId] = useState(localStorage.getItem("client_id"));
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState(new Date().toISOString().split("T")[0]);
+  const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0]);
   const [escalations, setEscalations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [pieChartData, setPieChartData] = useState([]);

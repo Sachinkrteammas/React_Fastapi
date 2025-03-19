@@ -19,8 +19,8 @@ const Fatal = () => {
   const [loading, setLoading] = useState(true);
   const [loading1, setLoading1] = useState(false);
   const [error, setError] = useState(null);
-  const [startDate, setStartDate] = useState("2025-02-03"); // Default Start Date
-  const [endDate, setEndDate] = useState("2025-03-03");
+  const [startDate, setStartDate] = useState(new Date().toISOString().split("T")[0]); 
+  const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0]);
   const [topContributors, setTopContributors] = useState([]);
   const [dayWiseData, setDayWiseData] = useState([]);
 

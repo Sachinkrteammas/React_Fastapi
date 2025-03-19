@@ -382,8 +382,8 @@ const DetailAnalysis = () => {
   const [selectedScenario, setSelectedScenario] = useState("");
   const [selectedAgent, setSelectedAgent] = useState("");
 
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState(new Date().toISOString().split("T")[0]);
+  const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0]);
   const [scenarios, setScenarios] = useState([]);
   const [queryData, setQueryData] = useState([]);
   const [complaintData, setComplaintData] = useState([]);

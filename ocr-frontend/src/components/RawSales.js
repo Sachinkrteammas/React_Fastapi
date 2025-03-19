@@ -37,6 +37,8 @@ export default function RawSales() {
 
   //loading code start===>
       const [loading, setLoading] = useState(true);
+      const [startDate, setStartDate] = useState(new Date().toISOString().split("T")[0]);
+      const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0]);
     
       useEffect(() => {
        
@@ -64,8 +66,8 @@ export default function RawSales() {
             <input
               type="date"
               name="start_date"
-              //   value={formData.start_date}
-              //   onChange={handleChange}
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
               required
             />
           </label>
@@ -73,8 +75,8 @@ export default function RawSales() {
             <input
               type="date"
               name="end_date"
-              //   value={formData.end_date}
-              //   onChange={handleChange}
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
               required
             />
           </label>
