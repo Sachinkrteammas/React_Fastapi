@@ -161,7 +161,7 @@ const Potential = () => {
         </header>
 
         <div className="content">
-          <div className="chart-container">
+          <div className="chart-container-po">
             <h3 className="Po-text">Recent Escalation</h3>
             <PieChart width={250} height={250}>
               <Pie data={pieChartData} dataKey="value" outerRadius={80} label>
@@ -231,17 +231,18 @@ const Potential = () => {
                     ))}
                   </tbody>
                 </table>
-              </div>
-            ) : (
-              <p>No data available.</p>
-            )}
-
-            {/* Pagination Controls */}
+                {/* Pagination Controls */}
             <div className="pagination-controls">
               <button className="paging_btn" onClick={prevPage} disabled={currentPage === 1}>Previous</button>
               <span> Page {currentPage} - {totalPages} </span>
               <button className="paging_btn" onClick={nextPage} disabled={currentPage === totalPages}>Next</button>
             </div>
+              </div>
+            ) : (
+              <p>No data available.</p>
+            )}
+
+            
           </div>
         </div>
 

@@ -101,7 +101,7 @@
   
   .card {
     background: white;
-    padding: 20px;
+    padding: 5px;
     margin-bottom: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
@@ -164,13 +164,14 @@
   }
 
   .full-width {
-    width: 98%;
-    background-color: white; /* Add background for visibility */
+    width: 98.5%;
+    background-color: white;
     border-radius: 8px;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
     padding: 10px;
     text-align: center;
     border-radius: 8px;
+    margin-top: 5px;
   }
   .low-score {
     background-color: red;
@@ -179,6 +180,7 @@
   .maincon
   {
     display: flex;
+    gap: 5px;
   }
 
   .setheaderdiv
@@ -193,10 +195,13 @@
     width: 72px;
     cursor: pointer;
     background-color: #ccc;
+    color: white;
+    height: 45px;
+    margin-left: 3px;
   }
 
   .setsubmitbtn:hover {
-    background-color: #4a99ec;
+    background: #16155e;
   }
   
   
