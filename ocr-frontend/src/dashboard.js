@@ -169,7 +169,7 @@ const Dashboard = () => {
           </div>
 
 
-          <div className="main-content notifi">
+          <div className=" notifi">
             <h1 className="new">Notifications</h1>
             <p>Our new project is currently in the pipeline and progressing well.
 The development team is working on the project, which is in the pipeline.

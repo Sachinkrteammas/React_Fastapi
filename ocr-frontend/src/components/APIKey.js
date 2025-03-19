@@ -94,7 +94,7 @@ export default function APIKey() {
         value={generatedKey}
         readOnly
       />
-      <button onClick={handleGenerateKey}>Generate Key</button>
+      <button className="Generatekey-btn" onClick={handleGenerateKey}>Generate Key</button>
 
       {/* API Key Table */}
       <table border="1">

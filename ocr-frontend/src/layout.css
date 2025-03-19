@@ -12,16 +12,15 @@
   overflow-y: auto; /* Enable scrolling */
   padding: 20px;
   background: #ffffff;
-  /* height: calc(100vh - 60px); */
-  scrollbar-width: none; /* Hide scrollbar in Firefox */
-  -ms-overflow-style: none; /* Hide scrollbar in Edge */
+  height: calc(100vh - 60px);
+
 }
 
 /* Hide scrollbar for Chrome & Safari */
-.main-content::-webkit-scrollbar {
+/* .main-content::-webkit-scrollbar {
   width: 0px;
   display: none;
-}
+} */
 /* Top Navbar */
 .top-navbar {
   position: sticky;

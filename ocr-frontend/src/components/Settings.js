@@ -55,7 +55,7 @@ export default function Settings() {
           placeholder="Enter limit"
         />
 
-        <button onClick={handleSave}>Save</button>
+        <button className="save-btn" onClick={handleSave}>Save</button>
       </div>
     </Layout>
   );

@@ -27,7 +27,7 @@
   .settings-container button {
     margin-top: 15px;
     padding: 10px;
-    background: #007bff;
+    background: #16155e;
     color: white;
     border: none;
     border-radius: 5px;
@@ -36,6 +36,11 @@
   }
   
   .settings-container button:hover {
-    background: #0056b3;
+    background: #bbb;
   }
-  
+  /* .save-btn{
+    background: #16155e;
+  }
+  .save-btn:hover{
+    background: #bbb;
+  } */

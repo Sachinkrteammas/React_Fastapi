@@ -44,7 +44,15 @@ h1 {
   .api-key-button:hover {
     background-color: #0056b3;
   }
-  
+  .Generatekey-btn{
+    background: #bbb;
+  }
+  .Generatekey-btn:hover{
+    
+    background: #16155e;
+  }
+
+
   .api-key-table {
     width: 100%;
     border-collapse: collapse;

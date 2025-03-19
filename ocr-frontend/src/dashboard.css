@@ -51,6 +51,7 @@ p {
 
 .new123 {
   border-radius: 10px;
+  height: 279px !important;
   margin-left: 10px !important;
   margin-top: 20px !important;
   transition: all 0.3s ease-in-out;
@@ -198,7 +199,14 @@ p {
   transition: all 0.3s ease-in-out;
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.12),
     0 10px 20px rgba(0, 0, 0, 0.15);
- 
+  flex: 1 1;
+  overflow-y: auto;
+  scrollbar-width: none; /* Hide scrollbar in Firefox */
+  -ms-overflow-style: none; /* Hide scrollbar in Edge */
+}
+.notifi::-webkit-scrollbar {
+  width: 0px;
+  display: none;
 }
 
 .notifi:hover {
