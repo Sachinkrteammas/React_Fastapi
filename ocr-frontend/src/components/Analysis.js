@@ -953,7 +953,8 @@ const Analysis = () => {
               </div>
 
               <p>Social Media and Consumer Court Threat</p>
-              <div className="tablescrollbar">
+              <div className={potentialEscalations.length > 0 ? "tablescrollbarnew" : "tablescrollbar"}>
+
                 <table className="negative-signals-table">
                   <thead>
                     <tr>
@@ -981,7 +982,7 @@ const Analysis = () => {
               </div>
 
               <p>Top Negative Signals</p>
-              <div className="tablescrollbar">
+              <div className={negativeData.length > 0 ? "tablescrollbarnew" : "tablescrollbar"}>
                 <table className="negative-signals-table">
                   <thead>
                     <tr>

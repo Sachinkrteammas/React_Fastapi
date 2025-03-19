@@ -38,7 +38,7 @@
   /* background-color: rgb(96, 96, 97); */
 
   background-color: white;
-  padding: 15px;
+  padding: 5px;
   border-radius: 8px;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
   /* flex: 1 1;
@@ -222,7 +222,7 @@
 .negative-signals {
   display: flex;
   /* flex-wrap: wrap; */
-  gap: 5px;
+  gap: 1px;
   padding: 0px;
 }
 .count {
@@ -537,7 +537,7 @@
 
 .tablescrollbar{
   overflow-y:auto;
-  height: 400px;
+  /* height: 400px; */
 }
 
 .setscroll
@@ -598,4 +598,11 @@ width: 100%;
 .Competitordiv
 {
   margin-top: 28px;
+}
+
+
+.tablescrollbarnew
+{
+  overflow-y:auto;
+  height: 400px;
 }
