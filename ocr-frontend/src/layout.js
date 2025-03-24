@@ -93,6 +93,7 @@ const Layout = ({ onLogout, children }) => {
       label: "Sales",
       Icon: DollarSign,
       submenu: [
+        { path: "/Magical", label: "Magical Pitch" },
         { path: "/Sales", label: "Dashboard" },
         { path: "/Opportunity", label: "Opportunity Analysis" },
         { path: "/Estimated", label: "Estimated NPS & CSAT" },

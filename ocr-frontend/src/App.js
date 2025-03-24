@@ -20,6 +20,7 @@ import Fatal from "./components/FatalAnalysis";
 import Details from "./components/DetailAnalysis";
 import Potential from "./components/Potential";
 
+import Magical from "./components/Magical";
 import Sales_dashboard from "./components/Sales_dashboard";
 import Opportunity from "./components/Opportunity";
 import Estimated from "./components/Estimated";
@@ -104,6 +105,7 @@ const App = () => {
         <Route path="/DetailAnalysis" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Details onLogout={handleLogout}/>} />} />
         <Route path="/Potential" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Potential onLogout={handleLogout}/>} />} />
 
+        <Route path="/Magical" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Magical onLogout={handleLogout}/>} />} />
         <Route path="/Sales" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Sales_dashboard onLogout={handleLogout}/>} />} />
         <Route path="/Opportunity" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Opportunity onLogout={handleLogout}/>} />} />
         <Route path="/Estimated" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Estimated onLogout={handleLogout}/>} />} />
