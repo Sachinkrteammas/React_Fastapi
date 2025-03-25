@@ -113,8 +113,12 @@ const Search = () => {
         </div>
         {loading && (
           <div className="loader-overlay">
-            <div className="windows-spinner"></div>
-            <p className="Loading">Loading...</p>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+
           </div>
         )}
       </div>

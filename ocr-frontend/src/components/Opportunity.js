@@ -31,9 +31,12 @@ export default function Opportunity() {
    
     if (loading) {
       return (
-        <div className="loader-container">
-          <div className="windows-spinner"></div>
-          <p className="Loading">Loading...</p>
+        <div className="zigzag-container">
+          <div className="bar"></div>
+          <div className="bar"></div>
+          <div className="bar"></div>
+          <div className="bar"></div>
+          <div className="bar"></div>
         </div>
       );
     }

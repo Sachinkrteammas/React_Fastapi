@@ -25,14 +25,14 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.green {
-    background-color: #28a745;
-    color: white;
+.green-met {
+    background-color: white;
+    color: black;
 }
 
-.blue {
-    background-color: #007bff;
-    color: white;
+.blue-met {
+    background-color: white;
+    color: black;
 }
 
 .metrics {
@@ -40,7 +40,7 @@
     /* flex-direction: column; */
     gap: 27px;
     /* margin-top: 10px; */
-    background-color: black;
+    background-color: white;
     border-radius: 8px;
     justify-content: space-around;
 }
@@ -50,7 +50,7 @@
 }
 
 .metrics b {
-    font-size: 24px;
+    font-size: 13px;
     display: block;
 }
 

@@ -98,7 +98,7 @@
   .Po-text {
     text-align:justify;
     margin-bottom: 10px;
-    font-size: 18px;
+    font-size: 15px;
   }
   
   /* Table */
@@ -177,7 +177,7 @@
   }
   
   .pagination-controls button {
-    background-color: #007bff;
+    background: #16155e;
     color: white;
     border: none;
     padding: 8px 12px;
@@ -193,7 +193,7 @@
   }
   
   .pagination-controls button:hover:not(:disabled) {
-    background-color: #0056b3;
+    background: #bbb;
   }
   
   .pagination-controls span {

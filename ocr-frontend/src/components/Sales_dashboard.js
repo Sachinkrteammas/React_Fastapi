@@ -61,9 +61,12 @@ export default function SalesDashboard() {
  
   if (loading) {
     return (
-      <div className="loader-container">
-        <div className="windows-spinner"></div>
-        <p className="Loading">Loading...</p>
+      <div className="zigzag-container">
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
       </div>
     );
   }
@@ -101,7 +104,7 @@ export default function SalesDashboard() {
         {/* 1️⃣ Key Metrics */}
         <div className="metric-container">
           {/* CST Card */}
-          <div className="metric-card green">
+          <div className="metric-card green-met">
             <h3>CST</h3>
             <div className="metrics">
               <div>
@@ -128,7 +131,7 @@ export default function SalesDashboard() {
           </div>
 
           {/* CRT Card */}
-          <div className="metric-card blue">
+          <div className="metric-card blue-met">
             <h3>CRT</h3>
             <div className="metrics">
               <div>

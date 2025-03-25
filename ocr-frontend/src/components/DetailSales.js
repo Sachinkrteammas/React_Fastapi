@@ -1,31 +1,34 @@
-import React,{useState,useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import Layout from "../layout"; // Import layout component
 import "../layout.css"; // Import styles
 import "./DetailSales.css";
 
 export default function DetailSales() {
   //loading code start===>
-      const [loading, setLoading] = useState(true);
-      const [startDate, setStartDate] = useState(new Date().toISOString().split("T")[0]);
-      const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0]);
-    
-      useEffect(() => {
-       
-        setTimeout(() => {
-          setLoading(false);
-        }, 2000); 
-      }, []);
-     
-      if (loading) {
-        return (
-          <div className="loader-container">
-            <div className="windows-spinner"></div>
-            <p className="Loading">Loading...</p>
-          </div>
-        );
-      }
-      //loading code end==>
-        
+  const [loading, setLoading] = useState(true);
+  const [startDate, setStartDate] = useState(new Date().toISOString().split("T")[0]);
+  const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0]);
+
+  useEffect(() => {
+
+    setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="zigzag-container">
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+      </div>
+    );
+  }
+  //loading code end==>
+
   return (
     <Layout>
       <div className="header">
@@ -57,7 +60,7 @@ export default function DetailSales() {
 
       <div className="metric-container">
         {/* CST Card */}
-        <div className="metric-card green">
+        <div className="metric-card green-met">
           <h3>CST</h3>
           <div className="metricschanges">
             <div>
@@ -118,165 +121,165 @@ export default function DetailSales() {
 
       {/* OP Analysis Section */}
       <div className="sales-section">
-          <h2 className="sales-title">OP Analysis</h2>
-          <h3 className="sales-subtitle">OP Category Wise Success</h3>
-          <table className="sales-table">
-            <thead>
-              <tr>
-                <th>Opening Pitch Category</th>
-                <th>Total Calls</th>
-                <th>OPS Count</th>
-                <th>OPS%</th>
-                <th>OR Count</th>
-                <th>OR%</th>
-                <th>Sale Count</th>
-                <th>Conversion%</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>New Pitch A</td>
-                <td className="greenclr">157</td>
-                <td>135</td>
-                <td className="green-cell">86%</td>
-                <td>22</td>
-                <td className="red-cell">14%</td>
-                <td>8</td>
-                <td className="green-cell">5%</td>
-              </tr>
-              <tr>
-                <td>New Pitch D</td>
-                <td className="greenclrnew">59</td>
-                <td>46</td>
-                <td className="green-cell">78%</td>
-                <td>13</td>
-                <td className="red-cell">22%</td>
-                <td>1</td>
-                <td className="green-cell">3%</td>
-              </tr>
-            </tbody>
-            <tfoot>
-              <tr>
-                <td>Grand total</td>
-                <td>10,197</td>
-                <td>8,513</td>
-                <td>83%</td>
-                <td>1,684</td>
-                <td>17%</td>
-                <td>296</td>
-                <td>3%</td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
+        <h2 className="sales-title">OP Analysis</h2>
+        <h3 className="sales-subtitle">OP Category Wise Success</h3>
+        <table className="sales-table">
+          <thead>
+            <tr>
+              <th>Opening Pitch Category</th>
+              <th>Total Calls</th>
+              <th>OPS Count</th>
+              <th>OPS%</th>
+              <th>OR Count</th>
+              <th>OR%</th>
+              <th>Sale Count</th>
+              <th>Conversion%</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>New Pitch A</td>
+              <td className="greenclr">157</td>
+              <td>135</td>
+              <td className="green-cell">86%</td>
+              <td>22</td>
+              <td className="red-cell">14%</td>
+              <td>8</td>
+              <td className="green-cell">5%</td>
+            </tr>
+            <tr>
+              <td>New Pitch D</td>
+              <td className="greenclrnew">59</td>
+              <td>46</td>
+              <td className="green-cell">78%</td>
+              <td>13</td>
+              <td className="red-cell">22%</td>
+              <td>1</td>
+              <td className="green-cell">3%</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td>Grand total</td>
+              <td>10,197</td>
+              <td>8,513</td>
+              <td>83%</td>
+              <td>1,684</td>
+              <td>17%</td>
+              <td>296</td>
+              <td>3%</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
 
-        {/* Context Setting Analysis */}
-        <div className="sales-section">
-          <h3 className="sales-subtitle">Context Setting Analysis</h3>
-          <table className="sales-table">
-            <thead>
-              <tr>
-                <th>Context Setting Category</th>
-                <th>Total Calls</th>
-                <th>OPS Count</th>
-                <th>OPS%</th>
-                <th>OR Count</th>
-                <th>OR%</th>
-                <th>Sale Count</th>
-                <th>Conversion%</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Feedback First Approach</td>
-                <td className="greenclr">4,514</td>
-                <td>3,220</td>
-                <td className="green-cell">71%</td>
-                <td>1,294</td>
-                <td className="red-cell">29%</td>
-                <td>127</td>
-                <td className="green-cell">3%</td>
-              </tr>
-              <tr>
-                <td>Dual Approach: Feedback & Offer</td>
-                <td className="greenclrnew">903</td>
-                <td>667</td>
-                <td className="green-cell">74%</td>
-                <td>236</td>
-                <td className="red-cell">26%</td>
-                <td>119</td>
-                <td className="green-cell">13%</td>
-              </tr>
-            </tbody>
-            <tfoot>
-              <tr>
-                <td>Grand total</td>
-                <td>5,833</td>
-                <td>4,190</td>
-                <td>72%</td>
-                <td>1,943</td>
-                <td>28%</td>
-                <td>270</td>
-                <td>5%</td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
+      {/* Context Setting Analysis */}
+      <div className="sales-section">
+        <h3 className="sales-subtitle">Context Setting Analysis</h3>
+        <table className="sales-table">
+          <thead>
+            <tr>
+              <th>Context Setting Category</th>
+              <th>Total Calls</th>
+              <th>OPS Count</th>
+              <th>OPS%</th>
+              <th>OR Count</th>
+              <th>OR%</th>
+              <th>Sale Count</th>
+              <th>Conversion%</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Feedback First Approach</td>
+              <td className="greenclr">4,514</td>
+              <td>3,220</td>
+              <td className="green-cell">71%</td>
+              <td>1,294</td>
+              <td className="red-cell">29%</td>
+              <td>127</td>
+              <td className="green-cell">3%</td>
+            </tr>
+            <tr>
+              <td>Dual Approach: Feedback & Offer</td>
+              <td className="greenclrnew">903</td>
+              <td>667</td>
+              <td className="green-cell">74%</td>
+              <td>236</td>
+              <td className="red-cell">26%</td>
+              <td>119</td>
+              <td className="green-cell">13%</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td>Grand total</td>
+              <td>5,833</td>
+              <td>4,190</td>
+              <td>72%</td>
+              <td>1,943</td>
+              <td>28%</td>
+              <td>270</td>
+              <td>5%</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
 
-        {/* Offered Pitch Analysis */}
-        <div className="sales-section">
-          <h2 className="sales-title">Offered Pitch Analysis</h2>
-          <table className="sales-table">
-            <thead>
-              <tr>
-                <th>Discount Type</th>
-                <th>Total Offered</th>
-                <th>OR Count</th>
-                <th>OR%</th>
-                <th>OS Count</th>
-                <th>OS%</th>
-                <th>Sale Count</th>
-                <th>Conversion%</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Rs. 299 discount</td>
-                <td className="greenclr">1,080</td>
-                <td>604</td>
-                <td className="red-cell">56%</td>
-                <td>476</td>
-                <td className="green-cell">44%</td>
-                <td>96</td>
-                <td className="green-cell">9%</td>
-              </tr>
-              <tr>
-                <td>Limited-time offer</td>
-                <td className="greenclrnew">882</td>
-                <td>414</td>
-                <td className="red-cell">47%</td>
-                <td>468</td>
-                <td className="green-cell">53%</td>
-                <td>60</td>
-                <td className="green-cell">7%</td>
-              </tr>
-            </tbody>
-            <tfoot>
-              <tr>
-                <td>Grand total</td>
-                <td>2,599</td>
-                <td>1,281</td>
-                <td>49%</td>
-                <td>1,309</td>
-                <td>51%</td>
-                <td>267</td>
-                <td>10%</td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
+      {/* Offered Pitch Analysis */}
+      <div className="sales-section">
+        <h2 className="sales-title">Offered Pitch Analysis</h2>
+        <table className="sales-table">
+          <thead>
+            <tr>
+              <th>Discount Type</th>
+              <th>Total Offered</th>
+              <th>OR Count</th>
+              <th>OR%</th>
+              <th>OS Count</th>
+              <th>OS%</th>
+              <th>Sale Count</th>
+              <th>Conversion%</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Rs. 299 discount</td>
+              <td className="greenclr">1,080</td>
+              <td>604</td>
+              <td className="red-cell">56%</td>
+              <td>476</td>
+              <td className="green-cell">44%</td>
+              <td>96</td>
+              <td className="green-cell">9%</td>
+            </tr>
+            <tr>
+              <td>Limited-time offer</td>
+              <td className="greenclrnew">882</td>
+              <td>414</td>
+              <td className="red-cell">47%</td>
+              <td>468</td>
+              <td className="green-cell">53%</td>
+              <td>60</td>
+              <td className="green-cell">7%</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td>Grand total</td>
+              <td>2,599</td>
+              <td>1,281</td>
+              <td>49%</td>
+              <td>1,309</td>
+              <td>51%</td>
+              <td>267</td>
+              <td>10%</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
 
-        
+
       {/* Customer Objection Analysis */}
       <div className="sales-section">
         <h2 className="sales-title">Customer Objection Analysis</h2>

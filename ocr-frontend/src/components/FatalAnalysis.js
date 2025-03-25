@@ -19,7 +19,7 @@ const Fatal = () => {
   const [loading, setLoading] = useState(true);
   const [loading1, setLoading1] = useState(false);
   const [error, setError] = useState(null);
-  const [startDate, setStartDate] = useState(new Date().toISOString().split("T")[0]); 
+  const [startDate, setStartDate] = useState(new Date().toISOString().split("T")[0]);
   const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0]);
   const [topContributors, setTopContributors] = useState([]);
   const [dayWiseData, setDayWiseData] = useState([]);
@@ -221,7 +221,7 @@ const Fatal = () => {
     try {
       setLoading1(true);
       setError(null);
-  
+
       // Fetch all APIs in parallel
       const [
         topAgentsResponse,
@@ -240,10 +240,10 @@ const Fatal = () => {
         ),
         fetch(
           `${BASE_URL}/fatal_count?client_id=375&start_date=${startDate}&end_date=${endDate}`
-        ), 
+        ),
       ]);
-  
-      
+
+
       if (
         !topAgentsResponse.ok ||
         !dayWiseResponse.ok ||
@@ -258,8 +258,8 @@ const Fatal = () => {
           Fatal Count: ${fatalCountResponse.status}`
         );
       }
-  
-      
+
+
       const [
         topAgentsData,
         dayWiseData,
@@ -271,8 +271,8 @@ const Fatal = () => {
         auditSummaryResponse.json(),
         fatalCountResponse.json(),
       ]);
-  
-      
+
+
       if (
         !Array.isArray(topAgentsData) ||
         !Array.isArray(dayWiseData) ||
@@ -280,28 +280,28 @@ const Fatal = () => {
       ) {
         throw new Error("Invalid data format received from API.");
       }
-  
-      
+
+
       const formattedTopContributors = topAgentsData.map((agent) => ({
         name: agent["Agent Name"] || "N/A",
         audit: agent["Audit Count"] || 0,
         fatal: agent["Fatal Count"] || 0,
         fatalPercent: agent["Fatal%"] || "0%",
       }));
-  
-      
+
+
       const formattedDayWiseData = dayWiseData.map((entry) => ({
         date: entry["CallDate"]
           ? new Date(entry["CallDate"]).toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "short",
-              day: "2-digit",
-            })
+            year: "numeric",
+            month: "short",
+            day: "2-digit",
+          })
           : "Unknown",
         fatal: entry["Fatal Count"] || 0,
       }));
-  
-      
+
+
       const formattedAuditData = auditSummaryData.map((agent) => ({
         agent: agent["Agent Name"] || "N/A",
         auditCount: agent["Audit Count"] || 0,
@@ -313,28 +313,28 @@ const Fatal = () => {
         goodCalls: agent["Good Calls"] || "0%",
         excellentCalls: agent["Excellent Calls"] || "0%",
       }));
-  
-     
+
+
       setTopContributors((prev) =>
         JSON.stringify(prev) !== JSON.stringify(formattedTopContributors)
           ? formattedTopContributors
           : prev
       );
-  
+
       setDayWiseData((prev) =>
         JSON.stringify(prev) !== JSON.stringify(formattedDayWiseData)
           ? formattedDayWiseData
           : prev
       );
-  
+
       setAuditData((prev) =>
         JSON.stringify(prev) !== JSON.stringify(formattedAuditData)
           ? formattedAuditData
           : prev
       );
-  
-      setStats(fatalCountData); 
-  
+
+      setStats(fatalCountData);
+
     } catch (err) {
       console.error("Fetch Error:", err);
       setError(err.message);
@@ -342,33 +342,33 @@ const Fatal = () => {
       setLoading1(false);
     }
   };
-   
+
 
 
   useEffect(() => {
     const clientId = localStorage.getItem("client_id");
-  
+
     const fetchStats = async () => {
       try {
         const response = await fetch(`${BASE_URL}/fatal_count?client_id=${clientId}`);
         if (!response.ok) throw new Error("Failed to fetch statistics");
-  
+
         const data = await response.json();
         setStats(data);
       } catch (err) {
         setError(err.message);
       }
     };
-  
+
     const fetchTopFive = async () => {
       try {
         const response = await fetch(
           `${BASE_URL}/top_agents_fatal_summary?client_id=${clientId}&limit=5`
         );
         if (!response.ok) throw new Error("Failed to fetch top agents");
-    
+
         const data = await response.json();
-    
+
         // Properly format the data before setting state
         const formattedTopContributors = data.map((agent) => ({
           name: agent["Agent Name"] || "N/A",
@@ -376,73 +376,73 @@ const Fatal = () => {
           fatal: agent["Fatal Count"] || 0,
           fatalPercent: agent["Fatal%"] || "0%",
         }));
-    
+
         setTopContributors(formattedTopContributors); // Use formatted data
       } catch (err) {
         console.error("Error fetching top agents:", err);
         setError(err.message);
       }
     };
-    
+
     const fetchDayWise = async () => {
       try {
         setError(null);
-    
+
         const clientId = localStorage.getItem("client_id"); // Make sure clientId is correctly assigned
-    
+
         const response = await fetch(
           `${BASE_URL}/daywise_fatal_summary?client_id=${clientId}`
         );
-    
+
         if (!response.ok) {
           throw new Error(
             `Failed to fetch daywise statistics: ${response.status} ${response.statusText}`
           );
         }
-    
+
         const data = await response.json();
-    
+
         const formattedDayWiseData = data.map((entry) => ({
           date: entry["CallDate"]
             ? new Date(entry["CallDate"]).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "short",
-                day: "2-digit",
-              })
+              year: "numeric",
+              month: "short",
+              day: "2-digit",
+            })
             : "Unknown",
           fatal: entry["Fatal Count"] || 0,
         }));
-    
+
         setDayWiseData((prev) =>
           JSON.stringify(prev) !== JSON.stringify(formattedDayWiseData)
             ? formattedDayWiseData
             : prev
         );
-    
+
       } catch (err) {
         console.error("Error fetching daywise statistics:", err);
         setError(err.message);
       }
     };
 
-    const fetchAuditData = async () => { 
+    const fetchAuditData = async () => {
       try {
         setError(null); // Clear previous errors
-    
+
         const clientId = localStorage.getItem("client_id"); // Ensure clientId is defined
-    
+
         const response = await fetch(
           `${BASE_URL}/agent_audit_summary?client_id=${clientId}`
         );
-    
+
         if (!response.ok) {
           throw new Error(
             `Failed to fetch audit data: ${response.status} ${response.statusText}`
           );
         }
-    
+
         const data = await response.json();
-    
+
         // Format the response data properly
         const formattedAuditData = data.map((agent) => ({
           agent: agent["Agent Name"] || "N/A",
@@ -455,38 +455,41 @@ const Fatal = () => {
           goodCalls: agent["Good Calls"] || "0%",
           excellentCalls: agent["Excellent Calls"] || "0%",
         }));
-    
+
         // Update state only if the data has changed
         setAuditData((prev) =>
           JSON.stringify(prev) !== JSON.stringify(formattedAuditData)
             ? formattedAuditData
             : prev
         );
-    
+
       } catch (err) {
         console.error("Error fetching audit data:", err);
         setError(err.message);
       }
     };
-    
-    
-    
-  
+
+
+
+
     const fetchData = async () => {
       setLoading(true);
-      await Promise.all([fetchStats(), fetchTopFive(),fetchDayWise(),fetchAuditData()]); // Run both functions in parallel
+      await Promise.all([fetchStats(), fetchTopFive(), fetchDayWise(), fetchAuditData()]); // Run both functions in parallel
       setLoading(false); // Set loading to false after both complete
     };
-  
+
     fetchData();
   }, []);
-  
+
 
   if (loading) {
     return (
-      <div className="loader-container">
-        <div className="windows-spinner"></div>
-        <p className="Loading">Loading...</p>
+      <div className="zigzag-container">
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
       </div>
     );
   }
@@ -497,11 +500,11 @@ const Fatal = () => {
       <div className={`dashboard-container ${loading ? "blurred" : ""}`}>
         <header className="header">
           {/* <div> */}
-            <label>
-              {" "}
-              <h3>DialDesk</h3>
-            </label>
-            <div className="setheaderdiv">
+          <label>
+            {" "}
+            <h3>DialDesk</h3>
+          </label>
+          <div className="setheaderdiv">
             <label>
               <input
                 type="date"
@@ -520,7 +523,7 @@ const Fatal = () => {
             <label>
               <input className="setsubmitbtn" onClick={fetchData} value={"Submit"} readOnly />
             </label>
-            </div>
+          </div>
           {/* </div> */}
         </header>
 
@@ -763,13 +766,17 @@ const Fatal = () => {
                 </tr>
               ))}
             </tbody>
-            
+
           </table>
         </div>
         {loading1 && (
           <div className="loader-overlay">
-            <div className="windows-spinner"></div>
-            <p className="Loading">Loading...</p>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+
           </div>
         )}
       </div>

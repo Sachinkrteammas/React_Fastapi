@@ -22,7 +22,7 @@ export default function Settings() {
 
   return (
     <Layout>
-      <h1>Settings</h1>
+      <h4>Settings</h4>
       <div className="settings-container">
         <label>Organization Name:</label>
         <input
