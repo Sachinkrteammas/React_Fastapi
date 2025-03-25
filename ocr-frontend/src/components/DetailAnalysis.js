@@ -773,7 +773,7 @@ const DetailAnalysis = () => {
                   </table>
                 </div>
                 <div className="chart-detail">
-                  <PieChart width={250} height={330}>
+                  <PieChart width={250} height={352}>
                     <RePie
                       data={complaintData1}
                       dataKey="count"
@@ -824,7 +824,7 @@ const DetailAnalysis = () => {
                   </table>
                 </div>
                 <div className="chart-detail">
-                  <PieChart width={250} height={330}>
+                  <PieChart width={250} height={372}>
                     <RePie
                       data={requestData1}
                       dataKey="count"

@@ -3,9 +3,12 @@ import Layout from "../layout"; // Import layout component
 import "../layout.css"; // Import styles
 import "./RawDown.css";
 import { BASE_URL } from "./config";
+import * as XLSX from "xlsx";
 const RawDownload = () => {
   const [leadId, setLeadId] = useState("");
   const [data, setData] = useState([]);
+  const [dataExcel, setDataExcel] = useState([]);
+
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [loading, setLoading] = useState(false);
@@ -35,23 +38,152 @@ const RawDownload = () => {
 
       const formattedData = result.map((item) => ({
         clientId: item.ClientId,
+        callId: item.id,
         callDate: item.CallDate.split("T")[0],
+        startEpoch: item.start_epoch,
+        endEpoch: item.end_epoch,
+        mobileNo: item.MobileNo,
         leadId: item.lead_id,
         agentName: item.User,
+        campaign: item.Campaign,
+        callDuration: item.length_in_sec,
+        callAnsweredWithin5Sec: item.call_answered_within_5_seconds ?? "N/A",
+        customerConcernAcknowledged: item.customer_concern_acknowledged,
+        professionalismMaintained: item.professionalism_maintained,
+        assuranceOrAppreciation: item.assurance_or_appreciation_provided,
+        pronunciationAndClarity: item.pronunciation_and_clarity,
+        enthusiasmNoFumbling: item.enthusiasm_and_no_fumbling,
+        activeListening: item.active_listening,
+        politenessNoSarcasm: item.politeness_and_no_sarcasm,
+        properGrammar: item.proper_grammar,
+        accurateIssueProbing: item.accurate_issue_probing,
+        properHoldProcedure: item.proper_hold_procedure,
+        properTransferAndLanguage: item.proper_transfer_and_language,
+        deadAirUnder10Sec: item.dead_air_under_10_seconds ?? "N/A",
+        caseEscalatedCorrectly: item.case_escalated_correctly ?? "N/A",
+        addressRecordedCompletely: item.address_recorded_completely,
+        correctCompleteInfo: item.correct_and_complete_information,
+        upsellingOrOffersSuggested: item.upselling_or_offers_suggested ?? "N/A",
+        furtherAssistanceOffered: item.further_assistance_offered ?? "N/A",
+        properCallClosure: item.proper_call_closure,
+        totalScore: item.total_score,
+        maxScore: item.max_score,
+        qualityPercentage: item.quality_percentage,
+        expressEmpathy: item.express_empathy,
+        areasForImprovement: item.areas_for_improvement
+          ? item.areas_for_improvement.length > 20
+            ? item.areas_for_improvement.substring(0, 20) + "..."
+            : item.areas_for_improvement
+          : "None",
+        topPositiveWords: item.top_positive_words || "N/A",
+        topNegativeWords: item.top_negative_words || "N/A",
+        agentEnglishCussCount: item.agent_english_cuss_count,
+        agentHindiCussCount: item.agent_hindi_cuss_count,
+        customerEnglishCussCount: item.customer_english_cuss_count,
+        customerHindiCussCount: item.customer_hindi_cuss_count,
         scenario: item.scenario,
         scenario1: item.scenario1,
         scenario2: item.scenario2,
         scenario3: item.scenario3,
-        Competitor_Name: item.Competitor_Name || "N/A",
-        Customer_Connection: item.length_in_sec > 0 ? "true" : "false",
+        competitorName: item.Competitor_Name || "N/A",
+        sensitiveWord: item.sensetive_word,
+        dataTheftOrMisuse: item.data_theft_or_misuse,
+        unprofessionalBehavior: item.unprofessional_behavior,
+        systemManipulation: item.system_manipulation,
+        financialFraud: item.financial_fraud,
+        escalationFailure: item.escalation_failure,
+        collusion: item.collusion,
+        policyCommunicationFailure: item.policy_communication_failure,
+        fraudPotentialityPercentage:
+          item.fraud_potentiality_percentage || "N/A",
+        sensitiveWordContext: item.sensitive_word_context || "None",
+        transcript: item.Transcribe_Text
+          ? item.Transcribe_Text.length > 20
+            ? item.Transcribe_Text.substring(0, 20) + "..."
+            : item.Transcribe_Text
+          : "No Transcript Available",
+      }));
+
+      const formattedDataexcel = result.map((item) => ({
+        clientId: item.ClientId,
+        callId: item.id,
+        callDate: item.CallDate.split("T")[0],
+        startEpoch: item.start_epoch,
+        endEpoch: item.end_epoch,
+        mobileNo: item.MobileNo,
+        leadId: item.lead_id,
+        agentName: item.User,
+        campaign: item.Campaign,
+        callDuration: item.length_in_sec,
+        callAnsweredWithin5Sec: item.call_answered_within_5_seconds ?? "N/A",
+        customerConcernAcknowledged: item.customer_concern_acknowledged,
+        professionalismMaintained: item.professionalism_maintained,
+        assuranceOrAppreciation: item.assurance_or_appreciation_provided,
+        pronunciationAndClarity: item.pronunciation_and_clarity,
+        enthusiasmNoFumbling: item.enthusiasm_and_no_fumbling,
+        activeListening: item.active_listening,
+        politenessNoSarcasm: item.politeness_and_no_sarcasm,
+        properGrammar: item.proper_grammar,
+        accurateIssueProbing: item.accurate_issue_probing,
+        properHoldProcedure: item.proper_hold_procedure,
+        properTransferAndLanguage: item.proper_transfer_and_language,
+        deadAirUnder10Sec: item.dead_air_under_10_seconds ?? "N/A",
+        caseEscalatedCorrectly: item.case_escalated_correctly ?? "N/A",
+        addressRecordedCompletely: item.address_recorded_completely,
+        correctCompleteInfo: item.correct_and_complete_information,
+        upsellingOrOffersSuggested: item.upselling_or_offers_suggested ?? "N/A",
+        furtherAssistanceOffered: item.further_assistance_offered ?? "N/A",
+        properCallClosure: item.proper_call_closure,
+        totalScore: item.total_score,
+        maxScore: item.max_score,
+        qualityPercentage: item.quality_percentage,
+        expressEmpathy: item.express_empathy,
+        areasForImprovement: item.areas_for_improvement || "None",
+        topPositiveWords: item.top_positive_words || "N/A",
+        topNegativeWords: item.top_negative_words || "N/A",
+        agentEnglishCussCount: item.agent_english_cuss_count,
+        agentHindiCussCount: item.agent_hindi_cuss_count,
+        customerEnglishCussCount: item.customer_english_cuss_count,
+        customerHindiCussCount: item.customer_hindi_cuss_count,
+        scenario: item.scenario,
+        scenario1: item.scenario1,
+        scenario2: item.scenario2,
+        scenario3: item.scenario3,
+        competitorName: item.Competitor_Name || "N/A",
+        sensitiveWord: item.sensetive_word,
+        dataTheftOrMisuse: item.data_theft_or_misuse,
+        unprofessionalBehavior: item.unprofessional_behavior,
+        systemManipulation: item.system_manipulation,
+        financialFraud: item.financial_fraud,
+        escalationFailure: item.escalation_failure,
+        collusion: item.collusion,
+        policyCommunicationFailure: item.policy_communication_failure,
+        fraudPotentialityPercentage:
+          item.fraud_potentiality_percentage || "N/A",
+        sensitiveWordContext: item.sensitive_word_context || "None",
+        transcript: item.Transcribe_Text || "No Transcript Available",
       }));
 
       setData(formattedData);
+      setDataExcel(formattedDataexcel);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const downloadExcel = (dataExcel) => {
+    if (dataExcel.length === 0) {
+      alert("No data available to export.");
+      return;
+    }
+
+    const worksheet = XLSX.utils.json_to_sheet(dataExcel);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Call Data");
+
+    XLSX.writeFile(workbook, "call_data.xlsx");
   };
 
   return (
@@ -86,41 +218,51 @@ const RawDownload = () => {
         </header>
 
         {/* Content Wrapper */}
-        <div className={`content-wrapper ${loading ? "blurred" : ""}`}>
+        <div
+          className={`content-wrapper ${loading ? "blurred" : ""}`}
+          style={{ overflowY: "auto", maxHeight: "630px" }}
+        >
+          {data.length > 0 && (
+            <button
+              onClick={() => downloadExcel(dataExcel)}
+              style={{
+                marginBottom: "10px",
+                padding: "5px 10px",
+                cursor: "pointer",
+                width: "65px",
+              }}
+            >
+              Excel Export
+            </button>
+          )}
+
+          {/* Table */}
           <table>
-            <thead>
+            <thead
+              style={{
+                position: "sticky",
+                top: 0,
+                backgroundColor: "#fff",
+                zIndex: 2,
+              }}
+            >
               <tr>
-                <th>ClientId</th>
-                <th>CallDate</th>
-                <th>Lead ID</th>
-                <th>Agent Name</th>
-                <th>Scenario</th>
-                <th>Scenario1</th>
-                <th>Scenario2</th>
-                <th>Scenario3</th>
-                <th>Competitor Name</th>
-                <th>Customer Connection</th>
+                {data.length > 0 &&
+                  Object.keys(data[0]).map((key) => <th key={key}>{key}</th>)}
               </tr>
             </thead>
             <tbody>
               {data.length > 0 ? (
                 data.map((row, index) => (
                   <tr key={index}>
-                    <td>{row.clientId}</td>
-                    <td>{row.callDate}</td>
-                    <td>{row.leadId}</td>
-                    <td>{row.agentName}</td>
-                    <td>{row.scenario}</td>
-                    <td>{row.scenario1}</td>
-                    <td>{row.scenario2}</td>
-                    <td>{row.scenario3}</td>
-                    <td>{row.Competitor_Name}</td>
-                    <td>{row.Customer_Connection}</td>
+                    {Object.values(row).map((value, i) => (
+                      <td key={i}>{value !== null ? value : "N/A"}</td>
+                    ))}
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="10" style={{ textAlign: "center" }}>
+                  <td colSpan="100%" style={{ textAlign: "center" }}>
                     No data found.
                   </td>
                 </tr>

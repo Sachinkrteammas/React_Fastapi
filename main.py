@@ -346,6 +346,7 @@ class AudioFile(Base):
     transcribe_stat = Column(Integer, default=0)
     language = Column(String(100), nullable=True)
     category = Column(String(100), nullable=True)
+    transcript = Column(String, nullable=True)
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -356,20 +357,22 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # Allowed MIME types
 ALLOWED_MIME_TYPES = ["audio/mpeg", "audio/wav"]
+TRANSCRIBE_API_URL = "http://172.12.13.105:8080/transcribe"
 import shutil
+import httpx
+
 
 @app.post("/upload-audio/")
 async def upload_audio(
-    files: list[UploadFile] = File(...),  # Accept multiple files
-    language: str = Form(None),  # Optional field
-    category: str = Form(None),  # Optional field
-    db: Session = Depends(get_db)
+        files: list[UploadFile] = File(...),  # Accept multiple files
+        language: str = Form(None),  # Optional field
+        category: str = Form(None),  # Optional field
+        db: Session = Depends(get_db)
 ):
     uploaded_files = []
 
     try:
         for file in files:
-            # Validate file type
             if file.content_type not in ALLOWED_MIME_TYPES:
                 return {"status": 400, "message": f"Invalid file type: {file.filename}"}
 
@@ -377,11 +380,37 @@ async def upload_audio(
             with open(file_path, "wb") as buffer:
                 shutil.copyfileobj(file.file, buffer)
 
+            # Call Transcription API
+            transcript_text = "No Transcript Available"
+            transcribe_value = 0  # Default value if no transcript found
+
+            with open(file_path, "rb") as audio_file:
+                async with httpx.AsyncClient() as client:
+                    response = await client.post(TRANSCRIBE_API_URL, files={"file": audio_file})
+
+            if response.status_code == 200:
+                transcript_data = response.json()
+                print(len(transcript_data), "length====")  # Debugging length
+
+                if len(transcript_data) == 1 and (
+                        not transcript_data.get("transcript") or transcript_data["transcript"].strip() == ""):
+                    print("Empty transcript received, setting transcribe_value to 0")  # Debugging
+                else:
+                    transcript_text = transcript_data.get("transcript", "No Transcript Available")
+                    transcribe_value = 1  # Transcription available
+
+
+            else:
+                print(f"Transcription API failed for {file.filename}, Status: {response.status_code}")
+
+            # Save to database
             new_audio = AudioFile(
                 filename=file.filename,
                 filepath=file_path,
                 language=language,
-                category=category
+                category=category,
+                transcript=transcript_text,
+                transcribe_stat=transcribe_value
             )
             db.add(new_audio)
             db.commit()
@@ -476,25 +505,50 @@ async def upload_audio_curl(
             print(f"Received file: {file.filename}, Content-Type: {file.content_type}")
 
             # Validate file type
-            ALLOWED_MIME_TYPES = {"audio/mpeg", "audio/wav"}
-            if not file.content_type or file.content_type not in ALLOWED_MIME_TYPES:
+            if file.content_type not in ALLOWED_MIME_TYPES:
                 raise HTTPException(status_code=400, detail=f"Invalid file type: {file.filename} (Content-Type: {file.content_type})")
 
             # Save file
-            #UPLOAD_DIR = "uploads"  # Define upload directory
-            # BASE_DIR = Path(__file__).resolve().parent
-            # UPLOAD_DIR = BASE_DIR / "ocr-frontend/public/audio"
             os.makedirs(UPLOAD_DIR, exist_ok=True)
             file_path = os.path.join(UPLOAD_DIR, file.filename)
             with open(file_path, "wb") as buffer:
                 shutil.copyfileobj(file.file, buffer)
 
-            # Save file details to the database
+            # Transcribe audio file
+            transcript_text = "No Transcript Available"  # Default
+            transcribe_value = 0  # Default value (0 = No Transcript)
+
+            try:
+                with open(file_path, "rb") as audio_file:
+                    async with httpx.AsyncClient() as client:
+                        response = await client.post(TRANSCRIBE_API_URL, files={"file": audio_file})
+
+                if response.status_code == 200:
+                    transcript_data = response.json()
+                    print(len(transcript_data), "length====")  # Debugging
+                    print(transcript_data, "transcript_data====")  # Debugging content
+
+                    # If transcript_data has only 1 item and it is an empty string, set it to "No Transcript Available"
+                    if len(transcript_data) == 1 and (not transcript_data.get("transcript") or transcript_data["transcript"].strip() == ""):
+                        print("Empty transcript received, setting transcribe_value to 0")  # Debugging
+                    else:
+                        transcript_text = transcript_data.get("transcript", "No Transcript Available")
+                        transcribe_value = 1  # Transcription available
+
+                else:
+                    print(f"Transcription API failed for {file.filename}, Status: {response.status_code}")
+
+            except Exception as e:
+                print(f"Error calling transcription API: {str(e)}")
+
+            # Save file details and transcript to database
             new_audio = AudioFile(
                 filename=file.filename,
                 filepath=file_path,
                 language=language,
-                category=category
+                category=category,
+                transcript=transcript_text,
+                transcribe_stat=transcribe_value
             )
             db.add(new_audio)
             db.commit()
@@ -514,6 +568,8 @@ async def upload_audio_curl(
         raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
+
 
 
 
@@ -2202,7 +2258,8 @@ def get_recordings(db: Session = Depends(get_db)):
             "preview": "🔍",
             "recordingDate": rec.upload_time.strftime("%Y-%m-%d"),
             "file": rec.filename,
-            "category": rec.category if rec.category else "Unknown"
+            "category": rec.category if rec.category else "Unknown",
+            "Transcript": rec.transcript if rec.transcript else "NA"
         }
         for rec in recordings
     ]
@@ -2242,7 +2299,9 @@ def get_recordings_datewise(
             "preview": "🔍",
             "recordingDate": rec.upload_time.strftime("%Y-%m-%d"),
             "file": rec.filename,
-            "category": rec.category if rec.category else "Unknown"
+            "category": rec.category if rec.category else "Unknown",
+            "Transcript": rec.transcript if rec.transcript else "NA"
+
         }
         for rec in recordings
     ]

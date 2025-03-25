@@ -177,6 +177,7 @@ const Transcription = ({ onLogout }) => {
                 <th>Recording Date</th>
                 <th>Recording File</th>
                 <th>Category</th>
+                <th>Transcript</th>
               </tr>
             </thead>
             <tbody>
@@ -191,6 +192,7 @@ const Transcription = ({ onLogout }) => {
                     </audio>
                   </td>
                   <td>{item.category}</td>
+                  <td>{item.Transcript}</td>
                 </tr>
               ))}
             </tbody>

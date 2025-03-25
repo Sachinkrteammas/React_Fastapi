@@ -143,7 +143,7 @@ const Analysis = () => {
   const [lastTwoDaysData, setLastTwoDaysData] = useState([]);
   const [competitorData, setCompetitorData] = useState([]);
   const client_id = localStorage.getItem("client_id");
-  
+
   const [doughnutChartData, setDoughnutChartData] = useState({
     labels: [],
     datasets: [
@@ -185,8 +185,8 @@ const Analysis = () => {
   useEffect(() => {
     setFormData({
       // client_id: "375",
-      client_id : localStorage.getItem("client_id"),
-      
+      client_id: localStorage.getItem("client_id"),
+
       start_date: today,
       end_date: today,
     });
@@ -318,7 +318,7 @@ const Analysis = () => {
     const fetchAuditData = async () => {
       try {
         const response = await fetch(
-         `${BASE_URL}/negative_data_summary?client_id=${client_id}`
+          `${BASE_URL}/negative_data_summary?client_id=${client_id}`
         );
         if (!response.ok) throw new Error("Failed to fetch negative data");
 
@@ -573,7 +573,7 @@ const Analysis = () => {
 
         const data = await response.json();
 
-        setNegativeData(data); 
+        setNegativeData(data);
       } catch (error) {
         console.error("Error fetching agent scores:", error);
       }
@@ -591,26 +591,26 @@ const Analysis = () => {
         const data = await response.json();
 
         setCompetitorData(data);
-	  
-	  const labels = data.map((item) => item.Competitor_Name);
-      const counts = data.map((item) => item.Count);
-      setDoughnutChartData({
-        labels: labels,
-        datasets: [
-          {
-            data: counts,
-            backgroundColor: [
-              "blue",
-              "green",
-              "red",
-              "purple",
-              "orange",
-              "cyan",
-              "yellow",
-            ],
-          },
-        ],
-      }); 
+
+        const labels = data.map((item) => item.Competitor_Name);
+        const counts = data.map((item) => item.Count);
+        setDoughnutChartData({
+          labels: labels,
+          datasets: [
+            {
+              data: counts,
+              backgroundColor: [
+                "blue",
+                "green",
+                "red",
+                "purple",
+                "orange",
+                "cyan",
+                "yellow",
+              ],
+            },
+          ],
+        });
       } catch (error) {
         console.error("Error fetching agent scores:", error);
       }
@@ -876,7 +876,7 @@ const Analysis = () => {
                 >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" />
-                  <YAxis domain={[60, 100]} tickCount={5} />
+                  <YAxis domain={[0, 'auto']} tickCount={5} />
                   <Tooltip />
                   <Legend />
 
@@ -953,8 +953,13 @@ const Analysis = () => {
               </div>
 
               <p>Social Media and Consumer Court Threat</p>
-              <div className={potentialEscalations.length > 0 ? "tablescrollbarnew" : "tablescrollbar"}>
-
+              <div
+                className={
+                  potentialEscalations.length > 0
+                    ? "tablescrollbarnew"
+                    : "tablescrollbar"
+                }
+              >
                 <table className="negative-signals-table">
                   <thead>
                     <tr>
@@ -982,7 +987,13 @@ const Analysis = () => {
               </div>
 
               <p>Top Negative Signals</p>
-              <div className={negativeData.length > 0 ? "tablescrollbarnew" : "tablescrollbar"}>
+              <div
+                className={
+                  negativeData.length > 0
+                    ? "tablescrollbarnew"
+                    : "tablescrollbar"
+                }
+              >
                 <table className="negative-signals-table">
                   <thead>
                     <tr>
@@ -1186,19 +1197,45 @@ const Analysis = () => {
                 </tr>
               </thead>
               <tbody>
-                {competitorData.map((competitor, index) => (
-                  <tr key={index}>
-                    <td>{competitor.Competitor_Name}</td>
-                    <td>{competitor.Count}</td>
+                {competitorData.length > 0 ? (
+                  competitorData.map((competitor, index) => (
+                    <tr key={index}>
+                      <td>{competitor.Competitor_Name}</td>
+                      <td>{competitor.Count}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="2">No data available</td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
 
           <div className="section">
             <div className="chart-container-ana">
-              <Doughnut data={doughnutChartData} />
+              {doughnutChartData?.datasets?.some(
+                (dataset) =>
+                  dataset.data &&
+                  dataset.data.length > 0 &&
+                  dataset.data.some((value) => value > 0)
+              ) ? (
+                <Doughnut
+                  data={doughnutChartData}
+                  options={{ responsive: true, maintainAspectRatio: false }}
+                />
+              ) : (
+                <p
+                  style={{
+                    textAlign: "center",
+                    fontSize: "16px",
+                    color: "#666",
+                  }}
+                >
+                  No data available
+                </p>
+              )}
             </div>
           </div>
         </div>

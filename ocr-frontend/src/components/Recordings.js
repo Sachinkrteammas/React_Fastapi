@@ -180,7 +180,7 @@ const Recordings = () => {
                 </button>
               </div>
             </div>
-            <div className="generate-container">
+            {/* <div className="generate-container">
               <input
                 type="text"
                 value={generatedKey}
@@ -197,7 +197,7 @@ const Recordings = () => {
               <button className="generate-key-button" onClick={handleGenerateKey}>
                 Generate Key
               </button>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

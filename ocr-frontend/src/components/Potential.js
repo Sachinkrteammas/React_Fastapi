@@ -142,7 +142,7 @@ const Potential = () => {
     };
   
     fetchCallQualityDetails();
-  }, [clientId]); // ✅ Runs only when clientId changes
+  }, [clientId]); 
 
   return (
     <Layout>
@@ -163,7 +163,7 @@ const Potential = () => {
         <div className="content">
           <div className="chart-container-po">
             <h3 className="Po-text">Recent Escalation</h3>
-            <PieChart width={250} height={250}>
+            <PieChart width={250} height={315}>
               <Pie data={pieChartData} dataKey="value" outerRadius={80} label>
                 {pieChartData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />

@@ -19,8 +19,8 @@
 .divide
 {
     display: flex;
-    margin: 8px;
-    gap: 8px;
+    margin: 0px;
+    gap: 3px;
     border-radius:10px;
 }
 
