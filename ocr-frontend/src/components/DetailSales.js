@@ -369,6 +369,7 @@ export default function DetailSales() {
           </tbody>
         </table>
       </div>
+      
 
 
     </Layout>

@@ -125,6 +125,7 @@
     border-collapse: collapse;
     font-family: Arial, sans-serif;
     text-align: left;
+    font-size: 15px;
   }
   
   /* Table Header */
@@ -229,7 +230,7 @@
   } */
   
   .transcript-short {
-    max-height: 60px;
+    max-height: 97px;
     overflow: hidden;
     text-overflow: ellipsis;
     /* white-space: nowrap; */

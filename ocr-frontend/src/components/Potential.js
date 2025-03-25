@@ -1,4 +1,4 @@
-import React, { useState , useEffect  } from "react";
+import React, { useState, useEffect } from "react";
 import { PieChart, Pie, Cell, Legend, Tooltip } from "recharts";
 import Layout from "../layout";
 import "../layout.css";
@@ -11,6 +11,7 @@ const Potential = () => {
   const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0]);
   const [escalations, setEscalations] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loading1, setLoading1] = useState(false);
   const [pieChartData, setPieChartData] = useState([]);
   const [error, setError] = useState(null);
 
@@ -23,7 +24,7 @@ const Potential = () => {
       return;
     }
 
-    setLoading(true);
+    setLoading1(true);
 
     try {
       const response = await fetch(
@@ -40,22 +41,22 @@ const Potential = () => {
       if (result.raw_dump && result.raw_dump.length > 0) {
         setEscalations(result.raw_dump);
 
-        const { 
-          social_media_threat = 0, 
-          consumer_court_threat = 0, 
-          potential_scam = 0, 
-          abuse = 0, 
-          threat = 0, 
-          frustration = 0, 
-          slang = 0, 
-          sarcasm = 0 
+        const {
+          social_media_threat = 0,
+          consumer_court_threat = 0,
+          potential_scam = 0,
+          abuse = 0,
+          threat = 0,
+          frustration = 0,
+          slang = 0,
+          sarcasm = 0
         } = result.counts;
-  
-        
+
+
         const topNegativeSignals = social_media_threat + consumer_court_threat;
         const socialMediaThreats = potential_scam + abuse + threat + frustration + slang + sarcasm;
-  
-        
+
+
         setPieChartData([
           { name: "Top Negative Signals", value: topNegativeSignals, color: "#82c6fc" },
           { name: "Social Media and Consumer Court Threat", value: socialMediaThreats, color: "#d3388d" }
@@ -68,7 +69,7 @@ const Potential = () => {
       console.error("Error fetching data:", error);
       alert("Error fetching data. Check the console for details.");
     } finally {
-      setLoading(false);
+      setLoading1(false);
     }
   };
 
@@ -91,40 +92,40 @@ const Potential = () => {
 
   useEffect(() => {
     if (!clientId) return; // ✅ Prevents running effect if clientId is missing
-  
+
     setLoading(true);
     setError(null);
-  
+
     const fetchCallQualityDetails = async () => {
       try {
         const response = await fetch(
           `${BASE_URL}/potential_data_summarry?client_id=${clientId}`
         );
-  
+
         if (!response.ok) {
           throw new Error(`Failed to fetch data: ${response.status}`);
         }
-  
+
         const result = await response.json();
         console.log("Fetched data:", result);
-  
+
         if (result.raw_dump && result.raw_dump.length > 0) {
           setEscalations(result.raw_dump);
-  
-          const { 
-            social_media_threat = 0, 
-            consumer_court_threat = 0, 
-            potential_scam = 0, 
-            abuse = 0, 
-            threat = 0, 
-            frustration = 0, 
-            slang = 0, 
-            sarcasm = 0 
+
+          const {
+            social_media_threat = 0,
+            consumer_court_threat = 0,
+            potential_scam = 0,
+            abuse = 0,
+            threat = 0,
+            frustration = 0,
+            slang = 0,
+            sarcasm = 0
           } = result.counts || {};
-    
+
           const topNegativeSignals = social_media_threat + consumer_court_threat;
           const socialMediaThreats = potential_scam + abuse + threat + frustration + slang + sarcasm;
-    
+
           setPieChartData([
             { name: "Top Negative Signals", value: topNegativeSignals, color: "#82c6fc" },
             { name: "Social Media and Consumer Court Threat", value: socialMediaThreats, color: "#d3388d" }
@@ -140,9 +141,21 @@ const Potential = () => {
         setLoading(false);
       }
     };
-  
+
     fetchCallQualityDetails();
-  }, [clientId]); 
+  }, [clientId]);
+
+  if (loading) {
+    return (
+      <div className="zigzag-container">
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+      </div>
+    );
+  }
 
   return (
     <Layout>
@@ -189,7 +202,7 @@ const Potential = () => {
                   {escalations.map((item, index) => (
                     <div key={index} className="escalations-items">
                       <p>
-                      <p><strong>Call Date:</strong> {item.CallDate ? item.CallDate.split("T")[0] : "N/A"}</p>
+                        <p><strong>Call Date:</strong> {item.CallDate ? item.CallDate.split("T")[0] : "N/A"}</p>
                       </p>
                       <p>
                         <strong>Lead ID:</strong> {item.lead_id || "N/A"}
@@ -232,24 +245,28 @@ const Potential = () => {
                   </tbody>
                 </table>
                 {/* Pagination Controls */}
-            <div className="pagination-controls">
-              <button className="paging_btn" onClick={prevPage} disabled={currentPage === 1}>Previous</button>
-              <span> Page {currentPage} - {totalPages} </span>
-              <button className="paging_btn" onClick={nextPage} disabled={currentPage === totalPages}>Next</button>
-            </div>
+                <div className="pagination-controls">
+                  <button className="paging_btn" onClick={prevPage} disabled={currentPage === 1}>Previous</button>
+                  <span> Page {currentPage} - {totalPages} </span>
+                  <button className="paging_btn" onClick={nextPage} disabled={currentPage === totalPages}>Next</button>
+                </div>
               </div>
             ) : (
               <p>No data available.</p>
             )}
 
-            
+
           </div>
         </div>
 
-        {loading && (
+        {loading1 && (
           <div className="loader-overlay">
-            <div className="windows-spinner"></div>
-            <p className="Loading">Loading...</p>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+
           </div>
         )}
       </div>

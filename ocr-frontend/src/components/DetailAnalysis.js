@@ -633,9 +633,12 @@ const DetailAnalysis = () => {
   // Show loading message until all data is fetched
   if (loading) {
     return (
-      <div className="loader-container">
-        <div className="windows-spinner"></div>
-        <p className="Loading">Loading...</p>
+      <div className="zigzag-container">
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
       </div>
     );
   }
@@ -1131,8 +1134,12 @@ const DetailAnalysis = () => {
         </div>
         {loading1 && (
           <div className="loader-overlay">
-            <div className="windows-spinner"></div>
-            <p className="Loading">Loading...</p>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+
           </div>
         )}
       </div>
