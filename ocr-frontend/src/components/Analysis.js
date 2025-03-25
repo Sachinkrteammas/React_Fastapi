@@ -644,9 +644,12 @@ const Analysis = () => {
   // Show loading message until all data is fetched
   if (loading) {
     return (
-      <div className="loader-container">
-        <div className="windows-spinner"></div>
-        <p className="Loading">Loading...</p>
+      <div className="zigzag-container">
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
       </div>
     );
   }
@@ -898,8 +901,9 @@ const Analysis = () => {
         <div className="potensialtop">
           <div className="potensial">
             <div className="left-section">
-              <p>Potential Escalation - Sensitive Cases</p>
+
               <div className="escalation-box">
+                <p>Potential Escalation - Sensitive Cases</p>
                 <div className="escalation-item">
                   <span>Social Media</span>
                   <span className="count">
@@ -918,8 +922,9 @@ const Analysis = () => {
                 </div>
               </div>
 
-              <p>Recent Escalation</p>
+
               <div className="chart-containernew">
+                <p>Recent Escalation</p>
                 <PieChart width={300} height={300}>
                   <Pie
                     data={pieData1}
@@ -942,88 +947,86 @@ const Analysis = () => {
           </div>
           <div className="topclass">
             <div className="right-section">
-              <p>Top Negative Signals</p>
-              <div className="negative-signals">
-                {topNegativeSignals.map((item, index) => (
-                  <div key={index} className="signal-box">
-                    <span>{item.category}</span>
-                    <span className="count">{item.count}</span>
-                  </div>
-                ))}
+              <div className="one-12">
+                <p>Top Negative Signals</p>
+                <div className="negative-signals">
+                  {topNegativeSignals.map((item, index) => (
+                    <div key={index} className="signal-box">
+                      <span>{item.category}</span>
+                      <span className="count">{item.count}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              <p>Social Media and Consumer Court Threat</p>
-              <div
-                className={
-                  potentialEscalations.length > 0
-                    ? "tablescrollbarnew"
-                    : "tablescrollbar"
-                }
-              >
-                <table className="negative-signals-table">
-                  <thead>
-                    <tr>
-                      <th>Scenario</th>
-                      <th>Scenario1</th>
-                      <th>Sensitive Word</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {potentialEscalations.length > 0 ? (
-                      potentialEscalations.map((item, index) => (
-                        <tr key={index}>
-                          <td>{item.scenario}</td>
-                          <td>{item.scenario1}</td>
-                          <td>{item.sensetive_word}</td>
-                        </tr>
-                      ))
-                    ) : (
+              <div className="one-123">
+
+                <p>Social Media and Consumer Court Threat</p>
+                <div className={potentialEscalations.length > 0 ? "tablescrollbarnew" : "tablescrollbar"}>
+
+                  <table className="negative-signals-table">
+                    <thead>
                       <tr>
-                        <td colSpan="3">No data available</td>
+                        <th>Scenario</th>
+                        <th>Scenario1</th>
+                        <th>Sensitive Word</th>
                       </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-
-              <p>Top Negative Signals</p>
-              <div
-                className={
-                  negativeData.length > 0
-                    ? "tablescrollbarnew"
-                    : "tablescrollbar"
-                }
-              >
-                <table className="negative-signals-table">
-                  <thead>
-                    <tr>
-                      <th>Scenario</th>
-                      <th>Scenario1</th>
-                      <th>Sensitive Words</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {negativeData.length > 0 ? (
-                      negativeData.map((item, index) => (
-                        <tr key={index}>
-                          <td>{item.scenario}</td>
-                          <td>{item.scenario1}</td>
-                          <td>{item.sensetive_word}</td>
+                    </thead>
+                    <tbody>
+                      {potentialEscalations.length > 0 ? (
+                        potentialEscalations.map((item, index) => (
+                          <tr key={index}>
+                            <td>{item.scenario}</td>
+                            <td>{item.scenario1}</td>
+                            <td>{item.sensetive_word}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="3">No data available</td>
                         </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="3">No data available</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
 
-              <p>Potential Scam</p>
-              <div className="data-table">
-                <p>No data</p>
+              <div className="one-124">
+                <p>Top Negative Signals</p>
+                <div className={negativeData.length > 0 ? "tablescrollbarnew" : "tablescrollbar"}>
+                  <table className="negative-signals-table">
+                    <thead>
+                      <tr>
+                        <th>Scenario</th>
+                        <th>Scenario1</th>
+                        <th>Sensitive Words</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {negativeData.length > 0 ? (
+                        negativeData.map((item, index) => (
+                          <tr key={index}>
+                            <td>{item.scenario}</td>
+                            <td>{item.scenario1}</td>
+                            <td>{item.sensetive_word}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="3">No data available</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
+              <div className="one-125">
+                <p>Potential Scam</p>
+                <div className="data-table">
+                  <p>No data</p>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
@@ -1197,52 +1200,30 @@ const Analysis = () => {
                 </tr>
               </thead>
               <tbody>
-                {competitorData.length > 0 ? (
-                  competitorData.map((competitor, index) => (
-                    <tr key={index}>
-                      <td>{competitor.Competitor_Name}</td>
-                      <td>{competitor.Count}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="2">No data available</td>
+                {competitorData.map((competitor, index) => (
+                  <tr key={index}>
+                    <td>{competitor.Competitor_Name}</td>
+                    <td>{competitor.Count}</td>
                   </tr>
-                )}
+                ))}
               </tbody>
             </table>
           </div>
 
           <div className="section">
             <div className="chart-container-ana">
-              {doughnutChartData?.datasets?.some(
-                (dataset) =>
-                  dataset.data &&
-                  dataset.data.length > 0 &&
-                  dataset.data.some((value) => value > 0)
-              ) ? (
-                <Doughnut
-                  data={doughnutChartData}
-                  options={{ responsive: true, maintainAspectRatio: false }}
-                />
-              ) : (
-                <p
-                  style={{
-                    textAlign: "center",
-                    fontSize: "16px",
-                    color: "#666",
-                  }}
-                >
-                  No data available
-                </p>
-              )}
+              <Doughnut data={doughnutChartData} />
             </div>
           </div>
         </div>
         {loading1 && (
           <div className="loader-overlay">
-            <div className="windows-spinner"></div>
-            <p className="Loading">Loading...</p>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+
           </div>
         )}
       </div>
@@ -1251,3 +1232,8 @@ const Analysis = () => {
 };
 
 export default Analysis;
+
+
+
+
+
