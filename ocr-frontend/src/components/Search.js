@@ -85,7 +85,12 @@ const Search = () => {
               className="search-bar"
               placeholder="Search Lead Id..."
               value={leadId}
-              onChange={(e) => setLeadId(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (/^\d*$/.test(value)) {
+                  setLeadId(value); // Only update state if value is an integer
+                }
+              }}
             />
             <button class="setsubmitbtn" onClick={fetchCallQualityDetails}>
               Search
