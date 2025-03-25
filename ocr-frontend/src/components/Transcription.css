@@ -278,3 +278,12 @@
     font-size: 24px;
     cursor: pointer;
   }
+  .down-all{
+    background: #bbb;
+    width: 170px;
+    border-radius: 10px;
+  }
+.down-all:hover{
+  background-color: #16155e;
+}
+ 
