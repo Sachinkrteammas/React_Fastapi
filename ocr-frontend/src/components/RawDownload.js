@@ -191,7 +191,7 @@ const RawDownload = () => {
       <div className="Down-dashboard">
         <header className="header">
           <h3>DialDesk</h3>
-          <div className="setheaderdivdetails">
+          <div className="setheaderdivdetails" style={{marginLeft:"260px"}}>
             <label>
               <input
                 type="date"
@@ -214,6 +214,21 @@ const RawDownload = () => {
                 onClick={fetchCallQualityDetails}
               />
             </label>
+            <label>
+            {data.length > 0 && (
+            <input
+              className="setsubmitbtn"
+              onClick={() => downloadExcel(dataExcel)}
+              value={"Excel Export"}
+              readOnly
+              style={{
+                cursor:"pointer",
+                width: "110px"
+              }}
+            />
+             
+          )}
+            </label>
           </div>
         </header>
 
@@ -222,19 +237,6 @@ const RawDownload = () => {
           className={`content-wrapper ${loading ? "blurred" : ""}`}
           style={{ overflowY: "auto", maxHeight: "630px" }}
         >
-          {data.length > 0 && (
-            <button
-              onClick={() => downloadExcel(dataExcel)}
-              style={{
-                marginBottom: "10px",
-                padding: "5px 10px",
-                cursor: "pointer",
-                width: "65px",
-              }}
-            >
-              Excel Export
-            </button>
-          )}
 
           {/* Table */}
           <table>
