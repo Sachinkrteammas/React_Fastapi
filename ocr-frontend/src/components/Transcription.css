@@ -252,7 +252,7 @@
     left: 400px;
     width: 50%;
     height: auto;
-    background: rgb(226, 223, 223);
+    background: white;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -266,6 +266,7 @@
     width: 50%; */
     max-height: 70%;
     overflow-y: auto;
+    font-size: 13px;
     /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); */
   }
   

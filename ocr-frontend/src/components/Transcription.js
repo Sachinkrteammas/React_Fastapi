@@ -237,7 +237,7 @@ const Transcription = ({ onLogout }) => {
             <div className="modal-overlay" onClick={closeModal}>
               <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                 <span className="close-button" onClick={closeModal}>&times;</span>
-                
+                <h4>Full Transcript</h4>
                 <p>{selectedTranscript}</p>
               </div>
             </div>
