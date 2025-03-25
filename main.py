@@ -384,24 +384,32 @@ async def upload_audio(
             transcript_text = "No Transcript Available"
             transcribe_value = 0  # Default value if no transcript found
 
-            with open(file_path, "rb") as audio_file:
-                async with httpx.AsyncClient() as client:
-                    response = await client.post(TRANSCRIBE_API_URL, files={"file": audio_file})
+            try:
+                with open(file_path, "rb") as audio_file:
+                    async with httpx.AsyncClient() as client:
+                        response = await client.post(TRANSCRIBE_API_URL, files={"file": audio_file})
 
-            if response.status_code == 200:
-                transcript_data = response.json()
-                print(len(transcript_data), "length====")  # Debugging length
+                if response.status_code == 200:
+                    transcript_data = response.json()
+                    print(f"Transcript response: {transcript_data}")  # Debugging
 
-                if len(transcript_data) == 1 and (
-                        not transcript_data.get("transcript") or transcript_data["transcript"].strip() == ""):
-                    print("Empty transcript received, setting transcribe_value to 0")  # Debugging
+                    if isinstance(transcript_data, dict) and "transcript" in transcript_data:
+                        transcript = transcript_data["transcript"]
+
+                        # Check if transcript is empty
+                        if not transcript or transcript.strip() == "":
+                            print("Empty transcript received, setting transcribe_value to 0")
+                            transcript_text = "No Transcript Available"
+                            transcribe_value = 0
+                        else:
+                            transcript_text = transcript
+                            transcribe_value = 1  # Valid transcript found
+
                 else:
-                    transcript_text = transcript_data.get("transcript", "No Transcript Available")
-                    transcribe_value = 1  # Transcription available
+                    print(f"Transcription API failed for {file.filename}, Status: {response.status_code}")
 
-
-            else:
-                print(f"Transcription API failed for {file.filename}, Status: {response.status_code}")
+            except Exception as e:
+                print(f"Error calling transcription API: {str(e)}")
 
             # Save to database
             new_audio = AudioFile(
@@ -525,15 +533,19 @@ async def upload_audio_curl(
 
                 if response.status_code == 200:
                     transcript_data = response.json()
-                    print(len(transcript_data), "length====")  # Debugging
-                    print(transcript_data, "transcript_data====")  # Debugging content
+                    print(f"Transcript response: {transcript_data}")  # Debugging
 
-                    # If transcript_data has only 1 item and it is an empty string, set it to "No Transcript Available"
-                    if len(transcript_data) == 1 and (not transcript_data.get("transcript") or transcript_data["transcript"].strip() == ""):
-                        print("Empty transcript received, setting transcribe_value to 0")  # Debugging
-                    else:
-                        transcript_text = transcript_data.get("transcript", "No Transcript Available")
-                        transcribe_value = 1  # Transcription available
+                    if isinstance(transcript_data, dict) and "transcript" in transcript_data:
+                        transcript = transcript_data["transcript"]
+
+                        # Check if transcript is empty
+                        if not transcript or transcript.strip() == "":
+                            print("Empty transcript received, setting transcribe_value to 0")
+                            transcript_text = "No Transcript Available"
+                            transcribe_value = 0
+                        else:
+                            transcript_text = transcript
+                            transcribe_value = 1  # Valid transcript found
 
                 else:
                     print(f"Transcription API failed for {file.filename}, Status: {response.status_code}")
@@ -568,6 +580,7 @@ async def upload_audio_curl(
         raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
 
 
 
@@ -2259,7 +2272,8 @@ def get_recordings(db: Session = Depends(get_db)):
             "recordingDate": rec.upload_time.strftime("%Y-%m-%d"),
             "file": rec.filename,
             "category": rec.category if rec.category else "Unknown",
-            "Transcript": rec.transcript if rec.transcript else "NA"
+            "Transcript": rec.transcript if rec.transcript else "NA",
+            "id":rec.id
         }
         for rec in recordings
     ]
@@ -2300,10 +2314,41 @@ def get_recordings_datewise(
             "recordingDate": rec.upload_time.strftime("%Y-%m-%d"),
             "file": rec.filename,
             "category": rec.category if rec.category else "Unknown",
-            "Transcript": rec.transcript if rec.transcript else "NA"
+            "Transcript": rec.transcript if rec.transcript else "NA",
+            "id": rec.id
 
         }
         for rec in recordings
     ]
 
     return response_data
+
+
+UPLOAD_DIR = "downloaded_files"  # Directory to store text files
+os.makedirs(UPLOAD_DIR, exist_ok=True)  # Ensure directory exists
+from fastapi.responses import FileResponse
+
+@app.post("/download_transcription/")
+async def download_transcription(data: dict, db: Session = Depends(get_db)):
+    ids = data.get("ids", [])
+    if not ids:
+        raise HTTPException(status_code=400, detail="No IDs provided")
+
+    # Fetch matching records from the database
+    audio_records = db.query(AudioFile).filter(AudioFile.id.in_(ids)).all()
+    if not audio_records:
+        raise HTTPException(status_code=404, detail="No matching records found")
+
+    # Generate transcription text
+    text_content = "\n\n".join(
+        [f"ID: {audio.id}\nFilename: {audio.filename}\nCategory: {audio.category}\nTranscript: {audio.transcript}"
+         for audio in audio_records]
+    )
+
+    # Save text file
+    file_path = os.path.join(UPLOAD_DIR, "transcriptions.txt")
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(text_content)
+
+    # Return file for download
+    return FileResponse(file_path, filename="transcriptions.txt", media_type="text/plain")

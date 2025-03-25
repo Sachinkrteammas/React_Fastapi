@@ -9,8 +9,12 @@ import { BASE_URL } from "./config";
 
 const Transcription = ({ onLogout }) => {
   const navigate = useNavigate();
-  const [startDate, setStartDate] = useState(new Date().toISOString().split("T")[0]);
-  const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0]);
+  const [startDate, setStartDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+  const [endDate, setEndDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
   const [dateOption, setDateOption] = useState("Today");
   const [isCustom, setIsCustom] = useState(false);
   const [dateBy, setDateBy] = useState("Document Date");
@@ -22,6 +26,8 @@ const Transcription = ({ onLogout }) => {
   const audioRef = useRef(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedTranscript, setSelectedTranscript] = useState("");
+  const [selectedItems, setSelectedItems] = useState([]); // Store selected IDs
+  const [selectAll, setSelectAll] = useState(false); // Track "Select All" state
 
   const openModal = (transcript) => {
     setSelectedTranscript(transcript);
@@ -32,10 +38,6 @@ const Transcription = ({ onLogout }) => {
     setShowModal(false);
     setSelectedTranscript("");
   };
-
-
-
-
 
   const firstname = localStorage.getItem("username");
   const username = firstname ? firstname.split(" ")[0] : "";
@@ -76,8 +78,9 @@ const Transcription = ({ onLogout }) => {
 
   const startIndex = (page - 1) * itemsPerPage;
   // const currentItems = data.slice(startIndex, startIndex + itemsPerPage);
-  const currentItems = Array.isArray(data) ? data.slice(startIndex, startIndex + itemsPerPage) : [];
-
+  const currentItems = Array.isArray(data)
+    ? data.slice(startIndex, startIndex + itemsPerPage)
+    : [];
 
   const handleDateChange = (date, type) => {
     if (!date) return;
@@ -122,11 +125,62 @@ const Transcription = ({ onLogout }) => {
     console.log("Fetching data from", startDate, "to", endDate);
 
     try {
-      const response = await fetch(`${BASE_URL}/recordings_datewise/?start_date=${startDate}&end_date=${endDate}`);
+      const response = await fetch(
+        `${BASE_URL}/recordings_datewise/?start_date=${startDate}&end_date=${endDate}`
+      );
       const result = await response.json();
       setData(result);
     } catch (error) {
       console.error("Error fetching filtered recordings:", error);
+    }
+  };
+
+  const handleCheckboxChange = (id) => {
+    setSelectedItems((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  // Toggle "Select All" checkbox
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedItems([]); // Uncheck all
+    } else {
+      setSelectedItems(currentItems.map((item) => item.id)); // Check all
+    }
+    setSelectAll(!selectAll);
+  };
+
+  const downloadFile = async (caseType) => {
+    try {
+      let requestBody = {};
+
+      if (caseType === "selected") {
+        requestBody = { ids: selectedItems };
+      } else {
+        requestBody = { ids: currentItems.map((item) => item.id) };
+      }
+
+      const response = await fetch(`${BASE_URL}/download_transcription/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) throw new Error("Failed to download file");
+
+      // Convert response to Blob and trigger download
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "transcriptions.txt"; // Set download filename
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading file:", error);
     }
   };
 
@@ -139,7 +193,6 @@ const Transcription = ({ onLogout }) => {
             className="predate"
             value={dateOption}
             onChange={handleDateOptionChange} // Enable date pickers when "Custom" is selected
-
           >
             <option>Today</option>
             <option>Yesterday</option>
@@ -169,27 +222,48 @@ const Transcription = ({ onLogout }) => {
           />
 
           <h1 className="word">Date by</h1>
-          <select className="predate" value={dateBy} onChange={(e) => setDateBy(e.target.value)}>
+          <select
+            className="predate"
+            value={dateBy}
+            onChange={(e) => setDateBy(e.target.value)}
+          >
             <option>Document Date</option>
             <option>Created Date</option>
           </select>
 
           <h1 className="word">Bucket</h1>
-          <select className="predate" value={bucket} onChange={(e) => setBucket(e.target.value)}>
+          <select
+            className="predate"
+            value={bucket}
+            onChange={(e) => setBucket(e.target.value)}
+          >
             <option>Active</option>
             <option>Not Viewed</option>
             <option>Archived</option>
             <option>All</option>
           </select>
 
-          <button className="view" style={{ marginLeft: "10px", height: "30px" }} onClick={handleView}>View</button>
+          <button
+            className="view"
+            style={{ marginLeft: "10px", height: "30px" }}
+            onClick={handleView}
+          >
+            View
+          </button>
         </div>
 
         <div className="table-containers1">
           <table className="custom-table">
             <thead>
               <tr>
-                <th>Select</th>
+                <th>
+                  <input
+                    type="checkbox"
+                    name="selectAll"
+                    checked={selectAll}
+                    onChange={handleSelectAll}
+                  />
+                </th>
                 <th>Preview</th>
                 <th>Recording Date</th>
                 <th>Recording File</th>
@@ -201,7 +275,13 @@ const Transcription = ({ onLogout }) => {
               {currentItems.map((item, index) => (
                 <tr key={index}>
                   <td>
-                    <input type="checkbox" />
+                    <input
+                      type="checkbox"
+                      name="select"
+                      value={item.id}
+                      checked={selectedItems.includes(item.id)}
+                      onChange={() => handleCheckboxChange(item.id)}
+                    />
                   </td>
                   <td>{item.preview}</td>
                   <td>{item.recordingDate}</td>
@@ -209,7 +289,11 @@ const Transcription = ({ onLogout }) => {
                     <audio className="audio-controls" controls>
                       <source
                         src={`/audio/${item.file}`}
-                        type={item.file.endsWith(".wav") ? "audio/mpeg" : "audio/wav"}
+                        type={
+                          item.file.endsWith(".wav")
+                            ? "audio/mpeg"
+                            : "audio/wav"
+                        }
                       />
                       Your browser does not support the audio element.
                     </audio>
@@ -222,7 +306,10 @@ const Transcription = ({ onLogout }) => {
                         : item.Transcript}
                     </div>
                     {item.Transcript.length > 50 && (
-                      <button className="show-more" onClick={() => openModal(item.Transcript)}>
+                      <button
+                        className="show-more"
+                        onClick={() => openModal(item.Transcript)}
+                      >
                         Show More
                       </button>
                     )}
@@ -235,21 +322,44 @@ const Transcription = ({ onLogout }) => {
           {/* Modal */}
           {showModal && (
             <div className="modal-overlay" onClick={closeModal}>
-              <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                <span className="close-button" onClick={closeModal}>&times;</span>
+              <div
+                className="modal-content"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <span className="close-button" onClick={closeModal}>
+                  &times;
+                </span>
                 <h4>Full Transcript</h4>
                 <p>{selectedTranscript}</p>
               </div>
             </div>
           )}
+
+      <div style={{width: "100%",gap:"6px" }}>
+          {/* Download Buttons */}
+      <button style={{width:"170px"}} onClick={() => downloadFile("all")}>Download All</button>
+      <button style={{width:"170px"}} onClick={() => downloadFile("selected")} disabled={selectedItems.length === 0}>
+        Download Selected
+      </button>
+      </div>
         </div>
 
         <div className="pagination">
-          <button onClick={prevPage} disabled={page === 1} className="pagination-button">
+          <button
+            onClick={prevPage}
+            disabled={page === 1}
+            className="pagination-button"
+          >
             Previous
           </button>
-          <span className="page-info">Page {page} of {totalPages}</span>
-          <button onClick={nextPage} disabled={page === totalPages} className="pagination-button">
+          <span className="page-info">
+            Page {page} of {totalPages}
+          </span>
+          <button
+            onClick={nextPage}
+            disabled={page === totalPages}
+            className="pagination-button"
+          >
             Next
           </button>
         </div>
