@@ -9,8 +9,8 @@ import { BASE_URL } from "./config";
 
 const Transcription = ({ onLogout }) => {
   const navigate = useNavigate();
-  const [startDate, setStartDate] =  useState(new Date().toISOString().split("T")[0]);
-  const [endDate, setEndDate] =  useState(new Date().toISOString().split("T")[0]);
+  const [startDate, setStartDate] = useState(new Date().toISOString().split("T")[0]);
+  const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0]);
   const [dateOption, setDateOption] = useState("Today");
   const [isCustom, setIsCustom] = useState(false);
   const [dateBy, setDateBy] = useState("Document Date");
@@ -20,6 +20,22 @@ const Transcription = ({ onLogout }) => {
   const [totalPages, setTotalPages] = useState(1);
   const itemsPerPage = 6;
   const audioRef = useRef(null);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedTranscript, setSelectedTranscript] = useState("");
+
+  const openModal = (transcript) => {
+    setSelectedTranscript(transcript);
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedTranscript("");
+  };
+
+
+
+
 
   const firstname = localStorage.getItem("username");
   const username = firstname ? firstname.split(" ")[0] : "";
@@ -64,9 +80,9 @@ const Transcription = ({ onLogout }) => {
 
 
   const handleDateChange = (date, type) => {
-    if (!date) return; 
+    if (!date) return;
 
-    const formattedDate = date.toISOString().split("T")[0]; 
+    const formattedDate = date.toISOString().split("T")[0];
 
     if (type === "start") setStartDate(formattedDate);
     else setEndDate(formattedDate);
@@ -104,7 +120,7 @@ const Transcription = ({ onLogout }) => {
 
   const handleView = async () => {
     console.log("Fetching data from", startDate, "to", endDate);
-  
+
     try {
       const response = await fetch(`${BASE_URL}/recordings_datewise/?start_date=${startDate}&end_date=${endDate}`);
       const result = await response.json();
@@ -123,7 +139,7 @@ const Transcription = ({ onLogout }) => {
             className="predate"
             value={dateOption}
             onChange={handleDateOptionChange} // Enable date pickers when "Custom" is selected
-            
+
           >
             <option>Today</option>
             <option>Yesterday</option>
@@ -173,6 +189,7 @@ const Transcription = ({ onLogout }) => {
           <table className="custom-table">
             <thead>
               <tr>
+                <th>Select</th>
                 <th>Preview</th>
                 <th>Recording Date</th>
                 <th>Recording File</th>
@@ -183,20 +200,48 @@ const Transcription = ({ onLogout }) => {
             <tbody>
               {currentItems.map((item, index) => (
                 <tr key={index}>
+                  <td>
+                    <input type="checkbox" />
+                  </td>
                   <td>{item.preview}</td>
                   <td>{item.recordingDate}</td>
                   <td>
                     <audio className="audio-controls" controls>
-                      <source src={`/audio/${item.file}`} type={item.file.endsWith(".wav") ? "audio/mpeg" : "audio/wav"} />
+                      <source
+                        src={`/audio/${item.file}`}
+                        type={item.file.endsWith(".wav") ? "audio/mpeg" : "audio/wav"}
+                      />
                       Your browser does not support the audio element.
                     </audio>
                   </td>
                   <td>{item.category}</td>
-                  <td>{item.Transcript}</td>
+                  <td>
+                    <div className="transcript-short">
+                      {item.Transcript.length > 50
+                        ? item.Transcript.substring(0, 50) + "..."
+                        : item.Transcript}
+                    </div>
+                    {item.Transcript.length > 50 && (
+                      <button className="show-more" onClick={() => openModal(item.Transcript)}>
+                        Show More
+                      </button>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
+
+          {/* Modal */}
+          {showModal && (
+            <div className="modal-overlay" onClick={closeModal}>
+              <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                <span className="close-button" onClick={closeModal}>&times;</span>
+                
+                <p>{selectedTranscript}</p>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="pagination">
