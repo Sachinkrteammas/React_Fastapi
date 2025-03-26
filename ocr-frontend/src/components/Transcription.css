@@ -168,7 +168,8 @@
     display: flex;
     justify-content: center;
    
-    margin-top: 4.5rem;
+    margin-top: -6.5rem;
+    margin-left: 650px;
   }
   
   .pagination-button {
@@ -193,9 +194,9 @@
   }
   
   .page-info {
-    font-weight: bold;
+    /* font-weight: bold; */
     align-items: center;
-    margin-top: 1rem;
+    margin-top: 2.5rem;
   }
 
 
