@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./dashboard.css";
 import DatePicker from "react-datepicker";
@@ -8,6 +8,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend} from "recharts";
 import Layout from "./layout"; 
 import "./layout.css";
 import { BASE_URL } from "./components/config";
+import axios from "axios";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -18,6 +19,8 @@ const Dashboard = () => {
   const [barData, setBarData] = useState([]);
   const firstname=localStorage.getItem("username");
   const username =firstname? firstname.split(" ")[0] : "";
+  const user_id = localStorage.getItem("id");
+  const [totalMinutes, setTotalMinutes] = useState("00.00");
   
   
   const handleLogout = () => {
@@ -116,11 +119,31 @@ const Dashboard = () => {
   };
 
 
+  useEffect(() => {
+    if (!user_id) return; // Ensure user_id exists
+
+    const fetchTotalMinutes = async () => {
+      try {
+        const response = await axios.get(`${BASE_URL}/calculate_limit/`, {
+          params: { user_id },
+        });
+        setTotalMinutes(response.data.total_minutes);
+      } catch (error) {
+        console.error("Error fetching total minutes:", error);
+      }
+    };
+
+    fetchTotalMinutes();
+  }, [user_id]);
+
 
   return (
     <Layout>
 
         <div className="flex-container">
+          <div>
+            <h6 style={{fontFamily:"Arial"}}>You are on the FREE plan which has a monthly data extraction limit of 30 minutes. You've processed a total of {totalMinutes} minute so far this month.</h6>
+          </div>
           {/* Main Content */}
           <div className="main-content new123">
             <h1 className="new">Recording Transcription</h1>

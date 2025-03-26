@@ -10,7 +10,7 @@ import datetime
 import bcrypt
 from fastapi import FastAPI, HTTPException, Depends, File, UploadFile, Form, Header, Query
 from fastapi.exceptions import RequestValidationError
-from sqlalchemy import create_engine, Column, Integer, String, func, DateTime, text
+from sqlalchemy import create_engine, Column, Integer, String, func, DateTime, text, DECIMAL
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from pydantic import BaseModel, EmailStr, constr, validator
@@ -69,6 +69,7 @@ class User(Base):
     password = Column(String(255), nullable=False)
     api_key = Column(String(255), unique=True, nullable=True)
     clientid = Column(String, nullable=True)
+    set_limit = Column(Integer, nullable=False, default=30)
 
 
 
@@ -202,7 +203,8 @@ def login_user(user: LoginRequest, db: Session = Depends(get_db)):
     # )
     token = ''
 
-    return {"message": "Login successful","token": token,"username": db_user.username,"id":db_user.id, "client_id":db_user.clientid}
+    return {"message": "Login successful","token": token,"username": db_user.username,"id":db_user.id, "client_id":db_user.clientid,
+            "set_limit": db_user.set_limit }
 
 
 class VerifyOtpRequest(BaseModel):
@@ -347,6 +349,8 @@ class AudioFile(Base):
     language = Column(String(100), nullable=True)
     category = Column(String(100), nullable=True)
     transcript = Column(String, nullable=True)
+    user_id = Column(Integer, nullable=True, default=None)  # Can be NULL if not assigned
+    minutes = Column(DECIMAL(5, 2), nullable=False, default=0.00)
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -367,6 +371,7 @@ async def upload_audio(
         files: list[UploadFile] = File(...),  # Accept multiple files
         language: str = Form(None),  # Optional field
         category: str = Form(None),  # Optional field
+        user_id: int = Form(...),
         db: Session = Depends(get_db)
 ):
     uploaded_files = []
@@ -383,6 +388,7 @@ async def upload_audio(
             # Call Transcription API
             transcript_text = "No Transcript Available"
             transcribe_value = 0  # Default value if no transcript found
+            formatted_minutes = 0.00
 
             try:
                 with open(file_path, "rb") as audio_file:
@@ -395,6 +401,12 @@ async def upload_audio(
 
                     if isinstance(transcript_data, dict) and "transcript" in transcript_data:
                         transcript = transcript_data["transcript"]
+                        duration = transcript_data.get("duration", 0)
+                        minutes = int(duration) // 60
+                        seconds = int(duration) % 60
+                        minutes_decimal = minutes + (seconds / 60)
+
+                        formatted_minutes = round(minutes_decimal, 2)
 
                         # Check if transcript is empty
                         if not transcript or transcript.strip() == "":
@@ -418,7 +430,10 @@ async def upload_audio(
                 language=language,
                 category=category,
                 transcript=transcript_text,
-                transcribe_stat=transcribe_value
+                transcribe_stat=transcribe_value,
+                user_id=user_id,
+                minutes=formatted_minutes
+
             )
             db.add(new_audio)
             db.commit()
@@ -494,14 +509,15 @@ async def upload_audio_curl(
     files: list[UploadFile] = File(...),
     language: str = Form(None),
     category: str = Form(None),
+    user_id: int = Form(...),
     authorization: str = Header(None),
     db: Session = Depends(get_db)
 ):
+    """Handles audio file upload, transcription, and database storage."""
     global API_SECRET_TOKEN  # Ensure we use the updated token
-
-    # Check for valid authorization token
+    # Validate Authorization
     if not authorization or authorization.split(" ")[-1] != API_SECRET_TOKEN:
-        raise HTTPException(status_code=401, detail="Unauthorized")
+        raise HTTPException(status_code=401, detail="Unauthorized: Invalid Token")
 
     if not files:
         raise HTTPException(status_code=400, detail="No files uploaded")
@@ -525,6 +541,7 @@ async def upload_audio_curl(
             # Transcribe audio file
             transcript_text = "No Transcript Available"  # Default
             transcribe_value = 0  # Default value (0 = No Transcript)
+            formatted_minutes = 0.00
 
             try:
                 with open(file_path, "rb") as audio_file:
@@ -535,17 +552,19 @@ async def upload_audio_curl(
                     transcript_data = response.json()
                     print(f"Transcript response: {transcript_data}")  # Debugging
 
-                    if isinstance(transcript_data, dict) and "transcript" in transcript_data:
-                        transcript = transcript_data["transcript"]
+                    if isinstance(transcript_data, dict):
+                        transcript = transcript_data.get("transcript", "").strip()
+                        duration = transcript_data.get("duration", 0)
 
-                        # Check if transcript is empty
-                        if not transcript or transcript.strip() == "":
-                            print("Empty transcript received, setting transcribe_value to 0")
-                            transcript_text = "No Transcript Available"
-                            transcribe_value = 0
-                        else:
+                        # Convert duration (seconds) to decimal minutes
+                        minutes = int(duration) // 60
+                        seconds = int(duration) % 60
+                        formatted_minutes = round(minutes + (seconds / 60), 2)
+
+                        # Check transcript validity
+                        if transcript:
                             transcript_text = transcript
-                            transcribe_value = 1  # Valid transcript found
+                            transcribe_value = 1
 
                 else:
                     print(f"Transcription API failed for {file.filename}, Status: {response.status_code}")
@@ -560,7 +579,9 @@ async def upload_audio_curl(
                 language=language,
                 category=category,
                 transcript=transcript_text,
-                transcribe_stat=transcribe_value
+                transcribe_stat=transcribe_value,
+                user_id=user_id,  # Ensure user ID is saved
+                minutes=formatted_minutes
             )
             db.add(new_audio)
             db.commit()
@@ -2352,3 +2373,26 @@ async def download_transcription(data: dict, db: Session = Depends(get_db)):
 
     # Return file for download
     return FileResponse(file_path, filename="transcriptions.txt", media_type="text/plain")
+
+
+@app.get("/calculate_limit/")
+async def calculate_limit(user_id: int, db: Session = Depends(get_db)):
+    user_minutes = db.query(AudioFile.minutes).filter(AudioFile.user_id == user_id).all()
+
+    if not user_minutes:
+        return {"user_id": user_id, "total_minutes": "00.00"}
+
+    total_seconds = 0
+
+    for (minute_value,) in user_minutes:
+        if minute_value is not None:
+            minutes_part = int(minute_value)
+            seconds_part = round((minute_value - minutes_part) * 100)
+            total_seconds += (minutes_part * 60) + seconds_part
+
+    total_minutes = total_seconds // 60
+    total_remaining_seconds = total_seconds % 60
+
+    formatted_total = f"{total_minutes}.{str(total_remaining_seconds).zfill(2)}"
+
+    return {"user_id": user_id, "total_minutes": formatted_total}

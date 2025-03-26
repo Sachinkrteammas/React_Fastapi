@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./Recording.css";
@@ -16,7 +16,13 @@ const Recordings = () => {
   const [generatedKey, setGeneratedKey] = useState("");
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef(null);
+  const user_id = localStorage.getItem("id");
+  const [totalMinutes, setTotalMinutes] = useState("00.00");
+  const set_limit = Number(localStorage.getItem("set_limit")) || 0; // Convert to number
 
+  const isLimitExceeded = totalMinutes > set_limit; // Correct comparison
+  console.log(set_limit,"set_limit",totalMinutes,"totalMinutes==")
+ 
 
   const curlCommand = `curl -X 'POST' 'http://127.0.0.1:8097/upload-audio-curl/' \\
 -H "Authorization: Bearer YOUR_SECRET_TOKEN" \\
@@ -24,7 +30,8 @@ const Recordings = () => {
 -F 'files=@/path/to/audio1.mp3' \\
 -F 'files=@/path/to/audio2.wav' \\
 -F 'language=English' \\
--F 'category=Sales'`;
+-F 'category=Sales' \\
+-F 'user_id=12'`;
 
   const [copied, setCopied] = useState(false);
 
@@ -32,7 +39,7 @@ const Recordings = () => {
     navigator.clipboard.writeText(curlCommand);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  }
+  };
 
   const handleFileChange = (event) => {
     setSelectedFiles((prevFiles) => [
@@ -62,6 +69,7 @@ const Recordings = () => {
       formData.append("files", file);
       formData.append("language", selectedLanguage);
       formData.append("category", selectedCategory);
+      formData.append("user_id", user_id);
 
       try {
         await axios.post(`${BASE_URL}/upload-audio/`, formData, {
@@ -115,16 +123,28 @@ const Recordings = () => {
     }
   };
 
+  useEffect(() => {
+    if (!user_id) return; // Ensure user_id exists
 
+    const fetchTotalMinutes = async () => {
+      try {
+        const response = await axios.get(`${BASE_URL}/calculate_limit/`, {
+          params: { user_id },
+        });
+        setTotalMinutes(response.data.total_minutes);
+      } catch (error) {
+        console.error("Error fetching total minutes:", error);
+      }
+    };
 
-
+    fetchTotalMinutes();
+  }, [user_id]);
 
   return (
     <Layout>
       <div className="record-dash">
         <div className="record-content">
           <h1 className="wordrec">Recordings</h1>
-
           {/* Language & Category Dropdowns */}
           <div className="drop-record">
             <select
@@ -147,11 +167,9 @@ const Recordings = () => {
               <option value="Service">Service</option>
             </select>
           </div>
-
           <h2 className="chword">Choose Audio Files</h2>
-
           {/* File Input & Upload Button */}
-          <div className="recordings-box">
+          <div className={`recordings-box ${isLimitExceeded ? "blurred" : ""}`}>
             <input
               type="file"
               accept="audio/mpeg,audio/wav"
@@ -159,17 +177,22 @@ const Recordings = () => {
               className="browse-button"
               onChange={handleFileChange}
               ref={fileInputRef}
+              disabled={isLimitExceeded} // Disable input if limit exceeded
             />
             <button
               className="upload-button"
               onClick={handleUpload}
-              disabled={uploading}
+              disabled={uploading || isLimitExceeded} // Disable button if limit exceeded
             >
               {uploading ? "Uploading..." : "Upload"}
             </button>
             {uploadMessage && <p className="upload-message">{uploadMessage}</p>}
+            {isLimitExceeded && (
+              <p style={{ color: "red" }}>Limit exceeded! Upgrade your plan.</p>
+            )}
+            
           </div>
-
+         
           <div className="developer-container">
             <h1 className="worddev">Developer Code</h1>
             <div className="developer-box">
