@@ -335,34 +335,44 @@ const Transcription = ({ onLogout }) => {
             </div>
           )}
 
-          <div style={{ width: "100%", gap: "6px"  }}>
-            {/* Download Buttons */}
-            <button className=" down-all"  onClick={() => downloadFile("all")}>Download All</button>
-            <button className=" down-all"  onClick={() => downloadFile("selected")} disabled={selectedItems.length === 0}>
-              Download Selected
-            </button>
-          </div>
+          {currentItems.length > 0 && (
+            <div style={{ width: "100%", gap: "6px" }}>
+              {/* Download Buttons */}
+              <button className=" down-all" onClick={() => downloadFile("all")}>
+                Download All
+              </button>
+              <button
+                className=" down-all"
+                onClick={() => downloadFile("selected")}
+                disabled={selectedItems.length === 0}
+              >
+                Download Selected
+              </button>
+            </div>
+          )}
         </div>
 
-        <div className="pagination">
-          <button
-            onClick={prevPage}
-            disabled={page === 1}
-            className="pagination-button"
-          >
-            Previous
-          </button>
-          <span className="page-info">
-            Page {page} of {totalPages}
-          </span>
-          <button
-            onClick={nextPage}
-            disabled={page === totalPages}
-            className="pagination-button"
-          >
-            Next
-          </button>
-        </div>
+        {currentItems.length > 0 && (
+          <div className="pagination">
+            <button
+              onClick={prevPage}
+              disabled={page === 1}
+              className="pagination-button"
+            >
+              Previous
+            </button>
+            <span className="page-info">
+              Page {page} of {totalPages}
+            </span>
+            <button
+              onClick={nextPage}
+              disabled={page === totalPages}
+              className="pagination-button"
+            >
+              Next
+            </button>
+          </div>
+        )}
       </div>
     </Layout>
   );
