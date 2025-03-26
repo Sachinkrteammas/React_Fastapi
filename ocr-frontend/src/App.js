@@ -6,7 +6,9 @@ import ResetPassword from "./ResetPassword";
 import Dashboard from "./dashboard";
 import ForgotPassword from "./forgot";
 import VerifyPassword from "./verify";
+import VerifyOtpSignUp from "./VerifyOtpSignUp"; 
 import APIKey from "./components/APIKey";
+import UserDashboardSelection from "./components/UserDashboardSelection";
 import Analysis from "./components/Analysis";
 import Prompt from "./components/Prompt";
 import Recordings from "./components/Recordings";
@@ -87,6 +89,7 @@ const App = () => {
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password/:token" element={<ForgotPassword />} />
         <Route path="/verify" element={<VerifyPassword />} />
+        <Route path="/VerifyOtpSignUp" element={<VerifyOtpSignUp />} />
         <Route path="/ResetPassword" element={<ResetPassword />} />
 
         {/* Protected Routes */}
@@ -96,6 +99,8 @@ const App = () => {
         <Route path="/prompt" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Prompt onLogout={handleLogout} />} />} />
         <Route path="/Settings" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Settings onLogout={handleLogout}/>} />} />
         <Route path="/APIKey" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<APIKey onLogout={handleLogout}/>} />} />
+        <Route path="/UserDashboardSelection" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<UserDashboardSelection onLogout={handleLogout}/>} />} />
+
         <Route path="/Analysis" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Analysis onLogout={handleLogout}/>} />} />
         <Route path="/Search" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Search onLogout={handleLogout}/>} />} />
         <Route path="/QualityPerformance" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<QualityPerformance onLogout={handleLogout}/>} />} />

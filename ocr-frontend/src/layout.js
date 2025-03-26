@@ -75,6 +75,7 @@ const Layout = ({ onLogout, children }) => {
     { path: "/Prompt", label: "Prompt", Icon: Terminal },
     { path: "/Settings", label: "Settings", Icon: Settings },
     { path: "/APIKey", label: "API Key", Icon: FileKey },
+    { path: "/UserDashboardSelection", label: "UserDashboardSelection", Icon: FileKey },
     {
       label: "Analysis",
       Icon: ChartNoAxesCombined,
