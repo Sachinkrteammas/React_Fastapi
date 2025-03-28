@@ -142,7 +142,7 @@ const Dashboard = () => {
 
         <div className="flex-container">
           <div>
-            <h6 style={{fontFamily:"Arial"}}>You are on the FREE plan which has a monthly data extraction limit of 30 minutes. You've processed a total of {totalMinutes} minute so far this month.</h6>
+            <h6 style={{fontFamily:"Arial"}}>You are on the FREE plan which has a monthly data extraction limit of <span style={{fontWeight:"bold"}}> 30 minutes.</span> You've processed a total of <span style={{fontWeight:"bold"}}> {totalMinutes} minute </span>so far this month.</h6>
           </div>
           {/* Main Content */}
           <div className="main-content new123">

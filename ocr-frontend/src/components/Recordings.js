@@ -21,8 +21,6 @@ const Recordings = () => {
   const set_limit = Number(localStorage.getItem("set_limit")) || 0; // Convert to number
 
   const isLimitExceeded = totalMinutes > set_limit; // Correct comparison
-  console.log(set_limit,"set_limit",totalMinutes,"totalMinutes==")
- 
 
   const curlCommand = `curl -X 'POST' 'http://127.0.0.1:8097/upload-audio-curl/' \\
 -H "Authorization: Bearer YOUR_SECRET_TOKEN" \\
@@ -190,37 +188,26 @@ const Recordings = () => {
             {isLimitExceeded && (
               <p style={{ color: "red" }}>Limit exceeded! Upgrade your plan.</p>
             )}
-            
           </div>
-         
-          <div className="developer-container">
+
+          <div
+            className={`developer-container ${
+              isLimitExceeded ? "blurred" : ""
+            }`}
+          >
             <h1 className="worddev">Developer Code</h1>
             <div className="developer-box">
               <div className="curl-div">
                 <code className="curlcode">{curlCommand}</code>
-                <button onClick={copyToClipboard} className="clipcopy">
+                <button
+                  onClick={copyToClipboard}
+                  className="clipcopy"
+                  disabled={isLimitExceeded} // Disable button
+                >
                   {copied ? <CopyCheck size={18} /> : <Copy size={18} />}
                 </button>
               </div>
             </div>
-            {/* <div className="generate-container">
-              <input
-                type="text"
-                value={generatedKey}
-                readOnly
-                className="key-input"
-              />
-              <button
-                className="copy-key-button"
-                onClick={() => navigator.clipboard.writeText(generatedKey)}
-                disabled={!generatedKey}
-              >
-                Copy
-              </button>
-              <button className="generate-key-button" onClick={handleGenerateKey}>
-                Generate Key
-              </button>
-            </div> */}
           </div>
         </div>
       </div>

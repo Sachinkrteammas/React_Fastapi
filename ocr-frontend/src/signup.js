@@ -13,15 +13,16 @@ const Signup = () => {
         email_id: "",
         contact_number: "",
         password: "",
-        confirm_password: ""
+        confirm_password: "",
+        company_name: "", // Corrected key
     });
 
     const [message, setMessage] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [loading, setLoading] = useState(false); // Prevent multiple clicks
+    const [loading, setLoading] = useState(false);
 
-    const navigate = useNavigate(); // Ensure navigate is declared
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -29,46 +30,48 @@ const Signup = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (loading) return; // Prevent multiple submissions
+        if (loading) return;
         setMessage("");
-    
-        const { username, email_id, contact_number, password, confirm_password } = formData;
-    
-        if (!username || !email_id || !contact_number || !password || !confirm_password) {
+
+        const { username, email_id, contact_number, password, confirm_password, company_name } = formData;
+
+        if (!username || !email_id || !contact_number || !password || !confirm_password || !company_name) {
             setMessage("⚠️ All fields are required.");
             return;
         }
-    
+
         if (password !== confirm_password) {
             setMessage("❌ Passwords do not match!");
             return;
         }
-    
+
         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         if (!emailRegex.test(email_id)) {
             setMessage("❌ Invalid email format.");
             return;
         }
-    
+
         if (!/^\d{10}$/.test(contact_number)) {
             setMessage("❌ Phone number must be exactly 10 digits.");
             return;
         }
-    
+
         if (password.length < 6) {
             setMessage("❌ Password must be at least 6 characters long.");
             return;
         }
-    
+
         try {
-            setLoading(true); // Start loading
+            setLoading(true);
             const response = await axios.post(`${BASE_URL}/register`, formData);
-            console.log("Response:", response); // Debugging step
-    
+            console.log("Response:", response);
+
             if (response.status === 200) {
-                setMessage(`✅ ${response.data.detail || "Otp Sent to Registerd Mobile and Email!"}`);
+                localStorage.setItem("email_id", response.data.email_id);
+                localStorage.setItem("contact_number", response.data.contact_number);
+                setMessage(`✅ ${response.data.detail || "Otp Sent to Registered Mobile and Email!"}`);
                 setTimeout(() => {
-                    navigate("/verifyOtpSignUp"); // Redirect after successful registration
+                    navigate("/verifyOtpSignUp");
                 }, 1500);
             }
         } catch (error) {
@@ -81,7 +84,7 @@ const Signup = () => {
             }
             setMessage(errorMessage);
         } finally {
-            setLoading(false); // Stop loading
+            setLoading(false);
         }
     };
 
@@ -110,13 +113,14 @@ const Signup = () => {
                             required
                         />
                     </div>
+
                     <div className="input-group">
-                        <label htmlFor="company">Company Name:</label>
+                        <label htmlFor="company_name">Company Name:</label> {/* Fixed name */}
                         <input
                             type="text"
-                            name="company"
+                            name="company_name" // Corrected name
                             placeholder="Company Name"
-                            value={formData.company}
+                            value={formData.company_name} // Corrected value
                             onChange={handleChange}
                             required
                         />
@@ -158,10 +162,7 @@ const Signup = () => {
                                 onChange={handleChange}
                                 required
                             />
-                            <span
-                                className="eye-icon"
-                                onClick={() => setShowPassword(!showPassword)}
-                            >
+                            <span className="eye-icon" onClick={() => setShowPassword(!showPassword)}>
                                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                             </span>
                         </div>
@@ -179,10 +180,7 @@ const Signup = () => {
                                 onChange={handleChange}
                                 required
                             />
-                            <span
-                                className="eye-icon"
-                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                            >
+                            <span className="eye-icon" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
                                 {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                             </span>
                         </div>

@@ -1,48 +1,73 @@
 import React, { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";  // Import axios for API requests
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import "./App.css";
 import myImage from "./assets/image.jpg";
 import logo from "./assets/logo.png";
 import { BASE_URL } from "./components/config";
-const VerifyOtpSignUp = () => {
-    const location = useLocation();
-    const navigate = useNavigate();
-    const [email] = useState(location.state?.email || "");  // Email is passed via state
-    const [otp, setOtp] = useState("");
-    const [otp1, setOtp1] = useState("");
-    const [message, setMessage] = useState("");  // To display messages like success or error
-    const [loading, setLoading] = useState(false);  // Loading state for the button
 
+const VerifyOtpSignUp = () => {
+    const navigate = useNavigate();
+    
+    // Retrieve email & phone from localStorage
+    const email_id = localStorage.getItem("email_id") || "";
+    const contact_number = localStorage.getItem("contact_number") || "";
+
+    // OTP states
+    const [emailOtp, setEmailOtp] = useState("");  // Email OTP
+    const [mobileOtp, setMobileOtp] = useState("");  // Mobile OTP
+    const [message, setMessage] = useState("");  // Status messages
+    const [loading, setLoading] = useState(false);  // Loading state
+
+    // Function to verify OTP
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!otp) {
-            setMessage("❌ Please enter OTP.");
+        // Validate OTP fields
+        if (!emailOtp || !mobileOtp) {
+            setMessage("❌ Please enter both OTPs.");
             return;
         }
 
-        setLoading(true);  // Start loading state
+        if (!email_id || !contact_number) {
+            setMessage("❌ Missing email or phone number. Please restart the process.");
+            return;
+        }
+
+        setLoading(true);  // Start loading
 
         try {
-            // Make API call to verify OTP
-            const response = await axios.post(`${BASE_URL}/verify-otp`, {
-                email_id: email,
-                otp: otp
-            });
+            // API call to verify OTP
+            const response = await axios.post(
+                `${BASE_URL}/verify-otp-login`,
+                {
+                    email_id: email_id,
+                    contact_number: contact_number,
+                    otp: emailOtp,   // Email OTP
+                    mobile_otp: mobileOtp,  // Mobile OTP
+                },
+                {
+                    headers: {
+                        "Content-Type": "application/json",  // Ensure correct content type
+                    },
+                }
+            );
 
-            // If OTP is verified successfully
-            setMessage(response.data.message || "OTP verified successfully.");
+            // OTP verified successfully
+            setMessage(response.data.detail || "✅ OTP verified successfully.");
             setTimeout(() => {
                 setLoading(false);
-                // After OTP verification, navigate to the ResetPassword page
-                navigate("/ResetPassword", { state: { email } });
-            }, 2000); // Delay before navigating
+                // Navigate to ResetPassword after verification
+                navigate("/", { state: { email: email_id } });
+            }, 2000);
 
         } catch (error) {
-            setLoading(false);  // End loading state
+            setLoading(false);  // Stop loading
             console.error("Error verifying OTP:", error);
-            setMessage("❌ Invalid OTP or session expired. Please try again.");
+
+            // Handle error response
+            const errorMessage = error.response?.data?.detail || "❌ Invalid OTP or session expired. Please try again.";
+            setMessage(errorMessage);
         }
     };
 
@@ -61,27 +86,29 @@ const VerifyOtpSignUp = () => {
                 <h2>Verify OTP</h2>
 
                 <form onSubmit={handleSubmit}>
-
-
+                    {/* Mobile OTP Input */}
                     <div className="input-group">
                         <input
                             type="text"
                             placeholder="Enter your Mobile OTP"
-                            value={otp}
-                            onChange={(e) => setOtp(e.target.value)}
+                            value={mobileOtp}
+                            onChange={(e) => setMobileOtp(e.target.value)}
                             required
                         />
-                    </div><br></br>
+                    </div><br />
+
+                    {/* Email OTP Input */}
                     <div className="input-group">
                         <input
                             type="text"
                             placeholder="Enter your Email OTP"
-                            value={otp1}
-                            onChange={(e) => setOtp1(e.target.value)}
+                            value={emailOtp}
+                            onChange={(e) => setEmailOtp(e.target.value)}
                             required
                         />
-                    </div><br></br>
+                    </div><br />
 
+                    {/* Submit Button */}
                     <button type="submit" disabled={loading}>
                         {loading ? "Verifying..." : "Verify OTP"}
                     </button>

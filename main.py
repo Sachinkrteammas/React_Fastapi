@@ -70,6 +70,7 @@ class User(Base):
     api_key = Column(String(255), unique=True, nullable=True)
     clientid = Column(String, nullable=True)
     set_limit = Column(Integer, nullable=False, default=30)
+    company_name = Column(String(255), nullable=True)
 
 
 
@@ -141,6 +142,7 @@ class UserRequest(BaseModel):
     contact_number: str
     password: str
     confirm_password: str
+    company_name: str
 
     @validator("contact_number")
     def validate_phone(cls, value):
@@ -148,14 +150,35 @@ class UserRequest(BaseModel):
             raise ValueError("Phone number must have exactly 10 digits.")
         return value
 
+class TempUser(Base):
+    __tablename__ = "temp_users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=False, nullable=False)
+    email_id = Column(String, unique=True, nullable=False)
+    contact_number = Column(String, unique=True, nullable=False)
+    password = Column(String, nullable=False)
+    company_name = Column(String, nullable=True)
+    otp = Column(String, nullable=False)
+    otp_expiry = Column(DateTime, nullable=False, default=lambda: datetime.utcnow())
+    mobile_otp = Column(String, nullable=False)
+
+class OTPVerifyRequest(BaseModel):
+    email_id: str
+    contact_number: str
+    otp: str
+    mobile_otp: str
+
+def generate_otp():
+    return str(random.randint(100000, 999999))
+
 
 @app.post("/register")
 def register_user(user: UserRequest, db: Session = Depends(get_db)):
-    if user.password != user.confirm_password:
-        raise HTTPException(status_code=400, detail="Passwords do not match.")
-
-    if db.query(User).filter(User.username == user.username).first():
-        raise HTTPException(status_code=400, detail="Username is already taken. Choose another one.")
+    # Check if email or phone already exists in temp or main users
+    if db.query(TempUser).filter(
+            (TempUser.email_id == user.email_id) | (TempUser.contact_number == user.contact_number)).first():
+        raise HTTPException(status_code=400, detail="OTP already sent. Please verify.")
 
     if db.query(User).filter(User.email_id == user.email_id).first():
         raise HTTPException(status_code=400, detail="Email is already registered. Use a different one.")
@@ -163,24 +186,150 @@ def register_user(user: UserRequest, db: Session = Depends(get_db)):
     if db.query(User).filter(User.contact_number == user.contact_number).first():
         raise HTTPException(status_code=400, detail="Phone number is already registered. Use a different one.")
 
+    otp = str(random.randint(100000, 999999))
+    mobile_otp = "123456"
+
+    otp_expiry = datetime.datetime.utcnow() + datetime.timedelta(minutes=10)  # OTP valid for 10 minutes
+
+    # ✅ Hash the password BEFORE storing it in TempUser
     hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
-    new_user = User(
+
+    temp_user = TempUser(
         username=user.username,
         email_id=user.email_id,
         contact_number=user.contact_number,
-        password=hashed_password
+        password=hashed_password,  # ✅ Store hashed password directly
+        company_name=user.company_name,
+        otp=otp,
+        otp_expiry=otp_expiry,
+        mobile_otp=mobile_otp
     )
 
-    try:
-        db.add(new_user)
-        db.commit()
-        db.refresh(new_user)
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+    db.add(temp_user)
+    db.commit()
 
-    return {"detail": "User registered successfully."}
+    # Send OTP via email & SMS
+    send_otp_email(user.email_id, otp)
+    send_otp_sms(user.contact_number, otp)
+
+    return {"detail": "OTP sent to registered email and mobile.","email_id":user.email_id,"contact_number":user.contact_number}
+
+
+# from datetime import datetime, timedelta
+
+
+@app.post("/verify-otp-login")
+def verify_otp_login(request: OTPVerifyRequest, db: Session = Depends(get_db)):
+    temp_user = db.query(TempUser).filter(
+        (TempUser.email_id == request.email_id) &
+        (TempUser.contact_number == request.contact_number)
+    ).first()
+
+    if not temp_user:
+        raise HTTPException(status_code=400, detail="Invalid request. Please register first.")
+
+    if temp_user.otp != request.otp:
+        raise HTTPException(status_code=400, detail="Invalid Email OTP.")
+
+    if temp_user.mobile_otp != request.mobile_otp:
+        raise HTTPException(status_code=400, detail="Invalid Mobile OTP.")
+
+
+
+    # ✅ Don't hash again, just move the existing hashed password
+    new_user = User(
+        username=temp_user.username,
+        email_id=temp_user.email_id,
+        contact_number=temp_user.contact_number,
+        password=temp_user.password,  # ✅ Use already hashed password
+        company_name=temp_user.company_name
+    )
+
+    db.add(new_user)
+    db.commit()
+
+    db.delete(temp_user)
+    db.commit()
+
+    return {"detail": "User verified and registered successfully."}
+
+
+
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+
+def otp_email(email, otp):
+    sender_email = "sachinkr78276438@gmail.com"
+    sender_password = "efsn ryss yjin kwgr"
+
+    smtp_server = "smtp.example.com"
+    smtp_port = 587
+
+    subject = "Your OTP for Verification"
+    body = f"Your OTP is: {otp}. It is valid for 10 minutes."
+
+    # Constructing the email
+    msg = MIMEMultipart()
+    msg["From"] = sender_email
+    msg["To"] = email
+    msg["Subject"] = subject
+    msg.attach(MIMEText(body, "plain"))
+
+    try:
+        # Connect to SMTP server
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()  # Secure the connection
+        server.login(sender_email, sender_password)  # Login to email account
+        server.sendmail(sender_email, email, msg.as_string())  # Send email
+        server.quit()  # Close connection
+
+        print(f"✅ OTP sent to {email}")
+        return True
+    except Exception as e:
+        print(f"❌ Error sending email: {e}")
+        return False
+
+
+def send_otp_sms(phone, otp):
+    # Use an SMS API like Twilio, Nexmo, etc.
+    pass
+
+# @app.post("/register")
+# def register_user(user: UserRequest, db: Session = Depends(get_db)):
+#     if user.password != user.confirm_password:
+#         raise HTTPException(status_code=400, detail="Passwords do not match.")
+#
+#     if db.query(User).filter(User.username == user.username).first():
+#         raise HTTPException(status_code=400, detail="Username is already taken. Choose another one.")
+#
+#     if db.query(User).filter(User.email_id == user.email_id).first():
+#         raise HTTPException(status_code=400, detail="Email is already registered. Use a different one.")
+#
+#     if db.query(User).filter(User.contact_number == user.contact_number).first():
+#         raise HTTPException(status_code=400, detail="Phone number is already registered. Use a different one.")
+#
+#     hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+#
+#     new_user = User(
+#         username=user.username,
+#         email_id=user.email_id,
+#         contact_number=user.contact_number,
+#         password=hashed_password,
+#         company_name=user.company_name  # Added company name field
+#     )
+#
+#     try:
+#         db.add(new_user)
+#         db.commit()
+#         db.refresh(new_user)
+#     except Exception as e:
+#         db.rollback()
+#         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+#
+#     return {"detail": "User registered successfully."}
 
 
 # Route to Login a User
