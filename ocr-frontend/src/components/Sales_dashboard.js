@@ -1,4 +1,4 @@
-import React,{useState,useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import {
   PieChart,
   Pie,
@@ -11,7 +11,9 @@ import {
   YAxis,
   CartesianGrid,
   Legend,
+
 } from "recharts";
+import { FunnelChart, Funnel, LabelList } from "recharts";
 import "./SalesDashboard.css"; // Import CSS
 import Layout from "../layout";
 import "../layout.css";
@@ -32,18 +34,18 @@ const rejectedData = [
 
 // Data for Bar Charts (Funnels)
 const cstFunnelData = [
-  { name: "Total Calls", value: 24511 },
-  { name: "Opening Pitched", value: 20571 },
-  { name: "Context Pitched", value: 20475 },
-  { name: "Offer Pitched", value: 4468 },
-  { name: "Sale Made", value: 919 },
+  { name: "Total Calls", value: 24511, color: "#4682B4" },
+  { name: "Opening Pitched", value: 20571, color: "#CD5C5C" },
+  { name: "Context Pitched", value: 20475, color: "#3CB371" },
+  { name: "Offer Pitched", value: 4468, color: "rgb(111 101 49)" },
+  { name: "Sale Made", value: 919, color: "rgb(126 101 149)" }
 ];
 
 const crtFunnelData = [
-  { name: "Opening Rejected", value: 3940 },
-  { name: "Context Rejected", value: 96 },
-  { name: "Offering Rejected", value: 16103 },
-  { name: "POD", value: 3549 },
+  { name: "Opening Rejected", value: 3940,color: "#4682B4" },
+  { name: "Context Rejected", value: 96, color: "#CD5C5C" },
+  { name: "Offering Rejected", value: 16103, color: "#3CB371" },
+  { name: "POD", value: 3549, color: "rgb(111 101 49)" },
 ];
 
 export default function SalesDashboard() {
@@ -53,12 +55,12 @@ export default function SalesDashboard() {
   const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0]);
 
   useEffect(() => {
-   
+
     setTimeout(() => {
       setLoading(false);
-    }, 2000); 
+    }, 2000);
   }, []);
- 
+
   if (loading) {
     return (
       <div className="zigzag-container">
@@ -77,27 +79,27 @@ export default function SalesDashboard() {
         <div className="header">
           <h5>AI-Enhanced Sales Strategy Dashboard</h5>
           <div className="salesheader">
-          <label>
-            <input
-              type="date"
-              name="start_date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              required
-            />
-          </label>
-          <label>
-            <input
-              type="date"
-              name="end_date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              required
-            />
-          </label>
-          <label>
-            <input type="submit" class="setsubmitbtn" value="Submit" />
-          </label>
+            <label>
+              <input
+                type="date"
+                name="start_date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                required
+              />
+            </label>
+            <label>
+              <input
+                type="date"
+                name="end_date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                required
+              />
+            </label>
+            <label>
+              <input type="submit" class="setsubmitbtn" value="Submit" />
+            </label>
           </div>
         </div>
 
@@ -200,16 +202,20 @@ export default function SalesDashboard() {
             {/* 3️⃣ Rejected Calls Breakdown (RCB) */}
             <div className="chart-container">
               <h2 className="cst_crt_fontclass">CST Funnel</h2>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={cstFunnelData} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" />
-                  <YAxis dataKey="name" type="category" />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="value" fill="#82ca9d" />
-                </BarChart>
-              </ResponsiveContainer>
+              <div className="funnel">
+                {cstFunnelData.map((item, index) => (
+                  <div
+                    key={index}
+                    className="funnel-item"
+                    style={{
+                      backgroundColor: item.color,
+                      width: `${100 - index * 12}%`, // Decreasing width for pyramid effect
+                    }}
+                  >
+                    {item.name}: {item.value}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -253,16 +259,20 @@ export default function SalesDashboard() {
             {/* 5️⃣ CRT Funnel */}
             <div className="chart-container">
               <h2 className="cst_crt_fontclass">CRT Funnel</h2>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={crtFunnelData} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" />
-                  <YAxis dataKey="name" type="category" />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="value" fill="#ff7675" />
-                </BarChart>
-              </ResponsiveContainer>
+              <div className="funnel">
+                {crtFunnelData.map((item, index) => (
+                  <div
+                    key={index}
+                    className="funnel-item"
+                    style={{
+                      backgroundColor: item.color,
+                      width: `${100 - index * 12}%`, // Decreasing width for pyramid effect
+                    }}
+                  >
+                    {item.name}: {item.value}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
