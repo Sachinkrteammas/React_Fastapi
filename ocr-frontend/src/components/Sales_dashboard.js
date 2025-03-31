@@ -11,55 +11,131 @@ import {
   YAxis,
   CartesianGrid,
   Legend,
-
 } from "recharts";
 import { FunnelChart, Funnel, LabelList } from "recharts";
 import "./SalesDashboard.css"; // Import CSS
 import Layout from "../layout";
 import "../layout.css";
-
-// Data for Pie Charts
-const successData = [
-  { name: "Opening Success", value: 18.1, color: "#4CAF50" },
-  { name: "Offering Success", value: 14.5, color: "#FF5722" },
-  { name: "Context Success", value: 64.2, color: "#FFC107" },
-  { name: "Sale Done", value: 10.5, color: "#e90886" },
-];
-
-const rejectedData = [
-  { name: "Opening Rejected", value: 17.7, color: "#4CAF50" },
-  { name: "Offering Rejected", value: 17.7, color: "#FF5722" },
-  { name: "Context Rejected", value: 64.2, color: "#FFC107" },
-];
-
-// Data for Bar Charts (Funnels)
-const cstFunnelData = [
-  { name: "Total Calls", value: 24511, color: "#4682B4" },
-  { name: "Opening Pitched", value: 20571, color: "#CD5C5C" },
-  { name: "Context Pitched", value: 20475, color: "#3CB371" },
-  { name: "Offer Pitched", value: 4468, color: "rgb(111 101 49)" },
-  { name: "Sale Made", value: 919, color: "rgb(126 101 149)" }
-];
-
-const crtFunnelData = [
-  { name: "Opening Rejected", value: 3940,color: "#4682B4" },
-  { name: "Context Rejected", value: 96, color: "#CD5C5C" },
-  { name: "Offering Rejected", value: 16103, color: "#3CB371" },
-  { name: "POD", value: 3549, color: "rgb(111 101 49)" },
-];
+import { BASE_URL } from "./config";
 
 export default function SalesDashboard() {
   //loading code start===>
-  const [loading, setLoading] = useState(true);
-  const [startDate, setStartDate] = useState(new Date().toISOString().split("T")[0]);
-  const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0]);
+  const [loading, setLoading] = useState(false);
+  const [startDate, setStartDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+  const [endDate, setEndDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+  const [callSummary, setCallSummary] = useState({});
+  const [rejectedData, setRejectedData] = useState([]);
 
   useEffect(() => {
-
     setTimeout(() => {
       setLoading(false);
     }, 2000);
   }, []);
+
+  const fetchSalesData = async () => {
+    setLoading(true);
+    try {
+      const clientId = localStorage.getItem("client_id");
+      const [summaryResponse, rejectedResponse] = await Promise.all([
+        fetch(
+          `${BASE_URL}/call_summary_sales?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}`
+        ),
+        fetch(
+          `${BASE_URL}/call_category_counts_sales?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}`
+        ),
+      ]);
+
+      if (!summaryResponse.ok || !rejectedResponse.ok) {
+        throw new Error("Failed to fetch data");
+      }
+
+      const summaryResult = await summaryResponse.json();
+      setCallSummary(summaryResult.call_summary);
+
+      const rejectedResult = await rejectedResponse.json();
+      setRejectedData([
+        {
+          name: "Opening Rejected",
+          value: rejectedResult["Opening Rejected"] ?? 0,
+          color: "#4CAF50",
+        },
+        {
+          name: "Offering Rejected",
+          value: rejectedResult["Offering Rejected"] ?? 0,
+          color: "#FF5722",
+        },
+        {
+          name: "Context Rejected",
+          value: rejectedResult["Context Rejected"] ?? 0,
+          color: "#FFC107",
+        },
+        {
+          name: "Post Offer Rejected",
+          value: rejectedResult["Post Offer Rejected"] ?? 0,
+          color: "#2196F3",
+        },
+      ]);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const cstFunnelData = [
+    {
+      name: "Total Calls",
+      value: callSummary.total_calls ?? 0,
+      color: "#4682B4",
+    },
+    {
+      name: "Opening Pitched",
+      value: callSummary.exclude_opening_rejected ?? 0,
+      color: "#CD5C5C",
+    },
+    {
+      name: "Context Pitched",
+      value: callSummary.exclude_context_opening_offering_rejected ?? 0,
+      color: "#3CB371",
+    },
+    {
+      name: "Offer Pitched",
+      value: callSummary.sale_done_count ?? 0,
+      color: "rgb(111 101 49)",
+    },
+    {
+      name: "Sale Made",
+      value: callSummary.sale_success_rate ?? 0,
+      color: "rgb(126 101 149)",
+    },
+  ];
+
+  const crtFunnelData = [
+    {
+      name: "Opening Rejected",
+      value: callSummary.include_opening_rejected ?? 0,
+      color: "#4682B4",
+    },
+    {
+      name: "Context Rejected",
+      value: callSummary.include_context_rejected ?? 0,
+      color: "#CD5C5C",
+    },
+    {
+      name: "Offering Rejected",
+      value: callSummary.offering_rejected_count ?? 0,
+      color: "#3CB371",
+    },
+    {
+      name: "POD",
+      value: callSummary.post_offer_rejected_count ?? 0,
+      color: "rgb(111 101 49)",
+    },
+  ];
 
   if (loading) {
     return (
@@ -98,7 +174,12 @@ export default function SalesDashboard() {
               />
             </label>
             <label>
-              <input type="submit" class="setsubmitbtn" value="Submit" />
+              <input
+                type="submit"
+                class="setsubmitbtn"
+                value="Submit"
+                onClick={fetchSalesData}
+              />
             </label>
           </div>
         </div>
@@ -110,23 +191,25 @@ export default function SalesDashboard() {
             <h3>CST</h3>
             <div className="metrics">
               <div>
-                <b>24,511</b>
+                <b>{callSummary?.total_calls ?? 0}</b>
                 <p>Total Calls</p>
               </div>
               <div>
-                <b>20,571</b>
+                <b>{callSummary?.exclude_opening_rejected ?? 0}</b>
                 <p>OPS</p>
               </div>
               <div>
-                <b>4,468</b>
+                <b>
+                  {callSummary?.exclude_context_opening_offering_rejected ?? 0}
+                </b>
                 <p>Offer Success</p>
               </div>
               <div>
-                <b>576</b>
+                <b>{callSummary?.sale_done_count ?? 0}</b>
                 <p>Sale Done</p>
               </div>
               <div>
-                <b>3.8%</b>
+                <b>{callSummary?.sale_success_rate ?? 0}%</b>
                 <p>Success Rate</p>
               </div>
             </div>
@@ -137,23 +220,23 @@ export default function SalesDashboard() {
             <h3>CRT</h3>
             <div className="metrics">
               <div>
-                <b>3,940</b>
+                <b>{callSummary?.include_opening_rejected ?? 0}</b>
                 <p>OR</p>
               </div>
               <div>
-                <b>96</b>
+                <b>{callSummary?.include_context_rejected ?? 0}</b>
                 <p>CR</p>
               </div>
               <div>
-                <b>16,103</b>
+                <b>{callSummary?.offering_rejected_count ?? 0}</b>
                 <p>OPR</p>
               </div>
               <div>
-                <b>3,549</b>
+                <b>{callSummary?.post_offer_rejected_count ?? 0}</b>
                 <p>POR</p>
               </div>
               <div>
-                <b>96.3%</b>
+                <b>{callSummary?.failure_rate ?? 0}%</b>
                 <p>Failure Rate</p>
               </div>
             </div>
@@ -165,28 +248,35 @@ export default function SalesDashboard() {
         <div className="fullbodydiv">
           <div className="block1div">
             <div className="chart-container">
-              <h2 className="scb_rcb_fontclass">Success Calls Breakdown (SCB)</h2>
+              <h2 className="scb_rcb_fontclass">
+                Success Calls Breakdown (SCB)
+              </h2>
               <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={successData}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                  >
-                    {successData.map((entry, index) => (
-                      <Cell key={index} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
+                {rejectedData.length > 0 ? (
+                  <PieChart>
+                    <Pie
+                      data={rejectedData}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={100}
+                      label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+                    >
+                      {rejectedData.map((entry, index) => (
+                        <Cell key={index} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                ) : (
+                  <p style={{ textAlign: "center" }}>No data available</p>
+                )}
               </ResponsiveContainer>
 
               {/* 📌 Custom Legend with Bullet Points */}
               <ul className="legend">
-                {successData.map((entry, index) => (
+                {rejectedData.map((entry, index) => (
                   <li key={index}>
                     <span
                       className="bullet"
@@ -223,23 +313,30 @@ export default function SalesDashboard() {
           <div className="block2div">
             {/* 3️⃣ Rejected Calls Breakdown (RCB) */}
             <div className="chart-container">
-              <h2 className="scb_rcb_fontclass">Rejected Calls Breakdown (RCB)</h2>
+              <h2 className="scb_rcb_fontclass">
+                Rejected Calls Breakdown (RCB)
+              </h2>
               <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={rejectedData}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                  >
-                    {rejectedData.map((entry, index) => (
-                      <Cell key={index} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
+                {rejectedData.length > 0 ? (
+                  <PieChart>
+                    <Pie
+                      data={rejectedData}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={100}
+                      label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+                    >
+                      {rejectedData.map((entry, index) => (
+                        <Cell key={index} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                ) : (
+                  <p style={{ textAlign: "center" }}>No data available</p>
+                )}
               </ResponsiveContainer>
 
               {/* 📌 Custom Bullet Legend */}
