@@ -1,64 +1,119 @@
-import React,{useState,useEffect} from "react";
-import Layout from "../layout"; 
-import "../layout.css"; 
-
+import React, { useState } from "react";
+import Layout from "../layout";
+import "../layout.css";
+import * as XLSX from "xlsx";
+import { BASE_URL } from "./config";
 
 export default function RawSales() {
-  const salesData = [
-    {
-      id: 101,
-      callDate: "Feb 26, 2025",
-      empId: "MAS 5790",
-      competitor: "None",
-      opening: 1,
-      offered: 1,
-      objectionHandling: 1,
-      prepaidPitch: 1,
-      upsellingEfforts: 1,
-      offerUrgency: 0,
-      areaForImprovement: "None",
-      transcript: "Very good afternoon..."
-    },
-    {
-      id: 102,
-      callDate: "Feb 26, 2025",
-      empId: "MAS 5784",
-      competitor: "None",
-      opening: 1,
-      offered: 1,
-      objectionHandling: 1,
-      prepaidPitch: 0,
-      upsellingEfforts: 0,
-      offerUrgency: 1,
-      areaForImprovement: "None",
-      transcript: "Hello? Very good after..."
-    },
-  ];
+  const [salesData, setSalesData] = useState([]);
+  const [dataExcel, setDataExcel] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [startDate, setStartDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+  const [endDate, setEndDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
 
-  //loading code start===>
-      const [loading, setLoading] = useState(true);
-      const [startDate, setStartDate] = useState(new Date().toISOString().split("T")[0]);
-      const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0]);
-    
-      useEffect(() => {
-       
-        setTimeout(() => {
-          setLoading(false);
-        }, 2000); 
-      }, []);
-     
-      if (loading) {
-        return (
-          <div className="zigzag-container">
-            <div className="bar"></div>
-            <div className="bar"></div>
-            <div className="bar"></div>
-            <div className="bar"></div>
-            <div className="bar"></div>
-          </div>
-        );
+  // Function to fetch data from the API when user clicks Submit
+  const fetchSalesData = async () => {
+    setLoading(true);
+    try {
+      const clientId = localStorage.getItem("client_id");
+      const response = await fetch(
+        `${BASE_URL}/get_call_dump_sales?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}`
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch data");
       }
-      //loading code end==>
+
+      const result = await response.json();
+
+      // Format data dynamically
+      const formattedData = result.map((item) => ({
+        id: item.id,
+        clientId: item.client_id,
+        campaignId: item.campaign_id,
+        callDate: item.CallDate ? item.CallDate.split("T")[0] : "N/A",
+        startEpoch: item.start_epoch,
+        endEpoch: item.end_epoch,
+        mobileNo: item.MobileNo,
+        leadId: item.LeadID,
+        agentName: item.AgentName,
+        competitorName: item.CompetitorName || "N/A",
+        opening: item.Opening || 0,
+        offered: item.Offered || 0,
+        objectionHandling: item.ObjectionHandling || 0,
+        prepaidPitch: item.PrepaidPitch || 0,
+        upsellingEfforts: item.UpsellingEfforts || 0,
+        offerUrgency: item.OfferUrgency || 0,
+        sensitiveWordUsed: item.SensitiveWordUsed || "None",
+        sensitiveWordContext: item.SensitiveWordContext || "None",
+        areaForImprovement: item.AreaForImprovement || "None",
+        transcribeText: item.TranscribeText
+          ? item.TranscribeText.length > 20
+            ? item.TranscribeText.substring(0, 20) + "..."
+            : item.TranscribeText
+          : "No Transcript Available",
+        category: item.Category || "N/A",
+        subCategory: item.SubCategory || "N/A",
+        productOffering: item.ProductOffering || "N/A",
+        discountType: item.DiscountType || "N/A",
+        feedback: item.Feedback || "N/A",
+        entrydate: item.entrydate || "N/A",
+      }));
+
+      const formattedDataExcel = result.map((item) => ({
+        id: item.id,
+        clientId: item.client_id,
+        campaignId: item.campaign_id,
+        callDate: item.CallDate ? item.CallDate.split("T")[0] : "N/A",
+        startEpoch: item.start_epoch,
+        endEpoch: item.end_epoch,
+        mobileNo: item.MobileNo,
+        leadId: item.LeadID,
+        agentName: item.AgentName,
+        competitorName: item.CompetitorName || "N/A",
+        opening: item.Opening || 0,
+        offered: item.Offered || 0,
+        objectionHandling: item.ObjectionHandling || 0,
+        prepaidPitch: item.PrepaidPitch || 0,
+        upsellingEfforts: item.UpsellingEfforts || 0,
+        offerUrgency: item.OfferUrgency || 0,
+        sensitiveWordUsed: item.SensitiveWordUsed || "None",
+        sensitiveWordContext: item.SensitiveWordContext || "None",
+        areaForImprovement: item.AreaForImprovement || "None",
+        transcribeText: item.TranscribeText || "No Transcript",
+        category: item.Category || "N/A",
+        subCategory: item.SubCategory || "N/A",
+        productOffering: item.ProductOffering || "N/A",
+        discountType: item.DiscountType || "N/A",
+        feedback: item.Feedback || "N/A",
+        entrydate: item.entrydate || "N/A",
+      }));
+
+      setSalesData(formattedData);
+      setDataExcel(formattedDataExcel);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const downloadExcel = (dataExcel) => {
+      if (dataExcel.length === 0) {
+        alert("No data available to export.");
+        return;
+      }
+  
+      const worksheet = XLSX.utils.json_to_sheet(dataExcel);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Call Data");
+  
+      XLSX.writeFile(workbook, "call_data_sale.xlsx");
+    };
 
   return (
     <Layout>
@@ -84,51 +139,77 @@ export default function RawSales() {
             />
           </label>
           <label>
-            <input type="submit" class="setsubmitbtn" value="Submit" />
+            <button className="setsubmitbtn" onClick={fetchSalesData}>
+              Submit
+            </button>
           </label>
+          <label>
+            {salesData.length > 0 && (
+            <input
+              className="setsubmitbtn"
+              onClick={() => downloadExcel(dataExcel)}
+              value={"Excel Export"}
+              readOnly
+              style={{
+                cursor:"pointer",
+                width: "110px"
+              }}
+            />
+             
+          )}
+            </label>
         </div>
       </div>
 
-      {/* Table Section */}
-      <div className="table-container">
-        <table className="sales-table" style={{fontSize:"16px"}}>
-          <thead>
-            <tr>
-              <th className="table-header">ID</th>
-              <th className="table-header">Call Date</th>
-              <th className="table-header">Emp ID</th>
-              <th className="table-header">Competitor</th>
-              <th className="table-header">Opening</th>
-              <th className="table-header">Offered</th>
-              <th className="table-header">Objection Handling</th>
-              <th className="table-header">Prepaid Pitch</th>
-              <th className="table-header">Upselling Efforts</th>
-              <th className="table-header">Offer Urgency</th>
-              <th className="table-header">Area for Improvement</th>
-              <th className="table-header">Transcript</th>
-            </tr>
-          </thead>
-          <tbody>
-            {salesData.map((row, index) => (
-              <tr key={index} className="table-row">
-                <td className="table-cell">{row.id}</td>
-                <td className="table-cell">{row.callDate}</td>
-                <td className="table-cell">{row.empId}</td>
-                <td className="table-cell">{row.competitor}</td>
-                <td className="table-cell">{row.opening}</td>
-                <td className="table-cell">{row.offered}</td>
-                <td className="table-cell">{row.objectionHandling}</td>
-                <td className="table-cell">{row.prepaidPitch}</td>
-                <td className="table-cell">{row.upsellingEfforts}</td>
-                <td className="table-cell">{row.offerUrgency}</td>
-                <td className="table-cell">{row.areaForImprovement}</td>
-                <td className="table-cell">{row.transcript}</td>
+      {/* Show Loading Indicator */}
+      {loading && (
+        <div className="zigzag-container">
+          <div className="bar"></div>
+          <div className="bar"></div>
+          <div className="bar"></div>
+          <div className="bar"></div>
+          <div className="bar"></div>
+        </div>
+      )}
+
+      {/* Table Section (Show only if data is available) */}
+      {salesData.length > 0 && (
+        <div
+          className="table-container_sales"
+          style={{
+            overflowX: "auto",
+            maxHeight: "650px",
+            width: "100%",
+            overflowY: "auto",
+          }}
+        >
+          <table className="sales-table" style={{ fontSize: "16px" }}>
+            <thead
+              style={{
+                position: "sticky",
+                top: 0,
+                backgroundColor: "#fff",
+                //zIndex: 2,
+              }}
+            >
+              <tr>
+                {Object.keys(salesData[0]).map((col, index) => (
+                  <th key={index}>{col.replace(/([A-Z])/g, " $1").trim()}</th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      
+            </thead>
+            <tbody>
+              {salesData.map((row, index) => (
+                <tr key={index} className="table-row">
+                  {Object.keys(row).map((col, colIndex) => (
+                    <td key={colIndex}>{row[col] || "N/A"}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </Layout>
   );
 }

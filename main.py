@@ -59,6 +59,26 @@ def get_db2():
     finally:
         db.close()
 
+
+#########  Third DB
+
+DATABASE_URL3 = "mysql+pymysql://root:vicidialnow@192.168.10.6/db_external"
+
+# Create SQLAlchemy engine
+
+engine3 = create_engine(DATABASE_URL3)
+
+SessionLocal3 = sessionmaker(autocommit=False, autoflush=False, bind=engine3)
+# Dependency to get database session
+
+def get_db3():
+    db = SessionLocal3()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
 # User Model
 class User(Base):
     __tablename__ = "users"
@@ -2589,3 +2609,85 @@ def fetch_menu(db: Session = Depends(get_db)):
             })
 
     return list(menu_dict.values())
+
+
+#############################################  Sales #############################
+
+@app.get("/call_summary_sales")
+def get_call_summary_sales(
+    client_id: str = Query(..., description="Client ID"),
+    start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
+    end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
+    db: Session = Depends(get_db3)
+):
+    query_summary = text("""
+        SELECT
+            COUNT(DISTINCT id) AS total_calls,
+            COUNT(DISTINCT CASE WHEN OpeningRejected = 0 THEN id END) AS exclude_opening_rejected,
+            COUNT(DISTINCT CASE WHEN OpeningRejected = 0 AND ContactSettingContext IS NULL THEN id END) AS exclude_context_opening_rejected,
+            COUNT(DISTINCT CASE WHEN OpeningRejected = 0 AND ContactSettingContext IS NULL AND OfferingRejected = 0 THEN id END) AS exclude_context_opening_offering_rejected,
+            COUNT(DISTINCT CASE WHEN SaleDone = 1 THEN id END) AS sale_done_count,
+            ROUND((COUNT(DISTINCT CASE WHEN SaleDone = 1 THEN id END) / COUNT(DISTINCT id)) * 100, 2) AS sale_success_rate,
+            COUNT(DISTINCT CASE WHEN OpeningRejected = 1 THEN id END) AS include_opening_rejected,
+            COUNT(DISTINCT CASE WHEN ContactSettingContext IS NOT NULL THEN id END) AS include_context_rejected,
+            COUNT(DISTINCT CASE WHEN OfferingRejected = 1 THEN id END) AS offering_rejected_count,
+            COUNT(DISTINCT CASE WHEN AfterListeningOfferRejected = 1 THEN id END) AS post_offer_rejected_count,
+            ROUND(((COUNT(DISTINCT id) - COUNT(DISTINCT CASE WHEN SaleDone = 1 THEN id END)) / COUNT(DISTINCT id)) * 100, 2) AS failure_rate
+        FROM CallDetails
+        WHERE client_id = :client_id
+        AND DATE(CallDate) BETWEEN :start_date AND :end_date
+    """)
+    summary_result = db.execute(query_summary, {
+        "client_id": client_id,
+        "start_date": start_date,
+        "end_date": end_date
+    }).fetchone()
+    summary_data = dict(summary_result._mapping)
+    return {"call_summary": summary_data}
+
+
+@app.get("/call_category_counts_sales")
+def get_call_category_counts_sales(client_id: str = Query(..., description="Client ID"), start_date: str = Query(..., description="Start date in YYYY-MM-DD format"), end_date: str = Query(..., description="End date in YYYY-MM-DD format"), db: Session = Depends(get_db3)):
+    query = text("""
+        SELECT
+            COUNT(CASE WHEN AfterListeningOfferRejected = 1 THEN 1 END) AS post_offer_rejected,
+            COUNT(CASE WHEN SaleDone = 1 THEN 1 END) AS sale_done,
+            COUNT(CASE WHEN ObjectionHandlingContext = 'None' THEN 1 END) AS offering_rejected,
+            COUNT(CASE WHEN ContactSettingContext = 'None' THEN 1 END) AS context_rejected,
+            COUNT(CASE WHEN OpeningRejected = 1 THEN 1 END) AS opening_rejected,
+            COUNT(CASE WHEN OfferedPitchContext = 'None' THEN 1 END) AS opening_rejected_extra
+        FROM CallDetails
+        WHERE client_id = :client_id AND DATE(CallDate) BETWEEN :start_date AND :end_date
+    """)
+    result = db.execute(query, {"client_id": client_id, "start_date": start_date, "end_date": end_date}).fetchone()
+    response_data = {
+        "Post Offer Rejected": result.post_offer_rejected + result.sale_done,
+        "Offering Rejected": result.offering_rejected,
+        "Context Rejected": result.context_rejected,
+        "Opening Rejected": result.opening_rejected + result.opening_rejected_extra
+    }
+    return response_data
+
+
+@app.get("/get_call_dump_sales")
+def get_call_dump_sales(
+        client_id: str = Query(..., description="Client ID"),
+        start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
+        end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
+        db: Session = Depends(get_db3)
+):
+    query = text("""
+        SELECT * FROM CallDetails 
+        WHERE client_id = :client_id 
+        AND DATE(CallDate) BETWEEN :start_date AND :end_date 
+        LIMIT 10
+    """)
+
+    result = db.execute(query, {
+        "client_id": client_id,
+        "start_date": start_date,
+        "end_date": end_date
+    }).fetchall()
+
+    response_data = [dict(row._mapping) for row in result]
+    return response_data
