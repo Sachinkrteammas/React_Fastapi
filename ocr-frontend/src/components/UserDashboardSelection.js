@@ -2,42 +2,41 @@ import React, { useState, useEffect } from "react";
 import Layout from "../layout";
 import "../layout.css";
 import "./UserDashboardSelection.css";
+import { BASE_URL } from "./config";
 
 const UserDashboardSelection = () => {
     const users = ["user1@example.com", "user2@example.com", "user3@example.com"];
     const [dashboards, setDashboards] = useState([]);
     const [selectedUser, setSelectedUser] = useState("");
     const [selectedDashboards, setSelectedDashboards] = useState([]);
-    const [expandedDashboards, setExpandedDashboards] = useState(null); // Set to null initially
+    const [expandedDashboards, setExpandedDashboards] = useState({ Service: false, Sales: false });
 
-    // Fetch dashboards from API
     useEffect(() => {
-        fetch("http://172.12.13.74:9001/menu")
+        fetch(`${BASE_URL}/menu`)
             .then((response) => response.json())
             .then((data) => {
-                const formattedDashboards = data.map((item) => ({
-                    name: item.name,
-                    subDashboards: item.submenu ? item.submenu.map(sub => sub.name) : []
-                }));
-
+                const allowedMenus = ["Home", "Recordings", "Transcription", "Prompt", "Settings", "API Key", "Service", "Sales"];
+                const formattedDashboards = data
+                    .filter(item => allowedMenus.includes(item.name))
+                    .map((item) => ({
+                        name: item.name,
+                        subDashboards: item.submenu && (item.name === "Service" || item.name === "Sales") 
+                            ? item.submenu.map(sub => sub.name) 
+                            : []
+                    }));
                 setDashboards(formattedDashboards);
-
-                // ✅ Ensure submenus are collapsed on first load
-                const collapsedState = {};
-                formattedDashboards.forEach(dashboard => {
-                    collapsedState[dashboard.name] = false;
-                });
-                setExpandedDashboards(collapsedState);
             })
             .catch((error) => console.error("Error fetching menu:", error));
     }, []);
 
     const toggleExpand = (dashboardName, e) => {
         e.stopPropagation();
-        setExpandedDashboards((prev) => ({
-            ...prev,
-            [dashboardName]: !prev[dashboardName] // Toggle submenu only when clicked
-        }));
+        if (dashboardName === "Service" || dashboardName === "Sales") {
+            setExpandedDashboards((prev) => ({
+                ...prev,
+                [dashboardName]: !prev[dashboardName]
+            }));
+        }
     };
 
     const handleDashboardChange = (dashboard) => {
@@ -58,11 +57,6 @@ const UserDashboardSelection = () => {
         console.log("Selected Dashboards:", selectedDashboards);
     };
 
-    // ✅ Prevent rendering until expandedDashboards is initialized
-    if (expandedDashboards === null) {
-        return <div>Loading...</div>;
-    }
-
     return (
         <Layout>
             <div className="user-maindashboard">
@@ -72,9 +66,7 @@ const UserDashboardSelection = () => {
                         <select className="user-select" value={selectedUser} onChange={(e) => setSelectedUser(e.target.value)}>
                             <option value="">Select User</option>
                             {users.map((user) => (
-                                <option key={user} value={user}>
-                                    {user}
-                                </option>
+                                <option key={user} value={user}>{user}</option>
                             ))}
                         </select>
                     </div>
@@ -86,14 +78,11 @@ const UserDashboardSelection = () => {
                                 <input
                                     type="checkbox"
                                     id={dashboard.name}
-                                    checked={dashboard.subDashboards.length > 0
-                                        ? dashboard.subDashboards.every(sub => selectedDashboards.includes(sub))
-                                        : selectedDashboards.includes(dashboard.name)}
+                                    checked={selectedDashboards.includes(dashboard.name)}
                                     onChange={() => handleDashboardChange(dashboard)}
                                 />
                                 <label htmlFor={dashboard.name} className="checkbox-label">
-                                    {dashboard.name}{" "}
-                                    {dashboard.subDashboards.length > 0 && (
+                                    {dashboard.name} {dashboard.subDashboards.length > 0 && (
                                         <span 
                                             onClick={(e) => toggleExpand(dashboard.name, e)} 
                                             style={{ cursor: "pointer", fontSize: "14px" }}
@@ -103,7 +92,6 @@ const UserDashboardSelection = () => {
                                     )}
                                 </label>
 
-                                {/* ✅ Ensure submenus are hidden by default and only show when clicked */}
                                 {dashboard.subDashboards.length > 0 && expandedDashboards[dashboard.name] && (
                                     <div className="sub-dashboard-container">
                                         {dashboard.subDashboards.map((subDashboard) => (

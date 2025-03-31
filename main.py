@@ -2545,3 +2545,47 @@ async def calculate_limit(user_id: int, db: Session = Depends(get_db)):
     formatted_total = f"{total_minutes}.{str(total_remaining_seconds).zfill(2)}"
 
     return {"user_id": user_id, "total_minutes": formatted_total}
+
+
+@app.get("/menu")
+def fetch_menu(db: Session = Depends(get_db)):
+    query = text("""
+        SELECT 
+            m1.id AS main_id, 
+            m1.page_name AS main_name, 
+            m1.page_icon AS main_icon, 
+            m1.page_url AS main_url, 
+            m2.id AS submenu_id, 
+            m2.page_name AS submenu_name, 
+            m2.page_icon AS submenu_icon, 
+            m2.page_url AS submenu_url
+        FROM menu_master m1
+        LEFT JOIN menu_master m2 ON m1.id = m2.parent_id
+        ORDER BY m1.id, m2.id;
+    """)
+
+    result = db.execute(query).fetchall()
+
+    menu_dict = {}
+
+    for row in result:
+        main_id = row.main_id
+
+        if main_id not in menu_dict:
+            menu_dict[main_id] = {
+                "id": main_id,
+                "name": row.main_name,
+                "icon": row.main_icon,
+                "url": row.main_url,
+                "submenu": []
+            }
+
+        if row.submenu_id:
+            menu_dict[main_id]["submenu"].append({
+                "id": row.submenu_id,
+                "name": row.submenu_name,
+                "icon": row.submenu_icon,
+                "url": row.submenu_url
+            })
+
+    return list(menu_dict.values())

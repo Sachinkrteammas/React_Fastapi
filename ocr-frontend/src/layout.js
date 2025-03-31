@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import topLogo from "./assets/logo.png";
 import accountLogo from "./assets/account.png";
+import { BASE_URL } from "./components/config";
 import {
   House,
   Settings,
@@ -15,13 +16,30 @@ import {
   ChevronRight,
   Search,
   DollarSign,
+  EyeOff,
 } from "lucide-react";
+
+const iconMap = {
+  House,
+  Settings,
+  LogOut,
+  Captions,
+  AudioLines,
+  Terminal,
+  FileKey,
+  ChartNoAxesCombined,
+  Search,
+  DollarSign,
+  EyeOff,
+};
 
 const Layout = ({ onLogout, children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [username, setUsername] = useState("");
-  const [openMenus, setOpenMenus] = useState({});
+  const [menuItems, setMenuItems] = useState([]);
+  const [openMenus, setOpenMenus] = useState({ Service: false, Sales: false });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const storedName = localStorage.getItem("username");
@@ -29,87 +47,63 @@ const Layout = ({ onLogout, children }) => {
   }, []);
 
   useEffect(() => {
-    // Keep submenu open if the current route is inside it
-    menuItems.forEach(({ label, submenu }) => {
-      if (submenu && submenu.some((item) => item.path === location.pathname)) {
-        setOpenMenus((prev) => ({ ...prev, [label]: true }));
+    const fetchMenu = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`${BASE_URL}/menu`);
+        if (!response.ok) throw new Error("Failed to fetch menu");
+        const data = await response.json();
+
+        const formattedMenu = data
+          .filter((item) => ["Home", "Recordings", "Transcription", "Prompt", "Settings", "API Key","User Access", "Service", "Sales"].includes(item.name))
+          .map((item) => ({
+            ...item,
+            Icon: iconMap[item.icon] || null,
+            submenu: item.submenu || [],
+          }));
+
+        setMenuItems(formattedMenu);
+      } catch (error) {
+        console.error("Failed to fetch menu:", error);
+      } finally {
+        setLoading(false);
       }
-    });
-  }, [location.pathname]);
+    };
+
+    fetchMenu();
+  }, []);
+
+  const toggleMenu = (menu) => {
+    setOpenMenus((prev) => ({
+      ...prev,
+      [menu]: !prev[menu],
+    }));
+  };
+
+  const handleNavigation = (path, menu) => {
+    navigate(path);
+    if (menu) {
+      setOpenMenus((prev) => ({
+        ...prev,
+        [menu]: true,
+      }));
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("isLoggedIn");
     sessionStorage.removeItem("user");
 
-    if (onLogout) onLogout(); // Update App.js state
+    if (onLogout) onLogout();
 
     setTimeout(() => {
-      window.location.href = "/"; // Ensure proper redirection
+      window.location.href = "/";
     }, 100);
   };
 
-  // Toggle submenu when clicking the main menu item
-  const toggleMenu = (menu) => {
-    setOpenMenus((prev) => ({
-      ...prev,
-      [menu]: !prev[menu], // Toggle submenu state
-    }));
-  };
-
-  // Navigate and keep submenu open
-  const handleNavigation = (path, menu) => {
-    navigate(path);
-    if (menu) {
-      setOpenMenus((prev) => ({
-        ...prev,
-        [menu]: true, // Ensure submenu stays open
-      }));
-    }
-  };
-
-  const menuItems = [
-    { path: "/", label: "Home", Icon: House },
-    { path: "/Recordings", label: "Recordings", Icon: AudioLines },
-    { path: "/Transcription", label: "Transcription", Icon: Captions },
-    { path: "/Prompt", label: "Prompt", Icon: Terminal },
-    { path: "/Settings", label: "Settings", Icon: Settings },
-    { path: "/APIKey", label: "API Key", Icon: FileKey },
-   
-    {
-      label: "Analysis",
-      Icon: ChartNoAxesCombined,
-      submenu: [
-        { path: "/Analysis", label: "Quality Performance" },
-        // { path: "/QualityPerformance", label: "Quality Performance" },
-        { path: "/FatalAnalysis", label: "Fatal Analysis" },
-        { path: "/DetailAnalysis", label: "Detail Analysis" },
-        { path: "/Search", label: "Search Lead", Icon: Search },
-        { path: "/RawDownload", label: "Raw Download" },
-        // { path: "/RawDump", label: "Raw Dump" },
-        { path: "/Potential", label: "Potential Escalation" },
-      ],
-    },
-    {
-      label: "Sales",
-      Icon: DollarSign,
-      submenu: [
-        { path: "/Magical", label: "Magical Pitch" },
-        { path: "/Sales", label: "Dashboard" },
-        { path: "/Opportunity", label: "Opportunity Analysis" },
-        { path: "/Estimated", label: "Estimated NPS & CSAT" },
-        { path: "/DetailSales", label: "Detail Analysis" },
-        // { path: "/Search", label: "Search Lead", Icon: Search },
-        { path: "/RawSales", label: "Raw Download" },
-        // { path: "/RawDump", label: "Raw Dump" },
-        // { path: "/Potential", label: "Potential Escalation" },
-      ],
-    },
-  ];
-
   return (
     <div className="dashboard-layout5">
-      {/* Top Navbar */}
       <div className="top-navbar">
         <img src={topLogo} alt="Company Logo" className="top-logo" />
         <div className="top-text">
@@ -121,45 +115,43 @@ const Layout = ({ onLogout, children }) => {
         </div>
       </div>
 
-      {/* Main Content Layout (Sidebar + Content) */}
       <div className="content-layout5">
-        {/* Sidebar */}
         <div className="sidebar5">
-          {menuItems.map(({ path, label, Icon, submenu }) => (
-            <div key={label}>
-              {/* Main Menu Item */}
-              <button
-                className="nav-button"
-                onClick={() => (submenu ? toggleMenu(label) : handleNavigation(path))}
-              >
-                <Icon size={20} className="icon" /> {label}
-                {submenu && (openMenus[label] ? <ChevronDown size={16} /> : <ChevronRight size={16} />)}
-              </button>
+          {loading ? (
+            <p>Loading menu...</p>
+          ) : (
+            menuItems.map(({ url, name, Icon, submenu }) => (
+              <div key={name}>
+                <button
+                  className="nav-button"
+                  onClick={() => (submenu.length ? toggleMenu(name) : handleNavigation(url))}
+                >
+                  {Icon && <Icon size={20} className="icon" />} {name}
+                  {submenu.length > 0 && (openMenus[name] ? <ChevronDown size={16} /> : <ChevronRight size={16} />)}
+                </button>
 
-              {/* Submenu Items */}
-              {submenu && openMenus[label] && (
-                <div className="submenu">
-                  {submenu.map(({ path, label }) => (
-                    <button
-                      key={path}
-                      className={`sub-nav-button ${location.pathname === path ? "active" : ""}`}
-                      onClick={() => handleNavigation(path, label)}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
+                {submenu.length > 0 && openMenus[name] && (
+                  <div className="submenu">
+                    {submenu.map(({ url, name, Icon }) => (
+                      <button
+                        key={url}
+                        className={`sub-nav-button ${location.pathname === url ? "active" : ""}`}
+                        onClick={() => handleNavigation(url)}
+                      >
+                        {Icon && <Icon size={16} className="icon" />} {name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))
+          )}
 
-          {/* Logout Button */}
           <button className="nav-button logout-button" onClick={handleLogout}>
             <LogOut size={20} className="icon" /> Logout
           </button>
         </div>
 
-        {/* Main Content Area */}
         <div className="main-content">{children}</div>
       </div>
     </div>
