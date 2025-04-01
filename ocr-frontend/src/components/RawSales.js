@@ -8,7 +8,7 @@ import { BASE_URL } from "./config";
 export default function RawSales() {
   const [salesData, setSalesData] = useState([]);
   const [dataExcel, setDataExcel] = useState([]);
-  const [loading, setLoading] = useState(true);
+  
   const [loading1, setLoading1] = useState(false);
   const [startDate, setStartDate] = useState(
     new Date().toISOString().split("T")[0]
@@ -17,12 +17,7 @@ export default function RawSales() {
     new Date().toISOString().split("T")[0]
   );
 
-  useEffect(() => {
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-  }, []);
-
+ 
 
   // Function to fetch data from the API when user clicks Submit
   const fetchSalesData = async () => {
@@ -203,20 +198,10 @@ export default function RawSales() {
     XLSX.writeFile(workbook, "call_data_sale.xlsx");
   };
 
-  if (loading) {
-    return (
-      <div className="zigzag-container">
-        <div className="bar"></div>
-        <div className="bar"></div>
-        <div className="bar"></div>
-        <div className="bar"></div>
-        <div className="bar"></div>
-      </div>
-    );
-  }
+
   return (
     <Layout>
-      <div className={`dashboard-container ${loading ? "blurred" : ""}`}>
+      <div className={`dashboard-container ${loading1 ? "blurred" : ""}`}>
         <div className="header">
           <h5>AI-Enhanced Sales Strategy Dashboard</h5>
           <div className="salesheader" style={{ marginTop: -40 }}
