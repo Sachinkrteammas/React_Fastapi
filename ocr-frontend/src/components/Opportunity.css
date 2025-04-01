@@ -1,3 +1,11 @@
+.dashboard-container-opportunity{
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+
+
+
 .graphdiv
 {
     width: 40%;
@@ -26,7 +34,12 @@
 
 .table-container1
 {
-    height: 430px;
+    height: 485px;
+    background: white;
+    padding: 7px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
 }
 .tablebody
 {
@@ -34,16 +47,17 @@
 }
 .tablebodysec
 {
-    height: 555px;
+    height: 500px;
 }
 
 .chart-containernew1 {
     background: white;
-    padding: 20px;
-    border-radius: 15px; 
+    padding: 7px;
+    border-radius: 10px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     text-align: center;
-    margin-bottom: 20px;
+    /* margin-bottom: 20px; */
+    margin-top: 5px;
 }
 
 /* Style for the list */
@@ -75,4 +89,10 @@
 .table-container2
 {
     height: 560px;
+    background: white;
+    padding: 7px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    margin-top: 5px;
 }

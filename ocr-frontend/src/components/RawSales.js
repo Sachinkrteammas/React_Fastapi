@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import Layout from "../layout";
 import "../layout.css";
 import * as XLSX from "xlsx";
@@ -8,7 +8,8 @@ import { BASE_URL } from "./config";
 export default function RawSales() {
   const [salesData, setSalesData] = useState([]);
   const [dataExcel, setDataExcel] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [loading1, setLoading1] = useState(false);
   const [startDate, setStartDate] = useState(
     new Date().toISOString().split("T")[0]
   );
@@ -16,9 +17,16 @@ export default function RawSales() {
     new Date().toISOString().split("T")[0]
   );
 
+  useEffect(() => {
+    setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+  }, []);
+
+
   // Function to fetch data from the API when user clicks Submit
   const fetchSalesData = async () => {
-    setLoading(true);
+    setLoading1(true);
     try {
       const clientId = localStorage.getItem("client_id");
       const response = await fetch(
@@ -53,8 +61,8 @@ export default function RawSales() {
         sensitiveWordContext: item.SensitiveWordContext || "None",
         areaForImprovement: item.AreaForImprovement || "None",
         transcribeText: item.TranscribeText ? item.TranscribeText.length > 20
-            ? item.TranscribeText.substring(0, 20) + "..."
-            : item.TranscribeText
+          ? item.TranscribeText.substring(0, 20) + "..."
+          : item.TranscribeText
           : "No Transcript Available",
         topNegativeWordsByAgent: item.TopNegativeWordsByAgent || "None",
         topNegativeWordsByCustomer: item.TopNegativeWordsByCustomer || "None",
@@ -69,17 +77,17 @@ export default function RawSales() {
         notInterestedReasonCallContext: item.NotInterestedReasonCallContext || "None",
         notInterestedBucketReason: item.NotInterestedBucketReason || "None",
         openingPitchContext: item.OpeningPitchContext ? item.OpeningPitchContext.length > 20
-            ? item.OpeningPitchContext.substring(0, 20) + "..."
-            : item.OpeningPitchContext
+          ? item.OpeningPitchContext.substring(0, 20) + "..."
+          : item.OpeningPitchContext
           : "No Transcript Available",
         offeredPitchContext: item.OfferedPitchContext ? item.OfferedPitchContext.length > 20
-            ? item.OfferedPitchContext.substring(0, 20) + "..."
-            : item.OfferedPitchContext
+          ? item.OfferedPitchContext.substring(0, 20) + "..."
+          : item.OfferedPitchContext
           : "No Transcript Available",
         objectionHandlingContext: item.ObjectionHandlingContext ? item.ObjectionHandlingContext.length > 20
-        ? item.ObjectionHandlingContext.substring(0, 20) + "..."
-        : item.ObjectionHandlingContext
-      : "No Transcript Available",
+          ? item.ObjectionHandlingContext.substring(0, 20) + "..."
+          : item.ObjectionHandlingContext
+          : "No Transcript Available",
         prepaidPitchContext: item.PrepaidPitchContext || "None",
         fileName: item.FileName || "None",
         status: item.Status || "None",
@@ -93,15 +101,15 @@ export default function RawSales() {
         discountType: item.DiscountType || "N/A",
         openingPitchCategory: item.OpeningPitchCategory || "None",
         contactSettingContext: item.ContactSettingContext ? item.ContactSettingContext.length > 20
-            ? item.ContactSettingContext.substring(0, 20) + "..."
-            : item.ContactSettingContext
+          ? item.ContactSettingContext.substring(0, 20) + "..."
+          : item.ContactSettingContext
           : "No Transcript Available",
         contactSettingCategory: item.ContactSettingCategory || "None",
         contactSetting2: item.ContactSetting2 || "None",
         feedbackCategory: item.Feedback_Category || "None",
         feedbackContext: item.FeedbackContext ? item.FeedbackContext.length > 20
-            ? item.FeedbackContext.substring(0, 20) + "..."
-            : item.FeedbackContext
+          ? item.FeedbackContext.substring(0, 20) + "..."
+          : item.FeedbackContext
           : "No Transcript Available",
         feedback: item.Feedback || "N/A",
         age: item.Age || "None",
@@ -170,127 +178,141 @@ export default function RawSales() {
         ageOfConsumption: item.AgeofConsumption || "None",
         reasonForQuitting: item.ReasonforQuitting || "None",
         entrydate: item.entrydate || "N/A"
-    }));
-    
+      }));
+
 
       setSalesData(formattedData);
       setDataExcel(formattedDataExcel);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
-      setLoading(false);
+      setLoading1(false);
     }
   };
 
   const downloadExcel = (dataExcel) => {
-      if (dataExcel.length === 0) {
-        alert("No data available to export.");
-        return;
-      }
-  
-      const worksheet = XLSX.utils.json_to_sheet(dataExcel);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Call Data");
-  
-      XLSX.writeFile(workbook, "call_data_sale.xlsx");
-    };
+    if (dataExcel.length === 0) {
+      alert("No data available to export.");
+      return;
+    }
 
+    const worksheet = XLSX.utils.json_to_sheet(dataExcel);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Call Data");
+
+    XLSX.writeFile(workbook, "call_data_sale.xlsx");
+  };
+
+  if (loading) {
+    return (
+      <div className="zigzag-container">
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+      </div>
+    );
+  }
   return (
     <Layout>
-      <div className="header">
-        <h5>AI-Enhanced Sales Strategy Dashboard</h5>
-        <div className="salesheader" style={{ marginTop: -40 }}
-        >
-          <label>
-            <input
-              type="date"
-              name="start_date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              required
-            />
-          </label>
-          <label>
-            <input
-              type="date"
-              name="end_date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              required
-            />
-          </label>
-          <label>
-            <button className="setsubmitbtn" onClick={fetchSalesData}>
-              Submit
-            </button>
-          </label>
-          <label>
-            {salesData.length > 0 && (
-            <input
-              className="setsubmitbtn"
-              onClick={() => downloadExcel(dataExcel)}
-              value={"Excel Export"}
-              readOnly
-              style={{
-                cursor:"pointer",
-                width: "110px"
-              }}
-            />
-             
-          )}
+      <div className={`dashboard-container ${loading ? "blurred" : ""}`}>
+        <div className="header">
+          <h5>AI-Enhanced Sales Strategy Dashboard</h5>
+          <div className="salesheader" style={{ marginTop: -40 }}
+          >
+            <label>
+              <input
+                type="date"
+                name="start_date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                required
+              />
             </label>
-        </div>
-      </div>
+            <label>
+              <input
+                type="date"
+                name="end_date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                required
+              />
+            </label>
+            <label>
+              <button className="setsubmitbtn" onClick={fetchSalesData}>
+                Submit
+              </button>
+            </label>
+            <label>
+              {salesData.length > 0 && (
+                <input
+                  className="setsubmitbtn"
+                  onClick={() => downloadExcel(dataExcel)}
+                  value={"Excel Export"}
+                  readOnly
+                  style={{
+                    cursor: "pointer",
+                    width: "110px"
+                  }}
+                />
 
-      {/* Show Loading Indicator */}
-      {loading && (
-        <div className="zigzag-container">
-          <div className="bar"></div>
-          <div className="bar"></div>
-          <div className="bar"></div>
-          <div className="bar"></div>
-          <div className="bar"></div>
+              )}
+            </label>
+          </div>
         </div>
-      )}
 
-      {/* Table Section (Show only if data is available) */}
-      {salesData.length > 0 && (
-        <div
-          className="table-container_sales"
-          style={{
-            overflowX: "auto",
-            maxHeight: "650px",
-            width: "100%",
-            overflowY: "auto",
-          }}
-        >
-          <table className="sales-table" style={{ fontSize: "16px" }}>
-            <thead
-              style={{
-                position: "sticky",
-                top: 0,
-                backgroundColor: "#fff",
-                //zIndex: 2,
-              }}
-            >
-              <tr>
-                {Object.keys(salesData[0]).map((col, index) => (
-                  <th key={index}>{col.replace(/([A-Z])/g, " $1").trim()}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {salesData.map((row, index) => (
-                <tr key={index} className="table-row">
-                  {Object.keys(row).map((col, colIndex) => (
-                    <td key={colIndex}>{row[col] || "N/A"}</td>
+
+
+        {/* Table Section (Show only if data is available) */}
+        {salesData.length > 0 && (
+          <div
+            className="table-container_sales"
+            style={{
+              overflowX: "auto",
+              maxHeight: "650px",
+              width: "100%",
+              overflowY: "auto",
+            }}
+          >
+            <table className="sales-table" style={{ fontSize: "16px" }}>
+              <thead
+                style={{
+                  position: "sticky",
+                  top: 0,
+                  backgroundColor: "#fff",
+                  //zIndex: 2,
+                }}
+              >
+                <tr>
+                  {Object.keys(salesData[0]).map((col, index) => (
+                    <th key={index}>{col.replace(/([A-Z])/g, " $1").trim()}</th>
                   ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody>
+                {salesData.map((row, index) => (
+                  <tr key={index} className="table-row">
+                    {Object.keys(row).map((col, colIndex) => (
+                      <td key={colIndex}>{row[col] || "N/A"}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        {loading1 && (
+          <div className="loader-overlay">
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+
+          </div>
+        )}
+      </div>
     </Layout>
   );
 }

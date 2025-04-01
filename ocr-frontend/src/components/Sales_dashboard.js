@@ -20,7 +20,8 @@ import { BASE_URL } from "./config";
 
 export default function SalesDashboard() {
   //loading code start===>
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [loading1, setLoading1] = useState(false);
   const [startDate, setStartDate] = useState(
     new Date().toISOString().split("T")[0]
   );
@@ -37,7 +38,8 @@ export default function SalesDashboard() {
   }, []);
 
   const fetchSalesData = async () => {
-    setLoading(true);
+
+    setLoading1(true);
     try {
       const clientId = localStorage.getItem("client_id");
       const [summaryResponse, rejectedResponse] = await Promise.all([
@@ -82,7 +84,7 @@ export default function SalesDashboard() {
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
-      setLoading(false);
+      setLoading1(false);
     }
   };
 
@@ -104,12 +106,13 @@ export default function SalesDashboard() {
     },
     {
       name: "Offer Pitched",
-      value: callSummary.sale_done_count ?? 0,
+      value: callSummary?.exclude_context_opening_rejected ?? 0,
       color: "rgb(111 101 49)",
     },
     {
       name: "Sale Made",
-      value: callSummary.sale_success_rate ?? 0,
+      value: callSummary.sale_done_count ?? 0,
+
       color: "rgb(126 101 149)",
     },
   ];
@@ -151,228 +154,244 @@ export default function SalesDashboard() {
   //loading code end==>
   return (
     <Layout>
-      <div className="dashboard-container">
-        <div className="header">
-          <h5>AI-Enhanced Sales Strategy Dashboard</h5>
-          <div className="salesheader">
-            <label>
-              <input
-                type="date"
-                name="start_date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                required
-              />
-            </label>
-            <label>
-              <input
-                type="date"
-                name="end_date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                required
-              />
-            </label>
-            <label>
-              <input
-                type="submit"
-                class="setsubmitbtn"
-                value="Submit"
-                onClick={fetchSalesData}
-              />
-            </label>
+      <div className={`dashboard-container ${loading ? "blurred" : ""}`}>
+        <div className="dashboard-container">
+          <div className="header">
+            <h5>AI-Enhanced Sales Strategy Dashboard</h5>
+            <div className="salesheader">
+              <label>
+                <input
+                  type="date"
+                  name="start_date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  required
+                />
+              </label>
+              <label>
+                <input
+                  type="date"
+                  name="end_date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  required
+                />
+              </label>
+              <label>
+                <input
+                  type="submit"
+                  class="setsubmitbtn"
+                  value="Submit"
+                  onClick={fetchSalesData}
+                />
+              </label>
+            </div>
           </div>
-        </div>
 
-        {/* 1️⃣ Key Metrics */}
-        <div className="metric-container">
-          {/* CST Card */}
-          <div className="metric-card green-met">
-            <h3>CST</h3>
-            <div className="metrics">
-              <div>
-                <b>{callSummary?.total_calls ?? 0}</b>
-                <p>Total Calls</p>
+          {/* 1️⃣ Key Metrics */}
+          <div className="metric-container">
+            {/* CST Card */}
+            <div className="metric-card green-met">
+              <h3>CST</h3>
+              <div className="metrics">
+                <div>
+                  <b>{callSummary?.total_calls ?? 0}</b>
+                  <p>Total Calls</p>
+                </div>
+                <div>
+                  <b>{callSummary?.exclude_opening_rejected ?? 0}</b>
+                  <p>OPS</p>
+                </div>
+                <div>
+                  <b>{callSummary?.exclude_context_opening_rejected ?? 0}</b>
+                  <p>cps</p>
+                </div>
+                <div>
+                  <b>
+                    {callSummary?.exclude_context_opening_offering_rejected ?? 0}
+                  </b>
+                  <p>Offer Success</p>
+                </div>
+                <div>
+                  <b>{callSummary?.sale_done_count ?? 0}</b>
+                  <p>Sale Done</p>
+                </div>
+                <div>
+                  <b>{callSummary?.sale_success_rate ?? 0}%</b>
+                  <p>Success Rate</p>
+                </div>
               </div>
-              <div>
-                <b>{callSummary?.exclude_opening_rejected ?? 0}</b>
-                <p>OPS</p>
-              </div>
-              <div>
-                <b>
-                  {callSummary?.exclude_context_opening_offering_rejected ?? 0}
-                </b>
-                <p>Offer Success</p>
-              </div>
-              <div>
-                <b>{callSummary?.sale_done_count ?? 0}</b>
-                <p>Sale Done</p>
-              </div>
-              <div>
-                <b>{callSummary?.sale_success_rate ?? 0}%</b>
-                <p>Success Rate</p>
+            </div>
+
+            {/* CRT Card */}
+            <div className="metric-card blue-met">
+              <h3>CRT</h3>
+              <div className="metrics">
+                <div>
+                  <b>{callSummary?.include_opening_rejected ?? 0}</b>
+                  <p>OR</p>
+                </div>
+                <div>
+                  <b>{callSummary?.include_context_rejected ?? 0}</b>
+                  <p>CR</p>
+                </div>
+                <div>
+                  <b>{callSummary?.offering_rejected_count ?? 0}</b>
+                  <p>OPR</p>
+                </div>
+                <div>
+                  <b>{callSummary?.post_offer_rejected_count ?? 0}</b>
+                  <p>POR</p>
+                </div>
+                <div>
+                  <b>{callSummary?.failure_rate ?? 0}%</b>
+                  <p>Failure Rate</p>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* CRT Card */}
-          <div className="metric-card blue-met">
-            <h3>CRT</h3>
-            <div className="metrics">
-              <div>
-                <b>{callSummary?.include_opening_rejected ?? 0}</b>
-                <p>OR</p>
-              </div>
-              <div>
-                <b>{callSummary?.include_context_rejected ?? 0}</b>
-                <p>CR</p>
-              </div>
-              <div>
-                <b>{callSummary?.offering_rejected_count ?? 0}</b>
-                <p>OPR</p>
-              </div>
-              <div>
-                <b>{callSummary?.post_offer_rejected_count ?? 0}</b>
-                <p>POR</p>
-              </div>
-              <div>
-                <b>{callSummary?.failure_rate ?? 0}%</b>
-                <p>Failure Rate</p>
-              </div>
-            </div>
-          </div>
-        </div>
+          {/* 2️⃣ Success Calls Breakdown */}
+          {/* 2️⃣ Success Calls Breakdown (SCB) */}
+          <div className="fullbodydiv">
+            <div className="block1div">
+              <div className="chart-container">
+                <h2 className="scb_rcb_fontclass">
+                  Success Calls Breakdown (SCB)
+                </h2>
+                <ResponsiveContainer width="100%" height={300}>
+                  {rejectedData.length > 0 ? (
+                    <PieChart>
+                      <Pie
+                        data={rejectedData}
+                        dataKey="value"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={100}
+                        label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+                      >
+                        {rejectedData.map((entry, index) => (
+                          <Cell key={index} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  ) : (
+                    <p style={{ textAlign: "center" }}>No data available</p>
+                  )}
+                </ResponsiveContainer>
 
-        {/* 2️⃣ Success Calls Breakdown */}
-        {/* 2️⃣ Success Calls Breakdown (SCB) */}
-        <div className="fullbodydiv">
-          <div className="block1div">
-            <div className="chart-container">
-              <h2 className="scb_rcb_fontclass">
-                Success Calls Breakdown (SCB)
-              </h2>
-              <ResponsiveContainer width="100%" height={300}>
-                {rejectedData.length > 0 ? (
-                  <PieChart>
-                    <Pie
-                      data={rejectedData}
-                      dataKey="value"
-                      nameKey="name"
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={100}
-                      label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+                {/* 📌 Custom Legend with Bullet Points */}
+                <ul className="legend">
+                  {rejectedData.map((entry, index) => (
+                    <li key={index}>
+                      <span
+                        className="bullet"
+                        style={{ backgroundColor: entry.color }}
+                      ></span>
+                      {entry.name} - {entry.value}%
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* 3️⃣ Rejected Calls Breakdown */}
+              {/* 3️⃣ Rejected Calls Breakdown (RCB) */}
+              <div className="chart-container">
+                <h2 className="cst_crt_fontclass">CST Funnel</h2>
+                <div className="funnel">
+                  {cstFunnelData.map((item, index) => (
+                    <div
+                      key={index}
+                      className="funnel-item"
+                      style={{
+                        backgroundColor: item.color,
+                        width: `${100 - index * 12}%`, // Decreasing width for pyramid effect
+                      }}
                     >
-                      {rejectedData.map((entry, index) => (
-                        <Cell key={index} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                ) : (
-                  <p style={{ textAlign: "center" }}>No data available</p>
-                )}
-              </ResponsiveContainer>
-
-              {/* 📌 Custom Legend with Bullet Points */}
-              <ul className="legend">
-                {rejectedData.map((entry, index) => (
-                  <li key={index}>
-                    <span
-                      className="bullet"
-                      style={{ backgroundColor: entry.color }}
-                    ></span>
-                    {entry.name} - {entry.value}%
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* 3️⃣ Rejected Calls Breakdown */}
-            {/* 3️⃣ Rejected Calls Breakdown (RCB) */}
-            <div className="chart-container">
-              <h2 className="cst_crt_fontclass">CST Funnel</h2>
-              <div className="funnel">
-                {cstFunnelData.map((item, index) => (
-                  <div
-                    key={index}
-                    className="funnel-item"
-                    style={{
-                      backgroundColor: item.color,
-                      width: `${100 - index * 12}%`, // Decreasing width for pyramid effect
-                    }}
-                  >
-                    {item.name}: {item.value}
-                  </div>
-                ))}
+                      {item.name}: {item.value}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* 4️⃣ CST Funnel */}
-          <div className="block2div">
-            {/* 3️⃣ Rejected Calls Breakdown (RCB) */}
-            <div className="chart-container">
-              <h2 className="scb_rcb_fontclass">
-                Rejected Calls Breakdown (RCB)
-              </h2>
-              <ResponsiveContainer width="100%" height={300}>
-                {rejectedData.length > 0 ? (
-                  <PieChart>
-                    <Pie
-                      data={rejectedData}
-                      dataKey="value"
-                      nameKey="name"
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={100}
-                      label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+            {/* 4️⃣ CST Funnel */}
+            <div className="block2div">
+              {/* 3️⃣ Rejected Calls Breakdown (RCB) */}
+              <div className="chart-container">
+                <h2 className="scb_rcb_fontclass">
+                  Rejected Calls Breakdown (RCB)
+                </h2>
+                <ResponsiveContainer width="100%" height={300}>
+                  {rejectedData.length > 0 ? (
+                    <PieChart>
+                      <Pie
+                        data={rejectedData}
+                        dataKey="value"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={100}
+                        label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+                      >
+                        {rejectedData.map((entry, index) => (
+                          <Cell key={index} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  ) : (
+                    <p style={{ textAlign: "center" }}>No data available</p>
+                  )}
+                </ResponsiveContainer>
+
+                {/* 📌 Custom Bullet Legend */}
+                <ul className="legend">
+                  {rejectedData.map((entry, index) => (
+                    <li key={index}>
+                      <span
+                        className="bullet"
+                        style={{ backgroundColor: entry.color }}
+                      ></span>
+                      {entry.name} - {entry.value}%
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* 5️⃣ CRT Funnel */}
+              <div className="chart-container">
+                <h2 className="cst_crt_fontclass">CRT Funnel</h2>
+                <div className="funnel">
+                  {crtFunnelData.map((item, index) => (
+                    <div
+                      key={index}
+                      className="funnel-item"
+                      style={{
+                        backgroundColor: item.color,
+                        width: `${100 - index * 12}%`, // Decreasing width for pyramid effect
+                      }}
                     >
-                      {rejectedData.map((entry, index) => (
-                        <Cell key={index} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                ) : (
-                  <p style={{ textAlign: "center" }}>No data available</p>
-                )}
-              </ResponsiveContainer>
-
-              {/* 📌 Custom Bullet Legend */}
-              <ul className="legend">
-                {rejectedData.map((entry, index) => (
-                  <li key={index}>
-                    <span
-                      className="bullet"
-                      style={{ backgroundColor: entry.color }}
-                    ></span>
-                    {entry.name} - {entry.value}%
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* 5️⃣ CRT Funnel */}
-            <div className="chart-container">
-              <h2 className="cst_crt_fontclass">CRT Funnel</h2>
-              <div className="funnel">
-                {crtFunnelData.map((item, index) => (
-                  <div
-                    key={index}
-                    className="funnel-item"
-                    style={{
-                      backgroundColor: item.color,
-                      width: `${100 - index * 12}%`, // Decreasing width for pyramid effect
-                    }}
-                  >
-                    {item.name}: {item.value}
-                  </div>
-                ))}
+                      {item.name}: {item.value}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         </div>
+        {loading1 && (
+          <div className="loader-overlay">
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+
+          </div>
+        )}
       </div>
     </Layout>
   );

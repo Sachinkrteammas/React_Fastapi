@@ -38,7 +38,7 @@
 .metrics {
     display: flex;
     /* flex-direction: column; */
-    gap: 27px;
+    /* gap: 27px; */
     /* margin-top: 10px; */
     background-color: black;
     color: white;

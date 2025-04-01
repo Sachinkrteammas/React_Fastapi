@@ -44,9 +44,9 @@ export default function Opportunity() {
       
   return (
     <Layout>
-      <div className="dashboard-container">
+      <div className="dashboard-container-opportunity">
         <div className="header">
-          <h5>AI-Enhanced Sales Strategy Dashboard</h5>
+          <h4>AI-Enhanced Sales Strategy Dashboard</h4>
           <div className="salesheader">
             <label>
               <input
@@ -78,11 +78,11 @@ export default function Opportunity() {
           
             <div className="divide">
               <div className="metric-card white">
-                <h5 style={{fontSize:"19px"}}>Total Opportunities</h5>
+                <h5 style={{fontSize:"13px"}}>Total Opportunities</h5>
                 <b style={{fontWeight:"100"}}>4,468</b>
               </div>
               <div className="metric-card white">
-                <h5 style={{fontSize:"19px"}}>MO Count</h5>
+                <h5 style={{fontSize:"13px"}}>MO Count</h5>
                 <b style={{fontWeight:"100"}}>3,549</b>
               </div>
             </div>

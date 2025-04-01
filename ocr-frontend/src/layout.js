@@ -38,7 +38,9 @@ const Layout = ({ onLogout, children }) => {
   const location = useLocation();
   const [username, setUsername] = useState("");
   const [menuItems, setMenuItems] = useState([]);
-  const [openMenus, setOpenMenus] = useState({ Service: false, Sales: false });
+  const [openMenus, setOpenMenus] = useState(
+    JSON.parse(localStorage.getItem("openMenus")) || { Service: false, Sales: false }
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -55,7 +57,7 @@ const Layout = ({ onLogout, children }) => {
         const data = await response.json();
 
         const formattedMenu = data
-          .filter((item) => ["Home", "Recordings", "Transcription", "Prompt", "Settings", "API Key","User Access", "Service", "Sales"].includes(item.name))
+          .filter((item) => ["Home", "Recordings", "Transcription", "Prompt", "Settings", "API Key", "User Access", "Service", "Sales"].includes(item.name))
           .map((item) => ({
             ...item,
             Icon: iconMap[item.icon] || null,
@@ -73,26 +75,33 @@ const Layout = ({ onLogout, children }) => {
     fetchMenu();
   }, []);
 
+  useEffect(() => {
+    localStorage.setItem("openMenus", JSON.stringify(openMenus));
+  }, [openMenus]);
+
   const toggleMenu = (menu) => {
-    setOpenMenus((prev) => ({
-      ...prev,
-      [menu]: !prev[menu],
-    }));
+    setOpenMenus((prev) => {
+      const newState = { ...prev, [menu]: !prev[menu] };
+      localStorage.setItem("openMenus", JSON.stringify(newState));
+      return newState;
+    });
   };
 
   const handleNavigation = (path, menu) => {
     navigate(path);
     if (menu) {
-      setOpenMenus((prev) => ({
-        ...prev,
-        [menu]: true,
-      }));
+      setOpenMenus((prev) => {
+        const newState = { ...prev, [menu]: true };
+        localStorage.setItem("openMenus", JSON.stringify(newState));
+        return newState;
+      });
     }
   };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("openMenus");
     sessionStorage.removeItem("user");
 
     if (onLogout) onLogout();
@@ -136,7 +145,7 @@ const Layout = ({ onLogout, children }) => {
                       <button
                         key={url}
                         className={`sub-nav-button ${location.pathname === url ? "active" : ""}`}
-                        onClick={() => handleNavigation(url)}
+                        onClick={() => handleNavigation(url, name)}
                       >
                         {Icon && <Icon size={16} className="icon" />} {name}
                       </button>
