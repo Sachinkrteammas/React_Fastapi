@@ -34,48 +34,94 @@ export default function RawSales() {
       // Format data dynamically
       const formattedData = result.map((item) => ({
         id: item.id,
+        callDate: item.CallDate ? item.CallDate.split("T")[0] : "N/A",
+        empId: item.AgentName,
+        competitorName: item.CompetitorName || "N/A",
         clientId: item.client_id,
         campaignId: item.campaign_id,
-        callDate: item.CallDate ? item.CallDate.split("T")[0] : "N/A",
         startEpoch: item.start_epoch,
         endEpoch: item.end_epoch,
         mobileNo: item.MobileNo,
         leadId: item.LeadID,
-        agentName: item.AgentName,
-        competitorName: item.CompetitorName || "N/A",
-        opening: item.Opening || 0,
-        offered: item.Offered || 0,
-        objectionHandling: item.ObjectionHandling || 0,
-        prepaidPitch: item.PrepaidPitch || 0,
-        upsellingEfforts: item.UpsellingEfforts || 0,
-        offerUrgency: item.OfferUrgency || 0,
+        opening: Number(item.Opening) || 0,
+        offered: Number(item.Offered) || 0,
+        objectionHandling: Number(item.ObjectionHandling) || 0,
+        prepaidPitch: Number(item.PrepaidPitch) || 0,
+        upsellingEfforts: Number(item.UpsellingEfforts) || 0,
+        offerUrgency: Number(item.OfferUrgency) || 0,
         sensitiveWordUsed: item.SensitiveWordUsed || "None",
         sensitiveWordContext: item.SensitiveWordContext || "None",
         areaForImprovement: item.AreaForImprovement || "None",
-        transcribeText: item.TranscribeText
-          ? item.TranscribeText.length > 20
+        transcribeText: item.TranscribeText ? item.TranscribeText.length > 20
             ? item.TranscribeText.substring(0, 20) + "..."
             : item.TranscribeText
           : "No Transcript Available",
+        topNegativeWordsByAgent: item.TopNegativeWordsByAgent || "None",
+        topNegativeWordsByCustomer: item.TopNegativeWordsByCustomer || "None",
+        lengthSec: item.LengthSec || "None",
+        startTime: item.StartTime || "None",
+        endTime: item.EndTime || "None",
+        callDisposition: item.CallDisposition || "None",
+        openingRejected: Number(item.OpeningRejected) || 0,
+        offeringRejected: Number(item.OfferingRejected) || 0,
+        afterListeningOfferRejected: Number(item.AfterListeningOfferRejected) || 0,
+        saleDone: Number(item.SaleDone) || 0,
+        notInterestedReasonCallContext: item.NotInterestedReasonCallContext || "None",
+        notInterestedBucketReason: item.NotInterestedBucketReason || "None",
+        openingPitchContext: item.OpeningPitchContext ? item.OpeningPitchContext.length > 20
+            ? item.OpeningPitchContext.substring(0, 20) + "..."
+            : item.OpeningPitchContext
+          : "No Transcript Available",
+        offeredPitchContext: item.OfferedPitchContext ? item.OfferedPitchContext.length > 20
+            ? item.OfferedPitchContext.substring(0, 20) + "..."
+            : item.OfferedPitchContext
+          : "No Transcript Available",
+        objectionHandlingContext: item.ObjectionHandlingContext ? item.ObjectionHandlingContext.length > 20
+        ? item.ObjectionHandlingContext.substring(0, 20) + "..."
+        : item.ObjectionHandlingContext
+      : "No Transcript Available",
+        prepaidPitchContext: item.PrepaidPitchContext || "None",
+        fileName: item.FileName || "None",
+        status: item.Status || "None",
         category: item.Category || "N/A",
         subCategory: item.SubCategory || "N/A",
+        customerObjectionCategory: item.CustomerObjectionCategory || "None",
+        customerObjectionSubCategory: item.CustomerObjectionSubCategory || "None",
+        agentRebuttalCategory: item.AgentRebuttalCategory || "None",
+        agentRebuttalSubCategory: item.AgentRebuttalSubCategory || "None",
         productOffering: item.ProductOffering || "N/A",
         discountType: item.DiscountType || "N/A",
+        openingPitchCategory: item.OpeningPitchCategory || "None",
+        contactSettingContext: item.ContactSettingContext ? item.ContactSettingContext.length > 20
+            ? item.ContactSettingContext.substring(0, 20) + "..."
+            : item.ContactSettingContext
+          : "No Transcript Available",
+        contactSettingCategory: item.ContactSettingCategory || "None",
+        contactSetting2: item.ContactSetting2 || "None",
+        feedbackCategory: item.Feedback_Category || "None",
+        feedbackContext: item.FeedbackContext ? item.FeedbackContext.length > 20
+            ? item.FeedbackContext.substring(0, 20) + "..."
+            : item.FeedbackContext
+          : "No Transcript Available",
         feedback: item.Feedback || "N/A",
-        entrydate: item.entrydate || "N/A",
+        age: item.Age || "None",
+        consumptionType: item.ConsumptionType || "None",
+        ageOfConsumption: item.AgeofConsumption || "None",
+        reasonForQuitting: item.ReasonforQuitting || "None",
+        entryDate: item.entrydate || "N/A"
       }));
 
       const formattedDataExcel = result.map((item) => ({
         id: item.id,
+        callDate: item.CallDate ? item.CallDate.split("T")[0] : "N/A",
+        EmpId: item.AgentName,
+        competitorName: item.CompetitorName || "N/A",
         clientId: item.client_id,
         campaignId: item.campaign_id,
-        callDate: item.CallDate ? item.CallDate.split("T")[0] : "N/A",
         startEpoch: item.start_epoch,
         endEpoch: item.end_epoch,
         mobileNo: item.MobileNo,
         leadId: item.LeadID,
-        agentName: item.AgentName,
-        competitorName: item.CompetitorName || "N/A",
         opening: item.Opening || 0,
         offered: item.Offered || 0,
         objectionHandling: item.ObjectionHandling || 0,
@@ -86,13 +132,46 @@ export default function RawSales() {
         sensitiveWordContext: item.SensitiveWordContext || "None",
         areaForImprovement: item.AreaForImprovement || "None",
         transcribeText: item.TranscribeText || "No Transcript",
+        topNegativeWordsByAgent: item.TopNegativeWordsByAgent || "None",
+        topNegativeWordsByCustomer: item.TopNegativeWordsByCustomer || "None",
+        lengthSec: item.LengthSec || "None",
+        startTime: item.StartTime || "None",
+        endTime: item.EndTime || "None",
+        callDisposition: item.CallDisposition || "None",
+        openingRejected: item.OpeningRejected || 0,
+        offeringRejected: item.OfferingRejected || 0,
+        afterListeningOfferRejected: item.AfterListeningOfferRejected || 0,
+        saleDone: item.SaleDone || 0,
+        notInterestedReasonCallContext: item.NotInterestedReasonCallContext || "None",
+        notInterestedBucketReason: item.NotInterestedBucketReason || "None",
+        openingPitchContext: item.OpeningPitchContext || "None",
+        offeredPitchContext: item.OfferedPitchContext || "None",
+        objectionHandlingContext: item.ObjectionHandlingContext || "None",
+        prepaidPitchContext: item.PrepaidPitchContext || "None",
+        fileName: item.FileName || "None",
+        status: item.Status || "None",
         category: item.Category || "N/A",
         subCategory: item.SubCategory || "N/A",
+        customerObjectionCategory: item.CustomerObjectionCategory || "None",
+        customerObjectionSubCategory: item.CustomerObjectionSubCategory || "None",
+        agentRebuttalCategory: item.AgentRebuttalCategory || "None",
+        agentRebuttalSubCategory: item.AgentRebuttalSubCategory || "None",
         productOffering: item.ProductOffering || "N/A",
         discountType: item.DiscountType || "N/A",
+        openingPitchCategory: item.OpeningPitchCategory || "None",
+        contactSettingContext: item.ContactSettingContext || "None",
+        contactSettingCategory: item.ContactSettingCategory || "None",
+        contactSetting2: item.ContactSetting2 || "None",
+        feedbackCategory: item.Feedback_Category || "None",
+        feedbackContext: item.FeedbackContext || "None",
         feedback: item.Feedback || "N/A",
-        entrydate: item.entrydate || "N/A",
-      }));
+        age: item.Age || "None",
+        consumptionType: item.ConsumptionType || "None",
+        ageOfConsumption: item.AgeofConsumption || "None",
+        reasonForQuitting: item.ReasonforQuitting || "None",
+        entrydate: item.entrydate || "N/A"
+    }));
+    
 
       setSalesData(formattedData);
       setDataExcel(formattedDataExcel);

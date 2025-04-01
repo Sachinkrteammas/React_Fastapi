@@ -2,12 +2,14 @@ import React, { useState, useEffect } from "react";
 import Layout from "../layout"; // Import layout component
 import "../layout.css"; // Import styles
 import "./DetailSales.css";
+import { BASE_URL } from "./config";
 
 export default function DetailSales() {
   //loading code start===>
   const [loading, setLoading] = useState(true);
   const [startDate, setStartDate] = useState(new Date().toISOString().split("T")[0]);
   const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0]);
+  const [callSummary, setCallSummary] = useState({});
 
   useEffect(() => {
 
@@ -15,6 +17,30 @@ export default function DetailSales() {
       setLoading(false);
     }, 2000);
   }, []);
+
+
+  const fetchSalesData = async () => {
+    setLoading(true);
+    try {
+      const clientId = localStorage.getItem("client_id");
+      const response = await fetch(
+        `${BASE_URL}/call_summary_sales?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch data");
+      }
+      const result = await response.json();
+
+      // ✅ Ensure result.call_summary is not null
+      setCallSummary(result.call_summary || {});
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setCallSummary({});
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   if (loading) {
     return (
@@ -28,6 +54,7 @@ export default function DetailSales() {
     );
   }
   //loading code end==>
+
 
   return (
     <Layout>
@@ -53,7 +80,7 @@ export default function DetailSales() {
             />
           </label>
           <label>
-            <input type="submit" class="setsubmitbtn" value="Submit" />
+            <input type="submit" class="setsubmitbtn" value="Submit" onClick={fetchSalesData} />
           </label>
         </div>
       </div>
@@ -64,27 +91,27 @@ export default function DetailSales() {
           <h3>CST</h3>
           <div className="metricschanges">
             <div>
-              <b>11,220</b>
+            <b>{callSummary?.total_calls ?? 0}</b>
               <p>Total Calls</p>
             </div>
             <div>
-              <b>20,571</b>
+            <b>{callSummary?.exclude_opening_rejected ?? 0}</b>
               <p>OPS</p>
             </div>
             <div>
-              <b>9,536</b>
+            <b>{callSummary?.exclude_context_opening_rejected ?? 0}</b>
               <p>cps</p>
             </div>
             <div>
-              <b>4,468</b>
+            <b>{callSummary?.exclude_context_opening_offering_rejected ?? 0}</b>
               <p>Offer Success</p>
             </div>
             <div>
-              <b>576</b>
+            <b>{callSummary?.sale_done_count ?? 0}</b>
               <p>Sale Done</p>
             </div>
             <div>
-              <b>3.8%</b>
+            <b>{callSummary?.sale_success_rate ?? 0}%</b>
               <p>Success Rate</p>
             </div>
           </div>
@@ -95,23 +122,23 @@ export default function DetailSales() {
           <h3>CRT</h3>
           <div className="metricschanges">
             <div>
-              <b>3,940</b>
+            <b>{callSummary?.include_opening_rejected ?? 0}</b>
               <p>OR</p>
             </div>
             <div>
-              <b>96</b>
+            <b>{callSummary?.include_context_rejected ?? 0}</b>
               <p>CR</p>
             </div>
             <div>
-              <b>16,103</b>
+            <b>{callSummary?.offering_rejected_count ?? 0}</b>
               <p>OPR</p>
             </div>
             <div>
-              <b>3,549</b>
+            <b>{callSummary?.post_offer_rejected_count ?? 0}</b>
               <p>POR</p>
             </div>
             <div>
-              <b>96.3%</b>
+            <b>{callSummary?.failure_rate ?? 0}%</b>
               <p>Failure Rate</p>
             </div>
           </div>
