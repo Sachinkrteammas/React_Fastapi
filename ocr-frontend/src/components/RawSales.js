@@ -3,6 +3,7 @@ import Layout from "../layout";
 import "../layout.css";
 import * as XLSX from "xlsx";
 import { BASE_URL } from "./config";
+// import "./RawSales.css";
 
 export default function RawSales() {
   const [salesData, setSalesData] = useState([]);
@@ -119,7 +120,8 @@ export default function RawSales() {
     <Layout>
       <div className="header">
         <h5>AI-Enhanced Sales Strategy Dashboard</h5>
-        <div className="salesheader">
+        <div className="salesheader" style={{ marginTop: -40 }}
+        >
           <label>
             <input
               type="date"
