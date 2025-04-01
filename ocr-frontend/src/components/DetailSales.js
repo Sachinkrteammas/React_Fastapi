@@ -91,7 +91,7 @@ export default function DetailSales() {
         </div>
 
         {/* CRT Card */}
-        <div className="metric-card blue">
+        <div className="metric-card blue-met">
           <h3>CRT</h3>
           <div className="metricschanges">
             <div>
