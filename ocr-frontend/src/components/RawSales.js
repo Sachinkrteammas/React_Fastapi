@@ -260,7 +260,7 @@ export default function RawSales() {
               overflowY: "auto",
             }}
           >
-            <table className="sales-table" style={{ fontSize: "16px" }}>
+            <table className="sales-table" style={{ fontSize: "13px" }}>
               <thead
                 style={{
                   position: "sticky",

@@ -70,8 +70,8 @@
 }
 
 .sales-table th {
-  background-color: #007bff;
-  color: white;
+  border-color: inherit;
+  color: black;
 }
 
 .sales-table tfoot td {
