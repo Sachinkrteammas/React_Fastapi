@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Layout from "../layout";
 import "../layout.css";
 import * as XLSX from "xlsx";
@@ -8,7 +8,7 @@ import { BASE_URL } from "./config";
 export default function RawSales() {
   const [salesData, setSalesData] = useState([]);
   const [dataExcel, setDataExcel] = useState([]);
-  
+
   const [loading1, setLoading1] = useState(false);
   const [startDate, setStartDate] = useState(
     new Date().toISOString().split("T")[0]
@@ -17,7 +17,7 @@ export default function RawSales() {
     new Date().toISOString().split("T")[0]
   );
 
- 
+
 
   // Function to fetch data from the API when user clicks Submit
   const fetchSalesData = async () => {
@@ -36,85 +36,85 @@ export default function RawSales() {
 
       // Format data dynamically
       const formattedData = result.map((item) => ({
-        id: item.id,
-        callDate: item.CallDate ? item.CallDate.split("T")[0] : "N/A",
-        empId: item.AgentName,
-        competitorName: item.CompetitorName || "N/A",
-        clientId: item.client_id,
-        campaignId: item.campaign_id,
-        startEpoch: item.start_epoch,
-        endEpoch: item.end_epoch,
-        mobileNo: item.MobileNo,
-        leadId: item.LeadID,
-        opening: Number(item.Opening) || 0,
-        offered: Number(item.Offered) || 0,
-        objectionHandling: Number(item.ObjectionHandling) || 0,
-        prepaidPitch: Number(item.PrepaidPitch) || 0,
-        upsellingEfforts: Number(item.UpsellingEfforts) || 0,
-        offerUrgency: Number(item.OfferUrgency) || 0,
-        sensitiveWordUsed: item.SensitiveWordUsed || "None",
-        sensitiveWordContext: item.SensitiveWordContext || "None",
-        areaForImprovement: item.AreaForImprovement || "None",
-        transcribeText: item.TranscribeText ? item.TranscribeText.length > 20
+        Id: item.id,
+        CallDate: item.CallDate ? item.CallDate.split("T")[0] : "N/A",
+        EmpId: item.AgentName,
+        CompetitorName: item.CompetitorName || "N/A",
+        ClientId: item.client_id,
+        CampaignId: item.campaign_id,
+        StartEpoch: item.start_epoch,
+        EndEpoch: item.end_epoch,
+        MobileNo: item.MobileNo,
+        LeadId: item.LeadID,
+        Opening: Number(item.Opening) || 0,
+        Offered: Number(item.Offered) || 0,
+        ObjectionHandling: Number(item.ObjectionHandling) || 0,
+        PrepaidPitch: Number(item.PrepaidPitch) || 0,
+        UpsellingEfforts: Number(item.UpsellingEfforts) || 0,
+        OfferUrgency: Number(item.OfferUrgency) || 0,
+        SensitiveWordUsed: item.SensitiveWordUsed || "None",
+        SensitiveWordContext: item.SensitiveWordContext || "None",
+        AreaForImprovement: item.AreaForImprovement || "None",
+        TranscribeText: item.TranscribeText ? item.TranscribeText.length > 20
           ? item.TranscribeText.substring(0, 20) + "..."
           : item.TranscribeText
           : "No Transcript Available",
-        topNegativeWordsByAgent: item.TopNegativeWordsByAgent || "None",
-        topNegativeWordsByCustomer: item.TopNegativeWordsByCustomer || "None",
-        lengthSec: item.LengthSec || "None",
-        startTime: item.StartTime || "None",
-        endTime: item.EndTime || "None",
-        callDisposition: item.CallDisposition || "None",
-        openingRejected: Number(item.OpeningRejected) || 0,
-        offeringRejected: Number(item.OfferingRejected) || 0,
-        afterListeningOfferRejected: Number(item.AfterListeningOfferRejected) || 0,
-        saleDone: Number(item.SaleDone) || 0,
-        notInterestedReasonCallContext: item.NotInterestedReasonCallContext || "None",
-        notInterestedBucketReason: item.NotInterestedBucketReason || "None",
-        openingPitchContext: item.OpeningPitchContext ? item.OpeningPitchContext.length > 20
+        TopNegativeWordsByAgent: item.TopNegativeWordsByAgent || "None",
+        TopNegativeWordsByCustomer: item.TopNegativeWordsByCustomer || "None",
+        LengthSec: item.LengthSec || "None",
+        StartTime: item.StartTime || "None",
+        EndTime: item.EndTime || "None",
+        CallDisposition: item.CallDisposition || "None",
+        OpeningRejected: Number(item.OpeningRejected) || 0,
+        OfferingRejected: Number(item.OfferingRejected) || 0,
+        AfterListeningOfferRejected: Number(item.AfterListeningOfferRejected) || 0,
+        SaleDone: Number(item.SaleDone) || 0,
+        NotInterestedReasonCallContext: item.NotInterestedReasonCallContext || "None",
+        NotInterestedBucketReason: item.NotInterestedBucketReason || "None",
+        OpeningPitchContext: item.OpeningPitchContext ? item.OpeningPitchContext.length > 20
           ? item.OpeningPitchContext.substring(0, 20) + "..."
           : item.OpeningPitchContext
           : "No Transcript Available",
-        offeredPitchContext: item.OfferedPitchContext ? item.OfferedPitchContext.length > 20
+        OfferedPitchContext: item.OfferedPitchContext ? item.OfferedPitchContext.length > 20
           ? item.OfferedPitchContext.substring(0, 20) + "..."
           : item.OfferedPitchContext
           : "No Transcript Available",
-        objectionHandlingContext: item.ObjectionHandlingContext ? item.ObjectionHandlingContext.length > 20
+        ObjectionHandlingContext: item.ObjectionHandlingContext ? item.ObjectionHandlingContext.length > 20
           ? item.ObjectionHandlingContext.substring(0, 20) + "..."
           : item.ObjectionHandlingContext
           : "No Transcript Available",
-        prepaidPitchContext: item.PrepaidPitchContext ? item.PrepaidPitchContext.length > 20
-        ? item.PrepaidPitchContext.substring(0, 20) + "..."
-        : item.PrepaidPitchContext
-        : "No Transcript Available",
-        fileName: item.FileName || "None",
-        status: item.Status || "None",
-        category: item.Category || "N/A",
-        subCategory: item.SubCategory || "N/A",
-        customerObjectionCategory: item.CustomerObjectionCategory || "None",
-        customerObjectionSubCategory: item.CustomerObjectionSubCategory || "None",
-        agentRebuttalCategory: item.AgentRebuttalCategory || "None",
-        agentRebuttalSubCategory: item.AgentRebuttalSubCategory || "None",
-        productOffering: item.ProductOffering || "N/A",
-        discountType: item.DiscountType || "N/A",
-        openingPitchCategory: item.OpeningPitchCategory || "None",
-        contactSettingContext: item.ContactSettingContext ? item.ContactSettingContext.length > 20
+        PrepaidPitchContext: item.PrepaidPitchContext ? item.PrepaidPitchContext.length > 20
+          ? item.PrepaidPitchContext.substring(0, 20) + "..."
+          : item.PrepaidPitchContext
+          : "No Transcript Available",
+        FileName: item.FileName || "None",
+        Status: item.Status || "None",
+        Category: item.Category || "N/A",
+        SubCategory: item.SubCategory || "N/A",
+        CustomerObjectionCategory: item.CustomerObjectionCategory || "None",
+        CustomerObjectionSubCategory: item.CustomerObjectionSubCategory || "None",
+        AgentRebuttalCategory: item.AgentRebuttalCategory || "None",
+        AgentRebuttalSubCategory: item.AgentRebuttalSubCategory || "None",
+        ProductOffering: item.ProductOffering || "N/A",
+        DiscountType: item.DiscountType || "N/A",
+        OpeningPitchCategory: item.OpeningPitchCategory || "None",
+        ContactSettingContext: item.ContactSettingContext ? item.ContactSettingContext.length > 20
           ? item.ContactSettingContext.substring(0, 20) + "..."
           : item.ContactSettingContext
           : "No Transcript Available",
-        contactSettingCategory: item.ContactSettingCategory || "None",
-        contactSetting2: item.ContactSetting2 || "None",
-        feedbackCategory: item.Feedback_Category || "None",
-        feedbackContext: item.FeedbackContext ? item.FeedbackContext.length > 20
+        ContactSettingCategory: item.ContactSettingCategory || "None",
+        ContactSetting2: item.ContactSetting2 || "None",
+        FeedbackCategory: item.Feedback_Category || "None",
+        FeedbackContext: item.FeedbackContext ? item.FeedbackContext.length > 20
           ? item.FeedbackContext.substring(0, 20) + "..."
           : item.FeedbackContext
           : "No Transcript Available",
-        feedback: item.Feedback || "N/A",
-        age: item.Age || "None",
-        consumptionType: item.ConsumptionType || "None",
-        ageOfConsumption: item.AgeofConsumption || "None",
-        reasonForQuitting: item.ReasonforQuitting || "None",
-        entryDate: item.entrydate || "N/A"
+        Feedback: item.Feedback || "N/A",
+        Age: item.Age || "None",
+        ConsumptionType: item.ConsumptionType || "None",
+        AgeOfConsumption: item.AgeofConsumption || "None",
+        ReasonForQuitting: item.ReasonforQuitting || "None",
+        EntryDate: item.entrydate || "N/A"
       }));
 
       const formattedDataExcel = result.map((item) => ({
@@ -256,38 +256,55 @@ export default function RawSales() {
         {salesData.length > 0 && (
           <div
             className="table-container_sales"
-            style={{
-              overflowX: "auto",
-              maxHeight: "650px",
-              width: "100%",
-              overflowY: "auto",
-            }}
+            style={{ overflowY: "auto", maxHeight: "630px" }}
           >
-            <table className="sales-table" style={{ fontSize: "13px" }}>
+            <table className="sales-table" style={{ fontSize: "13px", width: "100%" }}>
               <thead
                 style={{
                   position: "sticky",
                   top: 0,
                   backgroundColor: "#fff",
-                  //zIndex: 2,
+                  zIndex: 2,
                 }}
               >
                 <tr>
-                  {Object.keys(salesData[0]).map((col, index) => (
-                    <th key={index}>{col.replace(/([A-Z])/g, " $1").trim()}</th>
-                  ))}
+                  {salesData.length > 0 &&
+                    Object.keys(salesData[0]).map((key) => (
+                      <th
+                        key={key}
+                        style={{
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          padding: "8px",
+                          maxWidth: "150px", // Adjust width as needed
+                        }}
+                      >
+                        {key}
+                      </th>
+                    ))}
                 </tr>
               </thead>
               <tbody>
-                {salesData.map((row, index) => (
-                  <tr key={index} className="table-row">
-                    {Object.keys(row).map((col, colIndex) => (
-                      <td key={colIndex}>{row[col] || "N/A"}</td>
-                    ))}
+                {salesData.length > 0 ? (
+                  salesData.map((row, index) => (
+                    <tr key={index}>
+                      {Object.values(row).map((value, i) => (
+                        <td key={i}>{value !== null ? value : "N/A"}</td>
+                      ))}
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="100%" style={{ textAlign: "center" }}>
+                      No data found.
+                    </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
+
+
           </div>
         )}
         {loading1 && (

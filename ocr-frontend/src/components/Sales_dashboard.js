@@ -290,7 +290,7 @@ export default function SalesDashboard() {
                         className="bullet"
                         style={{ backgroundColor: entry.color }}
                       ></span>
-                      {entry.name} - {entry.value}%
+                      {entry.name}
                     </li>
                   ))}
                 </ul>
@@ -355,7 +355,7 @@ export default function SalesDashboard() {
                         className="bullet"
                         style={{ backgroundColor: entry.color }}
                       ></span>
-                      {entry.name} - {entry.value}%
+                      {entry.name} 
                     </li>
                   ))}
                 </ul>
