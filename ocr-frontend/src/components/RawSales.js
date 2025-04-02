@@ -83,7 +83,10 @@ export default function RawSales() {
           ? item.ObjectionHandlingContext.substring(0, 20) + "..."
           : item.ObjectionHandlingContext
           : "No Transcript Available",
-        prepaidPitchContext: item.PrepaidPitchContext || "None",
+        prepaidPitchContext: item.PrepaidPitchContext ? item.PrepaidPitchContext.length > 20
+        ? item.PrepaidPitchContext.substring(0, 20) + "..."
+        : item.PrepaidPitchContext
+        : "No Transcript Available",
         fileName: item.FileName || "None",
         status: item.Status || "None",
         category: item.Category || "N/A",
