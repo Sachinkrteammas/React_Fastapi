@@ -9,20 +9,27 @@
 .graphdiv
 {
     width: 40%;
-    height: 400px;
+   
     margin-right: 6px;
     
 }
 .tablediv
 {
     width: 60%;
-    height: 400px;
+    
    
 }
 .firstdivno
 {
     display: flex;
     
+}
+
+.set-contain{
+    background: white;
+    padding: 7px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 .divide
 {
@@ -34,7 +41,7 @@
 
 .table-container1
 {
-    height: 485px;
+    height: 370px;
     background: white;
     padding: 7px;
     border-radius: 10px;
@@ -43,11 +50,11 @@
 }
 .tablebody
 {
-    height: 356px;
+    /* height: 356px; */
 }
 .tablebodysec
 {
-    height: 500px;
+    /* height: 500px; */
 }
 
 .chart-containernew1 {
@@ -88,7 +95,7 @@
 
 .table-container2
 {
-    height: 560px;
+    height: 450px;
     background: white;
     padding: 7px;
     border-radius: 10px;
