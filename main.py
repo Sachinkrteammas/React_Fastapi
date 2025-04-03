@@ -19,7 +19,8 @@ from starlette.responses import JSONResponse
 from pathlib import Path
 from datetime import date, timedelta
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional,Dict
+import pandas as pd
 # FastAPI app initialization
 app = FastAPI()
 
@@ -2691,3 +2692,123 @@ def get_call_dump_sales(
 
     response_data = [dict(row._mapping) for row in result]
     return response_data
+
+
+
+# Mapping of objections to categories and insights
+OBJECTION_MAPPING = {
+    "Already has the same product": ("No Need", "Customer already has same product; no need to buy."),
+    "Already has enough perfumes": ("No Need", "Fully stocked; low chance of purchase."),
+    "Overstock / No Need for More": ("No Need", "No immediate need; possible future purchase."),
+    "Already Owns Enough": ("No Need", "No need for additional purchases now."),
+    "Already has too many perfumes": ("No Need", "Similar to overstocked; minimal conversion potential."),
+    "Already has another preferred brand": ("Brand Preference", "Prefers another brand; difficult to convert."),
+    "Liked the product but wants a better deal": ("Price Sensitivity", "Possible to convert with discounts or offers."),
+    "Wants to buy later": ("Budget Constraint", "Future potential lead; needs follow-up."),
+    "Not Interested in Perfumes": ("Product Disinterest", "No interest at all; unlikely to convert."),
+    "Happy with the product but not interested in buying more": ("No Need", "No further purchase intent; hard to upsell."),
+    "Didn't like one of the perfumes": ("Negative Experience", "A bad experience with one variant; can recommend others."),
+    "Disappointed with perfume quality": ("Negative Experience", "Concerns about quality; provide product assurance."),
+    "Perfume Longevity Issue": ("Negative Experience", "Customer finds longevity lacking; suggest long-lasting alternatives."),
+    "Perfume too strong": ("Negative Experience", "Scent preference issue; suggest milder alternatives."),
+    "Damaged Product Received": ("Logistic Concern", "A serious issue; needs strong resolution to regain trust."),
+    "Wrong Product Received": ("Logistic Concern", "Fulfillment error; needs rectification and trust-building."),
+    "Doesn't trust online payments": ("Trust Concerns", "Major barrier; provide secure payment options and reassurance."),
+}
+
+@app.get("/get_mo_breakdown")
+def get_mo_breakdown(client_id: str = Query(..., description="Client ID"), start_date: str = Query(..., description="Start date in YYYY-MM-DD format"), end_date: str = Query(..., description="End date in YYYY-MM-DD format"), db: Session = Depends(get_db3)):
+    query = text("""
+        SELECT CustomerObjectionSubCategory
+        FROM CallDetails
+        WHERE client_id = :client_id
+        AND DATE(CallDate) BETWEEN :start_date AND :end_date
+    """)
+    result = db.execute(query, {"client_id": client_id, "start_date": start_date, "end_date": end_date}).fetchall()
+    df = pd.DataFrame(result, columns=["CustomerObjectionSubCategory"])
+    total_opportunities = len(df)
+    excluded_categories = {"Opening Rejected", "Context Rejected", "Offering Rejected"}
+    workable_df = df[~df["CustomerObjectionSubCategory"].isin(excluded_categories)]
+    mo_count = len(workable_df)
+    workable_df["MO Category"] = workable_df["CustomerObjectionSubCategory"].map(lambda x: OBJECTION_MAPPING.get(x, ("Other", ""))[0])
+    workable_df["Observations & Insights"] = workable_df["CustomerObjectionSubCategory"].map(lambda x: OBJECTION_MAPPING.get(x, ("", "No insight available"))[1])
+    breakdown = (workable_df.groupby(["MO Category", "Observations & Insights"]).size().reset_index(name="Count"))
+    breakdown["Count"] = breakdown["Count"].astype(int)
+    breakdown["Contr%"] = (breakdown["Count"] / breakdown["Count"].sum() * 100).round(1).astype(float)
+    mo_breakdown = breakdown.to_dict(orient="records")
+    response = {
+        "Total Opportunities": int(total_opportunities),
+        "MO Count": int(mo_count),
+        "Workable%": round((mo_count / total_opportunities) * 100, 1) if total_opportunities else 0,
+        "Non Workable%": round(100 - ((mo_count / total_opportunities) * 100), 1) if total_opportunities else 0,
+        "MO Breakdown": mo_breakdown,
+        "Grand Total": int(breakdown["Count"].sum()),
+    }
+    return response
+
+
+NED_ED_MAPPING = {
+    "Already has the same product": ("No Need", "Already has too many perfumes", "Non Workable"),
+    "Already has enough perfumes": ("No Need", "Already has too many perfumes", "Non Workable"),
+    "Overstock / No Need for More": ("No Need", "Already has too many perfumes", "Non Workable"),
+    "Already Owns Enough": ("No Need", "Already has too many perfumes", "Non Workable"),
+    "Already has too many perfumes": ("No Need", "Already has too many perfumes", "Non Workable"),
+    "Already has another preferred brand": ("Brand Preference", "Already has another preferred brand", "Non Workable"),
+    "Liked the product but wants a better deal": ("Price Sensitivity", "Liked the product but wants a better deal", "Workable"),
+    "Wants to buy later": ("Budget Constraint", "Wants to buy later", "Workable"),
+    "Not Interested in Perfumes": ("Product Disinterest", "Not Interested in Perfumes", "Non Workable"),
+    "Happy with the product but not interested in buying more": ("No Need", "Happy with the product but not interested in buying more", "Non Workable"),
+    "Didn't like one of the perfumes": ("Negative Experience", "Disappointed with perfume quality", "Non Workable"),
+    "Disappointed with perfume quality": ("Negative Experience", "Disappointed with perfume quality", "Non Workable"),
+    "Perfume Longevity Issue": ("Negative Experience", "Perfume Longevity Issue", "Workable"),
+    "Perfume too strong": ("Negative Experience", "Perfume too strong", "Workable"),
+    "Damaged Product Received": ("Logistic Concern", "Damaged Product Received", "Workable"),
+    "Wrong Product Received": ("Logistic Concern", "Wrong Product Received", "Workable"),
+    "Doesn't trust online payments": ("Trust Concerns", "Doesn't trust online payments", "Workable"),
+}
+
+@app.get("/get_ned_ed_breakdown")
+def get_ned_ed_breakdown(
+    client_id: str = Query(..., description="Client ID"),
+    start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
+    end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
+    db: Session = Depends(get_db3)
+):
+    query = text("""
+        SELECT CustomerObjectionSubCategory
+        FROM CallDetails
+        WHERE client_id = :client_id
+        AND DATE(CallDate) BETWEEN :start_date AND :end_date
+    """)
+
+    result = db.execute(query, {
+        "client_id": client_id,
+        "start_date": start_date,
+        "end_date": end_date
+    }).fetchall()
+
+    df = pd.DataFrame(result, columns=["CustomerObjectionSubCategory"])
+    total_opportunities = len(df)
+
+    df["NED/ED Category"] = df["CustomerObjectionSubCategory"].map(lambda x: NED_ED_MAPPING.get(x, ("Other", "", ""))[0])
+    df["NED/ED-QS"] = df["CustomerObjectionSubCategory"].map(lambda x: NED_ED_MAPPING.get(x, ("", "", ""))[1])
+    df["NED/ED Status"] = df["CustomerObjectionSubCategory"].map(lambda x: NED_ED_MAPPING.get(x, ("", "", ""))[2])
+
+    breakdown = (
+        df.groupby(["NED/ED Category", "NED/ED-QS", "NED/ED Status"])
+        .size()
+        .reset_index(name="Count")
+    )
+
+    breakdown["Count"] = breakdown["Count"].astype(int)
+    breakdown["Contribution"] = (breakdown["Count"] / breakdown["Count"].sum() * 100).round(1).astype(float)
+
+    ned_ed_breakdown = breakdown.to_dict(orient="records")
+
+    response = {
+        "Total Opportunities": int(total_opportunities),
+        "NED/ED Breakdown": ned_ed_breakdown,
+        "Grand Total": int(breakdown["Count"].sum()),
+    }
+
+    return response
