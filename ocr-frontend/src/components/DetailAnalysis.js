@@ -697,7 +697,7 @@ const DetailAnalysis = () => {
             </div>
             <div className="top-issues-container">
               {/* Top 5 Queries */}
-              <h4>Top 5 - Query</h4>
+              <h4 style={{fontSize:"16px"}}>Top 5 - Query</h4>
               <div className="issue-card">
                 <div className="issue-card-container">
                   <table>
@@ -711,8 +711,8 @@ const DetailAnalysis = () => {
                       {queryData.length > 0 ? (
                         queryData.map((query, index) => (
                           <tr key={index}>
-                            <td>{query.Reason}</td>
-                            <td className="count">{query.Count}</td>
+                            <td className="count">{query.Reason}</td>
+                            <td >{query.Count}</td>
                           </tr>
                         ))
                       ) : (
@@ -749,7 +749,7 @@ const DetailAnalysis = () => {
               </div>
 
               {/* Top 5 Complaints */}
-              <h4>Top 5 - Complaint</h4>
+              <h4 style={{fontSize:"16px"}}>Top 5 - Complaint</h4>
               <div className="issue-card">
                 <div className="issue-card-container">
                   <table>
@@ -763,8 +763,8 @@ const DetailAnalysis = () => {
                       {complaintData.length > 0 ? (
                         complaintData.map((complaint, index) => (
                           <tr key={index}>
-                            <td>{complaint.Reason}</td>
-                            <td className="count">{complaint.Count}</td>
+                            <td className="count">{complaint.Reason}</td>
+                            <td >{complaint.Count}</td>
                           </tr>
                         ))
                       ) : (
@@ -800,7 +800,7 @@ const DetailAnalysis = () => {
               </div>
 
               {/* Top 5 Requests */}
-              <h4>Top 5 - Request</h4>
+              <h4 style={{fontSize:"16px"}}>Top 5 - Request</h4>
               <div className="issue-card">
                 <div className="issue-card-container">
                   <table>
@@ -814,8 +814,8 @@ const DetailAnalysis = () => {
                       {requestData.length > 0 ? (
                         requestData.map((request, index) => (
                           <tr key={index}>
-                            <td>{request.Reason}</td>
-                            <td className="count">{request.Count}</td>
+                            <td className="count">{request.Reason}</td>
+                            <td >{request.Count}</td>
                           </tr>
                         ))
                       ) : (
@@ -871,7 +871,7 @@ const DetailAnalysis = () => {
 
             {/* Day Wise / Audit Count */}
             <div className="table-card-de">
-              <h4>Day Wise / Audit Count</h4>
+              <h4 style={{fontSize:"16px"}}>Day Wise / Audit Count</h4>
               <table>
                 <thead>
                   <tr>
@@ -885,10 +885,10 @@ const DetailAnalysis = () => {
                 <tbody>
                   <tr>
                     <td>Feb-28</td>
-                    <td className="count">18</td>
-                    <td className="count">14</td>
-                    <td className="count">1</td>
-                    <td className="count">33</td>
+                    <td >18</td>
+                    <td >14</td>
+                    <td >1</td>
+                    <td >33</td>
                   </tr>
                 </tbody>
               </table>
@@ -896,7 +896,7 @@ const DetailAnalysis = () => {
 
             {/* Weekly Audit Count */}
             <div className="table-card-de audit-table">
-              <h4>Week & Scenario Wise Audit Count</h4>
+              <h4 >Week & Scenario Wise Audit Count</h4>
               <table>
                 <thead>
                   <tr>
@@ -937,7 +937,7 @@ const DetailAnalysis = () => {
         {/* 2nd page */}
 
         <div className="cq-container">
-          <h4>Agent & Parameter Wise CQ Score%</h4>
+          <h4 style={{fontSize:"16px"}}>Agent & Parameter Wise CQ Score%</h4>
           <div className="filters">
             <DatePicker
               selected={startDate}
@@ -989,7 +989,7 @@ const DetailAnalysis = () => {
 
         {/* 3rd page */}
         <div className="daywise-container">
-          <h4>Day Wise Quality Performance</h4>
+          <h4 style={{fontSize:"16px"}}>Day Wise Quality Performance</h4>
           <div className="filters">
             <DatePicker
               selected={startDate}
@@ -1062,7 +1062,7 @@ const DetailAnalysis = () => {
 
         {/* 4th page */}
         <div className="weekwise-container">
-          <h4>Week Wise Quality Performance</h4>
+          <h4 style={{fontSize:"16px"}}>Week Wise Quality Performance</h4>
           <div className="filters">
             <DatePicker
               selected={startDate}

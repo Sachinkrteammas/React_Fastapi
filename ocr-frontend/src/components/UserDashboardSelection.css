@@ -21,7 +21,7 @@
 /* Title */
 .user-maindashboard .title {
     text-align: center;
-    font-size: 24px;
+    font-size: 16px;
     font-weight: bold;
     color: #333;
     margin-bottom: 20px;
@@ -55,7 +55,7 @@
 /* Dashboard section title */
 .user-maindashboard .dashboard-title {
     margin-top: 25px;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: bold;
     color: #222;
     padding-bottom: 8px;
@@ -97,7 +97,7 @@
     border-radius: 5px;
     margin-right: 12px;
     transition: all 0.3s ease;
-    font-size: 14px;
+    font-size: 13px;
     color: transparent;
 }
 
@@ -143,11 +143,11 @@
 
     .user-maindashboard .user-select,
     .user-maindashboard .save-btn {
-        font-size: 14px;
+        font-size: 13px;
     }
 
     .user-maindashboard .custom-checkbox .checkbox-label {
-        font-size: 14px;
+        font-size: 13px;
     }
 }
 /* Sub-dashboard container */
@@ -158,7 +158,7 @@
 
 /* Sub-checkbox styling */
 .sub-checkbox .checkbox-label {
-    font-size: 14px;
+    font-size: 13px;
     color: #555;
 }
 

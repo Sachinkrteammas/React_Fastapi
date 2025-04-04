@@ -85,7 +85,7 @@ const UserDashboardSelection = () => {
                                     {dashboard.name} {dashboard.subDashboards.length > 0 && (
                                         <span 
                                             onClick={(e) => toggleExpand(dashboard.name, e)} 
-                                            style={{ cursor: "pointer", fontSize: "14px" }}
+                                            style={{ cursor: "pointer", fontSize: "13px"}}
                                         >
                                             {expandedDashboards[dashboard.name] ? "▲" : "▼"}
                                         </span>

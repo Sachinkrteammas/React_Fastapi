@@ -46,20 +46,20 @@
 
 .sales-title {
   color: #333;
-  font-size: 24px;
+  font-size: 16px;
   margin-bottom: 10px;
 }
 
 .sales-subtitle {
   color: #666;
-  font-size: 18px;
+  font-size: 16px;
   margin-bottom: 10px;
 }
 
 .sales-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .sales-table th,

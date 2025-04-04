@@ -31,27 +31,29 @@
   
   .stat-box {
     background-color: white;
-    padding: 14px;
+    padding: 13px;
     border-radius: 17px;
     width: 26%;
     text-align: center;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
   }
-  
+  .text-center{
+    font-size: 16px;
+  }
   .score {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: bold;
   }
   
   .negative {
     color: red;
-    font-size: 12px;
+    font-size: 13px;
   }
   
   .top-contributors {
     margin-top: 20px;
     background-color: white;
-    padding: 15px;
+    padding: 16px;
     border-radius: 8px;
   }
   
@@ -81,7 +83,7 @@
   .chart-section {
     margin-top: 20px;
     background-color: white;
-    padding: 15px;
+    padding: 16px;
     border-radius: 8px;
   }
   
@@ -110,7 +112,7 @@
   
   h2 {
     margin-bottom: 10px;
-    font-size: 18px;
+    font-size: 16px;
     color: #333;
   }
   

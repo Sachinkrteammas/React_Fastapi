@@ -90,7 +90,7 @@ export default function DetailSales() {
         <div className="metric-container">
           {/* CST Card */}
           <div className="metric-card green-met">
-            <h3>CST</h3>
+            <h3 style={{fontSize:"16px"}}>CST</h3>
             <div className="metricschanges">
               <div>
                 <b>{callSummary?.total_calls ?? 0}</b>
@@ -121,7 +121,7 @@ export default function DetailSales() {
 
           {/* CRT Card */}
           <div className="metric-card blue-met">
-            <h3>CRT</h3>
+            <h3 style={{fontSize:"16px"}}>CRT</h3>
             <div className="metricschanges">
               <div>
                 <b>{callSummary?.include_opening_rejected ?? 0}</b>

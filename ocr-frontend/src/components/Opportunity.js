@@ -6,17 +6,6 @@ import "./Opportunity.css";
 import axios from "axios";
 import { BASE_URL } from "./config";
 
-// const moBreakdownData = [
-//   { name: "Non Workable", value: 65, color: "#ff1493" },
-//   { name: "Workable", value: 35, color: "#ff4500" },
-// ];
-
-const moBreakupData = [
-  { name: "No Need", value: 74.7, color: "#6a5acd" },
-  { name: "Product Disinterest", value: 11.2, color: "#00ced1" },
-  { name: "Negative Experience", value: 10.4, color: "#ff6347" },
-  { name: "Budget Constraint", value: 3.7, color: "#ffd700" },
-];
 
 export default function Opportunity() {
   //loading code start===>
@@ -158,35 +147,36 @@ export default function Opportunity() {
               </label>
             </div>
           </div>
-          <h5 style={{ fontWeight: "bolder" }}>
-            Missed Opportunity Analysis (MOA)
-          </h5>
+
 
           <div className="firstdivno">
             <div className="graphdiv">
-              <div className="divide">
-                <div className="metric-card white">
-                  <h5 style={{ fontSize: "13px" }}>Total Opportunities</h5>
-                  <b style={{ fontWeight: "100" }}>
-                    {data["Total Opportunities"]
-                      ? data["Total Opportunities"].toLocaleString()
-                      : "0"}
-                  </b>
-                </div>
-                <div className="metric-card white">
-                  <h5 style={{ fontSize: "13px" }}>MO Count</h5>
-                  <b style={{ fontWeight: "100" }}>
-                    {data["MO Count"] ? data["MO Count"].toLocaleString() : "0"}
-                  </b>
+              <div className="set-con">
+                <h5 style={{ fontSize: "16px" }}>Missed Opportunity Analysis (MOA)</h5>
+                <div className="divide">
+                  <div className="metric-card white">
+                    <h5 style={{ fontSize: "13px" }}>Total Opportunities</h5>
+                    <b style={{ fontWeight: "100" }}>
+                      {data["Total Opportunities"]
+                        ? data["Total Opportunities"].toLocaleString()
+                        : "0"}
+                    </b>
+                  </div>
+                  <div className="metric-card white">
+                    <h5 style={{ fontSize: "13px" }}>MO Count</h5>
+                    <b style={{ fontWeight: "100" }}>
+                      {data["MO Count"] ? data["MO Count"].toLocaleString() : "0"}
+                    </b>
+                  </div>
                 </div>
               </div>
               {/* Charts Section */}
               <div className="charts-containermew">
                 {/* MO Breakdown */}
                 <div className="chart-containernew1">
-                  <h5 style={{ textAlign: "left" }}>MO Breakdown</h5>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
+                  <h5 style={{ fontSize: "16px" }}>MO Breakdown</h5>
+                  <ResponsiveContainer width="100%" height={210}>
+                    <PieChart >
                       <Pie
                         data={moBreakdownData}
                         dataKey="value"
@@ -217,10 +207,10 @@ export default function Opportunity() {
                 </div>
               </div>
               <div className="chart-containernew1">
-                <h3 style={{ textAlign: "left" }}>MO Breakup</h3>
+                <h3 style={{ fontSize: "16px" }}>MO Breakup</h3>
 
                 <>
-                  <ResponsiveContainer width="100%" height={300}>
+                  <ResponsiveContainer width="100%" height={250}>
                     <PieChart>
                       <Pie
                         data={moBreakupData}
@@ -262,7 +252,14 @@ export default function Opportunity() {
                 <div className="table-container1">
                   {/* <h3>MO Category</h3> */}
                   <table className="tablebody">
-                    <thead>
+                    <thead
+                      style={{
+                        position: "sticky",
+                        top: 0,
+                        backgroundColor: "#fff",
+                        zIndex: 2,
+                      }}
+                    >
                       <tr>
                         <th>MO Category</th>
                         <th>Observations & Insights</th>
@@ -272,7 +269,7 @@ export default function Opportunity() {
                     </thead>
                     <tbody>
                       {data["MO Breakdown"] &&
-                      data["MO Breakdown"].length > 0 ? (
+                        data["MO Breakdown"].length > 0 ? (
                         data["MO Breakdown"].map((item, index) => (
                           <tr key={index}>
                             <td>{item["MO Category"]}</td>
@@ -299,7 +296,13 @@ export default function Opportunity() {
               <div className="table-container2">
                 {/* <h3>NED/ED Category</h3> */}
                 <table className="tablebodysec">
-                  <thead>
+                  <thead
+                    style={{
+                      position: "sticky",
+                      top: 0,
+                      backgroundColor: "#fff",
+                      zIndex: 2,
+                    }}>
                     <tr>
                       <th>NED/ED Category</th>
                       <th>NED/ED-QS</th>

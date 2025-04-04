@@ -192,7 +192,8 @@ export default function SalesDashboard() {
           <div className="metric-container">
             {/* CST Card */}
             <div className="metric-card green-met">
-              <h3>CST</h3>
+              <h3 style={{ fontSize: "16px" }}>
+                CST</h3>
               <div className="metrics">
                 <div>
                   <b>{callSummary?.total_calls ?? 0}</b>
@@ -225,7 +226,7 @@ export default function SalesDashboard() {
 
             {/* CRT Card */}
             <div className="metric-card blue-met">
-              <h3>CRT</h3>
+              <h3 style={{ fontSize: "16px" }}>CRT</h3>
               <div className="metrics">
                 <div>
                   <b>{callSummary?.include_opening_rejected ?? 0}</b>
@@ -259,16 +260,16 @@ export default function SalesDashboard() {
                 <h2 className="scb_rcb_fontclass">
                   Success Calls Breakdown (SCB)
                 </h2>
-                <ResponsiveContainer width="100%" height={300}>
+                <ResponsiveContainer width="100%" height={170}>
                   {rejectedData.length > 0 ? (
-                    <PieChart>
+                    <PieChart > {/* Reduced height */}
                       <Pie
                         data={rejectedData}
                         dataKey="value"
                         nameKey="name"
                         cx="50%"
                         cy="50%"
-                        outerRadius={100}
+                        outerRadius={60} // Reduced radius
                         label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
                       >
                         {rejectedData.map((entry, index) => (
@@ -281,7 +282,6 @@ export default function SalesDashboard() {
                     <p style={{ textAlign: "center" }}>No data available</p>
                   )}
                 </ResponsiveContainer>
-
                 {/* 📌 Custom Legend with Bullet Points */}
                 <ul className="legend">
                   {rejectedData.map((entry, index) => (
@@ -324,16 +324,16 @@ export default function SalesDashboard() {
                 <h2 className="scb_rcb_fontclass">
                   Rejected Calls Breakdown (RCB)
                 </h2>
-                <ResponsiveContainer width="100%" height={300}>
+                <ResponsiveContainer width="100%" height={170}>
                   {rejectedData.length > 0 ? (
-                    <PieChart>
+                    <PieChart >
                       <Pie
                         data={rejectedData}
                         dataKey="value"
                         nameKey="name"
                         cx="50%"
                         cy="50%"
-                        outerRadius={100}
+                        outerRadius={60}
                         label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
                       >
                         {rejectedData.map((entry, index) => (
@@ -355,7 +355,7 @@ export default function SalesDashboard() {
                         className="bullet"
                         style={{ backgroundColor: entry.color }}
                       ></span>
-                      {entry.name} 
+                      {entry.name}
                     </li>
                   ))}
                 </ul>

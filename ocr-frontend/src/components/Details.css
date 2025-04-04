@@ -30,12 +30,12 @@
     border: 1px solid #ccc;
     border-radius: 5px;
     margin-right: 10px;
-    font-size: 14px;
+    font-size: 15px;
   }
   
   .brand {
     color: #6a6a6a;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: bold;
   }
   
@@ -49,12 +49,12 @@
   
   .stat-card {
     background: white;
-    padding: 15px;
+    padding: 10px;
     border-radius: 8px;
     text-align: center;
-    font-weight: bold;
-    font-size: 12px;
-    width: 22%;
+    /* font-weight: bold; */
+    font-size: 15px;
+    width: 25%;
     box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
   }
   
@@ -144,13 +144,13 @@
   .table-card-de h4 {
     margin-bottom: 10px;
     font-size: 16px;
-    font-weight: bold;
+    /* font-weight: bold; */
   }
   
   table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 14px;
+    font-size: 13px;
   }
   
   td, th {
@@ -160,8 +160,8 @@
   }
   
   .count {
-    text-align: right;
-    font-weight: bold;
+    text-align: left;
+    /* font-weight: bold; */
   }
  
 
@@ -176,7 +176,7 @@
   .audit-table table {
     width: 95%;
     border-collapse: collapse;
-    font-size: 12px;
+    font-size: 11px;
 }
 
   
@@ -242,7 +242,7 @@
     }
   
     table {
-      font-size: 12px;
+      font-size: 13px;
     }
   
     /* .chart-container {

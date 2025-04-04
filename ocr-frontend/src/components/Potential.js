@@ -176,7 +176,7 @@ const Potential = () => {
         <div className="content">
           <div className="chart-container-po">
             <h3 className="Po-text">Recent Escalation</h3>
-            <PieChart width={250} height={315}>
+            <PieChart width={250} height={350}>
               <Pie data={pieChartData} dataKey="value" outerRadius={80} label>
                 {pieChartData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
@@ -189,7 +189,7 @@ const Potential = () => {
                   width: "210px",
                   left: "215px",
                   bottom: "115px",
-                  fontSize: "12px",
+                  fontSize: "13px",
                 }}
               />
             </PieChart>

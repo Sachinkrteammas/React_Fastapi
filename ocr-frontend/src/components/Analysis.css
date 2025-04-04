@@ -74,7 +74,7 @@
   /* min-width: 140px; */
   display: flex;
  
-  font-size: 14px;
+  font-size: 13px;
   width: 20%;
   height: 118px !important;
   
@@ -335,7 +335,7 @@
 }
 .section-box {
   background-color: #80cbc4; 
-  padding: 15px;
+  padding: 16px;
   border-radius: 10px;
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
   margin-top: 20px;
@@ -358,7 +358,7 @@
   height: 120px; 
   overflow-y: auto;
   border: 1px solid #ccc;
-  font-size: 14px;
+  font-size: 13px;
   color: #333;
   margin-top: 11px;
 }
@@ -388,7 +388,7 @@
 .data-table td {
   padding: 10px;
   border: 1px solid #ccc;
-  font-size: 14px;
+  font-size: 13px;
   text-align: center;
 }
 
@@ -430,7 +430,7 @@
   height: 120px; 
   overflow-y: auto;
   border: 1px solid #ccc;
-  font-size: 14px;
+  font-size: 13px;
   color: #333;
 }
 
@@ -458,7 +458,7 @@
 .data-table td {
   padding: 10px;
   border: 1px solid #ccc;
-  font-size: 14px;
+  font-size: 13px;
   text-align: center;
 }
 

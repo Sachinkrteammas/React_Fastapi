@@ -8,6 +8,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    font-size: 16px;
 }
 
 .op-con {
@@ -132,7 +133,7 @@
     max-width: 250px;
 }
 .box-response{
-    padding: 15px;
+    padding: 16px;
     border-radius: 8px;
     width: 250px;
     text-align: center;
@@ -143,7 +144,7 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  
 }
 .sub-box {
-    padding: 15px;
+    padding: 16px;
     border-radius: 8px;
     width: 250px;
     height: 250px;
@@ -154,7 +155,7 @@
     padding: 5px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  
     
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .call-end {
@@ -163,7 +164,7 @@
     text-align: center;
     /* font-weight: bold; */
     background-color: white;
-    border-radius: 15px;
+    border-radius: 16px;
     padding: 5px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  
     

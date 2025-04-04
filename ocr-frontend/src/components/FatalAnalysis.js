@@ -549,7 +549,7 @@ const Fatal = () => {
             </div>
 
             <div className="top-contributors">
-              <h5>Top 5 Fatal Contributors</h5>
+              <h5 style={{fontSize:"16px"}}>Top 5 Fatal Contributors</h5>
               <table>
                 <thead>
                   <tr>
@@ -573,7 +573,7 @@ const Fatal = () => {
             </div>
 
             <div className="chart-section">
-              <h5>Day Wise Fatal%</h5>
+              <h5 style={{fontSize:"16px"}}>Day Wise Fatal%</h5>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart
                   data={dayWiseData}
@@ -734,7 +734,7 @@ const Fatal = () => {
         {/* footer */}
 
         <div className="full-width">
-          <h4>Agent Wise Performance</h4>
+          <h4 style={{fontSize:"16px"}}>Agent Wise Performance</h4>
           <table>
             <thead>
               <tr>

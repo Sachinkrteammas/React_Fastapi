@@ -40,6 +40,7 @@
     /* flex-direction: column; */
     /* gap: 27px; */
     /* margin-top: 10px; */
+    font-size: 13px;
     background-color: black;
     color: white;
     border-radius: 8px;
@@ -47,7 +48,7 @@
 }
 
 .metrics div {
-    font-size: 14px;
+    font-size: 13x;
 }
 
 .metrics b {
@@ -62,12 +63,12 @@
     border-radius: 8px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     text-align: center;
-    margin-bottom: 20px;
-    width: 48%;
+    /* margin-bottom: 20px; */
+    width: 50%;
 }
 
 h2 {
-    font-size: 18px;
+    font-size: 16x;
     margin-bottom: 10px;
 }
 
@@ -75,7 +76,7 @@ h2 {
 .footer {
     text-align: center;
     padding: 10px;
-    font-size: 14px;
+    font-size: 13x;
     color: gray;
 }
 
@@ -87,12 +88,13 @@ h2 {
     gap: 0px;
     margin-top: 10px;
     padding: 0;
+    font-size: 13px;
 }
 
 .legend li {
     /* display: flex;
     align-items: center; */
-    font-size: 12px;
+    font-size: 13x;
 }
 
 .bullet {
@@ -107,16 +109,16 @@ h2 {
     width: 100%;
     display: flex;
     gap: 15px;
-    margin-left: 11px;
-    margin-top: 33px;
+    /* margin-left: 11px; */
+    margin-top: 5px;
 }
 .block2div
 {
     width: 100%;
     display: flex;
     gap: 15px;
-    margin-left: 11px;
-    margin-top: 33px;
+    /* margin-left: 11px; */
+    margin-top: 5px;
 }
 .recharts-surface
 {
@@ -125,15 +127,15 @@ h2 {
 
 .scb_rcb_fontclass
 {
-    font-size: 24px;
+    font-size: 16px;
     text-align: justify;
-    font-weight: bold;
+    /* font-weight: bold; */
 }
 .cst_crt_fontclass
 {
-    font-size: 24px;
+    font-size: 16px;
     text-align: center;
-    font-weight: bold;
+    /* font-weight: bold; */
 }
 .funnel {
     display: flex;
@@ -144,7 +146,7 @@ h2 {
   
 .funnel-item {
     color: white;
-    font-size: 16px;
+    font-size: 13px;
     font-weight: bold;
     text-align: center;
     padding: 10px;
@@ -156,3 +158,4 @@ h2 {
 /* .funnel-item:hover {
     transform: scale(1.05);
 } */
+

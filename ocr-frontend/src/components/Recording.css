@@ -81,7 +81,7 @@
 }
 
 .chword {
-  font-size: 15px;
+  font-size: 16px;
   color: black;
   text-align: justify;
   font-family: 'Arial', sans-serif;
@@ -107,7 +107,7 @@
 
 
 .drop-record {
-  font-size: 15px;
+  font-size: 16px;
   display: flex;
   gap: 5px;
   position: relative;
@@ -129,13 +129,13 @@
 
 
 .wordrec {
-  font-size: 1rem;
+  font-size: 16px;
   position: relative;
   width: fit-content;
   top: 3rem;
 }
 .worddev{
-  font-size: 1rem;
+  font-size: 16px;
   position: relative;
   width: 10rem;
   left: 24.5rem;

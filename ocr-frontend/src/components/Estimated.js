@@ -86,7 +86,7 @@ export default function Estimated() {
             </label>
           </div>
         </div>
-        <h4>Estimated NPS & CSAT</h4>
+        <h4 style={{fontSize:"16px"}}>Estimated NPS & CSAT</h4>
 
         <div className="dashboard-grid">
           {/* NPS Gauge Chart */}
@@ -99,8 +99,8 @@ export default function Estimated() {
                   dataKey="value"
                   cx="50%"
                   cy="100%"
-                  innerRadius={40}
-                  outerRadius={80}
+                  innerRadius={60}
+                  outerRadius={100}
                   startAngle={180}
                   endAngle={0}
                 >
@@ -121,8 +121,8 @@ export default function Estimated() {
                   dataKey="value"
                   cx="50%"
                   cy="100%"
-                  innerRadius={40}
-                  outerRadius={80}
+                  innerRadius={60}
+                  outerRadius={100}
                   startAngle={180}
                   endAngle={0}
                 >
@@ -165,7 +165,7 @@ export default function Estimated() {
                     className="legend-box"
                     style={{ backgroundColor: item.color }}
                   ></span>
-                  {item.name}: {item.value}%
+                  {item.name}
                 </li>
               ))}
             </ul>
