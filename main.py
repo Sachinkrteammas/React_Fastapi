@@ -531,7 +531,7 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # Allowed MIME types
 ALLOWED_MIME_TYPES = ["audio/mpeg", "audio/wav"]
-TRANSCRIBE_API_URL = "http://172.12.13.105:8080/transcribe"
+TRANSCRIBE_API_URL = "http://172.12.10.24:8080/transcribe"
 import shutil
 import httpx
 

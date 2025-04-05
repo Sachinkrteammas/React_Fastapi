@@ -22,7 +22,7 @@ export default function Settings() {
 
   return (
     <Layout>
-      <h4>Settings</h4>
+      {/* <h4>Settings</h4> */}
       <div className="settings-container">
         <div className="org-box">
           <label>Organization Name:</label>
@@ -43,6 +43,7 @@ export default function Settings() {
         <div className="org-box12">
           <label>Rate/Min:</label>
           <input
+            className="box-label"
             type="number"
             value={ratePerMin}
             onChange={(e) => setRatePerMin(e.target.value)}
@@ -51,6 +52,7 @@ export default function Settings() {
 
           <label>Limit:</label>
           <input
+            className="box-label2"
             type="number"
             value={limit}
             onChange={(e) => setLimit(e.target.value)}
