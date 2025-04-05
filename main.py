@@ -2515,8 +2515,8 @@ def get_recordings_datewise(
     return response_data
 
 
-UPLOAD_DIR = "downloaded_files"  # Directory to store text files
-os.makedirs(UPLOAD_DIR, exist_ok=True)  # Ensure directory exists
+UPLOAD_DIR_NEW = "downloaded_files"  # Directory to store text files
+os.makedirs(UPLOAD_DIR_NEW, exist_ok=True)  # Ensure directory exists
 from fastapi.responses import FileResponse
 
 @app.post("/download_transcription/")
@@ -2537,7 +2537,7 @@ async def download_transcription(data: dict, db: Session = Depends(get_db)):
     )
 
     # Save text file
-    file_path = os.path.join(UPLOAD_DIR, "transcriptions.txt")
+    file_path = os.path.join(UPLOAD_DIR_NEW, "transcriptions.txt")
     with open(file_path, "w", encoding="utf-8") as f:
         f.write(text_content)
 
@@ -2812,3 +2812,149 @@ def get_ned_ed_breakdown(
     }
 
     return response
+
+
+
+@app.get("/op_analysis_sales")
+def op_analysis_sales(
+    client_id: str = Query(..., description="Client ID"),
+    start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
+    end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
+    db: Session = Depends(get_db3)
+):
+    query = text("""
+        SELECT
+            OpeningPitchCategory AS "Opening Pitch Category",
+            COUNT(DISTINCT LeadID) AS "Total Calls",
+            SUM(CASE WHEN OpeningRejected = '1' THEN 1 ELSE 0 END) AS "OPS Count",
+            ROUND((SUM(CASE WHEN OpeningRejected = '1' THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0)), 2) AS "OPS%",
+            SUM(CASE WHEN OpeningRejected = '0' THEN 1 ELSE 0 END) AS "OR Count",
+            ROUND((SUM(CASE WHEN OpeningRejected = '0' THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0)), 2) AS "OR%",
+            SUM(CASE WHEN SaleDone = TRUE THEN 1 ELSE 0 END) AS "Sale Count",
+            ROUND((SUM(CASE WHEN SaleDone = TRUE THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0)), 2) AS "Conversion%"
+        FROM CallDetails
+        WHERE client_id = :client_id
+        AND DATE(CallDate) BETWEEN :start_date AND :end_date
+        GROUP BY OpeningPitchCategory
+        ORDER BY "Total Calls" DESC
+    """)
+
+    result = db.execute(query, {"client_id": client_id, "start_date": start_date, "end_date": end_date}).fetchall()
+    response_data = [dict(row._mapping) for row in result]
+
+    if response_data:
+        total_calls = sum(row["Total Calls"] for row in response_data)
+        ops_count = sum(row["OPS Count"] for row in response_data)
+        or_count = sum(row["OR Count"] for row in response_data)
+        sale_count = sum(row["Sale Count"] for row in response_data)
+
+        grand_total = {
+            "Opening Pitch Category": "Grand Total",
+            "Total Calls": total_calls,
+            "OPS Count": ops_count,
+            "OPS%": round(float(ops_count) * 100.0 / max(float(total_calls), 1.0), 2),
+            "OR Count": or_count,
+            "OR%": round(float(or_count) * 100.0 / max(float(total_calls), 1.0), 2),
+            "Sale Count": sale_count,
+            "Conversion%": round(float(sale_count) * 100.0 / max(float(total_calls), 1.0), 2)
+        }
+
+        response_data.append(grand_total)
+
+    return response_data
+
+@app.get("/contact_analysis_sales")
+def contact_analysis_sales(
+    client_id: str = Query(..., description="Client ID"),
+    start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
+    end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
+    db: Session = Depends(get_db3)
+):
+    query = text("""
+        SELECT
+            ContactSettingCategory AS "Contact Pitch Category",
+            COUNT(DISTINCT LeadID) AS "Total Calls",
+            SUM(CASE WHEN OpeningRejected = '1' THEN 1 ELSE 0 END) AS "OPS Count",
+            ROUND((SUM(CASE WHEN OpeningRejected = '1' THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0)), 2) AS "OPS%",
+            SUM(CASE WHEN OpeningRejected = '0' THEN 1 ELSE 0 END) AS "OR Count",
+            ROUND((SUM(CASE WHEN OpeningRejected = '0' THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0)), 2) AS "OR%",
+            SUM(CASE WHEN SaleDone = TRUE THEN 1 ELSE 0 END) AS "Sale Count",
+            ROUND((SUM(CASE WHEN SaleDone = TRUE THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0)), 2) AS "Conversion%"
+        FROM CallDetails
+        WHERE client_id = :client_id
+        AND DATE(CallDate) BETWEEN :start_date AND :end_date
+        GROUP BY ContactSettingCategory
+        ORDER BY "Total Calls" DESC
+    """)
+
+    result = db.execute(query, {"client_id": client_id, "start_date": start_date, "end_date": end_date}).fetchall()
+    response_data = [dict(row._mapping) for row in result]
+
+    if response_data:
+        total_calls = sum(row["Total Calls"] for row in response_data)
+        ops_count = sum(row["OPS Count"] for row in response_data)
+        or_count = sum(row["OR Count"] for row in response_data)
+        sale_count = sum(row["Sale Count"] for row in response_data)
+
+        grand_total = {
+            "Contact Pitch Category": "Grand Total",
+            "Total Calls": int(total_calls),
+            "OPS Count": int(ops_count),
+            "OPS%": round(float(ops_count) * 100.0 / max(float(total_calls), 1.0), 2),
+            "OR Count": int(or_count),
+            "OR%": round(float(or_count) * 100.0 / max(float(total_calls), 1.0), 2),
+            "Sale Count": int(sale_count),
+            "Conversion%": round(float(sale_count) * 100.0 / max(float(total_calls), 1.0), 2)
+        }
+
+        response_data.append(grand_total)
+
+    return response_data
+
+@app.get("/discount_analysis_sales")
+def discount_analysis_sales(
+    client_id: str = Query(..., description="Client ID"),
+    start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
+    end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
+    db: Session = Depends(get_db3)
+):
+    query = text("""
+        SELECT
+            DiscountType AS "Discount Type",
+            COUNT(DISTINCT LeadID) AS "Total Calls",
+            SUM(CASE WHEN OpeningRejected = '1' THEN 1 ELSE 0 END) AS "OPS Count",
+            ROUND((SUM(CASE WHEN OpeningRejected = '1' THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0)), 2) AS "OPS%",
+            SUM(CASE WHEN OpeningRejected = '0' THEN 1 ELSE 0 END) AS "OR Count",
+            ROUND((SUM(CASE WHEN OpeningRejected = '0' THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0)), 2) AS "OR%",
+            SUM(CASE WHEN SaleDone = TRUE THEN 1 ELSE 0 END) AS "Sale Count",
+            ROUND((SUM(CASE WHEN SaleDone = TRUE THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0)), 2) AS "Conversion%"
+        FROM CallDetails
+        WHERE client_id = :client_id
+        AND DATE(CallDate) BETWEEN :start_date AND :end_date
+        GROUP BY DiscountType
+        ORDER BY "Total Calls" DESC
+    """)
+
+    result = db.execute(query, {"client_id": client_id, "start_date": start_date, "end_date": end_date}).fetchall()
+    response_data = [dict(row._mapping) for row in result]
+
+    if response_data:
+        total_calls = sum(row["Total Calls"] for row in response_data)
+        ops_count = sum(row["OPS Count"] for row in response_data)
+        or_count = sum(row["OR Count"] for row in response_data)
+        sale_count = sum(row["Sale Count"] for row in response_data)
+
+        grand_total = {
+            "Discount Type": "Grand Total",
+            "Total Calls": int(total_calls),
+            "OPS Count": int(ops_count),
+            "OPS%": round(float(ops_count) * 100.0 / max(float(total_calls), 1.0), 2),
+            "OR Count": int(or_count),
+            "OR%": round(float(or_count) * 100.0 / max(float(total_calls), 1.0), 2),
+            "Sale Count": int(sale_count),
+            "Conversion%": round(float(sale_count) * 100.0 / max(float(total_calls), 1.0), 2)
+        }
+
+        response_data.append(grand_total)
+
+    return response_data
