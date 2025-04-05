@@ -2464,6 +2464,7 @@ def get_recordings(db: Session = Depends(get_db)):
             "file": rec.filename,
             "category": rec.category if rec.category else "Unknown",
             "language": rec.language if rec.language else "NA",
+            "minutes": rec.minutes if rec.minutes else "NA",
             "Transcript": rec.transcript if rec.transcript else "NA",
             "id":rec.id
         }
@@ -2507,6 +2508,7 @@ def get_recordings_datewise(
             "file": rec.filename,
             "category": rec.category if rec.category else "Unknown",
             "language": rec.language if rec.language else "NA",
+            "minutes": rec.minutes if rec.minutes else "NA",
             "Transcript": rec.transcript if rec.transcript else "NA",
             "id": rec.id
 
