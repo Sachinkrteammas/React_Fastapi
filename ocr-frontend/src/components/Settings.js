@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import Layout from "../layout"; 
-import "../layout.css"; 
+import Layout from "../layout";
+import "../layout.css";
 import "./Settings.css"
 
 export default function Settings() {
@@ -24,36 +24,39 @@ export default function Settings() {
     <Layout>
       <h4>Settings</h4>
       <div className="settings-container">
-        <label>Organization Name:</label>
-        <input
-          type="text"
-          value={organizationName}
-          onChange={(e) => setOrganizationName(e.target.value)}
-          placeholder="Enter organization name"
-        />
+        <div className="org-box">
+          <label>Organization Name:</label>
+          <input
+            type="text"
+            value={organizationName}
+            onChange={(e) => setOrganizationName(e.target.value)}
+            placeholder="Enter organization name"
+          />
 
-        <label>Payment Info:</label>
-        <select value={paymentInfo} onChange={(e) => setPaymentInfo(e.target.value)}>
-          <option value="UPI">UPI</option>
-          <option value="Networking">NetBanking</option>
-          <option value="Free">Free</option>
-        </select>
+          <label>Payment Info:</label>
+          <select value={paymentInfo} onChange={(e) => setPaymentInfo(e.target.value)}>
+            <option value="UPI">UPI</option>
+            <option value="Networking">NetBanking</option>
+            <option value="Free">Free</option>
+          </select>
+        </div>
+        <div className="org-box12">
+          <label>Rate/Min:</label>
+          <input
+            type="number"
+            value={ratePerMin}
+            onChange={(e) => setRatePerMin(e.target.value)}
+            placeholder="Enter rate per minute"
+          />
 
-        <label>Rate/Min:</label>
-        <input
-          type="number"
-          value={ratePerMin}
-          onChange={(e) => setRatePerMin(e.target.value)}
-          placeholder="Enter rate per minute"
-        />
-
-        <label>Limit:</label>
-        <input
-          type="number"
-          value={limit}
-          onChange={(e) => setLimit(e.target.value)}
-          placeholder="Enter limit"
-        />
+          <label>Limit:</label>
+          <input
+            type="number"
+            value={limit}
+            onChange={(e) => setLimit(e.target.value)}
+            placeholder="Enter limit"
+          />
+        </div>
 
         <button className="save-btn" onClick={handleSave}>Save</button>
       </div>

@@ -549,7 +549,7 @@ const Fatal = () => {
             </div>
 
             <div className="top-contributors">
-              <h5 style={{fontSize:"16px"}}>Top 5 Fatal Contributors</h5>
+              <h5 style={{ fontSize: "16px" }}>Top 5 Fatal Contributors</h5>
               <table>
                 <thead>
                   <tr>
@@ -573,7 +573,7 @@ const Fatal = () => {
             </div>
 
             <div className="chart-section">
-              <h5 style={{fontSize:"16px"}}>Day Wise Fatal%</h5>
+              <h5 style={{ fontSize: "16px" }}>Day Wise Fatal%</h5>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart
                   data={dayWiseData}
@@ -590,151 +590,151 @@ const Fatal = () => {
 
           <div className="rightbody">
             {/*  right code */}
-            {/* <div className="card"> */}
-            <h5 className="text-center">Scenario Wise Fatal Count</h5>
+            <div className="right-card">
+              <h5 className="text-center">Scenario Wise Fatal Count</h5>
 
-            <div className="stats">
-              <div className="stat-box">
-                <h6>Query Fatal</h6>
-                <p className="score">{stats?.query_fatal ?? "N/A"}</p>
+              <div className="stats">
+                <div className="stat-box">
+                  <h6>Query Fatal</h6>
+                  <p className="score">{stats?.query_fatal ?? "N/A"}</p>
+                </div>
+                <div className="stat-box">
+                  <h6>Complaint Fatal</h6>
+                  <p className="score">{stats?.Complaint_fatal ?? "N/A"}</p>
+                </div>
+                <div className="stat-box">
+                  <h6>Request Fatal</h6>
+                  <p className="score">{stats?.Request_fatal ?? "N/A"}</p>
+                </div>
+                <div className="stat-box">
+                  <h6>Sale Done Fatal</h6>
+                  <p className="score">{stats?.sale_fatal ?? "N/A"}</p>
+                </div>
               </div>
-              <div className="stat-box">
-                <h6>Complaint Fatal</h6>
-                <p className="score">{stats?.Complaint_fatal ?? "N/A"}</p>
-              </div>
-              <div className="stat-box">
-                <h6>Request Fatal</h6>
-                <p className="score">{stats?.Request_fatal ?? "N/A"}</p>
-              </div>
-              <div className="stat-box">
-                <h6>Sale Done Fatal</h6>
-                <p className="score">{stats?.sale_fatal ?? "N/A"}</p>
-              </div>
+
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Query Fatal</th>
+                    <th>Complaint Fatal</th>
+                    <th>Request Fatal</th>
+                    <th>Sale Done Fatal</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {scenarioData.map((row, index) => (
+                    <tr key={index}>
+                      <td>{row.date}</td>
+                      <td className={row.queryFatal > 0 ? "highlight" : ""}>
+                        {row.queryFatal}
+                      </td>
+                      <td className={row.complaintFatal > 0 ? "highlight" : ""}>
+                        {row.complaintFatal}
+                      </td>
+                      <td className={row.requestFatal > 0 ? "highlight" : ""}>
+                        {row.requestFatal}
+                      </td>
+                      <td className={row.saleDoneFatal > 0 ? "highlight" : ""}>
+                        {row.saleDoneFatal}
+                      </td>
+                      <td className="bold">{row.total}</td>
+                    </tr>
+                  ))}
+                </tbody>
+
+                <tfoot>
+                  <tr>
+                    <td>Grand Total</td>
+                    <td className="bold">
+                      {scenarioData.reduce((sum, row) => sum + row.queryFatal, 0)}
+                    </td>
+                    <td className="bold">
+                      {scenarioData.reduce(
+                        (sum, row) => sum + row.complaintFatal,
+                        0
+                      )}
+                    </td>
+                    <td className="bold">
+                      {scenarioData.reduce(
+                        (sum, row) => sum + row.requestFatal,
+                        0
+                      )}
+                    </td>
+                    <td className="bold">
+                      {scenarioData.reduce(
+                        (sum, row) => sum + row.saleDoneFatal,
+                        0
+                      )}
+                    </td>
+                    <td className="bold">
+                      {scenarioData.reduce((sum, row) => sum + row.total, 0)}
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
             </div>
 
-            <table>
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Query Fatal</th>
-                  <th>Complaint Fatal</th>
-                  <th>Request Fatal</th>
-                  <th>Sale Done Fatal</th>
-                  <th>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {scenarioData.map((row, index) => (
-                  <tr key={index}>
-                    <td>{row.date}</td>
-                    <td className={row.queryFatal > 0 ? "highlight" : ""}>
-                      {row.queryFatal}
-                    </td>
-                    <td className={row.complaintFatal > 0 ? "highlight" : ""}>
-                      {row.complaintFatal}
-                    </td>
-                    <td className={row.requestFatal > 0 ? "highlight" : ""}>
-                      {row.requestFatal}
-                    </td>
-                    <td className={row.saleDoneFatal > 0 ? "highlight" : ""}>
-                      {row.saleDoneFatal}
-                    </td>
-                    <td className="bold">{row.total}</td>
-                  </tr>
-                ))}
-              </tbody>
-
-              <tfoot>
-                <tr>
-                  <td>Grand Total</td>
-                  <td className="bold">
-                    {scenarioData.reduce((sum, row) => sum + row.queryFatal, 0)}
-                  </td>
-                  <td className="bold">
-                    {scenarioData.reduce(
-                      (sum, row) => sum + row.complaintFatal,
-                      0
-                    )}
-                  </td>
-                  <td className="bold">
-                    {scenarioData.reduce(
-                      (sum, row) => sum + row.requestFatal,
-                      0
-                    )}
-                  </td>
-                  <td className="bold">
-                    {scenarioData.reduce(
-                      (sum, row) => sum + row.saleDoneFatal,
-                      0
-                    )}
-                  </td>
-                  <td className="bold">
-                    {scenarioData.reduce((sum, row) => sum + row.total, 0)}
-                  </td>
-                </tr>
-              </tfoot>
-            </table>
-            {/* </div> */}
-
             {/* Week & Scenario Wise Fatal Count */}
-            {/* <div className="card"> */}
-            <h5 className="text-center">Week & Scenario Wise Fatal Count</h5>
-            <table>
-              <thead>
-                <tr>
-                  <th>Week</th>
-                  <th>Query Fatal</th>
-                  <th>Complaint Fatal</th>
-                  <th>Request Fatal</th>
-                  <th>Sale Done Fatal</th>
-                  <th>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {weekScenarioData.map((row, index) => (
-                  <tr key={index}>
-                    <td>{row.week}</td>
-                    <td className={row.queryFatal !== "0%" ? "highlight" : ""}>
-                      {row.queryFatal}
-                    </td>
-                    <td
-                      className={row.complaintFatal !== "0%" ? "highlight" : ""}
-                    >
-                      {row.complaintFatal}
-                    </td>
-                    <td
-                      className={row.requestFatal !== "0%" ? "highlight" : ""}
-                    >
-                      {row.requestFatal}
-                    </td>
-                    <td
-                      className={row.saleDoneFatal !== "0%" ? "highlight" : ""}
-                    >
-                      {row.saleDoneFatal}
-                    </td>
-                    <td className="bold">{row.total}</td>
+            <div className="right-card">
+              <h5 className="text-center">Week & Scenario Wise Fatal Count</h5>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Week</th>
+                    <th>Query Fatal</th>
+                    <th>Complaint Fatal</th>
+                    <th>Request Fatal</th>
+                    <th>Sale Done Fatal</th>
+                    <th>Total</th>
                   </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr>
-                  <td>Grand Total</td>
-                  <td className="bold">50%</td>
-                  <td className="bold">50%</td>
-                  <td className="bold">0%</td>
-                  <td className="bold">0%</td>
-                  <td className="bold">16</td>
-                </tr>
-              </tfoot>
-            </table>
-            {/* </div> */}
+                </thead>
+                <tbody>
+                  {weekScenarioData.map((row, index) => (
+                    <tr key={index}>
+                      <td>{row.week}</td>
+                      <td className={row.queryFatal !== "0%" ? "highlight" : ""}>
+                        {row.queryFatal}
+                      </td>
+                      <td
+                        className={row.complaintFatal !== "0%" ? "highlight" : ""}
+                      >
+                        {row.complaintFatal}
+                      </td>
+                      <td
+                        className={row.requestFatal !== "0%" ? "highlight" : ""}
+                      >
+                        {row.requestFatal}
+                      </td>
+                      <td
+                        className={row.saleDoneFatal !== "0%" ? "highlight" : ""}
+                      >
+                        {row.saleDoneFatal}
+                      </td>
+                      <td className="bold">{row.total}</td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td>Grand Total</td>
+                    <td className="bold">50%</td>
+                    <td className="bold">50%</td>
+                    <td className="bold">0%</td>
+                    <td className="bold">0%</td>
+                    <td className="bold">16</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
           </div>
         </div>
 
         {/* footer */}
 
         <div className="full-width">
-          <h4 style={{fontSize:"16px"}}>Agent Wise Performance</h4>
+          <h4 style={{ fontSize: "16px" }}>Agent Wise Performance</h4>
           <table>
             <thead>
               <tr>

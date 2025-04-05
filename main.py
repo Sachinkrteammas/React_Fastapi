@@ -2463,6 +2463,7 @@ def get_recordings(db: Session = Depends(get_db)):
             "recordingDate": rec.upload_time.strftime("%Y-%m-%d"),
             "file": rec.filename,
             "category": rec.category if rec.category else "Unknown",
+            "language": rec.language if rec.language else "NA",
             "Transcript": rec.transcript if rec.transcript else "NA",
             "id":rec.id
         }
@@ -2505,6 +2506,7 @@ def get_recordings_datewise(
             "recordingDate": rec.upload_time.strftime("%Y-%m-%d"),
             "file": rec.filename,
             "category": rec.category if rec.category else "Unknown",
+            "language": rec.language if rec.language else "NA",
             "Transcript": rec.transcript if rec.transcript else "NA",
             "id": rec.id
 

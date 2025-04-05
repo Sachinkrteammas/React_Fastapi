@@ -64,6 +64,11 @@ const Transcription = ({ onLogout }) => {
     fetchRecordings();
   }, []);
 
+  useEffect(() => {
+    setTotalPages(Math.ceil(data.length / itemsPerPage));
+    setPage(1);// reset to page 1 on new data
+  }, [data]);
+
   const nextPage = () => {
     if (page < totalPages) {
       setPage(page + 1);
@@ -268,6 +273,7 @@ const Transcription = ({ onLogout }) => {
                 <th>Recording Date</th>
                 <th>Recording File</th>
                 <th>Category</th>
+                <th>Language</th>
                 <th>Transcript</th>
               </tr>
             </thead>
@@ -299,6 +305,7 @@ const Transcription = ({ onLogout }) => {
                     </audio>
                   </td>
                   <td>{item.category}</td>
+                  <td>{item.language}</td>
                   <td>
                     <div className="transcript-short">
                       {item.Transcript.length > 50

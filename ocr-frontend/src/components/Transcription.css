@@ -236,7 +236,9 @@
     font-size: 14px;
     text-overflow: ellipsis;
     /* white-space: nowrap; */
-    width: 100% /* Adjust as needed */
+    width: 100%;
+    text-align: start;
+    
   }
   
   .show-more {

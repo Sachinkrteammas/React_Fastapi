@@ -4,7 +4,7 @@ import axios from "axios";
 import "./Recording.css";
 import Layout from "../layout";
 import "../layout.css";
-import { Copy, CopyCheck } from "lucide-react";
+import { Copy, CopyCheck, CloudUpload } from "lucide-react";
 import { BASE_URL } from "./config";
 
 const Recordings = () => {
@@ -18,9 +18,9 @@ const Recordings = () => {
   const fileInputRef = useRef(null);
   const user_id = localStorage.getItem("id");
   const [totalMinutes, setTotalMinutes] = useState("00.00");
-  const set_limit = Number(localStorage.getItem("set_limit")) || 0; // Convert to number
+  const set_limit = Number(localStorage.getItem("set_limit")) || 0;
 
-  const isLimitExceeded = totalMinutes > set_limit; // Correct comparison
+  const isLimitExceeded = totalMinutes > set_limit;
 
   const curlCommand = `curl -X 'POST' 'http://127.0.0.1:8097/upload-audio-curl/' \\
 -H "Authorization: Bearer YOUR_SECRET_TOKEN" \\
@@ -39,16 +39,8 @@ const Recordings = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleFileChange = (event) => {
-    setSelectedFiles((prevFiles) => [
-      ...prevFiles,
-      ...Array.from(event.target.files),
-    ]);
-    setUploadMessage("");
-  };
-
-  const handleUpload = async () => {
-    if (selectedFiles.length === 0) {
+  const handleUpload = async (filesToUpload = selectedFiles) => {
+    if (filesToUpload.length === 0) {
       setUploadMessage("Please select at least one file.");
       return;
     }
@@ -62,7 +54,7 @@ const Recordings = () => {
     let successCount = 0;
     let failedFiles = [];
 
-    for (const file of selectedFiles) {
+    for (const file of filesToUpload) {
       const formData = new FormData();
       formData.append("files", file);
       formData.append("language", selectedLanguage);
@@ -83,9 +75,7 @@ const Recordings = () => {
       setUploadMessage(`${successCount} file(s) uploaded successfully!`);
     } else if (successCount > 0 && failedFiles.length > 0) {
       setUploadMessage(
-        `${successCount} file(s) uploaded successfully. Failed: ${failedFiles.join(
-          ", "
-        )}`
+        `${successCount} file(s) uploaded successfully. Failed: ${failedFiles.join(", ")}`
       );
     } else {
       setUploadMessage("All file uploads failed.");
@@ -93,17 +83,10 @@ const Recordings = () => {
 
     setUploading(false);
     setSelectedFiles([]);
-    setSelectedLanguage("");
-    setSelectedCategory("");
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
   };
 
-  const userid = localStorage.getItem("id");
-
   const handleGenerateKey = async () => {
-    if (!userid) {
+    if (!user_id) {
       setUploadMessage("User ID not found. Please log in.");
       return;
     }
@@ -111,7 +94,7 @@ const Recordings = () => {
     try {
       const response = await axios.post(
         `${BASE_URL}/generate-key/`,
-        { user_id: parseInt(userid) }, // Send user_id as JSON
+        { user_id: parseInt(user_id) },
         { headers: { "Content-Type": "application/json" } }
       );
 
@@ -122,7 +105,7 @@ const Recordings = () => {
   };
 
   useEffect(() => {
-    if (!user_id) return; // Ensure user_id exists
+    if (!user_id) return;
 
     const fetchTotalMinutes = async () => {
       try {
@@ -138,12 +121,44 @@ const Recordings = () => {
     fetchTotalMinutes();
   }, [user_id]);
 
+  const handleDrop = (e) => {
+    e.preventDefault();
+    if (isLimitExceeded) return;
+
+    const files = Array.from(e.dataTransfer.files).filter((file) =>
+      ["audio/mpeg", "audio/wav"].includes(file.type)
+    );
+
+    if (files.length === 0) {
+      setUploadMessage("Only MP3 or WAV files are allowed.");
+      return;
+    }
+
+    setSelectedFiles(files);
+    handleUpload(files);
+  };
+
+  const handleFileInputChange = (e) => {
+    const files = Array.from(e.target.files).filter((file) =>
+      ["audio/mpeg", "audio/wav"].includes(file.type)
+    );
+
+    if (files.length === 0) {
+      setUploadMessage("Only MP3 or WAV files are allowed.");
+      return;
+    }
+
+    setSelectedFiles(files);
+    handleUpload(files);
+  };
+
   return (
     <Layout>
       <div className="record-dash">
         <div className="record-content">
           <h1 className="wordrec">Recordings</h1>
-          {/* Language & Category Dropdowns */}
+
+          {/* Dropdowns */}
           <div className="drop-record">
             <select
               value={selectedLanguage}
@@ -165,36 +180,44 @@ const Recordings = () => {
               <option value="Service">Service</option>
             </select>
           </div>
-          <h2 className="chword">Choose Audio Files</h2>
-          {/* File Input & Upload Button */}
-          <div className={`recordings-box ${isLimitExceeded ? "blurred" : ""}`}>
-            <input
-              type="file"
-              accept="audio/mpeg,audio/wav"
-              multiple
-              className="browse-button"
-              onChange={handleFileChange}
-              ref={fileInputRef}
-              disabled={isLimitExceeded} // Disable input if limit exceeded
-            />
-            <button
-              className="upload-button"
-              onClick={handleUpload}
-              disabled={uploading || isLimitExceeded} // Disable button if limit exceeded
+
+          {/* Upload Section */}
+          <h2 className="chword">Upload Audio Files</h2>
+          <div
+            className={`recordings-box ${isLimitExceeded ? "blurred" : ""} ${uploading ? "uploading" : ""}`}
+            onDragOver={(e) => {
+              e.preventDefault();
+              e.dataTransfer.dropEffect = "copy";
+            }}
+            onDrop={handleDrop}
+          >
+            <div
+              className="drag-content"
+              onClick={() => !isLimitExceeded && fileInputRef.current.click()}
+              style={{ cursor: isLimitExceeded ? "not-allowed" : "pointer" }}
             >
-              {uploading ? "Uploading..." : "Upload"}
-            </button>
+              <CloudUpload size={40} color="#555" />
+              <p className="drag-hint">
+                {uploading ? "Uploading..." : "Click or drag and drop files here"}
+              </p>
+              <input
+                type="file"
+                accept=".mp3,.wav"
+                multiple
+                ref={fileInputRef}
+                onChange={handleFileInputChange}
+                style={{ display: "none" }}
+              />
+            </div>
+
             {uploadMessage && <p className="upload-message">{uploadMessage}</p>}
             {isLimitExceeded && (
               <p style={{ color: "red" }}>Limit exceeded! Upgrade your plan.</p>
             )}
           </div>
 
-          <div
-            className={`developer-container ${
-              isLimitExceeded ? "blurred" : ""
-            }`}
-          >
+          {/* Developer Section */}
+          <div className={`developer-container ${isLimitExceeded ? "blurred" : ""}`}>
             <h1 className="worddev">Developer Code</h1>
             <div className="developer-box">
               <div className="curl-div">
@@ -202,7 +225,7 @@ const Recordings = () => {
                 <button
                   onClick={copyToClipboard}
                   className="clipcopy"
-                  disabled={isLimitExceeded} // Disable button
+                  disabled={isLimitExceeded}
                 >
                   {copied ? <CopyCheck size={18} /> : <Copy size={18} />}
                 </button>

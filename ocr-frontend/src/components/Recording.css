@@ -87,7 +87,7 @@
   font-family: 'Arial', sans-serif;
   position: relative;
   /* bottom: 1rem; */
-  top: 10rem;
+  top: 11rem;
   left: 8rem;
 }
 
@@ -108,12 +108,13 @@
 
 .drop-record {
   font-size: 16px;
-  display: flex;
+  display: flex
+;
   gap: 5px;
   position: relative;
-  top: 9rem;
+  top: 75px;
   left: 3rem;
-  width: 10rem;
+  width: 100%;
  
 }
 
@@ -232,3 +233,46 @@
 html, body {
   overflow-x: hidden;
 }
+
+.recordings-box.dragging {
+  border: 2px dashed #007bff;
+  background-color: #eef7ff;
+}
+.recordings-box {
+  /* border: 2px dashed #888; */
+  padding: 15px;
+  text-align: center;
+  border-radius: 10px;
+  /* margin-bottom: 20px; */
+  /* background-color: #f9f9f9; */
+  transition: border-color 0.3s ease;
+}
+
+.recordings-box.dragging {
+  border-color: #007bff;
+  background-color: #eef6ff;
+}
+
+.recordings-box.uploading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.drag-hint {
+  font-size: 16px;
+  color: #555;
+  margin-top: 45px;
+}
+
+.upload-message {
+  margin-top: 10px;
+  color: green;
+}
+.drag-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 75px;
+}
+
