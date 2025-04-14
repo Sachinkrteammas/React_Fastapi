@@ -58,7 +58,7 @@ const UserDashboardSelection = () => {
     };
 
     return (
-        <Layout>
+        <Layout heading="Title to be decided">
             <div className="user-maindashboard">
                 <div className="db-con">
                     <div>
@@ -113,7 +113,7 @@ const UserDashboardSelection = () => {
                         ))}
                     </div>
 
-                    <div className="save-btn" onClick={handleSubmit}>Save Selection</div>
+                    <div className="save1-btn" onClick={handleSubmit}>Save Selection</div>
                 </div>
             </div>
         </Layout>

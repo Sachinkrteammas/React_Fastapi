@@ -187,7 +187,7 @@ const RawDownload = () => {
   };
 
   return (
-    <Layout>
+    <Layout heading="Title to be decided">
       <div className="Down-dashboard">
         <header className="header">
           <h3>DialDesk</h3>

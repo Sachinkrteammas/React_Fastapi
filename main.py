@@ -674,6 +674,26 @@ def generate_key(request: GenerateKeyRequest, db: Session = Depends(get_db)):
     return {"user_id": user.id, "key": new_key_record.api_key, "api_secret_token": API_SECRET_TOKEN}
 
 
+@app.post("/delete-key/{api_key}")
+def delete_api_key(api_key: str, db: Session = Depends(get_db)):
+    print("Received key to delete:", api_key)
+
+    key_record = db.query(APIKey).filter(APIKey.api_key == api_key).first()
+    
+    if not key_record:
+        raise HTTPException(status_code=404, detail="API key not found")
+
+    user = db.query(User).filter(User.api_key == api_key).first()
+    if user:
+        user.api_key = None
+        db.commit()
+
+    db.delete(key_record)
+    db.commit()
+
+    return {"message": "API key deleted successfully"}
+
+
 @app.post("/upload-audio-curl/")
 async def upload_audio_curl(
     files: list[UploadFile] = File(...),

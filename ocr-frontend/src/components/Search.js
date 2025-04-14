@@ -72,7 +72,7 @@ const Search = () => {
   // }
 
   return (
-    <Layout>
+    <Layout heading="Title to be decided">
       {/* <div className="containers"> */}
       <div className={`containers ${loading ? "blurred" : ""}`}>
         {/* Header Section */}
@@ -92,7 +92,7 @@ const Search = () => {
                 }
               }}
             />
-            <button class="setsubmitbtn" onClick={fetchCallQualityDetails}>
+            <button class="setsubmitbtn1" onClick={fetchCallQualityDetails}>
               Search
             </button>
           </div>

@@ -203,11 +203,11 @@ export default function RawSales() {
 
 
   return (
-    <Layout>
+    <Layout heading="Title to be decided">
       <div className={`dashboard-container ${loading1 ? "blurred" : ""}`}>
         <div className="header">
           <h5>AI-Enhanced Sales Strategy Dashboard</h5>
-          <div className="salesheader" style={{ marginTop: -40 }}
+          <div className="salesheader" 
           >
             <label>
               <input

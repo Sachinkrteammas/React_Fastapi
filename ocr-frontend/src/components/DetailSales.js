@@ -86,7 +86,7 @@ export default function DetailSales() {
   //loading code end==>
 
   return (
-    <Layout>
+    <Layout heading="Title to be decided">
       <div className={`dashboard-container ${loading ? "blurred" : ""}`}>
         <div className="header">
           <h5>AI-Enhanced Sales Strategy Dashboard</h5>

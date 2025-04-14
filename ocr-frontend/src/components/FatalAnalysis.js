@@ -495,7 +495,7 @@ const Fatal = () => {
   }
 
   return (
-    <Layout>
+    <Layout heading="Title to be decided">
       {/* <div className="dashboard-container"> */}
       <div className={`dashboard-container ${loading ? "blurred" : ""}`}>
         <header className="header">

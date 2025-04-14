@@ -111,7 +111,7 @@
 }
 
 /* Save Button */
-.user-maindashboard .save-btn {
+.user-maindashboard .save1-btn {
     display: block;
     width: 135px;
     padding: 6px;
@@ -128,7 +128,7 @@
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.user-maindashboard .save-btn:hover {
+.user-maindashboard .save1-btn:hover {
     background: linear-gradient(135deg, #16155e, #16155e);
     transform: translateY(-2px);
     box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.3);

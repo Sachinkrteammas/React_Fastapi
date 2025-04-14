@@ -113,7 +113,7 @@ export default function Opportunity() {
   };
 
   return (
-    <Layout>
+    <Layout heading="Title to be decided">
       <div className={`dashboard-container ${loading1 ? "blurred" : ""}`}>
         <div className="dashboard-container-opportunity">
           <div className="header">

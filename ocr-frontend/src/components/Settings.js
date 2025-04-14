@@ -21,8 +21,9 @@ export default function Settings() {
   };
 
   return (
-    <Layout>
-      {/* <h4>Settings</h4> */}
+    <Layout heading="Title to be decided">
+      <h4>Settings Center</h4>
+      <h6>Manage organization and billing preferences</h6>
       <div className="settings-container">
         <div className="org-box">
           <label>Organization Name:</label>
@@ -30,7 +31,7 @@ export default function Settings() {
             type="text"
             value={organizationName}
             onChange={(e) => setOrganizationName(e.target.value)}
-            placeholder="Enter organization name"
+            placeholder="e.g. MAS Callnet Pvt. Ltd."
           />
 
           <label>Payment Info:</label>
@@ -56,7 +57,7 @@ export default function Settings() {
             type="number"
             value={limit}
             onChange={(e) => setLimit(e.target.value)}
-            placeholder="Enter limit"
+            placeholder="eg. 1000 min"
           />
         </div>
 

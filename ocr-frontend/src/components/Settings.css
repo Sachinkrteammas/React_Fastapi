@@ -1,15 +1,14 @@
 .settings-container {
-  display: flex
-  ;
-      flex-direction: column;
-      /* max-width: 400px; */
-      margin: auto;
-      padding: 20px;
-      background: #f9f9f9;
-      border-radius: 10px;
-      width: 100%;
-      height: 260px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  /* max-width: 400px; */
+  margin: auto;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 10px;
+  width: 100%;
+  height: 260px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .settings-container label {
@@ -47,12 +46,9 @@
   background: #bbb;
 }
 
-/* .save-btn{
-    background: #16155e;
-  }
-  .save-btn:hover{
-    background: #bbb;
-  } */
+.save-btn {
+  margin-left: 490px !important;
+}
 
 .org-box {
   display: flex;
@@ -64,9 +60,9 @@
   column-gap: 20px;
   margin-left: 100px;
 }
-.box-label{
+.box-label {
   margin-left: 76px;
 }
-.box-label2{
+.box-label2 {
   margin-left: 64px;
 }

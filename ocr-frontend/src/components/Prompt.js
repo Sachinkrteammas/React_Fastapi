@@ -86,7 +86,7 @@ const PromptPage = () => {
   };
 
   return (
-    <Layout>
+    <Layout heading="Title to be decided">
       <div className="main-content1">
         <div className="form-container">
           <div className="form-group">

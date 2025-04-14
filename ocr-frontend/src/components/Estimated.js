@@ -58,7 +58,7 @@ export default function Estimated() {
   //loading code end==>
 
   return (
-    <Layout>
+    <Layout heading="Title to be decided">
       <div className="dashboard-container">
         <div className="header">
           <h5>AI-Enhanced Sales Strategy Dashboard</h5>

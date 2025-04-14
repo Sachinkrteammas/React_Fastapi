@@ -82,4 +82,19 @@
   tr:last-child .value {
     border-bottom: none;
   }
+  .setsubmitbtn1
+  {
+    width: 72px;
+    margin-top: 40px;
+    cursor: pointer;
+    background-color: #ccc;
+    color: white;
+    height: 44px;
+    /* margin-left: 3px; */
+    border-radius: 5px;
+}
+
+  .setsubmitbtn1:hover {
+    background: #16155e;
+  }
   

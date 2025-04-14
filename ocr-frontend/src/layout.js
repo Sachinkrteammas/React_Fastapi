@@ -57,7 +57,9 @@ const Layout = ({ onLogout, children }) => {
         const data = await response.json();
 
         const formattedMenu = data
-          .filter((item) => ["Home", "Recordings", "Transcription", "Prompt", "Settings", "API Key", "User Access", "Service", "Sales"].includes(item.name))
+          .filter((item) =>
+            ["Home", "Recordings", "Transcription", "Prompt", "Settings", "API Key", "User Access", "Service", "Sales"].includes(item.name)
+          )
           .map((item) => ({
             ...item,
             Icon: iconMap[item.icon] || null,
@@ -116,7 +118,7 @@ const Layout = ({ onLogout, children }) => {
       <div className="top-navbar">
         <img src={topLogo} alt="Company Logo" className="top-logo" />
         <div className="top-text">
-          <p>"Title to be decided"</p>
+          <p>Your Transcription & Analysis Hub!</p>
         </div>
         <div className="account">
           <img src={accountLogo} alt="loginname" className="account-logo" />
@@ -133,10 +135,12 @@ const Layout = ({ onLogout, children }) => {
               <div key={name}>
                 <button
                   className="nav-button"
+                  title={submenu.length ? `Expand ${name} menu` : `Go to ${name}`}
                   onClick={() => (submenu.length ? toggleMenu(name) : handleNavigation(url))}
                 >
                   {Icon && <Icon size={20} className="icon" />} {name}
-                  {submenu.length > 0 && (openMenus[name] ? <ChevronDown size={16} /> : <ChevronRight size={16} />)}
+                  {submenu.length > 0 &&
+                    (openMenus[name] ? <ChevronDown size={16} /> : <ChevronRight size={16} />)}
                 </button>
 
                 {submenu.length > 0 && openMenus[name] && (
@@ -145,6 +149,7 @@ const Layout = ({ onLogout, children }) => {
                       <button
                         key={url}
                         className={`sub-nav-button ${location.pathname === url ? "active" : ""}`}
+                        title={`Go to ${name}`}
                         onClick={() => handleNavigation(url, name)}
                       >
                         {Icon && <Icon size={16} className="icon" />} {name}
@@ -156,7 +161,11 @@ const Layout = ({ onLogout, children }) => {
             ))
           )}
 
-          <button className="nav-button logout-button" onClick={handleLogout}>
+          <button
+            className="nav-button logout-button"
+            title="Log out of your account"
+            onClick={handleLogout}
+          >
             <LogOut size={20} className="icon" /> Logout
           </button>
         </div>

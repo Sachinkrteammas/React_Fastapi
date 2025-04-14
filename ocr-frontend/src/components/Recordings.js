@@ -6,6 +6,7 @@ import Layout from "../layout";
 import "../layout.css";
 import { Copy, CopyCheck, CloudUpload } from "lucide-react";
 import { BASE_URL } from "./config";
+import { AudioRecorder } from 'react-audio-voice-recorder';
 
 const Recordings = () => {
   const navigate = useNavigate();
@@ -19,6 +20,8 @@ const Recordings = () => {
   const user_id = localStorage.getItem("id");
   const [totalMinutes, setTotalMinutes] = useState("00.00");
   const set_limit = Number(localStorage.getItem("set_limit")) || 0;
+  const [recordedAudioUrl, setRecordedAudioUrl] = useState(null);
+
 
   const isLimitExceeded = totalMinutes > set_limit;
 
@@ -103,7 +106,13 @@ const Recordings = () => {
       setUploadMessage("Failed to generate key.");
     }
   };
-
+  const handleFileChange = (event) => {
+    setSelectedFiles((prevFiles) => [
+      ...prevFiles,
+      ...Array.from(event.target.files),
+    ]);
+    setUploadMessage("");
+  };
   useEffect(() => {
     if (!user_id) return;
 
@@ -152,9 +161,42 @@ const Recordings = () => {
     handleUpload(files);
   };
 
+ 
+    
+  
+    const handleRecordingComplete = (blob) => {
+      const url = URL.createObjectURL(blob);
+      setRecordedAudioUrl(url);
+    };
+  
+
+  // const addAudioElement = (blob) => {
+  //   const url = URL.createObjectURL(blob);
+  //   const audio = document.createElement("audio");
+  //   audio.src = url;
+  //   audio.controls = true;
+  //   audio.autoplay = true;
+  //   audio.onended = () => {
+  //     URL.revokeObjectURL(url);
+  //   };
+
+  //   const container = document.getElementById("audio-container");
+  //   if (container) {
+  //     container.appendChild(audio);
+  //   } else {
+  //     document.body.appendChild(audio);
+  //   }
+
+  //   // Auto-upload the recorded blob
+  //   const file = new File([blob], "recorded_audio.webm", { type: blob.type });
+  //   handleUpload([file]);
+  // };
+
   return (
-    <Layout>
+    <Layout heading="Title to be decided">
       <div className="record-dash">
+        {/* <h4>Upload Audio for Transcription</h4>
+        <h6>Transcribe and analyze your audio files in a few clicks</h6> */}
         <div className="record-content">
           <h1 className="wordrec">Recordings</h1>
 
@@ -182,7 +224,7 @@ const Recordings = () => {
           </div>
 
           {/* Upload Section */}
-          <h2 className="chword">Upload Audio Files</h2>
+
           <div
             className={`recordings-box ${isLimitExceeded ? "blurred" : ""} ${uploading ? "uploading" : ""}`}
             onDragOver={(e) => {
@@ -191,29 +233,60 @@ const Recordings = () => {
             }}
             onDrop={handleDrop}
           >
-            <div
-              className="drag-content"
-              onClick={() => !isLimitExceeded && fileInputRef.current.click()}
-              style={{ cursor: isLimitExceeded ? "not-allowed" : "pointer" }}
-            >
-              <CloudUpload size={40} color="#555" />
-              <p className="drag-hint">
-                {uploading ? "Uploading..." : "Click or drag and drop files here"}
-              </p>
+            <div className="border-choose">
+              <div
+                className="drag-content"
+                onClick={() => !isLimitExceeded && fileInputRef.current.click()}
+                style={{ cursor: isLimitExceeded ? "not-allowed" : "pointer" }}
+              >
+                <CloudUpload size={40} color="#555" />
+                <p className="drag-hint">
+                  {uploading ? "Uploading..." : "Drag and Drop audio files here"}
+                </p>
+                <input
+                  type="file"
+                  accept=".mp3,.wav"
+                  multiple
+                  ref={fileInputRef}
+                  onChange={handleFileInputChange}
+                  style={{ display: "none" }}
+                />
+
+              </div>
+              {/* <h2 className="chword">Upload Audio Files</h2> */}
               <input
                 type="file"
-                accept=".mp3,.wav"
+                accept="audio/mpeg,audio/wav"
                 multiple
+                className="browse-button"
+                onChange={handleFileChange}
                 ref={fileInputRef}
-                onChange={handleFileInputChange}
-                style={{ display: "none" }}
+                disabled={isLimitExceeded} // Disable input if limit exceeded
               />
             </div>
 
             {uploadMessage && <p className="upload-message">{uploadMessage}</p>}
             {isLimitExceeded && (
-              <p style={{ color: "red" }}>Limit exceeded! Upgrade your plan.</p>
+              <p style={{ color: "red" }}>Limit exceeded! Upgrade your plan to continue</p>
             )}
+
+
+            <AudioRecorder
+              onRecordingComplete={handleRecordingComplete}
+              audioTrackConstraints={{
+                noiseSuppression: true,
+                echoCancellation: true,
+              }}
+              onNotAllowedOrFound={(err) => console.table(err)}
+              downloadFileExtension="webm"
+              mediaRecorderOptions={{
+                audioBitsPerSecond: 128000,
+              }}
+            />
+            
+
+
+            {/* <h5 style={{ fontSize: "16px", marginTop: "-27px", marginRight: "190px" }}>Record Now</h5> */}
           </div>
 
           {/* Developer Section */}

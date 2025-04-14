@@ -153,7 +153,7 @@ export default function SalesDashboard() {
   }
   //loading code end==>
   return (
-    <Layout>
+    <Layout heading="Title to be decided">
       <div className={`dashboard-container ${loading ? "blurred" : ""}`}>
         <div className="dashboard-container">
           <div className="header">

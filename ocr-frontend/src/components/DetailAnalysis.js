@@ -644,7 +644,7 @@ const DetailAnalysis = () => {
   }
 
   return (
-    <Layout>
+    <Layout heading="Title to be decided">
       {/* <div className="dashboard-container-de"> */}
       <div className={`dashboard-container-de ${loading ? "blurred" : ""}`}>
         {/* Header Section */}

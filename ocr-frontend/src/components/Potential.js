@@ -158,7 +158,7 @@ const Potential = () => {
   }
 
   return (
-    <Layout>
+    <Layout heading="Title to be decided">
       <div className={`dashboard-container-po ${loading ? "blurred" : ""}`}>
         <header className="headerPo">
           <h3>DialDesk</h3>

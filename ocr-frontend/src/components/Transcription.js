@@ -6,6 +6,8 @@ import Layout from "../layout";
 import "../layout.css";
 import "./Transcription.css";
 import { BASE_URL } from "./config";
+import { Copy } from "lucide-react";
+
 
 const Transcription = ({ onLogout }) => {
   const navigate = useNavigate();
@@ -28,16 +30,25 @@ const Transcription = ({ onLogout }) => {
   const [selectedTranscript, setSelectedTranscript] = useState("");
   const [selectedItems, setSelectedItems] = useState([]); // Store selected IDs
   const [selectAll, setSelectAll] = useState(false); // Track "Select All" state
+  const [isEditing, setIsEditing] = useState(false);
+
 
   const openModal = (transcript) => {
     setSelectedTranscript(transcript);
     setShowModal(true);
   };
 
+  // const closeModal = () => {
+  //   setShowModal(false);
+  //   setSelectedTranscript("");
+  // };
   const closeModal = () => {
     setShowModal(false);
     setSelectedTranscript("");
+    setIsEditing(false); // <-- reset edit mode when closing
   };
+
+
 
   const firstname = localStorage.getItem("username");
   const username = firstname ? firstname.split(" ")[0] : "";
@@ -190,7 +201,7 @@ const Transcription = ({ onLogout }) => {
   };
 
   return (
-    <Layout>
+    <Layout heading="Title to be decided">
       <div className="dateboard">
         <div className="date-page1">
           <h1 className="word">Pre Set</h1>
@@ -226,7 +237,7 @@ const Transcription = ({ onLogout }) => {
             portalId="root"
           />
 
-          <h1 className="word">Date by</h1>
+          <h1 className="word">Date by</h1> 
           <select
             className="predate"
             value={dateBy}
@@ -250,7 +261,7 @@ const Transcription = ({ onLogout }) => {
 
           <button
             className="view"
-            style={{ marginLeft: "10px", height: "30px" }}
+            // style={{ marginLeft: "10px", height: "30px" }}
             onClick={handleView}
           >
             View
@@ -262,18 +273,24 @@ const Transcription = ({ onLogout }) => {
             <thead>
               <tr>
                 <th>
+
                   <input
                     type="checkbox"
                     name="selectAll"
                     checked={selectAll}
                     onChange={handleSelectAll}
+                    id="selectAll"
+                    title="Select/Deselect All"
                   />
+
                 </th>
-                <th>Preview</th>
+
+                {/* <th>Preview</th> */}
                 <th>Recording Date</th>
                 <th>Recording File</th>
                 <th>Category</th>
                 <th>Language</th>
+                <th>Call Duration</th>
                 <th>Transcript</th>
               </tr>
             </thead>
@@ -287,9 +304,10 @@ const Transcription = ({ onLogout }) => {
                       value={item.id}
                       checked={selectedItems.includes(item.id)}
                       onChange={() => handleCheckboxChange(item.id)}
+                      title="Select/Deselect All"
                     />
                   </td>
-                  <td>{item.preview}</td>
+                  {/* <td>{item.preview}</td> */}
                   <td>{item.recordingDate}</td>
                   <td>
                     <audio className="audio-controls" controls>
@@ -306,6 +324,18 @@ const Transcription = ({ onLogout }) => {
                   </td>
                   <td>{item.category}</td>
                   <td>{item.language}</td>
+                  <td>
+                    {isNaN(Number(item.minutes)) || item.minutes === "N/A" ? (
+                      "N/A"
+                    ) : Number(item.minutes) < 1 ? (
+                      `${Math.round(Number(item.minutes) * 60)} sec`
+                    ) : (
+                      `${item.minutes} min`
+                    )}
+                  </td>
+
+
+
                   <td>
                     <div className="transcript-short">
                       {item.Transcript.length > 50
@@ -329,18 +359,43 @@ const Transcription = ({ onLogout }) => {
           {/* Modal */}
           {showModal && (
             <div className="modal-overlay" onClick={closeModal}>
-              <div
-                className="modal-content"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <span className="close-button" onClick={closeModal}>
+              <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                <span className="close-button" onClick={closeModal} title="Close">
                   &times;
                 </span>
+
+                <span
+                  className="edit-pencil"
+                  onClick={() => setIsEditing(true)}
+                  title="Edit"
+                >
+                  ✏️
+                </span>
+
                 <h4>Full Transcript</h4>
-                <p>{selectedTranscript}</p>
+
+                {isEditing ? (
+                  <>
+                    <textarea
+                      className="transcript-textarea"
+                      value={selectedTranscript}
+                      onChange={(e) => setSelectedTranscript(e.target.value)}
+                      rows={10}
+                    />
+                    <button
+                      className="save-button"
+                      
+                    >
+                      Save
+                    </button>
+                  </>
+                ) : (
+                  <p>{selectedTranscript}</p>
+                )}
               </div>
             </div>
           )}
+
 
           {currentItems.length > 0 && (
             <div style={{ width: "100%", gap: "6px" }}>

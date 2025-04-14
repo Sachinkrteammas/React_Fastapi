@@ -6,7 +6,7 @@
       margin: auto;
 
 
-      margin-top: 20px; /* Adjust the value as needed */
+      /* margin-top: 20px;  */
 
 
   }
@@ -49,14 +49,16 @@
   }
 
   .view {
-      margin-left: 10px;
-      padding: 3px;
-      background: #16155e;
-      border: none;
-      width: 4rem;
-      height: 1.6rem;
-      border-radius: 5px;
-      margin-bottom: 40px;
+    margin-left: 10px;
+    padding: 3px;
+    background: #16155e;
+    border: none;
+    width: 4rem;
+    /* height: 1.6rem; */
+    border-radius: 5px;
+    margin-bottom: 40px;
+    margin-top: 45px;
+
   }
 
   .view:hover {
@@ -179,7 +181,7 @@
     width: 4rem;
     height: 2rem;
     border-radius: 5px;
-    
+    margin-top: 36px;
     color: white;
     cursor: pointer;
     
@@ -282,6 +284,29 @@
     font-size: 24px;
     cursor: pointer;
   }
+
+
+
+  .edit-pencil {
+    font-size: 16px;
+    cursor: pointer;
+    float: right;
+    margin-left: 617px;
+    margin-top: -13px;
+    
+  }
+  
+  .edit-pencil:hover {
+    color: #0056b3;
+  }
+  .transcript-textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    resize: vertical;
+  }
+    
+
   .down-all{
     background: #bbb;
     width: 170px;
@@ -290,4 +315,3 @@
 .down-all:hover{
   background-color: #16155e;
 }
- 

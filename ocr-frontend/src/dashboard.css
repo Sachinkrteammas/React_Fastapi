@@ -18,11 +18,11 @@
   font-weight: bold;
 }
 
-p {
+/* p {
   font-family: 'Arial', sans-serif;
   
 
-}
+} */
 
 
 
@@ -39,10 +39,10 @@ p {
   background-color: rgb(255, 251, 251);
   min-width: 279px;
 
- 
+
   text-align: justify;
   padding: 5px;
-  
+
 }
 
 .calender {
@@ -116,7 +116,7 @@ p {
   height: 115px !important;
   position: relative;
   width: 600px;
-  
+
 }
 
 
@@ -125,7 +125,7 @@ p {
   align-items: center;
   justify-content: space-between;
   background: white;
-  
+
   border-radius: 10px;
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.12),
     0 10px 20px rgba(0, 0, 0, 0.15);
@@ -144,7 +144,7 @@ p {
   left: 3rem;
   top: -2rem;
 }
- 
+
 
 
 .datepic {
@@ -155,17 +155,17 @@ p {
   margin-top: 1.8rem;
 }
 
-.submit{
+.submit {
   margin-left: 10px;
   padding: 3px;
   background: #16155e;
   border: none;
   width: 100px;
   border-radius: 5px;
-  margin-bottom: 15px;
+  margin-top: 28px;
 }
 
-.submit:hover{
+.submit:hover {
   background: #bbb;
 }
 
@@ -173,7 +173,7 @@ p {
 .range-chart {
   border-radius: 8px;
 
-  
+
   width: 37rem;
   margin-top: 20px;
   transition: all 0.3sease-in-out;
@@ -186,24 +186,27 @@ p {
 
 
 
-.r-text{
-  font-size: 20px;  
+.r-text {
+  font-size: 20px;
 }
 
 .notifi {
   border-radius: 10px;
-  height: 279px ;
-  margin-left: 10px ;
+  height: 279px;
+  margin-left: 10px;
   margin-right: 10px;
-  margin-top: 20px ;
+  margin-top: 20px;
   transition: all 0.3s ease-in-out;
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.12),
     0 10px 20px rgba(0, 0, 0, 0.15);
   flex: 1 1;
   overflow-y: auto;
-  scrollbar-width: none; /* Hide scrollbar in Firefox */
-  -ms-overflow-style: none; /* Hide scrollbar in Edge */
+  scrollbar-width: none;
+  /* Hide scrollbar in Firefox */
+  -ms-overflow-style: none;
+  /* Hide scrollbar in Edge */
 }
+
 .notifi::-webkit-scrollbar {
   width: 0px;
   display: none;
@@ -222,6 +225,7 @@ p {
   margin-top: 1.8rem;
   margin-left: -7rem;
 }
+
 /* === Responsive Design === */
 /* @media (max-width: 768px) {
   .dashboard {
@@ -257,4 +261,106 @@ p {
     width: 100%;
     padding: 10px;
   }
+}
+
+.actionclick {
+  display: flex;
+  margin: 10px 0;
+  padding: 10px;
+  background-color: rgb(255, 251, 251);
+  color: black;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  width: 150px;
+  text-align: left;
+}
+
+.actionclick:hover {
+  background-color: rgb(139, 136, 136) !important;
+}
+
+.actionclick-learn {
+  display: flex;
+  margin: 10px 0;
+  padding: 10px;
+  background-color: rgb(255, 251, 251);
+  color: black;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  width: 150px;
+  text-align: left;
+}
+
+.actionclick-learn:hover {
+  background-color: rgb(139, 136, 136) !important;
+}
+
+.upgrade-button {
+  background-color: #e9d41d;
+  color: black;
+  border: none;
+  /* padding: 12px 24px; */
+  font-size: 16px;
+  border-radius: 8px;
+
+  width: 185px;
+  transition: background 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+}
+.transcription-button{
+  background-color: #16155e;
+  color: white;
+  border: none;
+  /* padding: 12px 24px; */
+  font-size: 16px;
+  border-radius: 8px;
+
+  width: 215px;
+  transition: background 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+}
+
+.upgrade-con {
+  display: flex;
+  border-radius: 8px;
+  gap: 5px;
+  width: 100%;
+}
+
+/* ...................................................................... */
+
+
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.tooltip-text {
+  visibility: hidden;
+  width: 160px;
+  background-color: #333;
+  color: #fff;
+  text-align: left;
+  border-radius: 6px;
+  padding: 6px 10px;
+  position: absolute;
+  z-index: 1;
+  top: -5px;
+  left: 20px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.tooltip-container:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+.info-icon {
+  color: #666;
 }

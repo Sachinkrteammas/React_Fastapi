@@ -29,6 +29,8 @@ import Estimated from "./components/Estimated";
 import DetailSales from "./components/DetailSales";
 import RawSales from "./components/RawSales";
 import UserDashboardSelection from "./components/UserDashboardSelection";
+import UploadHelp from './pages/UploadHelp';
+import ApiHelp from './pages/ApiHelp';
 
 
 import "./Pages.css";
@@ -117,6 +119,8 @@ const App = () => {
         <Route path="/DetailSales" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<DetailSales onLogout={handleLogout}/>} />} />
         <Route path="/RawSales" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<RawSales onLogout={handleLogout}/>} />} />
         <Route path="/UserDashboardSelection" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<UserDashboardSelection onLogout={handleLogout}/>} />} />
+        <Route path="/upload-help" element={<UploadHelp />} />
+        <Route path="/api-help" element={<ApiHelp />} />
         
         {/* Catch-all route (redirect unknown paths to login) */}
         <Route path="*" element={<Navigate to="/" replace />} />
