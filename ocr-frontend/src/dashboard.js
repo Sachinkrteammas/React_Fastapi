@@ -27,6 +27,7 @@ const Dashboard = () => {
   const username = firstname ? firstname.split(" ")[0] : "";
   const user_id = localStorage.getItem("id");
   const [totalMinutes, setTotalMinutes] = useState("00.00");
+  const [dateRangeMinutes, setDateRangeMinutes] = useState("00.00");
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -39,6 +40,30 @@ const Dashboard = () => {
   };
 
   const handleSubmit = async () => {
+
+
+  try {
+    const response = await axios.post(`${BASE_URL}/calculate_limit_date/`, {
+      from_date: startDate,   // assuming these are already Date objects or strings like "2024-04-01"
+      to_date: endDate,
+      user_id: user_id,
+    });
+
+    const dateRangeUsed = parseFloat(response.data.total_minutes) || 0;
+    const totalLimit = 30.0;
+    const remaining = Math.max(totalLimit - dateRangeUsed, 0).toFixed(2);
+
+
+    setUsagePieData([
+      { name: "Used", value: dateRangeUsed },
+      { name: "Remaining", value: parseFloat(remaining) },
+    ]);
+
+    setDateRangeMinutes(response.data.total_minutes);
+  } catch (error) {
+    console.error("Error in handleSubmit:", error);
+  }
+
     // try {
     //   console.log("Fetching data for:", startDate, "to", endDate);
 
@@ -126,31 +151,43 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    if (!user_id) return;
+  if (!user_id) return;
 
-    const fetchTotalMinutes = async () => {
-      try {
-        const response = await axios.get(`${BASE_URL}/calculate_limit/`, {
-          params: { user_id },
-        });
+  const fetchData = async () => {
+    try {
+      const today = new Date().toISOString().split("T")[0];
 
-        const totalUsed = parseFloat(response.data.total_minutes);
-        setTotalMinutes(response.data.total_minutes);
+      // First API (all time)
+      const response = await axios.get(`${BASE_URL}/calculate_limit/`, {
+        params: { user_id },
+      });
+      const totalUsed = parseFloat(response.data.total_minutes);
+      setTotalMinutes(response.data.total_minutes);
 
-        const totalLimit = 30.0;
-        const remaining = Math.max(totalLimit - totalUsed, 0);
+      // Second API (date range)
+      const responseDate = await axios.post(`${BASE_URL}/calculate_limit_date/`, {
+        from_date: startDate || today,
+        to_date: endDate || today,
+        user_id,
+      });
+      const dateRangeUsed = parseFloat(responseDate.data.total_minutes);
+      const totalLimit = 30.0;
+      const remaining = Math.max(totalLimit - dateRangeUsed, 0).toFixed(2);
 
-        setUsagePieData([
-          { name: "Used", value: totalUsed },
-          { name: "Remaining", value: remaining },
-        ]);
-      } catch (error) {
-        console.error("Error fetching total minutes:", error);
-      }
-    };
+      setUsagePieData([
+        { name: "Used", value: dateRangeUsed },
+        { name: "Remaining", value: parseFloat(remaining) },
+      ]);
+    } catch (error) {
+      console.error("Error fetching minutes:", error);
+    }
+  };
 
-    fetchTotalMinutes();
-  }, [user_id]);
+  fetchData();
+}, [user_id]);
+
+
+
 
   return (
     <Layout heading="Your Transcription & Analysis Hub!">

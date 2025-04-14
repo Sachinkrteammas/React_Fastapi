@@ -2592,6 +2592,50 @@ async def calculate_limit(user_id: int, db: Session = Depends(get_db)):
     return {"user_id": user_id, "total_minutes": formatted_total}
 
 
+
+class LimitRequest(BaseModel):
+    from_date: date
+    to_date: date
+    user_id: int
+
+@app.post("/calculate_limit_date/")
+async def calculate_limit_date(request: LimitRequest, db: Session = Depends(get_db)):
+    user_minutes = (
+        db.query(AudioFile.minutes)
+        .filter(
+            AudioFile.user_id == request.user_id,
+            func.date(AudioFile.upload_time).between(request.from_date, request.to_date)
+        )
+        .all()
+    )
+
+    if not user_minutes:
+        return {
+            "user_id": request.user_id,
+            "from_date": str(request.from_date),
+            "to_date": str(request.to_date),
+            "total_minutes": "00.00"
+        }
+
+    total_seconds = 0
+    for (minute_value,) in user_minutes:
+        if minute_value is not None:
+            minutes_part = int(minute_value)
+            seconds_part = round((minute_value - minutes_part) * 100)
+            total_seconds += (minutes_part * 60) + seconds_part
+
+    total_minutes = total_seconds // 60
+    total_remaining_seconds = total_seconds % 60
+    formatted_total = f"{total_minutes}.{str(total_remaining_seconds).zfill(2)}"
+
+    return {
+        "user_id": request.user_id,
+        "from_date": str(request.from_date),
+        "to_date": str(request.to_date),
+        "total_minutes": formatted_total
+    }
+
+
 @app.get("/menu")
 def fetch_menu(db: Session = Depends(get_db)):
     query = text("""
@@ -2982,3 +3026,20 @@ def discount_analysis_sales(
         response_data.append(grand_total)
 
     return response_data
+
+
+class TranscriptUpdateRequest(BaseModel):
+    audio_id: int
+    transcript: str
+
+@app.put("/update_transcript/")
+def update_transcript(request: TranscriptUpdateRequest, db: Session = Depends(get_db)):
+    audio = db.query(AudioFile).filter(AudioFile.id == request.audio_id).first()
+
+    if not audio:
+        raise HTTPException(status_code=404, detail="Audio file not found")
+
+    audio.transcript = request.transcript
+    db.commit()
+
+    return {"status": "success", "message": "Transcript updated"}

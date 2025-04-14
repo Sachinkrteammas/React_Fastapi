@@ -7,6 +7,7 @@ import "../layout.css";
 import "./Transcription.css";
 import { BASE_URL } from "./config";
 import { Copy } from "lucide-react";
+import axios from "axios";
 
 
 const Transcription = ({ onLogout }) => {
@@ -31,10 +32,14 @@ const Transcription = ({ onLogout }) => {
   const [selectedItems, setSelectedItems] = useState([]); // Store selected IDs
   const [selectAll, setSelectAll] = useState(false); // Track "Select All" state
   const [isEditing, setIsEditing] = useState(false);
+  const [selectedAudioId, setSelectedAudioId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [loading1, setLoading1] = useState(false);
 
 
-  const openModal = (transcript) => {
+  const openModal = (transcript,id) => {
     setSelectedTranscript(transcript);
+    setSelectedAudioId(id);
     setShowModal(true);
   };
 
@@ -61,6 +66,7 @@ const Transcription = ({ onLogout }) => {
   };
 
   useEffect(() => {
+  setLoading(true);
     const fetchRecordings = async () => {
       try {
         const response = await fetch(`${BASE_URL}/recordings/`);
@@ -69,6 +75,9 @@ const Transcription = ({ onLogout }) => {
         setTotalPages(Math.ceil(result.length / itemsPerPage));
       } catch (error) {
         console.error("Error fetching recordings:", error);
+      }
+      finally {
+        setLoading(false);
       }
     };
 
@@ -138,6 +147,7 @@ const Transcription = ({ onLogout }) => {
   };
 
   const handleView = async () => {
+  setLoading1(true);
     console.log("Fetching data from", startDate, "to", endDate);
 
     try {
@@ -148,6 +158,9 @@ const Transcription = ({ onLogout }) => {
       setData(result);
     } catch (error) {
       console.error("Error fetching filtered recordings:", error);
+    }
+    finally {
+      setLoading1(false);
     }
   };
 
@@ -199,6 +212,18 @@ const Transcription = ({ onLogout }) => {
       console.error("Error downloading file:", error);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="zigzag-container">
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+        <div className="bar"></div>
+      </div>
+    );
+  }
 
   return (
     <Layout heading="Title to be decided">
@@ -345,7 +370,8 @@ const Transcription = ({ onLogout }) => {
                     {item.Transcript.length > 50 && (
                       <button
                         className="show-more"
-                        onClick={() => openModal(item.Transcript)}
+                        onClick={() => openModal(item.Transcript,item.id)}
+
                       >
                         Show More
                       </button>
@@ -375,23 +401,34 @@ const Transcription = ({ onLogout }) => {
                 <h4>Full Transcript</h4>
 
                 {isEditing ? (
-                  <>
-                    <textarea
-                      className="transcript-textarea"
-                      value={selectedTranscript}
-                      onChange={(e) => setSelectedTranscript(e.target.value)}
-                      rows={10}
-                    />
-                    <button
-                      className="save-button"
-                      
-                    >
-                      Save
-                    </button>
-                  </>
-                ) : (
-                  <p>{selectedTranscript}</p>
-                )}
+  <>
+    <textarea
+      className="transcript-textarea"
+      value={selectedTranscript}
+      onChange={(e) => setSelectedTranscript(e.target.value)}
+      rows={10}
+    />
+    <button
+      className="save-button"
+      onClick={async () => {
+        try {
+          await axios.put(`${BASE_URL}/update_transcript/`, {
+            audio_id: selectedAudioId, // make sure you store selected ID
+            transcript: selectedTranscript,
+          });
+          setIsEditing(false); // Exit edit mode after save
+          alert("Transcript saved successfully");
+        } catch (error) {
+          console.error("Error saving transcript:", error);
+        }
+      }}
+    >
+      Save
+    </button>
+  </>
+) : (
+  <p>{selectedTranscript}</p>
+)}
               </div>
             </div>
           )}
