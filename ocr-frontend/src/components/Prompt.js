@@ -5,6 +5,8 @@ import "./PromptPage.css";
 import Layout from "../layout";
 import "../layout.css";
 import { BASE_URL } from "./config";
+import TooltipHelp from './TooltipHelp';
+
 
 const PromptPage = () => {
   const navigate = useNavigate();
@@ -90,7 +92,12 @@ const PromptPage = () => {
       <div className="main-content1">
         <div className="form-container">
           <div className="form-group">
-            <p>Prompt Name</p>
+            <p>
+              Prompt Name
+              <span style={{ marginLeft: '45px' }}>
+                <TooltipHelp message="The Prompt Name is just a title you give to your custom prompt so you can easily recognize or organize it later." />
+              </span>
+            </p>
             <div className="input-group">
               <input
                 type="text"
@@ -101,7 +108,13 @@ const PromptPage = () => {
               />
             </div>
 
-            <p>Key</p>
+            <p>
+              Key
+              <span style={{ marginLeft: '117px' }}>
+                <TooltipHelp message="A key is like a label or title for a specific piece of information you want to extract." />
+              </span>
+            </p>
+
             <div className="input-group">
               <input
                 type="text"
@@ -113,7 +126,13 @@ const PromptPage = () => {
               />
             </div>
 
-            <p>Suggested Value</p>
+            <p>
+              Suggested Value
+              <span style={{ marginLeft: '25px' }}>
+                <TooltipHelp message="The suggested value is a hint or example to show what kind of answer you're expecting for that key." />
+              </span>
+            </p>
+
             <div className="input-group">
               <input
                 type="text"
@@ -137,7 +156,10 @@ const PromptPage = () => {
         </div>
 
         <div className="output-container">
-          <h1 className="new">Created Prompt</h1>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <h1 className="new">Created Prompt</h1>
+            <TooltipHelp message="This is the final generated prompt based on your input." />
+          </div>
           <textarea
             className="outbox"
             name="text"
@@ -146,8 +168,10 @@ const PromptPage = () => {
             readOnly
           />
         </div>
+
+
       </div>
-    </Layout>
+    </Layout >
   );
 };
 
