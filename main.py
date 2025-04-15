@@ -19,11 +19,25 @@ from starlette.responses import JSONResponse
 from pathlib import Path
 from datetime import date, timedelta
 from pydantic import BaseModel
-from typing import List, Optional,Dict
+from typing import List, Optional, Dict
 import pandas as pd
+from deepgram import Deepgram
+import aiofiles
+
 # FastAPI app initialization
+
+# Load API keys from environment variables (Avoid hardcoding!)
+DEEPGRAM_API_KEY = os.getenv("DEEPGRAM_API_KEY")
+# OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+# Validate API keys
+if not DEEPGRAM_API_KEY:
+    raise ValueError("Missing API keys. Set DEEPGRAM_API_KEY and OPENAI_API_KEY in environment variables.")
+
 app = FastAPI()
 
+# Initialize Deepgram Client
+deepgram_client = Deepgram(DEEPGRAM_API_KEY)
 # Secret key for JWT (keep it secure in production)
 SECRET_KEY = "your_secret_key"
 
@@ -43,7 +57,6 @@ engine = create_engine(SQL_DB_URL, echo=True)
 SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 Base = declarative_base()
 
-
 #########  Second DB
 
 DATABASE_URL2 = "mysql+pymysql://root:vicidialnow@192.168.10.6/db_audit"
@@ -51,6 +64,7 @@ DATABASE_URL2 = "mysql+pymysql://root:vicidialnow@192.168.10.6/db_audit"
 # Create SQLAlchemy engine
 engine2 = create_engine(DATABASE_URL2)
 SessionLocal2 = sessionmaker(autocommit=False, autoflush=False, bind=engine2)
+
 
 # Dependency to get database session
 def get_db2():
@@ -70,6 +84,8 @@ DATABASE_URL3 = "mysql+pymysql://root:vicidialnow@192.168.10.6/db_external"
 engine3 = create_engine(DATABASE_URL3)
 
 SessionLocal3 = sessionmaker(autocommit=False, autoflush=False, bind=engine3)
+
+
 # Dependency to get database session
 
 def get_db3():
@@ -92,7 +108,6 @@ class User(Base):
     clientid = Column(String, nullable=True)
     set_limit = Column(Integer, nullable=False, default=30)
     company_name = Column(String(255), nullable=True)
-
 
 
 # Create tables if they don't exist
@@ -171,6 +186,7 @@ class UserRequest(BaseModel):
             raise ValueError("Phone number must have exactly 10 digits.")
         return value
 
+
 class TempUser(Base):
     __tablename__ = "temp_users"
 
@@ -184,14 +200,48 @@ class TempUser(Base):
     otp_expiry = Column(DateTime, nullable=False, default=lambda: datetime.utcnow())
     mobile_otp = Column(String, nullable=False)
 
+
 class OTPVerifyRequest(BaseModel):
     email_id: str
     contact_number: str
     otp: str
     mobile_otp: str
 
+
 def generate_otp():
     return str(random.randint(100000, 999999))
+
+
+###################################  Transcribe ############################################
+
+# Define request model for AI processing
+class AIRequest(BaseModel):
+    text: str
+
+
+@app.post("/transcribe")
+async def transcribe(file: UploadFile = File(...)):
+    """Transcribes an uploaded audio file using Deepgram"""
+
+    file_path = f"{file.filename}"
+
+    # Save file temporarily
+    async with aiofiles.open(file_path, "wb") as out_file:
+        content = await file.read()
+        await out_file.write(content)
+
+    # Read the saved file
+    with open(file_path, "rb") as audio:
+        response = await deepgram_client.transcription.prerecorded(
+            {"buffer": audio, "mimetype": "audio/wav"},
+            {"options": {"punctuate": True, "language": "en-US"}}
+        )
+
+    # Extract transcript
+    transcript = response["results"]["channels"][0]["alternatives"][0]["transcript"]
+    duration = response["metadata"]["duration"]
+
+    return {"transcript": transcript, "duration": duration}
 
 
 @app.post("/register")
@@ -215,7 +265,6 @@ def register_user(user: UserRequest, db: Session = Depends(get_db)):
     # ✅ Hash the password BEFORE storing it in TempUser
     hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
-
     temp_user = TempUser(
         username=user.username,
         email_id=user.email_id,
@@ -234,7 +283,8 @@ def register_user(user: UserRequest, db: Session = Depends(get_db)):
     send_otp_email(user.email_id, otp)
     send_otp_sms(user.contact_number, otp)
 
-    return {"detail": "OTP sent to registered email and mobile.","email_id":user.email_id,"contact_number":user.contact_number}
+    return {"detail": "OTP sent to registered email and mobile.", "email_id": user.email_id,
+            "contact_number": user.contact_number}
 
 
 # from datetime import datetime, timedelta
@@ -256,8 +306,6 @@ def verify_otp_login(request: OTPVerifyRequest, db: Session = Depends(get_db)):
     if temp_user.mobile_otp != request.mobile_otp:
         raise HTTPException(status_code=400, detail="Invalid Mobile OTP.")
 
-
-
     # ✅ Don't hash again, just move the existing hashed password
     new_user = User(
         username=temp_user.username,
@@ -274,7 +322,6 @@ def verify_otp_login(request: OTPVerifyRequest, db: Session = Depends(get_db)):
     db.commit()
 
     return {"detail": "User verified and registered successfully."}
-
 
 
 import smtplib
@@ -317,6 +364,7 @@ def otp_email(email, otp):
 def send_otp_sms(phone, otp):
     # Use an SMS API like Twilio, Nexmo, etc.
     pass
+
 
 # @app.post("/register")
 # def register_user(user: UserRequest, db: Session = Depends(get_db)):
@@ -373,13 +421,15 @@ def login_user(user: LoginRequest, db: Session = Depends(get_db)):
     # )
     token = ''
 
-    return {"message": "Login successful","token": token,"username": db_user.username,"id":db_user.id, "client_id":db_user.clientid,
-            "set_limit": db_user.set_limit }
+    return {"message": "Login successful", "token": token, "username": db_user.username, "id": db_user.id,
+            "client_id": db_user.clientid,
+            "set_limit": db_user.set_limit}
 
 
 class VerifyOtpRequest(BaseModel):
     email_id: str  # The user's email address
     otp: int
+
 
 import random
 import smtplib
@@ -387,6 +437,7 @@ from email.mime.text import MIMEText
 
 # Store OTPs temporarily (in a real app, use Redis or a DB)
 otp_store = {}
+
 
 def send_otp_email(email_id, otp):
     sender_email = "sachinkr78276438@gmail.com"  # Replace with your Gmail address
@@ -410,6 +461,7 @@ def send_otp_email(email_id, otp):
         print(f"OTP sent to {email_id}")
     except Exception as e:
         print(f"Error sending email: {e}")
+
 
 @app.post("/forgot-password")
 def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(get_db)):
@@ -466,8 +518,6 @@ def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db))
     return {"message": "Password has been successfully reset"}
 
 
-
-
 # Define the "prompts" table
 class Prompt(Base):
     __tablename__ = "prompts"
@@ -477,14 +527,17 @@ class Prompt(Base):
     PromptName = Column(String(255), nullable=False)
     prompt = Column(String(500), nullable=False)
 
+
 # Define a request model to accept JSON input
 class PromptRequest(BaseModel):
     ClientId: int
     PromptName: str
     prompt: str
 
+
 # Create a new prompt
 from fastapi import HTTPException
+
 
 @app.post("/prompts/")
 def create_prompt(request: PromptRequest, db: Session = Depends(get_db)):
@@ -504,8 +557,6 @@ def create_prompt(request: PromptRequest, db: Session = Depends(get_db)):
     db.refresh(new_prompt)
 
     return new_prompt
-
-
 
 
 class AudioFile(Base):
@@ -531,7 +582,7 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # Allowed MIME types
 ALLOWED_MIME_TYPES = ["audio/mpeg", "audio/wav"]
-TRANSCRIBE_API_URL = "http://172.12.10.24:8080/transcribe"
+TRANSCRIBE_API_URL = "http://127.0.0.1:8096/transcribe"
 import shutil
 import httpx
 
@@ -632,10 +683,13 @@ class APIKey(Base):
     created_at = Column(DateTime, server_default=func.now())
     status = Column(String(20), default="Active")
 
+
 API_SECRET_TOKEN = "YOUR_SECRET_TOKEN"
+
 
 class GenerateKeyRequest(BaseModel):
     user_id: str
+
 
 class KeyResponse(BaseModel):
     user_id: int
@@ -643,6 +697,7 @@ class KeyResponse(BaseModel):
     api_secret_token: str
     # created_at: datetime
     # status: str
+
 
 @app.post("/generate-key/", response_model=KeyResponse)
 def generate_key(request: GenerateKeyRequest, db: Session = Depends(get_db)):
@@ -666,7 +721,6 @@ def generate_key(request: GenerateKeyRequest, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_key_record)
 
-
     user.api_key = new_key_record.api_key
     db.commit()
     db.refresh(user)
@@ -679,7 +733,7 @@ def delete_api_key(api_key: str, db: Session = Depends(get_db)):
     print("Received key to delete:", api_key)
 
     key_record = db.query(APIKey).filter(APIKey.api_key == api_key).first()
-    
+
     if not key_record:
         raise HTTPException(status_code=404, detail="API key not found")
 
@@ -696,12 +750,12 @@ def delete_api_key(api_key: str, db: Session = Depends(get_db)):
 
 @app.post("/upload-audio-curl/")
 async def upload_audio_curl(
-    files: list[UploadFile] = File(...),
-    language: str = Form(None),
-    category: str = Form(None),
-    user_id: int = Form(...),
-    authorization: str = Header(None),
-    db: Session = Depends(get_db)
+        files: list[UploadFile] = File(...),
+        language: str = Form(None),
+        category: str = Form(None),
+        user_id: int = Form(...),
+        authorization: str = Header(None),
+        db: Session = Depends(get_db)
 ):
     """Handles audio file upload, transcription, and database storage."""
     global API_SECRET_TOKEN  # Ensure we use the updated token
@@ -720,7 +774,8 @@ async def upload_audio_curl(
 
             # Validate file type
             if file.content_type not in ALLOWED_MIME_TYPES:
-                raise HTTPException(status_code=400, detail=f"Invalid file type: {file.filename} (Content-Type: {file.content_type})")
+                raise HTTPException(status_code=400,
+                                    detail=f"Invalid file type: {file.filename} (Content-Type: {file.content_type})")
 
             # Save file
             os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -793,18 +848,11 @@ async def upload_audio_curl(
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 
-
-
-
-
-
-
-
-
 # API to fetch records based on date range
 class AudioStatsRequest(BaseModel):
     from_date: datetime.date
     to_date: datetime.date
+
 
 @app.post("/get-audio-stats/")
 def get_audio_stats(request: AudioStatsRequest, db: Session = Depends(get_db)):
@@ -823,7 +871,8 @@ def get_audio_stats(request: AudioStatsRequest, db: Session = Depends(get_db)):
         data_dict = {row.date: {"upload": row.upload, "transcribe": row.transcribe} for row in results}
 
         date_range = [
-            (request.from_date + datetime.timedelta(days=i)) for i in range((request.to_date - request.from_date).days + 1)
+            (request.from_date + datetime.timedelta(days=i)) for i in
+            range((request.to_date - request.from_date).days + 1)
         ]
 
         data = [
@@ -843,10 +892,10 @@ def get_audio_stats(request: AudioStatsRequest, db: Session = Depends(get_db)):
 
 @app.get("/audit_count")
 def get_audit_count(
-    client_id: str = Query(..., description="Client ID"),
-    start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
-    end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
-    db: Session = Depends(get_db2)
+        client_id: str = Query(..., description="Client ID"),
+        start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
+        end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
+        db: Session = Depends(get_db2)
 ):
     # Use current date if start_date or end_date is not provided
     today = date.today()
@@ -888,10 +937,10 @@ def get_audit_count(
 
 @app.get("/call_length_categorization")
 def get_call_length_categorization(
-    client_id: str = Query(..., description="Client ID"),
-    start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
-    end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
-    db: Session = Depends(get_db2)
+        client_id: str = Query(..., description="Client ID"),
+        start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
+        end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
+        db: Session = Depends(get_db2)
 ):
     # Use current date if start_date or end_date is not provided
     today = date.today()
@@ -931,12 +980,13 @@ WITH ROLLUP; """)
 
     return response_data
 
+
 @app.get("/agent_scores")
 def get_agent_scores(
-    client_id: str = Query(..., description="Client ID"),
-    start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
-    end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
-    db: Session = Depends(get_db2)
+        client_id: str = Query(..., description="Client ID"),
+        start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
+        end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
+        db: Session = Depends(get_db2)
 ):
     # Use current date if start_date or end_date is not provided
     today = date.today()
@@ -1053,13 +1103,14 @@ def get_agent_scores(
         "client_id": client_id,
         "start_date": start_date,
         "end_date": end_date,
-        "opening": result[0]*100,
-        "soft_skills": result[1]*100,
-        "hold_procedure": result[2]*100,
-        "resolution": result[3]*100,
-        "closing": result[4]*100,
-        "avg_score": result[5]*100
+        "opening": result[0] * 100,
+        "soft_skills": result[1] * 100,
+        "hold_procedure": result[2] * 100,
+        "resolution": result[3] * 100,
+        "closing": result[4] * 100,
+        "avg_score": result[5] * 100
     }
+
 
 @app.get("/top_performers")
 def get_top_performers(
@@ -1107,21 +1158,24 @@ def get_top_performers(
         "top_performers": top_performers
     }
 
+
 # Pydantic Model for Response
 class CQScoreTrend(BaseModel):
     date: str  # Convert date to string format
     cq_score: float
     target: int
 
+
 class CQScoreResponse(BaseModel):
     client_id: str
     target_cq: int
     trend: List[CQScoreTrend]
 
+
 @app.get("/target_vs_cq_trend", response_model=CQScoreResponse)
 def get_target_vs_cq_trend(
-    client_id: str = Query(..., description="Client ID"),
-    db: Session = Depends(get_db2)
+        client_id: str = Query(..., description="Client ID"),
+        db: Session = Depends(get_db2)
 ):
     target_cq = 95  # Target CQ Score
 
@@ -1409,6 +1463,7 @@ def get_complaints_by_date(
 
     return ComplaintResponse(client_id=client_id, summary=summary, raw_data=raw_data)
 
+
 @app.get("/negative_data_summary/")
 def get_negative_data_summary(
         client_id: str = Query(..., description="Client ID"),
@@ -1484,10 +1539,10 @@ def get_negative_data_summary(
 
 @app.get("/competitor_data/")
 def get_competitor_data(
-    client_id: str = Query(..., description="Client ID"),
-    start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
-    end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
-    db: Session = Depends(get_db2)
+        client_id: str = Query(..., description="Client ID"),
+        start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
+        end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
+        db: Session = Depends(get_db2)
 ):
     # Use current date if start_date or end_date is not provided
     today = date.today()
@@ -1517,14 +1572,16 @@ def get_competitor_data(
         }
         for row in result
     ]
+
+
 ####################  Fatal Details##############################
 
 @app.get("/fatal_count")
 def get_fatal_count(
-    client_id: str = Query(..., description="Client ID"),
-    start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
-    end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
-    db: Session = Depends(get_db2)
+        client_id: str = Query(..., description="Client ID"),
+        start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
+        end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
+        db: Session = Depends(get_db2)
 ):
     # Use current date if start_date or end_date is not provided
     today = date.today()
@@ -1553,7 +1610,8 @@ def get_fatal_count(
     print(result)
     # Handle None case to avoid errors
     if not result:
-        return {"audit_cnt": 0, "cq_score": 0, "fatal_count": 0, "fatal_percentage": 0, "query_fatal": 0, "Complaint_fatal": 0, "Request_fatal": 0, "sale_fatal": 0}
+        return {"audit_cnt": 0, "cq_score": 0, "fatal_count": 0, "fatal_percentage": 0, "query_fatal": 0,
+                "Complaint_fatal": 0, "Request_fatal": 0, "sale_fatal": 0}
 
     return {
         "audit_cnt": result[0] or 0,
@@ -1565,6 +1623,7 @@ def get_fatal_count(
         "Request_fatal": result[6] or 0,
         "sale_fatal": result[7] or 0
     }
+
 
 @app.get("/top_agents_fatal_summary")
 def get_top_agents_fatal_summary(
@@ -1611,6 +1670,7 @@ def get_top_agents_fatal_summary(
 
     return response_data
 
+
 @app.get("/daywise_fatal_summary")
 def get_daywise_fatal_summary(
         client_id: str = Query(..., description="Client ID"),
@@ -1648,7 +1708,6 @@ def get_daywise_fatal_summary(
     ]
 
     return response_data
-
 
 
 @app.get("/agent_audit_summary")
@@ -1733,13 +1792,14 @@ def get_agent_audit_summary(
 
     return response_data
 
+
 ##################   Detailed Analysis##########################
 @app.get("/details_count")
 def get_details_count(
-    client_id: str = Query(..., description="Client ID"),
-    start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
-    end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
-    db: Session = Depends(get_db2)
+        client_id: str = Query(..., description="Client ID"),
+        start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
+        end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
+        db: Session = Depends(get_db2)
 ):
     # Use current date if start_date or end_date is not provided
     today = date.today()
@@ -1765,10 +1825,11 @@ def get_details_count(
     """)
 
     result = db.execute(query, {"client_id": client_id, "start_date": start_date, "end_date": end_date}).fetchone()
-    #print(result)
+    # print(result)
     # Handle None case to avoid errors
     if not result:
-        return {"audit_cnt": 0, "cq_score": 0, "fatal_count": 0, "fatal_percentage": 0, "query": 0, "Complaint": 0, "Request": 0, "sale": 0}
+        return {"audit_cnt": 0, "cq_score": 0, "fatal_count": 0, "fatal_percentage": 0, "query": 0, "Complaint": 0,
+                "Request": 0, "sale": 0}
 
     return {
         "audit_cnt": result[0] or 0,
@@ -1780,6 +1841,7 @@ def get_details_count(
         "Request": result[6] or 0,
         "sale": result[7] or 0
     }
+
 
 @app.get("/top_scenarios_with_counts")
 def get_top_scenarios_with_counts(
@@ -2125,6 +2187,7 @@ def get_day_performance_summary(
 
     return response_data
 
+
 ######################### Week wise ####################
 @app.get("/week_performance_summary")
 def get_week_performance_summary(
@@ -2304,12 +2367,13 @@ class CallQualityAssessment(BaseModel):
     areas_for_improvement: Optional[str]
     transcribe_text: Optional[str]
 
+
 # ✅ Define API inside APIRouter
 @app.get("/call_quality_details/", response_model=CallQualityAssessment)
 def get_call_quality_details(
-    client_id: str = Query(..., description="Client ID"),
-    lead_id: str = Query(..., description="Lead ID"),
-    db: Session = Depends(get_db2)
+        client_id: str = Query(..., description="Client ID"),
+        lead_id: str = Query(..., description="Lead ID"),
+        db: Session = Depends(get_db2)
 ):
     query = text("""
         SELECT 
@@ -2364,10 +2428,10 @@ def get_call_quality_details(
 ##################  Raw Dump ####################################
 @app.get("/call_quality_assessments")
 def get_call_quality_assessments(
-    client_id: str = Query(..., description="Client ID"),
-    start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
-    end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
-    db: Session = Depends(get_db2)
+        client_id: str = Query(..., description="Client ID"),
+        start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
+        end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
+        db: Session = Depends(get_db2)
 ):
     query = text("""
         SELECT * 
@@ -2473,7 +2537,6 @@ def get_keys(db: Session = Depends(get_db)):
     return [{"api_key": key.api_key, "created_at": key.created_at, "status": key.status} for key in keys]
 
 
-
 @app.get("/recordings/")
 def get_recordings(db: Session = Depends(get_db)):
     recordings = db.query(AudioFile).all()
@@ -2486,7 +2549,7 @@ def get_recordings(db: Session = Depends(get_db)):
             "language": rec.language if rec.language else "NA",
             "minutes": rec.minutes if rec.minutes else "NA",
             "Transcript": rec.transcript if rec.transcript else "NA",
-            "id":rec.id
+            "id": rec.id
         }
         for rec in recordings
     ]
@@ -2495,7 +2558,7 @@ def get_recordings(db: Session = Depends(get_db)):
 
 @app.get("/recordings_datewise/")
 def get_recordings_datewise(
-        start_date: str = Query(None,description="Start Date in YYYY-MM-DD format"),
+        start_date: str = Query(None, description="Start Date in YYYY-MM-DD format"),
         end_date: str = Query(None, description="End Date in YYYY-MM-DD format"),
         db: Session = Depends(get_db),
 ):
@@ -2510,7 +2573,6 @@ def get_recordings_datewise(
 
             start_dt = datetime.strptime(start_date, "%Y-%m-%d")
             end_dt = datetime.strptime(end_date, "%Y-%m-%d") + timedelta(days=1) - timedelta(seconds=1)
-
 
             if start_dt > end_dt:
                 raise HTTPException(status_code=400, detail="start_date cannot be after end_date")
@@ -2542,6 +2604,7 @@ def get_recordings_datewise(
 UPLOAD_DIR_NEW = "downloaded_files"  # Directory to store text files
 os.makedirs(UPLOAD_DIR_NEW, exist_ok=True)  # Ensure directory exists
 from fastapi.responses import FileResponse
+
 
 @app.post("/download_transcription/")
 async def download_transcription(data: dict, db: Session = Depends(get_db)):
@@ -2592,11 +2655,11 @@ async def calculate_limit(user_id: int, db: Session = Depends(get_db)):
     return {"user_id": user_id, "total_minutes": formatted_total}
 
 
-
 class LimitRequest(BaseModel):
     from_date: date
     to_date: date
     user_id: int
+
 
 @app.post("/calculate_limit_date/")
 async def calculate_limit_date(request: LimitRequest, db: Session = Depends(get_db)):
@@ -2684,10 +2747,10 @@ def fetch_menu(db: Session = Depends(get_db)):
 
 @app.get("/call_summary_sales")
 def get_call_summary_sales(
-    client_id: str = Query(..., description="Client ID"),
-    start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
-    end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
-    db: Session = Depends(get_db3)
+        client_id: str = Query(..., description="Client ID"),
+        start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
+        end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
+        db: Session = Depends(get_db3)
 ):
     query_summary = text("""
         SELECT
@@ -2716,7 +2779,10 @@ def get_call_summary_sales(
 
 
 @app.get("/call_category_counts_sales")
-def get_call_category_counts_sales(client_id: str = Query(..., description="Client ID"), start_date: str = Query(..., description="Start date in YYYY-MM-DD format"), end_date: str = Query(..., description="End date in YYYY-MM-DD format"), db: Session = Depends(get_db3)):
+def get_call_category_counts_sales(client_id: str = Query(..., description="Client ID"),
+                                   start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
+                                   end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
+                                   db: Session = Depends(get_db3)):
     query = text("""
         SELECT
             COUNT(CASE WHEN AfterListeningOfferRejected = 1 THEN 1 END) AS post_offer_rejected,
@@ -2762,7 +2828,6 @@ def get_call_dump_sales(
     return response_data
 
 
-
 # Mapping of objections to categories and insights
 OBJECTION_MAPPING = {
     "Already has the same product": ("No Need", "Customer already has same product; no need to buy."),
@@ -2774,18 +2839,26 @@ OBJECTION_MAPPING = {
     "Liked the product but wants a better deal": ("Price Sensitivity", "Possible to convert with discounts or offers."),
     "Wants to buy later": ("Budget Constraint", "Future potential lead; needs follow-up."),
     "Not Interested in Perfumes": ("Product Disinterest", "No interest at all; unlikely to convert."),
-    "Happy with the product but not interested in buying more": ("No Need", "No further purchase intent; hard to upsell."),
-    "Didn't like one of the perfumes": ("Negative Experience", "A bad experience with one variant; can recommend others."),
+    "Happy with the product but not interested in buying more": (
+    "No Need", "No further purchase intent; hard to upsell."),
+    "Didn't like one of the perfumes": (
+    "Negative Experience", "A bad experience with one variant; can recommend others."),
     "Disappointed with perfume quality": ("Negative Experience", "Concerns about quality; provide product assurance."),
-    "Perfume Longevity Issue": ("Negative Experience", "Customer finds longevity lacking; suggest long-lasting alternatives."),
+    "Perfume Longevity Issue": (
+    "Negative Experience", "Customer finds longevity lacking; suggest long-lasting alternatives."),
     "Perfume too strong": ("Negative Experience", "Scent preference issue; suggest milder alternatives."),
     "Damaged Product Received": ("Logistic Concern", "A serious issue; needs strong resolution to regain trust."),
     "Wrong Product Received": ("Logistic Concern", "Fulfillment error; needs rectification and trust-building."),
-    "Doesn't trust online payments": ("Trust Concerns", "Major barrier; provide secure payment options and reassurance."),
+    "Doesn't trust online payments": (
+    "Trust Concerns", "Major barrier; provide secure payment options and reassurance."),
 }
 
+
 @app.get("/get_mo_breakdown")
-def get_mo_breakdown(client_id: str = Query(..., description="Client ID"), start_date: str = Query(..., description="Start date in YYYY-MM-DD format"), end_date: str = Query(..., description="End date in YYYY-MM-DD format"), db: Session = Depends(get_db3)):
+def get_mo_breakdown(client_id: str = Query(..., description="Client ID"),
+                     start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
+                     end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
+                     db: Session = Depends(get_db3)):
     query = text("""
         SELECT CustomerObjectionSubCategory
         FROM CallDetails
@@ -2798,8 +2871,10 @@ def get_mo_breakdown(client_id: str = Query(..., description="Client ID"), start
     excluded_categories = {"Opening Rejected", "Context Rejected", "Offering Rejected"}
     workable_df = df[~df["CustomerObjectionSubCategory"].isin(excluded_categories)]
     mo_count = len(workable_df)
-    workable_df["MO Category"] = workable_df["CustomerObjectionSubCategory"].map(lambda x: OBJECTION_MAPPING.get(x, ("Other", ""))[0])
-    workable_df["Observations & Insights"] = workable_df["CustomerObjectionSubCategory"].map(lambda x: OBJECTION_MAPPING.get(x, ("", "No insight available"))[1])
+    workable_df["MO Category"] = workable_df["CustomerObjectionSubCategory"].map(
+        lambda x: OBJECTION_MAPPING.get(x, ("Other", ""))[0])
+    workable_df["Observations & Insights"] = workable_df["CustomerObjectionSubCategory"].map(
+        lambda x: OBJECTION_MAPPING.get(x, ("", "No insight available"))[1])
     breakdown = (workable_df.groupby(["MO Category", "Observations & Insights"]).size().reset_index(name="Count"))
     breakdown["Count"] = breakdown["Count"].astype(int)
     breakdown["Contr%"] = (breakdown["Count"] / breakdown["Count"].sum() * 100).round(1).astype(float)
@@ -2822,10 +2897,12 @@ NED_ED_MAPPING = {
     "Already Owns Enough": ("No Need", "Already has too many perfumes", "Non Workable"),
     "Already has too many perfumes": ("No Need", "Already has too many perfumes", "Non Workable"),
     "Already has another preferred brand": ("Brand Preference", "Already has another preferred brand", "Non Workable"),
-    "Liked the product but wants a better deal": ("Price Sensitivity", "Liked the product but wants a better deal", "Workable"),
+    "Liked the product but wants a better deal": (
+    "Price Sensitivity", "Liked the product but wants a better deal", "Workable"),
     "Wants to buy later": ("Budget Constraint", "Wants to buy later", "Workable"),
     "Not Interested in Perfumes": ("Product Disinterest", "Not Interested in Perfumes", "Non Workable"),
-    "Happy with the product but not interested in buying more": ("No Need", "Happy with the product but not interested in buying more", "Non Workable"),
+    "Happy with the product but not interested in buying more": (
+    "No Need", "Happy with the product but not interested in buying more", "Non Workable"),
     "Didn't like one of the perfumes": ("Negative Experience", "Disappointed with perfume quality", "Non Workable"),
     "Disappointed with perfume quality": ("Negative Experience", "Disappointed with perfume quality", "Non Workable"),
     "Perfume Longevity Issue": ("Negative Experience", "Perfume Longevity Issue", "Workable"),
@@ -2835,12 +2912,13 @@ NED_ED_MAPPING = {
     "Doesn't trust online payments": ("Trust Concerns", "Doesn't trust online payments", "Workable"),
 }
 
+
 @app.get("/get_ned_ed_breakdown")
 def get_ned_ed_breakdown(
-    client_id: str = Query(..., description="Client ID"),
-    start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
-    end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
-    db: Session = Depends(get_db3)
+        client_id: str = Query(..., description="Client ID"),
+        start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
+        end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
+        db: Session = Depends(get_db3)
 ):
     query = text("""
         SELECT CustomerObjectionSubCategory
@@ -2858,7 +2936,8 @@ def get_ned_ed_breakdown(
     df = pd.DataFrame(result, columns=["CustomerObjectionSubCategory"])
     total_opportunities = len(df)
 
-    df["NED/ED Category"] = df["CustomerObjectionSubCategory"].map(lambda x: NED_ED_MAPPING.get(x, ("Other", "", ""))[0])
+    df["NED/ED Category"] = df["CustomerObjectionSubCategory"].map(
+        lambda x: NED_ED_MAPPING.get(x, ("Other", "", ""))[0])
     df["NED/ED-QS"] = df["CustomerObjectionSubCategory"].map(lambda x: NED_ED_MAPPING.get(x, ("", "", ""))[1])
     df["NED/ED Status"] = df["CustomerObjectionSubCategory"].map(lambda x: NED_ED_MAPPING.get(x, ("", "", ""))[2])
 
@@ -2882,13 +2961,12 @@ def get_ned_ed_breakdown(
     return response
 
 
-
 @app.get("/op_analysis_sales")
 def op_analysis_sales(
-    client_id: str = Query(..., description="Client ID"),
-    start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
-    end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
-    db: Session = Depends(get_db3)
+        client_id: str = Query(..., description="Client ID"),
+        start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
+        end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
+        db: Session = Depends(get_db3)
 ):
     query = text("""
         SELECT
@@ -2931,12 +3009,13 @@ def op_analysis_sales(
 
     return response_data
 
+
 @app.get("/contact_analysis_sales")
 def contact_analysis_sales(
-    client_id: str = Query(..., description="Client ID"),
-    start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
-    end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
-    db: Session = Depends(get_db3)
+        client_id: str = Query(..., description="Client ID"),
+        start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
+        end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
+        db: Session = Depends(get_db3)
 ):
     query = text("""
         SELECT
@@ -2979,12 +3058,13 @@ def contact_analysis_sales(
 
     return response_data
 
+
 @app.get("/discount_analysis_sales")
 def discount_analysis_sales(
-    client_id: str = Query(..., description="Client ID"),
-    start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
-    end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
-    db: Session = Depends(get_db3)
+        client_id: str = Query(..., description="Client ID"),
+        start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
+        end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
+        db: Session = Depends(get_db3)
 ):
     query = text("""
         SELECT
@@ -3031,6 +3111,7 @@ def discount_analysis_sales(
 class TranscriptUpdateRequest(BaseModel):
     audio_id: int
     transcript: str
+
 
 @app.put("/update_transcript/")
 def update_transcript(request: TranscriptUpdateRequest, db: Session = Depends(get_db)):
