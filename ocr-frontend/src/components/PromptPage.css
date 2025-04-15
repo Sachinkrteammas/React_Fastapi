@@ -111,6 +111,10 @@
 
 
 }
+.outbox.editing {
+  border: 2px solid #007bff; /* Blue border to indicate edit mode */
+  background-color: #eef5ff; /* Slightly blue background */
+}
 
 
 .output-container {
@@ -126,3 +130,23 @@
   position: relative;
 
 }
+
+.edit-pencil1 {
+  font-size: 16px;
+  cursor: pointer;
+  float: right;
+  /* margin-left: 567px; */
+ 
+  
+}
+
+.edit-pencil1:hover {
+  color: #0056b3;
+}
+.transcript-textarea {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  resize: vertical;
+}
+  

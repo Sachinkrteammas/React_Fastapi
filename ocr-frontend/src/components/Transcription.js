@@ -37,7 +37,7 @@ const Transcription = ({ onLogout }) => {
   const [loading1, setLoading1] = useState(false);
 
 
-  const openModal = (transcript,id) => {
+  const openModal = (transcript, id) => {
     setSelectedTranscript(transcript);
     setSelectedAudioId(id);
     setShowModal(true);
@@ -66,7 +66,7 @@ const Transcription = ({ onLogout }) => {
   };
 
   useEffect(() => {
-  setLoading(true);
+    setLoading(true);
     const fetchRecordings = async () => {
       try {
         const response = await fetch(`${BASE_URL}/recordings/`);
@@ -147,7 +147,7 @@ const Transcription = ({ onLogout }) => {
   };
 
   const handleView = async () => {
-  setLoading1(true);
+    setLoading1(true);
     console.log("Fetching data from", startDate, "to", endDate);
 
     try {
@@ -227,249 +227,261 @@ const Transcription = ({ onLogout }) => {
 
   return (
     <Layout heading="Title to be decided">
-      <div className="dateboard">
-        <div className="date-page1">
-          <h1 className="word">Pre Set</h1>
-          <select
-            className="predate"
-            value={dateOption}
-            onChange={handleDateOptionChange} // Enable date pickers when "Custom" is selected
-          >
-            <option>Today</option>
-            <option>Yesterday</option>
-            <option>Week</option>
-            <option>Month</option>
-            <option>Custom</option>
-          </select>
+      <div className={`dashboard-container-po ${loading ? "blurred" : ""}`}>
+        <div className="dateboard">
+          <div className="date-page1">
+            <h1 className="word">Pre Set</h1>
+            <select
+              className="predate"
+              value={dateOption}
+              onChange={handleDateOptionChange} // Enable date pickers when "Custom" is selected
+            >
+              <option>Today</option>
+              <option>Yesterday</option>
+              <option>Week</option>
+              <option>Month</option>
+              <option>Custom</option>
+            </select>
 
-          <h1 className="word1">Start Date</h1>
-          <DatePicker
-            className="datepic1"
-            selected={startDate}
-            onChange={(date) => handleDateChange(date, "start")}
-            disabled={!isCustom} // Enable only if "Custom" is selected
-            dateFormat="yyyy-MM-dd"
-            portalId="root"
-          />
+            <h1 className="word1">Start Date</h1>
+            <DatePicker
+              className="datepic1"
+              selected={startDate}
+              onChange={(date) => handleDateChange(date, "start")}
+              disabled={!isCustom} // Enable only if "Custom" is selected
+              dateFormat="yyyy-MM-dd"
+              portalId="root"
+            />
 
-          <h1 className="word1">End Date</h1>
-          <DatePicker
-            className="datepic1"
-            selected={endDate}
-            onChange={(date) => handleDateChange(date, "end")}
-            disabled={!isCustom}
-            dateFormat="yyyy-MM-dd"
-            portalId="root"
-          />
+            <h1 className="word1">End Date</h1>
+            <DatePicker
+              className="datepic1"
+              selected={endDate}
+              onChange={(date) => handleDateChange(date, "end")}
+              disabled={!isCustom}
+              dateFormat="yyyy-MM-dd"
+              portalId="root"
+            />
 
-          <h1 className="word">Date by</h1> 
-          <select
-            className="predate"
-            value={dateBy}
-            onChange={(e) => setDateBy(e.target.value)}
-          >
-            <option>Document Date</option>
-            <option>Created Date</option>
-          </select>
+            <h1 className="word">Date by</h1>
+            <select
+              className="predate"
+              value={dateBy}
+              onChange={(e) => setDateBy(e.target.value)}
+            >
+              <option>Document Date</option>
+              <option>Created Date</option>
+            </select>
 
-          <h1 className="word">Bucket</h1>
-          <select
-            className="predate"
-            value={bucket}
-            onChange={(e) => setBucket(e.target.value)}
-          >
-            <option>Active</option>
-            <option>Not Viewed</option>
-            <option>Archived</option>
-            <option>All</option>
-          </select>
+            <h1 className="word">Bucket</h1>
+            <select
+              className="predate"
+              value={bucket}
+              onChange={(e) => setBucket(e.target.value)}
+            >
+              <option>Active</option>
+              <option>Not Viewed</option>
+              <option>Archived</option>
+              <option>All</option>
+            </select>
 
-          <button
-            className="view"
-            // style={{ marginLeft: "10px", height: "30px" }}
-            onClick={handleView}
-          >
-            View
-          </button>
-        </div>
+            <button
+              className="view"
+              // style={{ marginLeft: "10px", height: "30px" }}
+              onClick={handleView}
+            >
+              View
+            </button>
+          </div>
 
-        <div className="table-containers1">
-          <table className="custom-table">
-            <thead>
-              <tr>
-                <th>
+          <div className="table-containers1">
+            <table className="custom-table">
+              <thead>
+                <tr>
+                  <th>
 
-                  <input
-                    type="checkbox"
-                    name="selectAll"
-                    checked={selectAll}
-                    onChange={handleSelectAll}
-                    id="selectAll"
-                    title="Select/Deselect All"
-                  />
-
-                </th>
-
-                {/* <th>Preview</th> */}
-                <th>Recording Date</th>
-                <th>Recording File</th>
-                <th>Category</th>
-                <th>Language</th>
-                <th>Call Duration</th>
-                <th>Transcript</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentItems.map((item, index) => (
-                <tr key={index}>
-                  <td>
                     <input
                       type="checkbox"
-                      name="select"
-                      value={item.id}
-                      checked={selectedItems.includes(item.id)}
-                      onChange={() => handleCheckboxChange(item.id)}
+                      name="selectAll"
+                      checked={selectAll}
+                      onChange={handleSelectAll}
+                      id="selectAll"
                       title="Select/Deselect All"
                     />
-                  </td>
-                  {/* <td>{item.preview}</td> */}
-                  <td>{item.recordingDate}</td>
-                  <td>
-                    <audio className="audio-controls" controls>
-                      <source
-                        src={`/audio/${item.file}`}
-                        type={
-                          item.file.endsWith(".wav")
-                            ? "audio/mpeg"
-                            : "audio/wav"
-                        }
-                      />
-                      Your browser does not support the audio element.
-                    </audio>
-                  </td>
-                  <td>{item.category}</td>
-                  <td>{item.language}</td>
-                  <td>
-                    {isNaN(Number(item.minutes)) || item.minutes === "N/A" ? (
-                      "N/A"
-                    ) : Number(item.minutes) < 1 ? (
-                      `${Math.round(Number(item.minutes) * 60)} sec`
-                    ) : (
-                      `${item.minutes} min`
-                    )}
-                  </td>
 
+                  </th>
 
-
-                  <td>
-                    <div className="transcript-short">
-                      {item.Transcript.length > 50
-                        ? item.Transcript.substring(0, 50) + "..."
-                        : item.Transcript}
-                    </div>
-                    {item.Transcript.length > 50 && (
-                      <button
-                        className="show-more"
-                        onClick={() => openModal(item.Transcript,item.id)}
-
-                      >
-                        Show More
-                      </button>
-                    )}
-                  </td>
+                  {/* <th>Preview</th> */}
+                  <th>Recording Date</th>
+                  <th>Recording File</th>
+                  <th>Category</th>
+                  <th>Language</th>
+                  <th>Call Duration</th>
+                  <th>Transcript</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {currentItems.map((item, index) => (
+                  <tr key={index}>
+                    <td>
+                      <input
+                        type="checkbox"
+                        name="select"
+                        value={item.id}
+                        checked={selectedItems.includes(item.id)}
+                        onChange={() => handleCheckboxChange(item.id)}
+                        title="Select/Deselect All"
+                      />
+                    </td>
+                    {/* <td>{item.preview}</td> */}
+                    <td>{item.recordingDate}</td>
+                    <td>
+                      <audio className="audio-controls" controls>
+                        <source
+                          src={`/audio/${item.file}`}
+                          type={
+                            item.file.endsWith(".wav")
+                              ? "audio/mpeg"
+                              : "audio/wav"
+                          }
+                        />
+                        Your browser does not support the audio element.
+                      </audio>
+                    </td>
+                    <td>{item.category}</td>
+                    <td>{item.language}</td>
+                    <td>
+                      {isNaN(Number(item.minutes)) || item.minutes === "N/A" ? (
+                        "N/A"
+                      ) : Number(item.minutes) < 1 ? (
+                        `${Math.round(Number(item.minutes) * 60)} sec`
+                      ) : (
+                        `${item.minutes} min`
+                      )}
+                    </td>
 
-          {/* Modal */}
-          {showModal && (
-            <div className="modal-overlay" onClick={closeModal}>
-              <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                <span className="close-button" onClick={closeModal} title="Close">
-                  &times;
-                </span>
 
-                <span
-                  className="edit-pencil"
-                  onClick={() => setIsEditing(true)}
-                  title="Edit"
-                >
-                  ✏️
-                </span>
 
-                <h4>Full Transcript</h4>
+                    <td>
+                      <div className="transcript-short">
+                        {item.Transcript.length > 50
+                          ? item.Transcript.substring(0, 50) + "..."
+                          : item.Transcript}
+                      </div>
+                      {item.Transcript.length > 50 && (
+                        <button
+                          className="show-more"
+                          onClick={() => openModal(item.Transcript, item.id)}
 
-                {isEditing ? (
-  <>
-    <textarea
-      className="transcript-textarea"
-      value={selectedTranscript}
-      onChange={(e) => setSelectedTranscript(e.target.value)}
-      rows={10}
-    />
-    <button
-      className="save-button"
-      onClick={async () => {
-        try {
-          await axios.put(`${BASE_URL}/update_transcript/`, {
-            audio_id: selectedAudioId, // make sure you store selected ID
-            transcript: selectedTranscript,
-          });
-          setIsEditing(false); // Exit edit mode after save
-          alert("Transcript saved successfully");
-        } catch (error) {
-          console.error("Error saving transcript:", error);
-        }
-      }}
-    >
-      Save
-    </button>
-  </>
-) : (
-  <p>{selectedTranscript}</p>
-)}
+                        >
+                          Show More
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* Modal */}
+            {showModal && (
+              <div className="modal-overlay" onClick={closeModal}>
+                <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                  <span className="close-button" onClick={closeModal} title="Close">
+                    &times;
+                  </span>
+
+                  <span
+                    className="edit-pencil"
+                    onClick={() => setIsEditing(true)}
+                    title="Edit"
+                  >
+                    ✏️
+                  </span>
+
+                  <h4>Full Transcript</h4>
+
+                  {isEditing ? (
+                    <>
+                      <textarea
+                        className="transcript-textarea"
+                        value={selectedTranscript}
+                        onChange={(e) => setSelectedTranscript(e.target.value)}
+                        rows={10}
+                      />
+                      <button
+                        className="save-button"
+                        onClick={async () => {
+                          try {
+                            await axios.put(`${BASE_URL}/update_transcript/`, {
+                              audio_id: selectedAudioId, // make sure you store selected ID
+                              transcript: selectedTranscript,
+                            });
+                            setIsEditing(false); // Exit edit mode after save
+                            alert("Transcript saved successfully");
+                          } catch (error) {
+                            console.error("Error saving transcript:", error);
+                          }
+                        }}
+                      >
+                        Save
+                      </button>
+                    </>
+                  ) : (
+                    <p>{selectedTranscript}</p>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
+
+            {currentItems.length > 0 && (
+              <div style={{ width: "100%", gap: "6px" }}>
+                {/* Download Buttons */}
+                <button className=" down-all" onClick={() => downloadFile("all")}>
+                  Download All
+                </button>
+                <button
+                  className=" down-all"
+                  onClick={() => downloadFile("selected")}
+                  disabled={selectedItems.length === 0}
+                >
+                  Download Selected
+                </button>
+              </div>
+            )}
+          </div>
 
           {currentItems.length > 0 && (
-            <div style={{ width: "100%", gap: "6px" }}>
-              {/* Download Buttons */}
-              <button className=" down-all" onClick={() => downloadFile("all")}>
-                Download All
-              </button>
+            <div className="pagination">
               <button
-                className=" down-all"
-                onClick={() => downloadFile("selected")}
-                disabled={selectedItems.length === 0}
+                onClick={prevPage}
+                disabled={page === 1}
+                className="pagination-button"
               >
-                Download Selected
+                Previous
+              </button>
+              <span className="page-info">
+                Page {page} of {totalPages}
+              </span>
+              <button
+                onClick={nextPage}
+                disabled={page === totalPages}
+                className="pagination-button"
+              >
+                Next
               </button>
             </div>
           )}
         </div>
+        {loading1 && (
+          <div className="loader-overlay">
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
 
-        {currentItems.length > 0 && (
-          <div className="pagination">
-            <button
-              onClick={prevPage}
-              disabled={page === 1}
-              className="pagination-button"
-            >
-              Previous
-            </button>
-            <span className="page-info">
-              Page {page} of {totalPages}
-            </span>
-            <button
-              onClick={nextPage}
-              disabled={page === totalPages}
-              className="pagination-button"
-            >
-              Next
-            </button>
           </div>
         )}
       </div>
