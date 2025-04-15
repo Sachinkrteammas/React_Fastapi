@@ -2538,8 +2538,8 @@ def get_keys(db: Session = Depends(get_db)):
 
 
 @app.get("/recordings/")
-def get_recordings(db: Session = Depends(get_db)):
-    recordings = db.query(AudioFile).all()
+def get_recordings(user_id: int = Query(...), db: Session = Depends(get_db)):
+    recordings = db.query(AudioFile).filter(AudioFile.user_id == user_id).all()
     response_data = [
         {
             "preview": "🔍",
@@ -2549,7 +2549,8 @@ def get_recordings(db: Session = Depends(get_db)):
             "language": rec.language if rec.language else "NA",
             "minutes": rec.minutes if rec.minutes else "NA",
             "Transcript": rec.transcript if rec.transcript else "NA",
-            "id": rec.id
+            "id": rec.id,
+            "user_id": rec.user_id
         }
         for rec in recordings
     ]
@@ -2557,29 +2558,35 @@ def get_recordings(db: Session = Depends(get_db)):
 
 
 @app.get("/recordings_datewise/")
+
 def get_recordings_datewise(
-        start_date: str = Query(None, description="Start Date in YYYY-MM-DD format"),
-        end_date: str = Query(None, description="End Date in YYYY-MM-DD format"),
-        db: Session = Depends(get_db),
+    start_date: str = Query(None, description="Start Date in YYYY-MM-DD format"),
+    end_date: str = Query(None, description="End Date in YYYY-MM-DD format"),
+    user_id: int = Query(..., description="User ID to filter recordings"),
+    db: Session = Depends(get_db),
 ):
-    from datetime import datetime
     query = db.query(AudioFile)
+    from datetime import datetime, date, timedelta
+    # Default to today's date if none provided
     today = date.today()
     start_date = start_date or today.strftime("%Y-%m-%d")
     end_date = end_date or today.strftime("%Y-%m-%d")
 
-    if start_date and end_date:
-        try:
+    try:
 
-            start_dt = datetime.strptime(start_date, "%Y-%m-%d")
-            end_dt = datetime.strptime(end_date, "%Y-%m-%d") + timedelta(days=1) - timedelta(seconds=1)
+        start_dt = datetime.strptime(start_date, "%Y-%m-%d")
+        end_dt = datetime.strptime(end_date, "%Y-%m-%d") + timedelta(days=1) - timedelta(seconds=1)
 
-            if start_dt > end_dt:
-                raise HTTPException(status_code=400, detail="start_date cannot be after end_date")
+        if start_dt > end_dt:
+            raise HTTPException(status_code=400, detail="start_date cannot be after end_date")
 
-            query = query.filter(AudioFile.upload_time >= start_dt, AudioFile.upload_time <= end_dt)
-        except ValueError:
-            raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD.")
+        query = query.filter(
+            AudioFile.upload_time >= start_dt,
+            AudioFile.upload_time <= end_dt,
+            AudioFile.user_id == user_id  # Filter by user ID
+        )
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD.")
 
     recordings = query.all()
 
@@ -2588,12 +2595,12 @@ def get_recordings_datewise(
             "preview": "🔍",
             "recordingDate": rec.upload_time.strftime("%Y-%m-%d"),
             "file": rec.filename,
-            "category": rec.category if rec.category else "Unknown",
-            "language": rec.language if rec.language else "NA",
-            "minutes": rec.minutes if rec.minutes else "NA",
-            "Transcript": rec.transcript if rec.transcript else "NA",
-            "id": rec.id
-
+            "category": rec.category or "Unknown",
+            "language": rec.language or "NA",
+            "minutes": rec.minutes or "NA",
+            "Transcript": rec.transcript or "NA",
+            "id": rec.id,
+            "user_id": rec.user_id
         }
         for rec in recordings
     ]

@@ -35,6 +35,7 @@ const Transcription = ({ onLogout }) => {
   const [selectedAudioId, setSelectedAudioId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loading1, setLoading1] = useState(false);
+  const Id = parseInt(localStorage.getItem("id"));
 
 
   const openModal = (transcript, id) => {
@@ -66,23 +67,24 @@ const Transcription = ({ onLogout }) => {
   };
 
   useEffect(() => {
-    setLoading(true);
-    const fetchRecordings = async () => {
-      try {
-        const response = await fetch(`${BASE_URL}/recordings/`);
-        const result = await response.json();
-        setData(result);
-        setTotalPages(Math.ceil(result.length / itemsPerPage));
-      } catch (error) {
-        console.error("Error fetching recordings:", error);
-      }
-      finally {
-        setLoading(false);
-      }
-    };
+  setLoading(true);
+  const fetchRecordings = async () => {
+    try {
+      const userId = Number(localStorage.getItem("id"));
+      const response = await fetch(`${BASE_URL}/recordings/?user_id=${userId}`);
+      const result = await response.json();
+      setData(result);
+      setTotalPages(Math.ceil(result.length / itemsPerPage));
+    } catch (error) {
+      console.error("Error fetching recordings:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchRecordings();
-  }, []);
+  fetchRecordings();
+}, []);
+
 
   useEffect(() => {
     setTotalPages(Math.ceil(data.length / itemsPerPage));
@@ -147,22 +149,24 @@ const Transcription = ({ onLogout }) => {
   };
 
   const handleView = async () => {
-    setLoading1(true);
-    console.log("Fetching data from", startDate, "to", endDate);
+  setLoading1(true);
+  const userId = Number(localStorage.getItem("id")); // Get user_id from localStorage
 
-    try {
-      const response = await fetch(
-        `${BASE_URL}/recordings_datewise/?start_date=${startDate}&end_date=${endDate}`
-      );
-      const result = await response.json();
-      setData(result);
-    } catch (error) {
-      console.error("Error fetching filtered recordings:", error);
-    }
-    finally {
-      setLoading1(false);
-    }
-  };
+  console.log("Fetching data from", startDate, "to", endDate, "for user:", userId);
+
+  try {
+    const response = await fetch(
+      `${BASE_URL}/recordings_datewise/?start_date=${startDate}&end_date=${endDate}&user_id=${userId}`
+    );
+    const result = await response.json();
+    setData(result);
+  } catch (error) {
+    console.error("Error fetching filtered recordings:", error);
+  } finally {
+    setLoading1(false);
+  }
+};
+
 
   const handleCheckboxChange = (id) => {
     setSelectedItems((prev) =>
