@@ -6,8 +6,8 @@ import Layout from "../layout";
 import "../layout.css";
 import "./Transcription.css";
 import { BASE_URL } from "./config";
-import { Copy } from "lucide-react";
 import axios from "axios";
+import { Download } from 'lucide-react';
 
 
 const Transcription = ({ onLogout }) => {
@@ -227,7 +227,7 @@ const Transcription = ({ onLogout }) => {
 
   return (
     <Layout heading="Title to be decided">
-      <div className={`dashboard-container-po ${loading ? "blurred" : ""}`}>
+      <div className={` ${loading ? "blurred" : ""}`}>
         <div className="dateboard">
           <div className="date-page1">
             <h1 className="word">Pre Set</h1>
@@ -446,6 +446,7 @@ const Transcription = ({ onLogout }) => {
                   onClick={() => downloadFile("selected")}
                   disabled={selectedItems.length === 0}
                 >
+                  <Download style={{ marginRight: "8px" }} />
                   Download Selected
                 </button>
               </div>
