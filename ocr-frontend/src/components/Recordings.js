@@ -7,6 +7,7 @@ import "../layout.css";
 import { Copy, CopyCheck, CloudUpload } from "lucide-react";
 import { BASE_URL } from "./config";
 import { AudioRecorder } from 'react-audio-voice-recorder';
+import TooltipHelp from "./TooltipHelp";
 
 const Recordings = () => {
   const navigate = useNavigate();
@@ -21,7 +22,6 @@ const Recordings = () => {
   const [totalMinutes, setTotalMinutes] = useState("00.00");
   const set_limit = Number(localStorage.getItem("set_limit")) || 0;
   const [recordedAudioUrl, setRecordedAudioUrl] = useState(null);
-
 
   const isLimitExceeded = totalMinutes > set_limit;
 
@@ -106,13 +106,21 @@ const Recordings = () => {
       setUploadMessage("Failed to generate key.");
     }
   };
+
   const handleFileChange = (event) => {
-    setSelectedFiles((prevFiles) => [
-      ...prevFiles,
-      ...Array.from(event.target.files),
-    ]);
+    const files = Array.from(event.target.files).filter((file) =>
+      ["audio/mpeg", "audio/wav"].includes(file.type)
+    );
+
+    if (files.length === 0) {
+      setUploadMessage("Only MP3 or WAV files are allowed.");
+      return;
+    }
+
+    setSelectedFiles(files);
     setUploadMessage("");
   };
+
   useEffect(() => {
     if (!user_id) return;
 
@@ -130,77 +138,38 @@ const Recordings = () => {
     fetchTotalMinutes();
   }, [user_id]);
 
-  const handleDrop = (e) => {
+  const handleDrop = async (e) => {
     e.preventDefault();
     if (isLimitExceeded) return;
-
+  
     const files = Array.from(e.dataTransfer.files).filter((file) =>
       ["audio/mpeg", "audio/wav"].includes(file.type)
     );
-
+  
     if (files.length === 0) {
       setUploadMessage("Only MP3 or WAV files are allowed.");
       return;
     }
-
-    setSelectedFiles(files);
-    handleUpload(files);
-  };
-
-  const handleFileInputChange = (e) => {
-    const files = Array.from(e.target.files).filter((file) =>
-      ["audio/mpeg", "audio/wav"].includes(file.type)
-    );
-
-    if (files.length === 0) {
-      setUploadMessage("Only MP3 or WAV files are allowed.");
-      return;
-    }
-
-    setSelectedFiles(files);
-    handleUpload(files);
-  };
-
- 
-    
   
-    const handleRecordingComplete = (blob) => {
-      const url = URL.createObjectURL(blob);
-      setRecordedAudioUrl(url);
-    };
+    setSelectedFiles(files); // optional: to show names before upload
+  
+    // Immediately upload files from drag and drop
+    await handleUpload(files);
+  };
   
 
-  // const addAudioElement = (blob) => {
-  //   const url = URL.createObjectURL(blob);
-  //   const audio = document.createElement("audio");
-  //   audio.src = url;
-  //   audio.controls = true;
-  //   audio.autoplay = true;
-  //   audio.onended = () => {
-  //     URL.revokeObjectURL(url);
-  //   };
-
-  //   const container = document.getElementById("audio-container");
-  //   if (container) {
-  //     container.appendChild(audio);
-  //   } else {
-  //     document.body.appendChild(audio);
-  //   }
-
-  //   // Auto-upload the recorded blob
-  //   const file = new File([blob], "recorded_audio.webm", { type: blob.type });
-  //   handleUpload([file]);
-  // };
+  const handleRecordingComplete = (blob) => {
+    const file = new File([blob], "recorded_audio.webm", { type: blob.type });
+    setSelectedFiles([file]);
+  };
 
   return (
     <Layout heading="Title to be decided">
       <div className="record-dash">
-        {/* <h4>Upload Audio for Transcription</h4>
-        <h6>Transcribe and analyze your audio files in a few clicks</h6> */}
         <div className="record-content">
           <h1 className="wordrec">Recordings</h1>
 
-          {/* Dropdowns */}
+          {/* Language and Category */}
           <div className="drop-record">
             <select
               value={selectedLanguage}
@@ -221,10 +190,12 @@ const Recordings = () => {
               <option value="Sales">Sales</option>
               <option value="Service">Service</option>
             </select>
+            <span style={{ marginLeft: "38px" }}>
+              <TooltipHelp message="Select a language and category before uploading." />
+            </span>
           </div>
 
           {/* Upload Section */}
-
           <div
             className={`recordings-box ${isLimitExceeded ? "blurred" : ""} ${uploading ? "uploading" : ""}`}
             onDragOver={(e) => {
@@ -243,26 +214,43 @@ const Recordings = () => {
                 <p className="drag-hint">
                   {uploading ? "Uploading..." : "Drag and Drop audio files here"}
                 </p>
-                <input
-                  type="file"
-                  accept=".mp3,.wav"
-                  multiple
-                  ref={fileInputRef}
-                  onChange={handleFileInputChange}
-                  style={{ display: "none" }}
-                />
-
               </div>
-              {/* <h2 className="chword">Upload Audio Files</h2> */}
+
               <input
                 type="file"
-                accept="audio/mpeg,audio/wav"
+                accept=".mp3,.wav"
                 multiple
-                className="browse-button"
-                onChange={handleFileChange}
                 ref={fileInputRef}
-                disabled={isLimitExceeded} // Disable input if limit exceeded
+                onChange={handleFileChange}
+                style={{width:"255px" }}
+                disabled={isLimitExceeded}
               />
+
+              <button
+                onClick={() => handleUpload()}
+                className="upload-button"
+                disabled={isLimitExceeded || uploading || selectedFiles.length === 0}
+                // style={{
+                //   marginTop: "10px",
+                //   padding: "8px 16px",
+                //   backgroundColor: "#007bff",
+                //   color: "#fff",
+                //   border: "none",
+                //   borderRadius: "5px",
+                //   cursor: isLimitExceeded ? "not-allowed" : "pointer"
+                // }}
+              >
+                {uploading ? "Uploading..." : "Upload"}
+              </button>
+
+              {/* Show selected file names */}
+              {/* {selectedFiles.length > 0 && (
+                <ul style={{ marginTop: "10px" }}>
+                  {selectedFiles.map((file, index) => (
+                    <li key={index}>{file.name}</li>
+                  ))}
+                </ul>
+              )} */}
             </div>
 
             {uploadMessage && <p className="upload-message">{uploadMessage}</p>}
@@ -270,8 +258,7 @@ const Recordings = () => {
               <p style={{ color: "red" }}>Limit exceeded! Upgrade your plan to continue</p>
             )}
 
-
-            <AudioRecorder
+            {/* <AudioRecorder
               onRecordingComplete={handleRecordingComplete}
               audioTrackConstraints={{
                 noiseSuppression: true,
@@ -282,11 +269,7 @@ const Recordings = () => {
               mediaRecorderOptions={{
                 audioBitsPerSecond: 128000,
               }}
-            />
-            
-
-
-            {/* <h5 style={{ fontSize: "16px", marginTop: "-27px", marginRight: "190px" }}>Record Now</h5> */}
+            /> */}
           </div>
 
           {/* Developer Section */}
@@ -302,6 +285,9 @@ const Recordings = () => {
                 >
                   {copied ? <CopyCheck size={18} /> : <Copy size={18} />}
                 </button>
+                <span style={{ marginLeft: "5px" }}>
+                  <TooltipHelp message="Click to copy curl command." />
+                </span>
               </div>
             </div>
           </div>

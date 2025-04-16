@@ -4,6 +4,8 @@ import "../layout.css";
 import "./APIKey.css";
 import axios from "axios";
 import { BASE_URL } from "./config";
+import TooltipHelp from "./TooltipHelp";
+
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || `${BASE_URL}`;
 
@@ -104,8 +106,13 @@ export default function APIKey() {
             value={generatedKey}
             readOnly
           />
+
         </div>
-        <button className="Generatekey-btn" onClick={handleGenerateKey}>
+        <span style={{ marginLeft: "5px", marginTop: "8px" }}>
+            <TooltipHelp message="You can generate a new API key using the Generate Key button" />
+          </span>
+        <button className="Generatekey-btn" onClick={handleGenerateKey} title=" Generate Key">
+          
           Generate Key
         </button>
       </div>
@@ -140,8 +147,11 @@ export default function APIKey() {
                         cursor: "pointer",
                         width: "50px",
                         borderRadius: "10px",
+
                       }}
+                      title="Copy key"
                     >
+
                       Copy
                     </button>
 
@@ -161,6 +171,7 @@ export default function APIKey() {
                         width: "55px",
                         borderRadius: "10px",
                       }}
+                      title="Delete key"
                     >
                       Delete
                     </button>

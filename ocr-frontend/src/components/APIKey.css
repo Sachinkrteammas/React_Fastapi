@@ -47,7 +47,7 @@ h1 {
 
 .search-btn-contain {
   display: flex;
-  gap: 570px;
+  gap: 5px;
 }
 
 
@@ -55,6 +55,7 @@ h1 {
 .Generatekey-btn {
   background: #16155e;
   width: 150px;
+  margin-left: 415px;
   border-radius:6px;
 }
 

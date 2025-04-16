@@ -1,10 +1,10 @@
-
-.record-dash{
+.record-dash {
   width: 95%;
   margin: auto;
-  margin-top: 20px; /* Adjust the value as needed */
+  margin-top: 20px;
+  /* Adjust the value as needed */
   font-family: Arial, sans-serif;
-  
+
   padding: 10px;
 }
 
@@ -15,7 +15,7 @@
   border-radius: 5px;
   color: white;
   cursor: pointer;
- 
+
   width: 15rem;
 }
 
@@ -28,10 +28,11 @@
   cursor: pointer;
   background: #282855;
   display: flex;
+  margin-top: 5px;
   align-items: center;
   justify-content: center;
   width: 5rem;
-  margin-left: 10rem;
+  margin-left: 9rem;
 }
 
 .upload-button:hover {
@@ -66,15 +67,24 @@
 
 .recordings-box {
   border-radius: 1rem;
-  height: fit-content;
+  height: 300px;
   width: 25rem;
 
   margin-top: 5px;
   margin-right: 10px;
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.12),
     0 10px 20px rgba(0, 0, 0, 0.15);
+  /* border: 2px dashed #888; */
+  padding: 15px;
+  text-align: center;
+  border-radius: 10px;
+  /* margin-bottom: 20px; */
+  /* background-color: #f9f9f9; */
+  transition: border-color 0.3s ease;
 
 }
+
+
 
 .newsidebar {
   width: 36%;
@@ -87,7 +97,7 @@
   font-family: 'Arial', sans-serif;
   position: relative;
   /* bottom: 1rem; */
-  
+
   left: 8rem;
 }
 
@@ -108,14 +118,13 @@
 
 .drop-record {
   font-size: 16px;
-  display: flex
-;
+  display: flex;
   gap: 5px;
   position: relative;
   top: 45px;
   left: 3rem;
   width: 100%;
- 
+
 }
 
 .developer-box {
@@ -135,7 +144,8 @@
   width: fit-content;
   top: 29px;
 }
-.worddev{
+
+.worddev {
   font-size: 16px;
   position: relative;
   width: 10rem;
@@ -143,7 +153,7 @@
   top: -20rem;
 }
 
-.generate-key-button{
+.generate-key-button {
   padding: 1px;
   border: none;
   border-radius: 5px;
@@ -157,10 +167,12 @@
   left: 37.5rem;
   top: -1.5rem;
 }
-.generate-key-button:hover{
+
+.generate-key-button:hover {
   background-color: #bbb;
 
 }
+
 .key-input {
   width: 10rem;
   padding: 5px;
@@ -186,12 +198,14 @@
   left: 37rem;
   top: -1.5rem;
 }
-.copy-key-button:hover{
+
+.copy-key-button:hover {
   background-color: #bbb;
 }
-.clipcopy{
+
+.clipcopy {
   padding: 5px 10px;
-  
+
   border: none;
   border-radius: 5px;
   color: white;
@@ -201,14 +215,15 @@
 
 }
 
-.clipcopy:hover{
+.clipcopy:hover {
   background-color: #bbb;
 }
+
 /* .copy-key-button:disabled {
   background: #ccc;
   cursor: not-allowed;
 } */
-.generate-container{
+.generate-container {
   display: flex;
   flex-wrap: wrap;
   top: 1rem;
@@ -218,19 +233,20 @@
 
 .curl-div {
   width: 100%;
-  max-width: 400px; /* Set a max limit */
+  max-width: 400px;
+  /* Set a max limit */
   min-width: 30%;
   text-align: left;
   margin-left: 40px;
 
 }
 
-.curlcode
-{
+.curlcode {
   color: rgb(22, 22, 22);
 }
 
-html, body {
+html,
+body {
   overflow-x: hidden;
 }
 
@@ -238,20 +254,8 @@ html, body {
   border: 2px dashed #007bff;
   background-color: #eef7ff;
 }
-.recordings-box {
-  /* border: 2px dashed #888; */
-  padding: 15px;
-  text-align: center;
-  border-radius: 10px;
-  /* margin-bottom: 20px; */
-  /* background-color: #f9f9f9; */
-  transition: border-color 0.3s ease;
-}
 
-.recordings-box.dragging {
-  border-color: #007bff;
-  background-color: #eef6ff;
-}
+
 
 .recordings-box.uploading {
   opacity: 0.6;
@@ -264,20 +268,27 @@ html, body {
   margin-top: 5px;
 }
 
-.upload-message {
+/* .upload-message {
   margin-top: 10px;
   color: green;
+} */
+.upload-message {
+  color: green;
+  font-size: 16px;
+  margin-top: 10px;
 }
+
 .drag-content {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin-top:5px;
+  margin-top: 5px;
 }
-.border-choose{
+
+.border-choose {
   border: dashed #cfcbcb;
-  height: 145px;
+  height: 200px;
   margin-top: 40px;
   border-radius: 20px;
 }
