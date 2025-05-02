@@ -125,29 +125,29 @@ export default function DetailSales() {
           <div className="metric-card green-met">
             <h3 style={{ fontSize: "16px" }}>CST</h3>
             <div className="metricschanges">
-              <div>
+              <div style={{marginTop:"10px"}}>
                 <b>{callSummary?.total_calls ?? 0}</b>
                 <p>Total Calls</p>
               </div>
-              <div>
+              <div style={{marginTop:"10px"}}>
                 <b>{callSummary?.exclude_opening_rejected ?? 0}</b>
                 <p>OPS</p>
               </div>
-              <div>
+              <div style={{marginTop:"10px"}}>
                 <b>{callSummary?.exclude_context_opening_rejected ?? 0}</b>
                 <p>cps</p>
               </div>
-              <div>
+              <div style={{marginTop:"10px"}}>
                 <b>
                   {callSummary?.exclude_context_opening_offering_rejected ?? 0}
                 </b>
                 <p>Offer Success</p>
               </div>
-              <div>
+              <div style={{marginTop:"10px"}}>
                 <b>{callSummary?.sale_done_count ?? 0}</b>
                 <p>Sale Done</p>
               </div>
-              <div>
+              <div style={{marginTop:"10px"}}>
                 <b>{callSummary?.sale_success_rate ?? 0}%</b>
                 <p>Success Rate</p>
               </div>
@@ -158,23 +158,23 @@ export default function DetailSales() {
           <div className="metric-card blue-met">
             <h3 style={{ fontSize: "16px" }}>CRT</h3>
             <div className="metricschanges">
-              <div>
+              <div style={{marginTop:"10px"}}>
                 <b>{callSummary?.include_opening_rejected ?? 0}</b>
                 <p>OR</p>
               </div>
-              <div>
+              <div style={{marginTop:"10px"}}>
                 <b>{callSummary?.include_context_rejected ?? 0}</b>
                 <p>CR</p>
               </div>
-              <div>
+              <div style={{marginTop:"10px"}}>
                 <b>{callSummary?.offering_rejected_count ?? 0}</b>
                 <p>OPR</p>
               </div>
-              <div>
+              <div style={{marginTop:"10px"}}>
                 <b>{callSummary?.post_offer_rejected_count ?? 0}</b>
                 <p>POR</p>
               </div>
-              <div>
+              <div style={{marginTop:"10px"}}>
                 <b>{callSummary?.failure_rate ?? 0}%</b>
                 <p>Failure Rate</p>
               </div>
@@ -399,19 +399,35 @@ export default function DetailSales() {
         <div className="sales-section">
           <h2 className="sales-title">Customer Objection Analysis</h2>
           <h3 className="sales-subtitle">POS Breakdown</h3>
-          <table className="sales-table">
+          <table className="sales-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr>
-                <th>Main Objection Field</th>
-                <th>Agent Rebuttal</th>
-                <th>Objection Count</th>
-                <th>Failed Rebuttal %</th>
-                <th>Failed Rebuttal</th>
-                <th>Successful Rebuttal %</th>
-                <th>Successful Rebuttal</th>
-                <th>Conversion %</th>
-              </tr>
-            </thead>
+      <tr>
+        <th style={{ position: 'sticky', top: 0, zIndex: 1 }}>
+          Main Objection
+        </th>
+        <th style={{ position: 'sticky', top: 0, zIndex: 1 }}>
+          Total Count
+        </th>
+        <th style={{ position: 'sticky', top: 0, zIndex: 1 }}>
+          Failed Rebuttal %
+        </th>
+        <th style={{ position: 'sticky', top: 0, zIndex: 1 }}>
+          Failed Rebuttal
+        </th>
+        <th style={{ position: 'sticky', top: 0, zIndex: 1 }}>
+          Successful Rebuttal %
+        </th>
+        <th style={{ position: 'sticky', top: 0, zIndex: 1 }}>
+          Successful Rebuttal
+        </th>
+        <th style={{ position: 'sticky', top: 0, zIndex: 1 }}>
+          Conversion %
+        </th>
+        <th style={{ position: 'sticky', top: 0, zIndex: 1 }}>
+          data %
+        </th>
+      </tr>
+    </thead>
             <tbody>
               <tr>
                 <td>Not Interested in Perfumes</td>
@@ -423,6 +439,58 @@ export default function DetailSales() {
                 <td>15</td>
                 <td className="green-cell">4%</td>
               </tr>
+
+              <tr>
+              <td>Price Too High</td>
+              <td>Offer Discounts</td>
+              <td className="greenclr">420</td>
+              <td className="red-cell">89%</td>
+              <td>400</td>
+              <td className="green-cell">6%</td>
+              <td>20</td>
+              <td className="green-cell">5%</td>
+            </tr>
+            <tr>
+              <td>Product Not Long-Lasting</td>
+              <td>Improve Product Quality</td>
+              <td className="greenclr">350</td>
+              <td className="red-cell">82%</td>
+              <td>320</td>
+              <td className="green-cell">10%</td>
+              <td>30</td>
+              <td className="green-cell">8%</td>
+            </tr>
+            <tr>
+              <td>Customer Service Delay</td>
+              <td>Faster Support Response</td>
+              <td className="greenclr">275</td>
+              <td className="red-cell">91%</td>
+              <td>250</td>
+              <td className="green-cell">6%</td>
+              <td>25</td>
+              <td className="green-cell">3%</td>
+            </tr>
+            <tr>
+              <td>Delivery Takes Too Long</td>
+              <td>Speed Up Logistics</td>
+              <td className="greenclr">310</td>
+              <td className="red-cell">85%</td>
+              <td>280</td>
+              <td className="green-cell">10%</td>
+              <td>30</td>
+              <td className="green-cell">5%</td>
+            </tr>
+            <tr>
+              <td>Packaging Not Attractive</td>
+              <td>Enhance Product Design</td>
+              <td className="greenclr">198</td>
+              <td className="red-cell">78%</td>
+              <td>180</td>
+              <td className="green-cell">12%</td>
+              <td>18</td>
+              <td className="green-cell">10%</td>
+            </tr>
+
             </tbody>
           </table>
         </div>
@@ -452,6 +520,53 @@ export default function DetailSales() {
                 <td>72</td>
                 <td className="green-cell">6%</td>
               </tr>
+
+              <tr>
+              <td>Prefers Natural Scents</td>
+              <td className="greenclr">980</td>
+              <td className="red-cell">91%</td>
+              <td>892</td>
+              <td className="green-cell">9%</td>
+              <td>88</td>
+              <td className="green-cell">9%</td>
+            </tr>
+            <tr>
+              <td>Allergic to Strong Fragrances</td>
+              <td className="greenclr">765</td>
+              <td className="red-cell">87%</td>
+              <td>665</td>
+              <td className="green-cell">13%</td>
+              <td>100</td>
+              <td className="green-cell">13%</td>
+            </tr>
+            <tr>
+              <td>Uses Only Specific Brands</td>
+              <td className="greenclr">1,050</td>
+              <td className="red-cell">92%</td>
+              <td>966</td>
+              <td className="green-cell">8%</td>
+              <td>84</td>
+              <td className="green-cell">8%</td>
+            </tr>
+            <tr>
+              <td>Dislikes Online Shopping</td>
+              <td className="greenclr">640</td>
+              <td className="red-cell">88%</td>
+              <td>563</td>
+              <td className="green-cell">12%</td>
+              <td>77</td>
+              <td className="green-cell">12%</td>
+            </tr>
+            <tr>
+              <td>Worried About Authenticity</td>
+              <td className="greenclr">710</td>
+              <td className="red-cell">90%</td>
+              <td>639</td>
+              <td className="green-cell">10%</td>
+              <td>71</td>
+              <td className="green-cell">10%</td>
+            </tr>
+
             </tbody>
           </table>
         </div>
@@ -481,6 +596,53 @@ export default function DetailSales() {
                 <td>151</td>
                 <td className="green-cell">9%</td>
               </tr>
+
+              <tr>
+              <td>Wrong Timing</td>
+              <td className="greenclr">1,215</td>
+              <td className="red-cell">89%</td>
+              <td>1,082</td>
+              <td className="green-cell">11%</td>
+              <td>133</td>
+              <td className="green-cell">11%</td>
+            </tr>
+            <tr>
+              <td>Repeated Call</td>
+              <td className="greenclr">980</td>
+              <td className="red-cell">92%</td>
+              <td>902</td>
+              <td className="green-cell">8%</td>
+              <td>78</td>
+              <td className="green-cell">8%</td>
+            </tr>
+            <tr>
+              <td>Language Barrier</td>
+              <td className="greenclr">870</td>
+              <td className="red-cell">88%</td>
+              <td>766</td>
+              <td className="green-cell">12%</td>
+              <td>104</td>
+              <td className="green-cell">12%</td>
+            </tr>
+            <tr>
+              <td>Didn't Understand Offer</td>
+              <td className="greenclr">1,050</td>
+              <td className="red-cell">90%</td>
+              <td>945</td>
+              <td className="green-cell">10%</td>
+              <td>105</td>
+              <td className="green-cell">10%</td>
+            </tr>
+            <tr>
+              <td>Pitch Too Long</td>
+              <td className="greenclr">1,320</td>
+              <td className="red-cell">87%</td>
+              <td>1,148</td>
+              <td className="green-cell">13%</td>
+              <td>172</td>
+              <td className="green-cell">13%</td>
+            </tr>
+
             </tbody>
           </table>
         </div>

@@ -582,7 +582,7 @@ const Fatal = () => {
                   <XAxis dataKey="date" />
                   <YAxis />
                   <Tooltip />
-                  <Bar dataKey="fatal" fill="#0088FE" />
+                  <Bar dataKey="fatal" fill="#798e43" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -591,7 +591,7 @@ const Fatal = () => {
           <div className="rightbody">
             {/*  right code */}
             <div className="right-card">
-              <h5 className="text-center">Scenario Wise Fatal Count</h5>
+              <h5 className="text-center"style={{ marginBottom: '8px' }}>Scenario Wise Fatal Count</h5>
 
               <div className="stats">
                 <div className="stat-box">
@@ -754,7 +754,7 @@ const Fatal = () => {
                 <tr key={index}>
                   <td>{row.agent}</td>
                   <td>{row.auditCount}</td>
-                  <td style={{ backgroundColor: row.cqScore < 70 ? "#ef2d2d" : "#d4ac2e" }}>
+                  <td style={{ backgroundColor: row.cqScore < 70 ? "#d2b4de" : "#d4ac2e" }}>
                     {row.cqScore}
                   </td>
                   <td>{row.fatalCount}</td>

@@ -682,13 +682,17 @@ const DetailAnalysis = () => {
             <div className="stats-flex">
               {stats?.cq_score !== undefined ? (
                 <>
-                  <div className="stat-card">CQ Score {stats.cq_score}%</div>
-                  <div className="stat-card">Audit Count {stats.audit_cnt}</div>
+                  <div className="stat-card">CQ Score
+                  <p>{stats.cq_score}%</p></div>
+                  <div className="stat-card">Audit Count
+                  <p>{stats.audit_cnt}</p></div>
                   <div className="stat-card">
-                    Fatal Count {stats.fatal_count}
+                    Fatal Count
+                    <p>{stats.fatal_count}</p>
                   </div>
                   <div className="stat-card">
-                    Fatal {stats.fatal_percentage}%
+                    Fatal
+                    <p>{stats.fatal_percentage}%</p>
                   </div>
                 </>
               ) : (
@@ -857,12 +861,16 @@ const DetailAnalysis = () => {
             <div className="stats-flex-right">
               {stats?.query !== undefined ? (
                 <>
-                  <div className="stat-card">Query Count {stats.query}</div>
+                  <div className="stat-card">Query Count
+                  <p>{stats.query}</p></div>
                   <div className="stat-card">
-                    Complaint Count {stats.Complaint}
+                    Complaint Count
+                    <p>{stats.Complaint}</p>
                   </div>
-                  <div className="stat-card">Request Count {stats.Request}</div>
-                  <div className="stat-card">Sale Done Count {stats.sale}</div>
+                  <div className="stat-card">Request Count
+                  <p>{stats.Request}</p></div>
+                  <div className="stat-card">Sale Done Count
+                  <p>{stats.sale}</p></div>
                 </>
               ) : (
                 <p>Loading...</p>
@@ -938,7 +946,7 @@ const DetailAnalysis = () => {
 
         <div className="cq-container">
           <h4 style={{fontSize:"16px"}}>Agent & Parameter Wise CQ Score%</h4>
-          <div className="filters">
+          <div className="filters" style={{display:"none"}}>
             <DatePicker
               selected={startDate}
               onChange={(update) => setDateRange(update)}
@@ -990,7 +998,7 @@ const DetailAnalysis = () => {
         {/* 3rd page */}
         <div className="daywise-container">
           <h4 style={{fontSize:"16px"}}>Day Wise Quality Performance</h4>
-          <div className="filters">
+          <div className="filters" style={{display:"none"}}>
             <DatePicker
               selected={startDate}
               onChange={(update) => setDateRange(update)}
@@ -1063,7 +1071,7 @@ const DetailAnalysis = () => {
         {/* 4th page */}
         <div className="weekwise-container">
           <h4 style={{fontSize:"16px"}}>Week Wise Quality Performance</h4>
-          <div className="filters">
+          <div className="filters" style={{display:"none"}}>
             <DatePicker
               selected={startDate}
               onChange={(update) => setDateRange(update)}

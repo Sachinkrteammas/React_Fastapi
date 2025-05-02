@@ -202,7 +202,7 @@ const Potential = () => {
                   {escalations.map((item, index) => (
                     <div key={index} className="escalations-items">
                       <p>
-                        <p><strong>Call Date:</strong> {item.CallDate ? item.CallDate.split("T")[0] : "N/A"}</p>
+                        <p><strong style={{ fontSize: "14px" }}>Call Date:</strong> {item.CallDate ? item.CallDate.split("T")[0] : "N/A"}</p>
                       </p>
                       <p>
                         <strong>Lead ID:</strong> {item.lead_id || "N/A"}

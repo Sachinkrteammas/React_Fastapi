@@ -35,7 +35,7 @@ const Analysis = () => {
   };
 
   const pieData1 = [
-    { name: "Top Negative Signals", value: 2, color: "#d32f2f" },
+    { name: "Top Negative Signals", value: 2, color: "#b765bd" },
   ];
 
   // const topNegativeSignals = [
@@ -294,12 +294,12 @@ const Analysis = () => {
           value: auditData.excellent || 0,
           color: "#4CAF50",
         },
-        { name: "Good", value: auditData.good || 0, color: "#8BC34A" },
-        { name: "Average", value: auditData.avg_call || 0, color: "#990000" },
+        { name: "Good", value: auditData.good || 0, color: "#2d9179" },
+        { name: "Average", value: auditData.avg_call || 0, color: "#b765bd" },
         {
           name: "Below Average",
           value: auditData.b_avg || 0,
-          color: "#F44336",
+          color: "#798e43",
         },
       ]);
 
@@ -395,9 +395,9 @@ const Analysis = () => {
         // Update pie chart data dynamically
         setPieData([
           { name: "Excellent", value: data.excellent, color: "#4CAF50" },
-          { name: "Good", value: data.good, color: "#8BC34A" },
-          { name: "Average", value: data.avg_call, color: "#990000" },
-          { name: "Below Average", value: data.b_avg, color: "#F44336" },
+          { name: "Good", value: data.good, color: "#2d9179" },
+          { name: "Average", value: data.avg_call, color: "#b765bd" },
+          { name: "Below Average", value: data.b_avg, color: "#798e43" },
         ]);
       } catch (error) {
         console.error("Error fetching audit data:", error);
@@ -767,7 +767,7 @@ const Analysis = () => {
                             backgroundColor:
                               parseFloat(item["Fatal%"]) > 50.0
                                 ? "#ef2d2d"
-                                : "#d4ac2e",
+                                : "#d2b4de",
                           }}
                         >
                           {item["Fatal%"]}
@@ -813,7 +813,8 @@ const Analysis = () => {
           </div>
 
           <div className="callwise">
-            <h5>Call Wise</h5>
+            <h5 style={{ fontSize: '1.08rem' }}
+            >Call Wise</h5>
             <PieChart width={400} height={300}>
               <Pie
                 data={pieData}
@@ -856,7 +857,7 @@ const Analysis = () => {
                       <td>{performer.audit_count}</td>
                       <td>{performer.cq_percentage}%</td>
                       <td>{performer.fatal_count}</td>
-                      <td style={{ backgroundColor: "#d4ac2e" }}>
+                      <td style={{ backgroundColor: "#d2b4de" }}>
                         {performer.fatal_percentage}%
                       </td>
                     </tr>
@@ -884,11 +885,11 @@ const Analysis = () => {
                   <Legend />
 
                   {/* FIX: Corrected "score" and "target" */}
-                  <Bar dataKey="score" fill="#0080ff" barSize={30} />
+                  <Bar dataKey="score" fill="#798e43" barSize={30} />
                   <Line
                     type="monotone"
                     dataKey="target"
-                    stroke="red"
+                    stroke="#b765bd"
                     strokeWidth={2}
                     dot={false}
                   />

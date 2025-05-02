@@ -17,6 +17,8 @@ import {
   Search,
   DollarSign,
   EyeOff,
+  Phone,
+  Boxes,
 } from "lucide-react";
 
 const iconMap = {
@@ -31,6 +33,9 @@ const iconMap = {
   Search,
   DollarSign,
   EyeOff,
+  Phone,
+  Calling: Phone,
+  Boxes,
 };
 
 const Layout = ({ onLogout, children }) => {
@@ -39,7 +44,7 @@ const Layout = ({ onLogout, children }) => {
   const [username, setUsername] = useState("");
   const [menuItems, setMenuItems] = useState([]);
   const [openMenus, setOpenMenus] = useState(
-    JSON.parse(localStorage.getItem("openMenus")) || { Service: false, Sales: false }
+    JSON.parse(localStorage.getItem("openMenus")) || { Service: false, Sales: false,Collection:false }
   );
   const [loading, setLoading] = useState(true);
 
@@ -58,11 +63,12 @@ const Layout = ({ onLogout, children }) => {
 
         const formattedMenu = data
           .filter((item) =>
-            ["Home", "Recordings", "Transcription", "Prompt", "Settings", "API Key", "User Access", "Service", "Sales"].includes(item.name)
+            ["Home", "Recordings", "Transcription", "Prompt", "Settings", "API Key", "User Access","Calling","Collection", "Service", "Sales"].includes(item.name)
           )
           .map((item) => ({
             ...item,
             Icon: iconMap[item.icon] || null,
+            url: item.url?.trim(),
             submenu: item.submenu || [],
           }));
 
@@ -134,7 +140,7 @@ const Layout = ({ onLogout, children }) => {
             menuItems.map(({ url, name, Icon, submenu }) => (
               <div key={name}>
                 <button
-                  className="nav-button"
+                  className={`nav-button ${location.pathname === url ? "active" : ""}`}
                   title={submenu.length ? `Expand ${name} menu` : `Go to ${name}`}
                   onClick={() => (submenu.length ? toggleMenu(name) : handleNavigation(url))}
                 >

@@ -195,29 +195,29 @@ export default function SalesDashboard() {
               <h3 style={{ fontSize: "16px" }}>
                 CST</h3>
               <div className="metrics">
-                <div>
+                <div style={{marginTop:"10px"}}>
                   <b>{callSummary?.total_calls ?? 0}</b>
                   <p>Total Calls</p>
                 </div>
-                <div>
+                <div style={{marginTop:"10px"}}>
                   <b>{callSummary?.exclude_opening_rejected ?? 0}</b>
                   <p>OPS</p>
                 </div>
-                <div>
+                <div style={{marginTop:"10px"}}>
                   <b>{callSummary?.exclude_context_opening_rejected ?? 0}</b>
                   <p>cps</p>
                 </div>
-                <div>
+                <div style={{marginTop:"10px"}}>
                   <b>
                     {callSummary?.exclude_context_opening_offering_rejected ?? 0}
                   </b>
                   <p>Offer Success</p>
                 </div>
-                <div>
+                <div style={{marginTop:"10px"}}>
                   <b>{callSummary?.sale_done_count ?? 0}</b>
                   <p>Sale Done</p>
                 </div>
-                <div>
+                <div style={{marginTop:"10px"}}>
                   <b>{callSummary?.sale_success_rate ?? 0}%</b>
                   <p>Success Rate</p>
                 </div>
@@ -228,23 +228,23 @@ export default function SalesDashboard() {
             <div className="metric-card blue-met">
               <h3 style={{ fontSize: "16px" }}>CRT</h3>
               <div className="metrics">
-                <div>
+                <div style={{marginTop:"10px"}}>
                   <b>{callSummary?.include_opening_rejected ?? 0}</b>
                   <p>OR</p>
                 </div>
-                <div>
+                <div style={{marginTop:"10px"}}>
                   <b>{callSummary?.include_context_rejected ?? 0}</b>
                   <p>CR</p>
                 </div>
-                <div>
+                <div style={{marginTop:"10px"}}>
                   <b>{callSummary?.offering_rejected_count ?? 0}</b>
                   <p>OPR</p>
                 </div>
-                <div>
+                <div style={{marginTop:"10px"}}>
                   <b>{callSummary?.post_offer_rejected_count ?? 0}</b>
                   <p>POR</p>
                 </div>
-                <div>
+                <div style={{marginTop:"10px"}}>
                   <b>{callSummary?.failure_rate ?? 0}%</b>
                   <p>Failure Rate</p>
                 </div>

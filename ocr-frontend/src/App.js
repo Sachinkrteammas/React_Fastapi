@@ -29,8 +29,13 @@ import Estimated from "./components/Estimated";
 import DetailSales from "./components/DetailSales";
 import RawSales from "./components/RawSales";
 import UserDashboardSelection from "./components/UserDashboardSelection";
+import Calling from "./components/Calling";
+
 import UploadHelp from './pages/UploadHelp';
 import ApiHelp from './pages/ApiHelp';
+import PTPAnalysis from './components/PTPAnalysis'
+import Insight from './components/Insight'
+
 
 
 import "./Pages.css";
@@ -119,6 +124,11 @@ const App = () => {
         <Route path="/DetailSales" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<DetailSales onLogout={handleLogout}/>} />} />
         <Route path="/RawSales" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<RawSales onLogout={handleLogout}/>} />} />
         <Route path="/UserDashboardSelection" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<UserDashboardSelection onLogout={handleLogout}/>} />} />
+        <Route path="/Calling" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Calling onLogout={handleLogout}/>} />} />
+
+        <Route path="/PTPAnalysis" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<PTPAnalysis onLogout={handleLogout}/>} />} />
+        <Route path="/Insight" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Insight onLogout={handleLogout}/>} />} />
+        
         <Route path="/upload-help" element={<UploadHelp />} />
         <Route path="/api-help" element={<ApiHelp />} />
         
