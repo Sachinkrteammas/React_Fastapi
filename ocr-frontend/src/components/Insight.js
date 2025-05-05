@@ -69,8 +69,8 @@ const Insight = () => {
         </h4>
 
         {/* Filters */}
-        <div style={{ display: "flex", gap: "12px", marginBottom: "20px", alignItems: "center" }}>
-          <div style={{ display: "flex", gap: "8px" }}>
+        <div style={{ display: "flex", gap: "35px", marginBottom: "20px", alignItems: "center" }}>
+          <div style={{ display: "flex", gap: "30px" }}>
             <input
               type="date"
               value={startDate}
@@ -262,7 +262,7 @@ const PieChart = ({ data }) => {
   gradient = gradient.slice(0, -2);
 
   return (
-    <div style={{ position: "relative", width: "96px", height: "96px", margin: "0 auto" }}>
+    <div style={{ position: "relative", width: "160px", height: "150px", margin: "0 auto" }}>
       <div
         style={{
           position: "absolute",
