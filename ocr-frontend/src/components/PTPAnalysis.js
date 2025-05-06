@@ -37,9 +37,17 @@ const PTPAnalysis = () => {
   });
 
   const sectionStyle = {
+    backgroundColor: "rgb(31, 41, 55)",
+    padding: "16px",
+    borderRadius: "8px",
+    color: "white",
+  };
+
+  const sectionStylenew = {
     backgroundColor: "#f9fafb",
     padding: "16px",
     borderRadius: "8px",
+    color: "black",
   };
 
   const tableStyle = {
@@ -51,17 +59,18 @@ const PTPAnalysis = () => {
 
   const thTdStyle = {
     borderBottom: "1px solid #374151",
-    padding: "8px",
+    padding: "5px",
     textAlign: "left",
   };
 
-  // Data for the charts
   const barData = [
     { confidence: "0-25", count: 100 },
     { confidence: "26-50", count: 200 },
     { confidence: "51-75", count: 300 },
     { confidence: "76-100", count: 150 },
   ];
+
+  const barColors = ["#f87171", "#fbbf24", "#34d399", "#60a5fa"];
 
   const pieData = [
     { name: "Positive", value: 10 },
@@ -142,13 +151,12 @@ const PTPAnalysis = () => {
             />
           </div>
 
-          <select style={sectionStyle}>
+          <select style={sectionStylenew}>
             <option>Agent</option>
           </select>
-          <select style={sectionStyle}>
+          <select style={sectionStylenew}>
             <option>Region</option>
           </select>
-          
 
           <button
             style={{
@@ -231,7 +239,14 @@ const PTPAnalysis = () => {
                 <XAxis dataKey="confidence" />
                 <YAxis />
                 <Tooltip />
-                <Bar dataKey="count" fill="#60a5fa" />
+                <Bar dataKey="count">
+                  {barData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={barColors[index % barColors.length]}
+                    />
+                  ))}
+                </Bar>
               </BarChart>
             </div>
           </div>
@@ -259,6 +274,7 @@ const PTPAnalysis = () => {
                   fill="#8884d8"
                   dataKey="value"
                   label
+                  // label={({ name, percent }) => `${name} - ${(percent * 100).toFixed(0)}%`}
                 >
                   {pieData.map((entry, index) => (
                     <Cell
