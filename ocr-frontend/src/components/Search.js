@@ -8,6 +8,7 @@ const Search = () => {
   const [data, setData] = useState(null); // Store API response
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const client_id = localStorage.getItem("client_id");
 
   // Fetch call quality details from API
   const fetchCallQualityDetails = async () => {
@@ -20,8 +21,9 @@ const Search = () => {
     setError(null);
 
     try {
+
       const response = await fetch(
-        `${BASE_URL}/call_quality_details/?client_id=375&lead_id=${leadId}`
+        `${BASE_URL}/call_quality_details/?client_id=${client_id}&lead_id=${leadId}`
       );
       if (!response.ok) throw new Error("Failed to fetch call quality details");
 

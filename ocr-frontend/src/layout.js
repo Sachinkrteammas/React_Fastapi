@@ -53,35 +53,93 @@ const Layout = ({ onLogout, children }) => {
     setUsername(storedName ? storedName.split(" ")[0] : "");
   }, []);
 
-  useEffect(() => {
-    const fetchMenu = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(`${BASE_URL}/menu`);
-        if (!response.ok) throw new Error("Failed to fetch menu");
-        const data = await response.json();
+//  useEffect(() => {
+//    const fetchMenu = async () => {
+//      try {
+//        setLoading(true);
+//        const response = await fetch(`${BASE_URL}/menu`);
+//        if (!response.ok) throw new Error("Failed to fetch menu");
+//        const data = await response.json();
+//
+//        const filteredMenu = data.filter(item => {
+//        if ([22, 37].includes(userId)) {
+//          return ["Home", "Service", "Logout"].includes(item.name);
+//        }
+//        return true; // all items for other users
+//      });
+//
+//        const formattedMenu = data
+//          .filter((item) =>
+//            ["Home", "Recordings", "Transcription", "Prompt", "Settings", "API Key", "User Access","Calling","Collection", "Service", "Sales"].includes(item.name)
+//          )
+//          .map((item) => ({
+//            ...item,
+//            Icon: iconMap[item.icon] || null,
+//            url: item.url?.trim(),
+//            submenu: item.submenu || [],
+//          }));
+//
+//        setMenuItems(formattedMenu);
+//      } catch (error) {
+//        console.error("Failed to fetch menu:", error);
+//      } finally {
+//        setLoading(false);
+//      }
+//    };
+//
+//    fetchMenu();
+//  }, []);
 
-        const formattedMenu = data
-          .filter((item) =>
-            ["Home", "Recordings", "Transcription", "Prompt", "Settings", "API Key", "User Access","Calling","Collection", "Service", "Sales"].includes(item.name)
-          )
-          .map((item) => ({
-            ...item,
-            Icon: iconMap[item.icon] || null,
-            url: item.url?.trim(),
-            submenu: item.submenu || [],
-          }));
+useEffect(() => {
+  const fetchMenu = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${BASE_URL}/menu`);
+      if (!response.ok) throw new Error("Failed to fetch menu");
 
-        setMenuItems(formattedMenu);
-      } catch (error) {
-        console.error("Failed to fetch menu:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      const data = await response.json();
 
-    fetchMenu();
-  }, []);
+
+        const userId = Number(localStorage.getItem("id"));
+
+        const allowedNames = userId === 37
+          ? ["Home", "Service", "Logout"]
+          : [
+              "Home",
+              "Recordings",
+              "Transcription",
+              "Prompt",
+              "Settings",
+              "API Key",
+              "User Access",
+              "Calling",
+              "Collection",
+              "Service",
+              "Sales"
+            ];
+
+
+
+      const formattedMenu = data
+        .filter(item => allowedNames.includes(item.name))
+        .map(item => ({
+          ...item,
+          Icon: iconMap[item.icon] || null,
+          url: item.url?.trim(),
+          submenu: item.submenu || [],
+        }));
+
+      setMenuItems(formattedMenu);
+    } catch (error) {
+      console.error("Failed to fetch menu:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchMenu();
+}, []);
+
 
   useEffect(() => {
     localStorage.setItem("openMenus", JSON.stringify(openMenus));

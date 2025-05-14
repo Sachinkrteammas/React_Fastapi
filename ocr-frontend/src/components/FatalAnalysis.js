@@ -25,6 +25,7 @@ const Fatal = () => {
   const [dayWiseData, setDayWiseData] = useState([]);
 
   const [auditData, setAuditData] = useState([]);
+  const client_id = localStorage.getItem("client_id");
 
   const totals = auditData.reduce(
     (acc, row) => ({
@@ -219,6 +220,7 @@ const Fatal = () => {
 
   const fetchData = async () => {
     try {
+
       setLoading1(true);
       setError(null);
 
@@ -229,17 +231,18 @@ const Fatal = () => {
         auditSummaryResponse,
         fatalCountResponse, // ✅ Added missing API response
       ] = await Promise.all([
+
         fetch(
-          `${BASE_URL}/top_agents_fatal_summary?client_id=375&start_date=${startDate}&end_date=${endDate}&limit=5`
+          `${BASE_URL}/top_agents_fatal_summary?client_id=${client_id}&start_date=${startDate}&end_date=${endDate}&limit=5`
         ),
         fetch(
-          `${BASE_URL}/daywise_fatal_summary?client_id=375&start_date=${startDate}&end_date=${endDate}`
+          `${BASE_URL}/daywise_fatal_summary?client_id=${client_id}&start_date=${startDate}&end_date=${endDate}`
         ),
         fetch(
-          `${BASE_URL}/agent_audit_summary?client_id=375&start_date=${startDate}&end_date=${endDate}`
+          `${BASE_URL}/agent_audit_summary?client_id=${client_id}&start_date=${startDate}&end_date=${endDate}`
         ),
         fetch(
-          `${BASE_URL}/fatal_count?client_id=375&start_date=${startDate}&end_date=${endDate}`
+          `${BASE_URL}/fatal_count?client_id=${client_id}&start_date=${startDate}&end_date=${endDate}`
         ),
       ]);
 
