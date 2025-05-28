@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import Layout from "../layout";
 import "../layout.css";
+import { BASE_URL } from "./config";
+const contact_number = localStorage.getItem("contact_number");
+
+
+
 
 const sections = [
   { name: "Sales", icon: "📈", color: "#3b82f6" },
@@ -16,14 +21,39 @@ const Calling = () => {
     Collection: "",
   });
 
-  const handleCall = () => {
-    alert(
-      `📞 Calling ${
-        phoneNumbers[selectedSection] || "unknown"
-      } (${selectedSection})`
-    );
-    setSelectedSection(null);
-  };
+
+
+const handleCall = () => {
+  const contact_number = localStorage.getItem("contact_number");
+  const param1 = phoneNumbers[selectedSection];
+  const param3 = selectedSection;
+
+  if (!param1 || !contact_number || !param3) {
+    alert("Missing required information.");
+    return;
+  }
+
+  const url = `${BASE_URL}/click2dial?param1=${encodeURIComponent(
+    param1
+  )}&param2=${encodeURIComponent(contact_number)}&param3=${encodeURIComponent(
+    param3
+  )}`;
+
+  fetch(url)
+    .then((response) => {
+      if (!response.ok) throw new Error("API call failed");
+      return response.json();
+    })
+    .then((data) => {
+      console.log("API call success:", data);
+    })
+    .catch((error) => {
+      console.error("API call error:", error);
+    });
+
+  setSelectedSection(null);
+};
+
 
   const handleInputChange = (e) => {
     const value = e.target.value;
