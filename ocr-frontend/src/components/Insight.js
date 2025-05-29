@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import Layout from "../layout";
 import {
   LineChart,
@@ -9,6 +9,14 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import axios from "axios";
+
+const barrierColors = {
+  low: "#3b82f6",     // blue
+  medium: "#f97316",  // orange
+  high: "#ef4444"     // red
+};
+
 
 const cardStyle = {
   backgroundColor: "#1f2937",
@@ -44,19 +52,31 @@ const Insight = () => {
     new Date().toISOString().split("T")[0]
   );
 
-  const data1 = [
-    { name: "Call 1", Calm: 40, Angry: 20 },
-    { name: "Call 2", Calm: 50, Angry: 30 },
-    { name: "Call 3", Calm: 45, Angry: 35 },
-    { name: "Call 4", Calm: 60, Angry: 25 },
-    { name: "Call 5", Calm: 55, Angry: 40 },
-  ];
+  const [ptpData, setPtpData] = useState([]);
+  const [intentData, setIntentData] = useState([]);
+  const [rootCauseData, setRootCauseData] = useState([]);
+  const [data, setData] = useState([]);
+  const [alertData, setAlertData] = useState([]);
+  const [disputeData, setDisputeData] = useState([]);
+  const [reasons, setReasons] = useState([]);
+  const [behaviorData, setBehaviorData] = useState([]);
+  const [chartData, setChartData] = useState([]);
+  const [funnelData, setFunnelData] = useState([]);
 
-  const ptpData = [
-    { label: "Positive", value: 20, color: "#3b82f6", emoji: "🔵" },
-    { label: "Negative", value: 15, color: "#c39b12", emoji: "🟡" },
-    { label: "Critical", value: 10, color: "#e74c3c", emoji: "🔴" },
-  ];
+  const [loading1, setLoading1] = useState(false);
+
+
+
+
+//  const data1 = [
+//    { name: "Call 1", Calm: 40, Angry: 20 },
+//    { name: "Call 2", Calm: 50, Angry: 30 },
+//    { name: "Call 3", Calm: 45, Angry: 35 },
+//    { name: "Call 4", Calm: 60, Angry: 25 },
+//    { name: "Call 5", Calm: 55, Angry: 40 },
+//  ];
+
+
 
   const ptpDataDispute = [
     { label: "Positive", value: 10, color: "#3b82f6" },
@@ -65,8 +85,292 @@ const Insight = () => {
     { label: "yellow", value: 10, color: "#c39b12" },
   ];
 
+const fetchPtpData = async () => {
+setLoading1(true);
+  // 🔹 Fetch PTP Sentiment Distribution
+  try {
+    const sentimentResponse = await axios.post("http://127.0.0.1:8096/dashboard3/ptp-sentiment-distribution", {
+      start_date: startDate,
+      end_date: endDate,
+      agent_name: null,
+      team: null,
+      region: null,
+      campaign: null,
+      min_confidence_score: 0,
+      disposition: null,
+    });
+
+    const sentimentMap = {
+      positive: { color: "#3b82f6", emoji: "🔵" },
+      negative: { color: "#c39b12", emoji: "🟡" },
+      critical: { color: "#e74c3c", emoji: "🔴" },
+    };
+
+    const formattedPtpData = sentimentResponse.data.map((item) => {
+      const key = item.sentiment.toLowerCase();
+      return {
+        label: item.sentiment,
+        value: item.count,
+        color: sentimentMap[key]?.color || "#888",
+        emoji: sentimentMap[key]?.emoji || "⚪",
+      };
+    });
+
+    setPtpData(formattedPtpData);
+  } catch (error) {
+    console.error("Error fetching PTP sentiment data:", error);
+    setPtpData([]);
+  }
+
+  // 🔹 Fetch PTP Intent Classification
+  try {
+    const intentResponse = await axios.post("http://127.0.0.1:8096/dashboard3/ptp-intent-classification", {
+      start_date: startDate,
+      end_date: endDate,
+      agent_name: null,
+      team: null,
+      region: null,
+      campaign: null,
+      min_confidence_score: null,
+      disposition: null,
+    });
+
+    setIntentData(intentResponse.data);
+  } catch (error) {
+    console.error("Error fetching intent classification:", error);
+    setIntentData([]);
+  }
+
+  // 🔹 Fetch PTP Root Cause Detection
+  try {
+    const rootCauseResponse = await axios.post("http://127.0.0.1:8096/dashboard3/ptp-root-cause-detection", {
+      start_date: startDate,
+      end_date: endDate,
+      agent_name: null,
+      team: null,
+      region: null,
+      campaign: null,
+      min_confidence_score: 0,
+      disposition: null,
+    });
+
+    setRootCauseData(rootCauseResponse.data);
+  } catch (error) {
+    console.error("Error fetching root cause data:", error);
+    setRootCauseData([]);
+  }
+
+  // 🔹 Fetch Agent Forced PTP by Weekday
+  try {
+    const response = await axios.post(
+      "http://127.0.0.1:8096/dashboard3/ptp-agent-forced-by-weekday",
+      {
+        start_date: startDate,
+        end_date: endDate,
+        agent_name: "string",
+        team: "string",
+        region: "string",
+        campaign: "string",
+        min_confidence_score: 0,
+        disposition: "string",
+      }
+    );
+
+    // Map API days to short day names in correct order
+    const dayOrder = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    const dayMap = {
+      Sunday: "Sun",
+      Monday: "Mon",
+      Tuesday: "Tue",
+      Wednesday: "Wed",
+      Thursday: "Thu",
+      Friday: "Fri",
+      Saturday: "Sat",
+    };
+
+    const formattedData = dayOrder.map((shortDay) => {
+      // Find the API day name that corresponds to this short day
+      const apiDay = Object.keys(dayMap).find((key) => dayMap[key] === shortDay);
+      const dayData = response.data.find((d) => d.day === apiDay);
+
+      return {
+        name: shortDay,
+        value: dayData ? dayData.forced_ptps : 0,
+      };
+    });
+
+    setData(formattedData);
+  } catch (error) {
+    console.error("Error fetching agent forced PTP data:", error);
+    setData([]);
+  }
+
+
+  try {
+      const response = await axios.post("http://127.0.0.1:8096/dashboard3/escalation-risk-alerts", {
+        start_date: startDate,
+        end_date: endDate,
+        agent_name: "string",
+        team: "string",
+        region: "string",
+        campaign: "string",
+        min_confidence_score: 0,
+        disposition: "string",
+      });
+
+      const colorMap = {
+        "I'll complain": "#11d6ed",
+        "going to consumer court": "#facc15",
+        "I tweet this": "#c39b12",
+      };
+
+      const formatted = response.data.map((item) => ({
+        label: item.phrase,
+        value: item.percentage,
+        color: colorMap[item.phrase] || "#9ca3af",
+      }));
+
+      setAlertData(formatted);
+    } catch (error) {
+      console.error("Error fetching escalation alerts:", error);
+      setAlertData([]);
+    }
+
+
+  try {
+    const response = await axios.post("http://127.0.0.1:8096/dashboard3/dispute-management", {
+      start_date: startDate,
+      end_date: endDate,
+      agent_name: "string",
+      team: "string",
+      region: "string",
+      campaign: "string",
+      min_confidence_score: 0,
+      disposition: "string"
+    });
+
+    const percentage = response.data.dispute_percentage || 0;
+
+    const chartData = [
+      { label: "Disputes", value: percentage, color: "#e11d48" },
+      { label: "Non-Disputes", value: 100 - percentage, color: "#16a34a" },
+    ];
+
+    setDisputeData(chartData);
+    setReasons(response.data.reasons || []);
+
+  } catch (error) {
+    console.error("Error fetching dispute data:", error);
+    setDisputeData([]);
+    setReasons([]);
+  }
+
+
+  try {
+    const response = await axios.post("http://127.0.0.1:8096/dashboard3/agent-behavior-monitoring", {
+      start_date: startDate,
+      end_date: endDate,
+      agent_name: "string",
+      team: "string",
+      region: "string",
+      campaign: "string",
+      min_confidence_score: 0,
+      disposition: "string"
+    });
+
+    const colors = ["#11d6ed", "#f97316", "#c39b12", "#3b82f6"];
+
+    const formattedData = response.data.map((item, index) => ({
+      label: item.behavior,
+      value: item.percentage,
+      color: colors[index % colors.length],
+    }));
+
+    setBehaviorData(formattedData);
+  } catch (error) {
+    console.error("Error fetching Agent Behavior Monitoring:", error);
+    setBehaviorData([]);
+  }
+
+
+      try {
+        const response = await axios.post(
+          "http://127.0.0.1:8096/dashboard3/emotional-sentiment-analysis",
+          {
+            start_date: startDate,
+            end_date: endDate,
+            agent_name: "string",
+            team: "string",
+            region: "string",
+            campaign: "string",
+            min_confidence_score: 0,
+            disposition: "string",
+          }
+        );
+
+        // Example: pretend the API returns multiple calls with emotions
+        // You must replace this with real API data or adjust API backend if needed
+        const apiResponse = response.data.timeline_trend_distribution;
+
+        // Simulate dynamic calls if your API doesn't provide grouped data yet
+        // Here, just an example for demonstration:
+        const simulatedApiResponse = [
+          {
+            call: "Call 1",
+            emotions: { Calm: 40, Angry: 20, Frustrated: 10, Resigned: 5 },
+          },
+          {
+            call: "Call 2",
+            emotions: { Calm: 50, Angry: 30, Frustrated: 20, Resigned: 10 },
+          },
+          {
+            call: "Call 3",
+            emotions: { Calm: 45, Angry: 35, Frustrated: 15, Resigned: 8 },
+          },
+        ];
+
+        // Transform data dynamically
+        const chartData = simulatedApiResponse.map(({ call, emotions }) => ({
+          name: call,
+          ...emotions,
+        }));
+
+        setChartData(chartData);
+      } catch (error) {
+        console.error("Error fetching emotional sentiment data:", error);
+        setChartData([]);
+      }
+
+
+    try {
+      const response = await axios.post("http://127.0.0.1:8096/dashboard3/collection-funnel-optimization", {
+        start_date: startDate,
+        end_date: endDate,
+        agent_name: "string",
+        team: "string",
+        region: "string",
+        campaign: "string",
+        min_confidence_score: 0,
+        disposition: "string"
+      });
+
+      setFunnelData(response.data.stages || []);
+    } catch (error) {
+      console.error("Failed to load collection funnel data", error);
+      setFunnelData([]);
+    }
+     finally {
+      setLoading1(false);
+    }
+
+};
+
+
+
+
   return (
     <Layout>
+    <div className={` ${loading1 ? "blurred" : ""}`}>
       <div
         style={{
           backgroundColor: "#0f172a",
@@ -136,6 +440,7 @@ const Insight = () => {
               borderRadius: "8px",
               border: "none",
             }}
+            onClick={fetchPtpData }
           >
             Apply Filters
           </button>
@@ -143,129 +448,259 @@ const Insight = () => {
 
         <div style={gridStyle}>
           <Card title="Promise to Pay (PTP) Analysis">
-            <PieChart data={ptpData} />
-            <div
-              style={{ marginTop: "8px", fontSize: "14px", color: "#d1d5db" }}
-            >
-              {ptpData.map((item, index) => {
-                const total = ptpData.reduce((sum, i) => sum + i.value, 0);
-                const percentage = ((item.value / total) * 100).toFixed(1);
-                return (
-                  <p key={index}>
-                    {item.emoji} {item.label} - {percentage}%
-                  </p>
-                );
-              })}
-            </div>
+            {ptpData.length === 0 || ptpData.every((item) => item.value === 0) ? (
+              <div style={{ textAlign: "center", color: "#9ca3af", padding: "16px" }}>
+                No data available
+              </div>
+            ) : (
+              <>
+                <PieChart data={ptpData} />
+                <div
+                  style={{ marginTop: "8px", fontSize: "14px", color: "#d1d5db" }}
+                >
+                  {ptpData.map((item, index) => {
+                    const total = ptpData.reduce((sum, i) => sum + i.value, 0);
+                    const percentage = ((item.value / total) * 100).toFixed(1);
+                    return (
+                      <p key={index}>
+                        {item.emoji} {item.label} - {percentage}%
+                      </p>
+                    );
+                  })}
+                </div>
+              </>
+            )}
           </Card>
 
           <Card title="Intent Classification">
-            <div style={{ maxWidth: "420px" }}>
-              <BarLabel
-                label="Willing but Delayed"
-                percent={70}
-                color="#c39b12"
-              />
-              <BarLabel label="Unwilling" percent={40} color="#e74c3c" />
-              <BarLabel label="Can't Pay" percent={50} color="#facc15" />
-            </div>
-          </Card>
+  <div style={{ maxWidth: "420px" }}>
+    {intentData.length === 0 || intentData.every((item) => item.count === 0) ? (
+      <div style={{ textAlign: "center", color: "#9ca3af", padding: "16px" }}>
+        No data available
+      </div>
+    ) : (
+      intentData.map((item, index) => {
+        const total = intentData.reduce((sum, i) => sum + i.count, 0);
+        const percent = total > 0 ? ((item.count / total) * 100).toFixed(1) : 0;
+
+        const colorMap = {
+          "Willing but Delayed": "#c39b12",
+          "Unwilling": "#e74c3c",
+          "Can't Pay": "#facc15",
+        };
+
+        return (
+          <BarLabel
+            key={index}
+            label={item.intent}
+            percent={percent}
+            color={colorMap[item.intent] || "#6b7280"} // fallback gray
+          />
+        );
+      })
+    )}
+  </div>
+</Card>
+
 
           <Card title="Root Cause Detection">
-            <BarLabel label="Cash Flow Issues" percent={80} color="#3b82f6" />
-            <BarLabel label="Job Loss" percent={50} color="#c39b12" />
-            <BarLabel label="Dispute" percent={30} color="#f97316" />
-            <BarLabel label="Other" percent={20} color="#f97316" />
-          </Card>
+  <div style={{ maxWidth: "420px" }}>
+    {(() => {
+      // Create a map of actual counts from API
+      const countMap = {};
+      rootCauseData.forEach((item) => {
+        countMap[item.root_cause?.toLowerCase().trim()] = item.count;
+      });
+
+      // Define default causes
+      const causes = [
+        { label: "Cash Flow Issues", key: "cash flow issues", color: "#3b82f6" },
+        { label: "Job Loss", key: "job loss", color: "#c39b12" },
+        { label: "Dispute", key: "dispute", color: "#f97316" },
+        { label: "Other", key: "other", color: "#f97316" },
+      ];
+
+      // Compute total count
+      const total = causes.reduce((sum, cause) => sum + (countMap[cause.key] || 0), 0);
+
+      // ✅ If no data available, show message
+      if (total === 0) {
+        return (
+          <div style={{ textAlign: "center", color: "#9ca3af", padding: "16px" }}>
+            No data available
+          </div>
+        );
+      }
+
+      // Render causes
+      return causes.map((cause, index) => {
+        const count = countMap[cause.key] || 0;
+        const percent = total ? ((count / total) * 100).toFixed(1) : 0;
+
+        return (
+          <BarLabel
+            key={index}
+            label={cause.label}
+            percent={percent}
+            color={cause.color}
+          />
+        );
+      });
+    })()}
+  </div>
+</Card>
+
+
+
+
+
 
           <Card title="Detect agent-forced PTPs">
             <AgentForcedPTPChart />
           </Card>
 
           <Card title="Escalation Risk Alerts">
-            <BarLabel label="'I'll complain'" percent={70} color="#11d6ed" />
-            <BarLabel
-              label="'going to consumer court'"
-              percent={65}
-              color="#facc15"
-            />
-            <BarLabel label="''I tweet this''" percent={45} color="#c39b12" />
-          </Card>
+  {alertData.length === 0 ? (
+    <div style={{ textAlign: "center", color: "#9ca3af", padding: "16px" }}>
+      No data available
+    </div>
+  ) : (
+    <>
+      {alertData.map((item, index) => (
+        <BarLabel
+          key={index}
+          label={item.label}
+          percent={item.value}
+          color={item.color}
+        />
+      ))}
+
+
+    </>
+  )}
+</Card>
+
 
           <Card title="Dispute Management">
-            <PieChart data={ptpDataDispute} />
-            <ul
-              style={{ fontSize: "14px", color: "#d1d5db", marginTop: "8px" }}
-            >
-              <li>I've already paid</li>
-              <li>Wrong charges</li>
-              <li>False promises</li>
-              <li>Reversal pending</li>
-              <li>Not my account</li>
-            </ul>
-          </Card>
+  {disputeData.length === 0 ? (
+    <div style={{ textAlign: "center", color: "#9ca3af", padding: "16px" }}>
+      No data available
+    </div>
+  ) : (
+    <>
+      <PieChart data={disputeData} />
+      <ul style={{ fontSize: "14px", color: "#d1d5db", marginTop: "8px" }}>
+        {reasons.map((item, index) => (
+          <li key={index}>{item.reason} ({item.count})</li>
+        ))}
+      </ul>
+    </>
+  )}
+</Card>
+
 
           <Card title="Agent Behavior Monitoring">
-            <BarLabel label="Harsh Tone" percent={50} color="#11d6ed" />
-            <BarLabel label="False Promises" percent={60} color="#c39b12" />
-            <BarLabel label="Threatening Tone" percent={70} color="#f97316" />
-          </Card>
+  {behaviorData.length === 0 ? (
+    <div style={{ textAlign: "center", color: "#9ca3af", padding: "16px" }}>
+      No data available
+    </div>
+  ) : (
+    <>
+      {behaviorData.map((item, index) => (
+        <BarLabel
+          key={index}
+          label={item.label}
+          percent={item.value}
+          color={item.color}
+        />
+      ))}
+    </>
+  )}
+</Card>
+
+
 
           <Card title="Emotional & Sentiment Analysis">
-            <div style={{ width: "100%", height: "200px", marginTop: "16px" }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={data1}>
-                  <CartesianGrid stroke="#374151" strokeDasharray="3 3" />
-                  <XAxis dataKey="name" stroke="#9ca3af" fontSize={12} />
-                  <YAxis stroke="#9ca3af" fontSize={12} />
-                  <Tooltip />
-                  <Line
-                    type="monotone"
-                    dataKey="Calm"
-                    stroke="#3b82f6"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="Frustrated"
-                    stroke="#facc15"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="Angry"
-                    stroke="#ef4444"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="Resigned"
-                    stroke="#9ca3af"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-            <div
-              style={{
-                fontSize: "12px",
-                marginTop: "8px",
-                color: "#9ca3af",
-                textAlign: "center",
-              }}
-            >
-              Calm, Frustrated, Angry, Resigned
-            </div>
-          </Card>
+      {chartData.length === 0 ? (
+        <div style={{ textAlign: "center", color: "#9ca3af", padding: "16px" }}>
+          No data available
+        </div>
+      ) : (
+        <>
+          <div style={{ width: "100%", height: "200px", marginTop: "16px" }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData}>
+                <CartesianGrid stroke="#374151" strokeDasharray="3 3" />
+                <XAxis dataKey="name" stroke="#9ca3af" fontSize={12} />
+                <YAxis stroke="#9ca3af" fontSize={12} />
+                <Tooltip />
+                <Line
+                  type="monotone"
+                  dataKey="Calm"
+                  stroke="#3b82f6"
+                  strokeWidth={2}
+                  dot={false}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="Frustrated"
+                  stroke="#facc15"
+                  strokeWidth={2}
+                  dot={false}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="Angry"
+                  stroke="#ef4444"
+                  strokeWidth={2}
+                  dot={false}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="Resigned"
+                  stroke="#9ca3af"
+                  strokeWidth={2}
+                  dot={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+          <div
+            style={{
+              fontSize: "12px",
+              marginTop: "8px",
+              color: "#9ca3af",
+              textAlign: "center",
+            }}
+          >
+            Calm, Frustrated, Angry, Resigned
+          </div>
+        </>
+      )}
+    </Card>
 
           <Card title="Collection Funnel Optimization">
-            <HeatmapPlaceholder />
-          </Card>
+  {funnelData.length === 0 ? (
+    <div style={{ textAlign: "center", color: "#9ca3af", padding: "16px" }}>
+      No data available
+    </div>
+  ) : (
+    <HeatmapStages stages={funnelData} />
+  )}
+</Card>
+
         </div>
+      </div>
+      {loading1 && (
+          <div className="loader-overlay">
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+
+          </div>
+        )}
       </div>
     </Layout>
   );
@@ -410,16 +845,63 @@ const PieChart = ({ data }) => {
   );
 };
 
-const AgentForcedPTPChart = () => {
-  const data = [
-    { name: "Mon", value: 30 },
-    { name: "Tue", value: 50 },
-    { name: "Wed", value: 40 },
-    { name: "Thu", value: 70 },
-    { name: "Fri", value: 60 },
-    { name: "Sat", value: 80 },
-    { name: "Sun", value: 90 },
-  ];
+const AgentForcedPTPChart = ({ startDate, endDate }) => {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.post(
+          "http://127.0.0.1:8096/dashboard3/ptp-agent-forced-by-weekday",
+          {
+            start_date: startDate,
+            end_date: endDate,
+            agent_name: "string",
+            team: "string",
+            region: "string",
+            campaign: "string",
+            min_confidence_score: 0,
+            disposition: "string",
+          }
+        );
+
+        // API returns something like:
+        // [{ day: "Sunday", forced_ptps: 0 }, ...]
+
+        // Map days to short names and structure data for recharts
+        const dayOrder = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+        const dayMap = {
+          Sunday: "Sun",
+          Monday: "Mon",
+          Tuesday: "Tue",
+          Wednesday: "Wed",
+          Thursday: "Thu",
+          Friday: "Fri",
+          Saturday: "Sat",
+        };
+
+        const formattedData = dayOrder.map((shortDay) => {
+          // find data from API for this short day
+          const apiDay = Object.keys(dayMap).find(
+            (key) => dayMap[key] === shortDay
+          );
+          const dayData = response.data.find((d) => d.day === apiDay);
+
+          return {
+            name: shortDay,
+            value: dayData ? dayData.forced_ptps : 0,
+          };
+        });
+
+        setData(formattedData);
+      } catch (error) {
+        console.error("Error fetching agent forced PTP data:", error);
+        setData([]);
+      }
+    };
+
+    fetchData();
+  }, [startDate, endDate]);
 
   return (
     <div style={{ width: "100%", height: "200px", marginTop: "16px" }}>
@@ -442,25 +924,36 @@ const AgentForcedPTPChart = () => {
   );
 };
 
-const HeatmapPlaceholder = () => (
+
+
+const HeatmapStages = ({ stages }) => (
   <div
     style={{
       display: "grid",
-      gridTemplateColumns: "repeat(5, 1fr)",
-      gap: "4px",
+      gridTemplateColumns: `repeat(${stages.length}, 1fr)`,
+      gap: "8px",
       marginTop: "8px",
     }}
   >
-    {[...Array(10)].map((_, i) => (
+    {stages.map((stage, i) => (
       <div
         key={i}
         style={{
-          height: "24px",
-          borderRadius: "4px",
-          backgroundColor:
-            i % 3 === 0 ? "#3b82f6" : i % 2 === 0 ? "#f97316" : "#facc15",
+          height: "60px",
+          borderRadius: "6px",
+          backgroundColor: barrierColors[stage.barrier] || "#9ca3af",
+          color: "#fff",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: "14px",
+          fontWeight: "bold"
         }}
-      />
+      >
+        <div>{stage.name}</div>
+        <div>{stage.value}%</div>
+      </div>
     ))}
   </div>
 );

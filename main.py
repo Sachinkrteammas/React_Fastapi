@@ -1,10 +1,12 @@
+import json
 import os
 import re
 import secrets
-import shutil
+
 import uuid
 from urllib.request import Request
 
+import aiofiles
 import jwt
 import datetime
 import bcrypt
@@ -21,24 +23,13 @@ from datetime import date, timedelta
 from pydantic import BaseModel
 from typing import List, Optional, Dict
 import pandas as pd
-from deepgram import Deepgram
-import aiofiles
-
-# FastAPI app initialization
-
-# Load API keys from environment variables (Avoid hardcoding!)
-DEEPGRAM_API_KEY = os.getenv("DEEPGRAM_API_KEY")
-# OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-
-# Validate API keys
-if not DEEPGRAM_API_KEY:
-    raise ValueError("Missing API keys. Set DEEPGRAM_API_KEY and OPENAI_API_KEY in environment variables.")
+from transcriber import transcribe_with_deepgram_async
+from analyzer import analyze_transcript
+from dashboard3_ptp_routes import router as dashboard3_router
+# from apscheduler.schedulers.background import BackgroundScheduler
 
 app = FastAPI()
 
-# Initialize Deepgram Client
-deepgram_client = Deepgram(DEEPGRAM_API_KEY)
-# Secret key for JWT (keep it secure in production)
 SECRET_KEY = "your_secret_key"
 
 # CORS Middleware to allow requests from React frontend
@@ -49,7 +40,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+app.include_router(dashboard3_router)
 # MySQL Database Connection (replace with your actual credentials)
 # SQL_DB_URL = "mysql+pymysql://root:Hello%40123@localhost/my_db?charset=utf8mb4"
 SQL_DB_URL = "mysql+pymysql://root:dial%40mas123@172.12.10.22/ai_audit?charset=utf8mb4"
@@ -213,36 +204,7 @@ def generate_otp():
     return str(random.randint(100000, 999999))
 
 
-###################################  Transcribe ############################################
 
-# Define request model for AI processing
-class AIRequest(BaseModel):
-    text: str
-
-
-@app.post("/transcribe")
-async def transcribe(file: UploadFile = File(...)):
-    """Transcribes an uploaded audio file using Deepgram"""
-
-    file_path = f"{file.filename}"
-
-    # Save file temporarily
-    async with aiofiles.open(file_path, "wb") as out_file:
-        content = await file.read()
-        await out_file.write(content)
-
-    # Read the saved file
-    with open(file_path, "rb") as audio:
-        response = await deepgram_client.transcription.prerecorded(
-            {"buffer": audio, "mimetype": "audio/wav"},
-            {"options": {"punctuate": True, "language": "en-US"}}
-        )
-
-    # Extract transcript
-    transcript = response["results"]["channels"][0]["alternatives"][0]["transcript"]
-    duration = response["metadata"]["duration"]
-
-    return {"transcript": transcript, "duration": duration}
 
 
 @app.post("/register")
@@ -424,7 +386,8 @@ def login_user(user: LoginRequest, db: Session = Depends(get_db)):
 
     return {"message": "Login successful", "token": token, "username": db_user.username, "id": db_user.id,
             "client_id": db_user.clientid,
-            "set_limit": db_user.set_limit}
+            "set_limit": db_user.set_limit,
+            "contact_number": db_user.contact_number}
 
 
 class VerifyOtpRequest(BaseModel):
@@ -577,7 +540,6 @@ class AudioFile(Base):
 
 BASE_DIR = Path(__file__).resolve().parent
 UPLOAD_DIR = BASE_DIR / "ocr-frontend/public/audio"
-# UPLOAD_DIR = r"C:\Users\admin\Desktop"  # Explicit path to Windows Downloads
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
@@ -3132,3 +3094,268 @@ def update_transcript(request: TranscriptUpdateRequest, db: Session = Depends(ge
     db.commit()
 
     return {"status": "success", "message": "Transcript updated"}
+
+
+
+###################   Click To Call API Krishna ##########################
+
+@app.get("/click2dial")
+async def click2dial(
+        param1: str = Query(...),
+        param2: str = Query(...),
+        param3: str = Query(...)
+):
+    target_url = "http://192.168.10.8/remote/click2dial_demo.php"
+    params = {
+        "customer_number": param1,
+        "agent_number": param2,
+        "campaignid": param3
+    }
+
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(target_url, params=params)
+
+        # Try to return as JSON if the remote API returns JSON
+        try:
+            data = response.json()
+            return JSONResponse(content={"status": "success", "data": data})
+        except Exception:
+            # Fallback: wrap plain text in JSON
+            return JSONResponse(content={"status": "success", "response": response.text})
+
+    except Exception as e:
+        return JSONResponse(content={"status": "error", "message": str(e)}, status_code=500)
+
+
+RECORDING_MAP = {
+    "1748262270.2010580": "PLUSH_OB_20250306-160417_7905990690_IDC58359-all.mp3"
+}
+
+
+@app.get("/transcribe/{uniqueid}")
+async def transcribe(uniqueid: str):
+    file_path = RECORDING_MAP.get(uniqueid)
+    if not file_path or not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Recording not found.")
+
+    transcript = await transcribe_with_deepgram_async(file_path)
+    return {"transcript": transcript}
+
+
+@app.get("/bulk_transcribe")
+async def bulk_transcribe(db: Session = Depends(get_db2)):
+    result = db.execute(text("SELECT id, recording_path FROM tbl_collection WHERE status = 0"))
+    rows = result.fetchall()
+
+    for row in rows:
+        id = row[0]
+        url = row[1]
+
+        try:
+            # Generate a unique temporary filename
+            file_name = f"./temp/{uuid.uuid4()}.wav"
+
+            # Ensure temp directory exists
+            os.makedirs(os.path.dirname(file_name), exist_ok=True)
+
+            # Download the file using async httpx
+            async with httpx.AsyncClient(timeout=60.0) as client:
+                async with client.stream("GET", url) as r:
+                    r.raise_for_status()
+                    with open(file_name, "wb") as out_file:
+                        async for chunk in r.aiter_bytes():
+                            out_file.write(chunk)
+
+            # Transcribe
+            transcript = await transcribe_with_deepgram_async(file_name)
+
+            # Update DB
+            db.execute(
+                text("UPDATE tbl_collection SET transcribe_text = :text, status = 1 WHERE id = :id"),
+                {"text": transcript, "id": id}
+            )
+            db.commit()
+
+            print(f"[Success] ID {id} transcribed.")
+            os.remove(file_name)
+
+        except Exception as e:
+            print(f"[Error] ID {id}: {e}")
+
+    return {"message": "Bulk transcription complete."}
+
+
+@app.get("/analyze/{uniqueid}")
+async def analyze(uniqueid: str):
+    file_path = RECORDING_MAP.get(uniqueid)
+    if not file_path or not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Recording not found.")
+
+    transcript = await transcribe_with_deepgram_async(file_path)
+    analysis = await analyze_transcript(transcript)
+    return {
+        "transcript": transcript,
+        "analysis": analysis
+    }
+
+
+@app.get("/run_scheduler")
+async def run_scheduler(db: Session = Depends(get_db2)):
+    query = """
+        SELECT c.id, c.recording_path, p.template_text
+        FROM tbl_collection c
+        JOIN tbl_prompt_demo p ON c.campaign_id = p.ClientId
+        WHERE c.status = 0
+        LIMIT 5
+    """
+    results = db.execute(text(query)).fetchall()
+
+    for row in results:
+        collection_id, recording_url, prompt_template = row
+        print(f"[INFO] Processing collection ID {collection_id}")
+
+        try:
+            local_file = f"./temp/{uuid.uuid4()}.wav"
+            os.makedirs(os.path.dirname(local_file), exist_ok=True)
+
+            async with httpx.AsyncClient(timeout=60.0) as client:
+                async with client.stream("GET", recording_url) as r:
+                    r.raise_for_status()
+                    with open(local_file, "wb") as f:
+                        async for chunk in r.aiter_bytes():
+                            f.write(chunk)
+
+            transcript = await transcribe_with_deepgram_async(local_file)
+
+            if not transcript or "Transcription failed" in transcript:
+                print(f"[ERROR] Transcription failed for ID {collection_id}")
+                continue
+
+            final_prompt = (
+                prompt_template.replace("{transcribed_text}", transcript)
+                if "{transcribed_text}" in prompt_template
+                else f"{prompt_template}\n\n{transcript}"
+            )
+            #print(final_prompt)
+            analysis = await analyze_transcript(final_prompt)
+            print(analysis,"ANAlysys 44444444444444444444444444444444444")
+            try:
+                analysis_json = json.loads(analysis)
+            except json.JSONDecodeError:
+                analysis_json = {"raw_analysis": analysis}
+
+            # Extract fields
+            metadata = analysis_json.get("metadata", {})
+            #print(metadata.get("agent_name"),"=======123")
+            #break
+            ptp_summary = analysis_json.get("ptp_summary", {})
+            language_insights = analysis_json.get("language_insights", {})
+            followup_priority = analysis_json.get("followup_priority", {})
+            ptp_analysis = analysis_json.get("ptp_analysis", {})
+            intent_classification = analysis_json.get("intent_classification", {})
+            root_cause = analysis_json.get("root_cause", [])
+            agent_forced = analysis_json.get("agent_forced_ptp_detected", False)
+            escalation_risks = analysis_json.get("escalation_risks", [])
+            dispute_mgmt = analysis_json.get("dispute_management", {})
+            agent_behavior = analysis_json.get("agent_behavior", {})
+            emotion = analysis_json.get("emotional_sentiment", {})
+            funnel = analysis_json.get("collection_funnel", {})
+
+            update_query = """
+            UPDATE tbl_collection SET
+                transcribe_text = :transcribe_text,
+                analysis_json = :analysis_json,
+                status = 1,
+
+                agent_name = :agent_name,
+                team = :team,
+                region = :region,
+                campaign = :campaign,
+                call_disposition = :call_disposition,
+                confidence_score = :confidence_score,
+                sentiment = :sentiment,
+
+                customer_name = :customer_name,
+                ptp_phrase = :ptp_phrase,
+                ptp_confidence_score = :ptp_confidence_score,
+                predicted_to_fail = :predicted_to_fail,
+                ptp_remarks = :ptp_remarks,
+
+                confident_phrases = :confident_phrases,
+                hesitation_markers = :hesitation_markers,
+                confidence_distribution = :confidence_distribution,
+
+                follow_up_needed = :follow_up_needed,
+                priority_level = :priority_level,
+                suggested_action = :suggested_action,
+
+                ptp_analysis = :ptp_analysis,
+                intent_classification = :intent_classification,
+                root_cause = :root_cause,
+                agent_forced_ptp_detected = :agent_forced_ptp_detected,
+                escalation_risks = :escalation_risks,
+                dispute_management = :dispute_management,
+                agent_behavior = :agent_behavior,
+                emotional_sentiment = :emotional_sentiment,
+                collection_funnel = :collection_funnel
+
+            WHERE id = :id
+            """
+
+            update_params = {
+                "id": collection_id,
+                "transcribe_text": transcript,
+                "analysis_json": json.dumps(analysis_json),
+
+                "agent_name": metadata.get("agent_name"),
+                "team": metadata.get("team"),
+                "region": metadata.get("region"),
+                "campaign": metadata.get("campaign"),
+                "call_disposition": metadata.get("call_disposition"),
+                "confidence_score": metadata.get("confidence_score"),
+                "sentiment": metadata.get("sentiment"),
+
+                "customer_name": ptp_summary.get("customer_name"),
+                "ptp_phrase": ptp_summary.get("ptp_phrase"),
+                "ptp_confidence_score": ptp_summary.get("confidence_score"),
+                "predicted_to_fail": ptp_summary.get("predicted_to_fail"),
+                "ptp_remarks": ptp_summary.get("remarks"),
+
+                "confident_phrases": json.dumps(language_insights.get("confident_phrases", [])),
+                "hesitation_markers": json.dumps(language_insights.get("hesitation_markers", [])),
+                "confidence_distribution": json.dumps(language_insights.get("distribution", {})),
+
+                "follow_up_needed": followup_priority.get("follow_up_needed"),
+                "priority_level": followup_priority.get("priority_level"),
+                "suggested_action": json.dumps(followup_priority.get("suggested_action", [])),
+
+                "ptp_analysis": json.dumps(ptp_analysis),
+                "intent_classification": json.dumps(intent_classification),
+                "root_cause": json.dumps(root_cause),
+                "agent_forced_ptp_detected": agent_forced,
+                "escalation_risks": json.dumps(escalation_risks),
+                "dispute_management": json.dumps(dispute_mgmt),
+                "agent_behavior": json.dumps(agent_behavior),
+                "emotional_sentiment": json.dumps(emotion),
+                "collection_funnel": json.dumps(funnel),
+            }
+
+            db.execute(text(update_query), update_params)
+            db.commit()
+
+            print(f"Updating ID {collection_id} with parameters:\n", update_params)
+
+
+            print(f"[SUCCESS] Processed ID {collection_id}")
+
+        except Exception as e:
+            print(f"[EXCEPTION] Failed ID {collection_id}: {e}")
+
+        finally:
+            if os.path.exists(local_file):
+                os.remove(local_file)
+
+    return {"message": "Scheduler completed"}
+
+

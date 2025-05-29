@@ -36,6 +36,8 @@ const Login = ({ onLogin }) => {
         localStorage.setItem("isLoggedIn", JSON.stringify(true));
         localStorage.setItem("set_limit", response.data.set_limit);
 
+        localStorage.setItem("contact_number", response.data.contact_number);
+
         onLogin();
         navigate("/dashboard", { replace: true }); // Prevents going back to login
       } else {

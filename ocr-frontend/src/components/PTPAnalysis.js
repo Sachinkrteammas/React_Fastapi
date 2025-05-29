@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import Layout from "../layout";
 import {
   BarChart,
@@ -12,6 +12,7 @@ import {
   Cell,
   Legend,
 } from "recharts";
+import axios from "axios";
 
 const PTPAnalysis = () => {
   const [startDate, setStartDate] = useState(
@@ -20,6 +21,31 @@ const PTPAnalysis = () => {
   const [endDate, setEndDate] = useState(
     new Date().toISOString().split("T")[0]
   );
+
+  const [summary, setSummary] = useState(null);
+
+   const [barData, setBarData] = useState([
+    { confidence: "0-25", count: 0 },
+    { confidence: "26-50", count: 0 },
+    { confidence: "51-75", count: 0 },
+    { confidence: "76-100", count: 0 },
+  ]);
+
+  const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split("T")[0];
+  }
+
+
+  const [pieData, setPieData] = useState([
+  { name: "hesitations", value: 0 },
+  { name: "confidents", value: 0 },
+]);
+
+const [insightData, setInsightData] = useState([]);
+const [agentAccuracyData, setAgentAccuracyData] = useState([]);
+const [loading1, setLoading1] = useState(false);
+
 
   const containerStyle = {
     backgroundColor: "#0f1b2b",
@@ -63,25 +89,212 @@ const PTPAnalysis = () => {
     textAlign: "left",
   };
 
-  const barData = [
-    { confidence: "0-25", count: 100 },
-    { confidence: "26-50", count: 200 },
-    { confidence: "51-75", count: 300 },
-    { confidence: "76-100", count: 150 },
-  ];
+
 
   const barColors = ["#f87171", "#fbbf24", "#34d399", "#60a5fa"];
 
-  const pieData = [
-    { name: "Positive", value: 10 },
-    { name: "Neutral", value: 35 },
-    { name: "Negative", value: 20 },
-  ];
+
 
   const pieColors = ["#34d399", "#facc15", "#f87171"];
 
+
+
+
+  useEffect(() => {
+  if (!startDate || !endDate) return; // guard clause
+
+  const fetchSummary = async () => {
+    try {
+      const res = await axios.post("http://127.0.0.1:8096/dashboard3/summary", {
+        start_date: startDate,
+        end_date: endDate,
+        agent_name: null,
+        team: null,
+        region: null,
+        campaign: null,
+        min_confidence_score: null,
+        disposition: null,
+      });
+      setSummary(res.data);
+    } catch (err) {
+      console.error("API fetch error:", err);
+    }
+  };
+
+  const fetchDistribution = async () => {
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:8096/dashboard3/ptp-distribution",
+        {
+          start_date: startDate,
+          end_date: endDate,
+          agent_name: null,
+          team: null,
+          region: null,
+          campaign: null,
+          min_confidence_score: null,
+          disposition: null,
+        }
+      );
+
+      const rawData = response.data;
+
+      const countMap = {
+        "0-25": 0,
+        "26-50": 0,
+        "51-75": 0,
+        "76-100": 0,
+      };
+
+      rawData.forEach((item) => {
+        const label = item.range_label;
+        const value = parseInt(label.split("-")[0]);
+
+        if (value <= 25) countMap["0-25"] += item.count;
+        else if (value <= 50) countMap["26-50"] += item.count;
+        else if (value <= 75) countMap["51-75"] += item.count;
+        else countMap["76-100"] += item.count;
+      });
+
+      const finalData = Object.entries(countMap).map(([key, value]) => ({
+        confidence: key,
+        count: value,
+      }));
+
+      setBarData(finalData);
+    } catch (err) {
+      console.error("Error fetching distribution:", err);
+    }
+  };
+
+  fetchSummary();
+  fetchDistribution();
+}, [startDate, endDate]); // ✅ dependencies here!
+
+
+
+
+
+
+const fetchDistribution = async () => {
+setLoading1(true);
+  try {
+    // Common request body
+    const payload = {
+      start_date: startDate,
+      end_date: endDate,
+      agent_name: null,
+      team: null,
+      region: null,
+      campaign: null,
+      min_confidence_score: null,
+      disposition: null,
+    };
+
+    // 1. Fetch bar chart (distribution)
+    const distributionResponse = await axios.post(
+      "http://127.0.0.1:8096/dashboard3/ptp-distribution",
+      payload
+    );
+
+    const rawData = distributionResponse.data;
+
+    const countMap = {
+      "0-25": 0,
+      "26-50": 0,
+      "51-75": 0,
+      "76-100": 0,
+    };
+
+    rawData.forEach((item) => {
+      const label = item.range_label;
+      const value = parseInt(label.split("-")[0]);
+
+      if (value <= 25) countMap["0-25"] += item.count;
+      else if (value <= 50) countMap["26-50"] += item.count;
+      else if (value <= 75) countMap["51-75"] += item.count;
+      else countMap["76-100"] += item.count;
+    });
+
+    const finalDistributionData = Object.entries(countMap).map(
+      ([key, value]) => ({
+        confidence: key,
+        count: value,
+      })
+    );
+
+    setBarData(finalDistributionData);
+
+    // 2. Fetch pie chart data
+    const pieResponse = await axios.post(
+      "http://127.0.0.1:8096/dashboard3/sentiment-pie-distribution",
+      payload
+    );
+
+    const pieDataRaw = pieResponse.data;
+
+    let hesitationsCount = 0;
+    let confidentsCount = 0;
+
+    pieDataRaw.forEach((item) => {
+      if (item.category.toLowerCase() === "confident") {
+        confidentsCount += item.count;
+      } else if (item.category.toLowerCase() === "hesitation") {
+        hesitationsCount += item.count;
+      }
+    });
+
+    setPieData([
+      { name: "hesitations", value: hesitationsCount },
+      { name: "confidents", value: confidentsCount },
+    ]);
+
+    // 3. Fetch insights table data
+    const insightsResponse = await axios.post(
+      "http://127.0.0.1:8096/dashboard3/ptp-insights-detailed",
+      payload
+    );
+
+    setInsightData(insightsResponse.data);
+
+    // 4. Fetch agent-wise accuracy table data
+    const accuracyResponse = await axios.post(
+      "http://127.0.0.1:8096/dashboard3/agent-wise-accuracy",
+      payload
+    );
+
+    setAgentAccuracyData(accuracyResponse.data);
+
+  } catch (error) {
+    console.error("Error fetching data:", error);
+
+    // Set fallback values
+    setBarData([
+      { confidence: "0-25", count: 0 },
+      { confidence: "26-50", count: 0 },
+      { confidence: "51-75", count: 0 },
+      { confidence: "76-100", count: 0 },
+    ]);
+
+    setPieData([
+      { name: "hesitations", value: 0 },
+      { name: "confidents", value: 0 },
+    ]);
+
+    setInsightData([]);
+    setAgentAccuracyData([]);
+  }
+  finally {
+      setLoading1(false);
+    }
+};
+
+
+
+
   return (
     <Layout>
+    <div className={` ${loading1 ? "blurred" : ""}`}>
       <div style={containerStyle}>
         <h2
           style={{ fontSize: "20px", fontWeight: "bold", marginBottom: "16px" }}
@@ -167,6 +380,7 @@ const PTPAnalysis = () => {
               borderRadius: "8px",
               border: "none",
             }}
+            onClick={fetchDistribution}
           >
             Apply Filters
           </button>
@@ -182,11 +396,11 @@ const PTPAnalysis = () => {
           }}
         >
           <div style={cardStyle("#1e88e5")}>
-            <div style={{ fontSize: "24px", fontWeight: "bold" }}>1,250</div>
+            <div style={{ fontSize: "24px", fontWeight: "bold" }}>{summary ? summary.total_ptps : 0}</div>
             <div>Total PTPs Collected</div>
           </div>
           <div style={cardStyle("#e53935")}>
-            <div style={{ fontSize: "24px", fontWeight: "bold" }}>370</div>
+            <div style={{ fontSize: "24px", fontWeight: "bold" }}>{summary ? summary.low_confidence : 0}</div>
             <div>
               High-Risk PTPs
               <br />
@@ -194,7 +408,7 @@ const PTPAnalysis = () => {
             </div>
           </div>
           <div style={cardStyle("#43a047")}>
-            <div style={{ fontSize: "24px", fontWeight: "bold" }}>710</div>
+            <div style={{ fontSize: "24px", fontWeight: "bold" }}>{summary ? summary.high_confidence : 0}</div>
             <div>
               Genuine PTPs
               <br />
@@ -202,7 +416,7 @@ const PTPAnalysis = () => {
             </div>
           </div>
           <div style={cardStyle("#fb8c00")}>
-            <div style={{ fontSize: "24px", fontWeight: "bold" }}>540</div>
+            <div style={{ fontSize: "24px", fontWeight: "bold" }}>{summary ? summary.follow_up_cases : 0}</div>
             <div>
               Follow-Up Call
               <br />
@@ -312,45 +526,22 @@ const PTPAnalysis = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td style={thTdStyle}>25 Apr.</td>
-                  <td style={thTdStyle}>John D.</td>
-                  <td style={thTdStyle}>Ramesh</td>
-                  <td style={thTdStyle}>Neutral</td>
-                  <td style={thTdStyle}>42%</td>
-                </tr>
-                <tr>
-                  <td style={thTdStyle}>25 Apr.</td>
-                  <td style={thTdStyle}>Priya S.</td>
-                  <td style={thTdStyle}>Anita</td>
-                  <td style={thTdStyle}>Positive</td>
-                  <td style={thTdStyle}>37</td>
-                </tr>
-
-                <tr>
-                  <td style={thTdStyle}>25 Apr.</td>
-                  <td style={thTdStyle}>Priya S.</td>
-                  <td style={thTdStyle}>Anita</td>
-                  <td style={thTdStyle}>Positive</td>
-                  <td style={thTdStyle}>37</td>
-                </tr>
-
-                <tr>
-                  <td style={thTdStyle}>25 Apr.</td>
-                  <td style={thTdStyle}>Priya S.</td>
-                  <td style={thTdStyle}>Anita</td>
-                  <td style={thTdStyle}>Positive</td>
-                  <td style={thTdStyle}>37</td>
-                </tr>
-
-                <tr>
-                  <td style={thTdStyle}>25 Apr.</td>
-                  <td style={thTdStyle}>Priya S.</td>
-                  <td style={thTdStyle}>Anita</td>
-                  <td style={thTdStyle}>Positive</td>
-                  <td style={thTdStyle}>37</td>
-                </tr>
-              </tbody>
+                  {insightData.length > 0 ? (
+                    insightData.map((item, index) => (
+                      <tr key={index}>
+                        <td style={thTdStyle}>{item.date}</td>
+                        <td style={thTdStyle}>{item.agent}</td>
+                        <td style={thTdStyle}>{item.customer_name}</td>
+                        <td style={thTdStyle}>{item.sentiment}</td>
+                        <td style={thTdStyle}>{item.confidence}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="5" style={thTdStyle}>No data available</td>
+                    </tr>
+                  )}
+                </tbody>
             </table>
           </div>
 
@@ -364,53 +555,45 @@ const PTPAnalysis = () => {
                 <tr>
                   <th style={thTdStyle}>Agent</th>
                   <th style={thTdStyle}>Total PTPs</th>
-                  <th style={thTdStyle}>Avg Accuracy</th>
+                  <th style={thTdStyle}>Avg Confidence</th>
                   <th style={thTdStyle}>Failed PTPs</th>
-                  <th style={thTdStyle}>AV%</th>
+                  <th style={thTdStyle}>accuracy Pct</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td style={thTdStyle}>John D.</td>
-                  <td style={thTdStyle}>500</td>
-                  <td style={thTdStyle}>80%</td>
-                  <td style={thTdStyle}>50</td>
-                  <td style={thTdStyle}>90%</td>
-                </tr>
-                <tr>
-                  <td style={thTdStyle}>Priya S.</td>
-                  <td style={thTdStyle}>620</td>
-                  <td style={thTdStyle}>85%</td>
-                  <td style={thTdStyle}>40</td>
-                  <td style={thTdStyle}>94%</td>
-                </tr>
-                <tr>
-                  <td style={thTdStyle}>Anita K.</td>
-                  <td style={thTdStyle}>450</td>
-                  <td style={thTdStyle}>78%</td>
-                  <td style={thTdStyle}>60</td>
-                  <td style={thTdStyle}>87%</td>
-                </tr>
-
-                <tr>
-                  <td style={thTdStyle}>Anita K.</td>
-                  <td style={thTdStyle}>450</td>
-                  <td style={thTdStyle}>78%</td>
-                  <td style={thTdStyle}>60</td>
-                  <td style={thTdStyle}>87%</td>
-                </tr>
-
-                <tr>
-                  <td style={thTdStyle}>Anita K.</td>
-                  <td style={thTdStyle}>450</td>
-                  <td style={thTdStyle}>78%</td>
-                  <td style={thTdStyle}>60</td>
-                  <td style={thTdStyle}>87%</td>
-                </tr>
+                {agentAccuracyData.length > 0 ? (
+                  agentAccuracyData.map((item, index) => (
+                    <tr key={index}>
+                      <td style={thTdStyle}>{item.agent}</td>
+                      <td style={thTdStyle}>{item.total_ptps}</td>
+                      <td style={thTdStyle}>{item.avg_confidence}%</td>
+                      <td style={thTdStyle}>{item.failed_ptps}</td>
+                      <td style={thTdStyle}>{item.accuracy_pct}%</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td style={thTdStyle} colSpan="5" align="center">
+                      No data available
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
         </div>
+      </div>
+
+      {loading1 && (
+          <div className="loader-overlay">
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+            <div className="bar"></div>
+
+          </div>
+        )}
       </div>
     </Layout>
   );
