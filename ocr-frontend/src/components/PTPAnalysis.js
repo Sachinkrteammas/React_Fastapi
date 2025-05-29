@@ -166,6 +166,23 @@ const [loading1, setLoading1] = useState(false);
     } catch (err) {
       console.error("Error fetching distribution:", err);
     }
+
+    try {
+      const res = await axios.post(`${BASE_URL}/dashboard3/summary`, {
+        start_date: startDate,
+        end_date: endDate,
+        agent_name: null,
+        team: null,
+        region: null,
+        campaign: null,
+        min_confidence_score: null,
+        disposition: null,
+      });
+      setSummary(res.data);
+    } catch (err) {
+      console.error("API fetch error:", err);
+    }
+
   };
 
   fetchSummary();

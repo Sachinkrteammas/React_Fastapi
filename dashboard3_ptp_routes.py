@@ -28,8 +28,8 @@ def get_summary(filters: FilterParams):
     query = """
         SELECT
             COUNT(*) AS total_ptps,
-            SUM(CASE WHEN confidence_score < 60 THEN 1 ELSE 0 END) AS low_confidence,
-            SUM(CASE WHEN confidence_score >= 60 THEN 1 ELSE 0 END) AS high_confidence,
+            SUM(CASE WHEN ptp_confidence_score < 60 THEN 1 ELSE 0 END) AS low_confidence,
+            SUM(CASE WHEN ptp_confidence_score >= 60 THEN 1 ELSE 0 END) AS high_confidence,
             SUM(CASE WHEN predicted_to_fail = 1 THEN 1 ELSE 0 END) AS ptps_failed,
             SUM(CASE WHEN follow_up_needed = 1 THEN 1 ELSE 0 END) AS follow_up_cases
         FROM tbl_collection
@@ -93,10 +93,10 @@ def ptp_confidence_distribution(filters: FilterParams):
 
     query = """
         SELECT 
-        FLOOR(confidence_score / 10) * 10 AS score_range,
+        FLOOR(ptp_confidence_score / 10) * 10 AS score_range,
         COUNT(*) as count
     FROM tbl_collection
-    WHERE confidence_score IS NOT NULL
+    WHERE ptp_confidence_score IS NOT NULL
     """
     conditions = []
     params = {}
