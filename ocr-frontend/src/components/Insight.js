@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import axios from "axios";
+import { BASE_URL } from "./config";
 
 const barrierColors = {
   low: "#3b82f6",     // blue
@@ -89,7 +90,7 @@ const fetchPtpData = async () => {
 setLoading1(true);
   // 🔹 Fetch PTP Sentiment Distribution
   try {
-    const sentimentResponse = await axios.post("http://127.0.0.1:8096/dashboard3/ptp-sentiment-distribution", {
+    const sentimentResponse = await axios.post(`${BASE_URL}/dashboard3/ptp-sentiment-distribution`, {
       start_date: startDate,
       end_date: endDate,
       agent_name: null,
@@ -124,7 +125,7 @@ setLoading1(true);
 
   // 🔹 Fetch PTP Intent Classification
   try {
-    const intentResponse = await axios.post("http://127.0.0.1:8096/dashboard3/ptp-intent-classification", {
+    const intentResponse = await axios.post(`${BASE_URL}/dashboard3/ptp-intent-classification`, {
       start_date: startDate,
       end_date: endDate,
       agent_name: null,
@@ -143,7 +144,7 @@ setLoading1(true);
 
   // 🔹 Fetch PTP Root Cause Detection
   try {
-    const rootCauseResponse = await axios.post("http://127.0.0.1:8096/dashboard3/ptp-root-cause-detection", {
+    const rootCauseResponse = await axios.post(`${BASE_URL}/dashboard3/ptp-root-cause-detection`, {
       start_date: startDate,
       end_date: endDate,
       agent_name: null,
@@ -163,7 +164,7 @@ setLoading1(true);
   // 🔹 Fetch Agent Forced PTP by Weekday
   try {
     const response = await axios.post(
-      "http://127.0.0.1:8096/dashboard3/ptp-agent-forced-by-weekday",
+      `${BASE_URL}/dashboard3/ptp-agent-forced-by-weekday`,
       {
         start_date: startDate,
         end_date: endDate,
@@ -207,7 +208,7 @@ setLoading1(true);
 
 
   try {
-      const response = await axios.post("http://127.0.0.1:8096/dashboard3/escalation-risk-alerts", {
+      const response = await axios.post(`${BASE_URL}/dashboard3/escalation-risk-alerts`, {
         start_date: startDate,
         end_date: endDate,
         agent_name: "string",
@@ -238,7 +239,7 @@ setLoading1(true);
 
 
   try {
-    const response = await axios.post("http://127.0.0.1:8096/dashboard3/dispute-management", {
+    const response = await axios.post(`${BASE_URL}/dashboard3/dispute-management`, {
       start_date: startDate,
       end_date: endDate,
       agent_name: "string",
@@ -267,7 +268,7 @@ setLoading1(true);
 
 
   try {
-    const response = await axios.post("http://127.0.0.1:8096/dashboard3/agent-behavior-monitoring", {
+    const response = await axios.post(`${BASE_URL}/dashboard3/agent-behavior-monitoring`, {
       start_date: startDate,
       end_date: endDate,
       agent_name: "string",
@@ -295,7 +296,7 @@ setLoading1(true);
 
       try {
         const response = await axios.post(
-          "http://127.0.0.1:8096/dashboard3/emotional-sentiment-analysis",
+          `${BASE_URL}/dashboard3/emotional-sentiment-analysis`,
           {
             start_date: startDate,
             end_date: endDate,
@@ -343,7 +344,7 @@ setLoading1(true);
 
 
     try {
-      const response = await axios.post("http://127.0.0.1:8096/dashboard3/collection-funnel-optimization", {
+      const response = await axios.post(`${BASE_URL}/dashboard3/collection-funnel-optimization`, {
         start_date: startDate,
         end_date: endDate,
         agent_name: "string",
@@ -852,7 +853,7 @@ const AgentForcedPTPChart = ({ startDate, endDate }) => {
     const fetchData = async () => {
       try {
         const response = await axios.post(
-          "http://127.0.0.1:8096/dashboard3/ptp-agent-forced-by-weekday",
+          `${BASE_URL}/dashboard3/ptp-agent-forced-by-weekday`,
           {
             start_date: startDate,
             end_date: endDate,

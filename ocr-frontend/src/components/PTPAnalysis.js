@@ -13,6 +13,7 @@ import {
   Legend,
 } from "recharts";
 import axios from "axios";
+import { BASE_URL } from "./config";
 
 const PTPAnalysis = () => {
   const [startDate, setStartDate] = useState(
@@ -105,7 +106,7 @@ const [loading1, setLoading1] = useState(false);
 
   const fetchSummary = async () => {
     try {
-      const res = await axios.post("http://127.0.0.1:8096/dashboard3/summary", {
+      const res = await axios.post(`${BASE_URL}/dashboard3/summary`, {
         start_date: startDate,
         end_date: endDate,
         agent_name: null,
@@ -124,7 +125,7 @@ const [loading1, setLoading1] = useState(false);
   const fetchDistribution = async () => {
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8096/dashboard3/ptp-distribution",
+        `${BASE_URL}/dashboard3/ptp-distribution`,
         {
           start_date: startDate,
           end_date: endDate,
@@ -193,7 +194,7 @@ setLoading1(true);
 
     // 1. Fetch bar chart (distribution)
     const distributionResponse = await axios.post(
-      "http://127.0.0.1:8096/dashboard3/ptp-distribution",
+      `${BASE_URL}/dashboard3/ptp-distribution`,
       payload
     );
 
@@ -227,7 +228,7 @@ setLoading1(true);
 
     // 2. Fetch pie chart data
     const pieResponse = await axios.post(
-      "http://127.0.0.1:8096/dashboard3/sentiment-pie-distribution",
+      `${BASE_URL}/dashboard3/sentiment-pie-distribution`,
       payload
     );
 
@@ -251,7 +252,7 @@ setLoading1(true);
 
     // 3. Fetch insights table data
     const insightsResponse = await axios.post(
-      "http://127.0.0.1:8096/dashboard3/ptp-insights-detailed",
+      `${BASE_URL}/dashboard3/ptp-insights-detailed`,
       payload
     );
 
@@ -259,7 +260,7 @@ setLoading1(true);
 
     // 4. Fetch agent-wise accuracy table data
     const accuracyResponse = await axios.post(
-      "http://127.0.0.1:8096/dashboard3/agent-wise-accuracy",
+      `${BASE_URL}/dashboard3/agent-wise-accuracy`,
       payload
     );
 
