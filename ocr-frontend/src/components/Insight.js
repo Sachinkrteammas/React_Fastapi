@@ -103,9 +103,12 @@ setLoading1(true);
 
     const sentimentMap = {
       positive: { color: "#3b82f6", emoji: "🔵" },
-      negative: { color: "#c39b12", emoji: "🟡" },
-      critical: { color: "#e74c3c", emoji: "🔴" },
+      neutral: { color: "#a855f7", emoji: "🟣" },
+      hesitant: { color: "#10b981", emoji: "🟢" },
+      negative: { color: "#facc15", emoji: "🟡" },
+      critical: { color: "#ef4444", emoji: "🔴" },
     };
+
 
     const formattedPtpData = sentimentResponse.data.map((item) => {
       const key = item.sentiment.toLowerCase();
