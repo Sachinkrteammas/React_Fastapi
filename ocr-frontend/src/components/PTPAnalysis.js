@@ -77,6 +77,15 @@ const [loading1, setLoading1] = useState(false);
     color: "black",
   };
 
+  const sectionStylestyle = {
+    backgroundColor: "rgb(31, 41, 55)",
+    padding: "16px",
+    borderRadius: "8px",
+    color: "white",
+    height: "350px",
+    overflowX: "auto",
+  };
+
   const tableStyle = {
     width: "100%",
     borderCollapse: "collapse",
@@ -102,13 +111,13 @@ const [loading1, setLoading1] = useState(false);
 
 
   useEffect(() => {
-  if (!startDate || !endDate) return; // guard clause
+const today = new Date().toISOString().split("T")[0];
 
   const fetchSummary = async () => {
     try {
       const res = await axios.post(`${BASE_URL}/dashboard3/summary`, {
-        start_date: startDate,
-        end_date: endDate,
+        start_date: today,
+        end_date: today,
         agent_name: null,
         team: null,
         region: null,
@@ -127,8 +136,8 @@ const [loading1, setLoading1] = useState(false);
       const response = await axios.post(
         `${BASE_URL}/dashboard3/ptp-distribution`,
         {
-          start_date: startDate,
-          end_date: endDate,
+          start_date: today,
+          end_date: today,
           agent_name: null,
           team: null,
           region: null,
@@ -167,27 +176,13 @@ const [loading1, setLoading1] = useState(false);
       console.error("Error fetching distribution:", err);
     }
 
-    try {
-      const res = await axios.post(`${BASE_URL}/dashboard3/summary`, {
-        start_date: startDate,
-        end_date: endDate,
-        agent_name: null,
-        team: null,
-        region: null,
-        campaign: null,
-        min_confidence_score: null,
-        disposition: null,
-      });
-      setSummary(res.data);
-    } catch (err) {
-      console.error("API fetch error:", err);
-    }
+
 
   };
 
   fetchSummary();
   fetchDistribution();
-}, [startDate, endDate]); // ✅ dependencies here!
+}, [startDate, endDate]);
 
 
 
@@ -302,6 +297,22 @@ setLoading1(true);
     setInsightData([]);
     setAgentAccuracyData([]);
   }
+  try {
+      const res = await axios.post(`${BASE_URL}/dashboard3/summary`, {
+        start_date: startDate,
+        end_date: endDate,
+        agent_name: null,
+        team: null,
+        region: null,
+        campaign: null,
+        min_confidence_score: null,
+        disposition: null,
+      });
+      setSummary(res.data);
+    } catch (err) {
+      console.error("API fetch error:", err);
+    }
+
   finally {
       setLoading1(false);
     }
@@ -414,11 +425,11 @@ setLoading1(true);
           }}
         >
           <div style={cardStyle("#1e88e5")}>
-            <div style={{ fontSize: "24px", fontWeight: "bold" }}>{summary ? summary.total_ptps : 0}</div>
+            <div style={{ fontSize: "24px", fontWeight: "bold" }}>{summary?.total_ptps ?? 0}</div>
             <div>Total PTPs Collected</div>
           </div>
           <div style={cardStyle("#e53935")}>
-            <div style={{ fontSize: "24px", fontWeight: "bold" }}>{summary ? summary.low_confidence : 0}</div>
+            <div style={{ fontSize: "24px", fontWeight: "bold" }}>{summary?.low_confidence ?? 0}</div>
             <div>
               High-Risk PTPs
               <br />
@@ -426,7 +437,7 @@ setLoading1(true);
             </div>
           </div>
           <div style={cardStyle("#43a047")}>
-            <div style={{ fontSize: "24px", fontWeight: "bold" }}>{summary ? summary.high_confidence : 0}</div>
+            <div style={{ fontSize: "24px", fontWeight: "bold" }}>{summary?.high_confidence ?? 0}</div>
             <div>
               Genuine PTPs
               <br />
@@ -434,7 +445,7 @@ setLoading1(true);
             </div>
           </div>
           <div style={cardStyle("#fb8c00")}>
-            <div style={{ fontSize: "24px", fontWeight: "bold" }}>{summary ? summary.follow_up_cases : 0}</div>
+            <div style={{ fontSize: "24px", fontWeight: "bold" }}>{summary?.follow_up_cases ?? 0}</div>
             <div>
               Follow-Up Call
               <br />
@@ -457,67 +468,76 @@ setLoading1(true);
               PTP Confidence Distribution
             </div>
             <div
-              style={{
-                height: "200px",
-                backgroundColor: "#374151",
-                borderRadius: "6px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <BarChart width={350} height={200} data={barData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="confidence" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="count">
-                  {barData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={barColors[index % barColors.length]}
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            </div>
+  style={{
+    height: "265px",
+    backgroundColor: "#374151",
+    borderRadius: "6px",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  }}
+>
+  {barData.length === 0 || barData.every((item) => item.count === 0) ? (
+    <div style={{ color: "white", fontSize: "16px" }}>No data available</div>
+  ) : (
+    <BarChart width={350} height={200} data={barData}>
+      <CartesianGrid strokeDasharray="3 3" />
+      <XAxis dataKey="confidence" />
+      <YAxis />
+      <Tooltip />
+      <Bar dataKey="count">
+        {barData.map((entry, index) => (
+          <Cell
+            key={`cell-${index}`}
+            fill={barColors[index % barColors.length]}
+          />
+        ))}
+      </Bar>
+    </BarChart>
+  )}
+</div>
+
           </div>
           <div style={sectionStyle}>
             <div style={{ fontWeight: "600", marginBottom: "8px" }}>
               Sentiment & Language Insights
             </div>
             <div
-              style={{
-                height: "200px",
-                backgroundColor: "#374151",
-                borderRadius: "6px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <PieChart width={350} height={200}>
-                <Pie
-                  data={pieData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  outerRadius={70}
-                  fill="#8884d8"
-                  dataKey="value"
-                  label
-                  // label={({ name, percent }) => `${name} - ${(percent * 100).toFixed(0)}%`}
-                >
-                  {pieData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={pieColors[index % pieColors.length]}
-                    />
-                  ))}
-                </Pie>
-                <Legend />
-              </PieChart>
-            </div>
+  style={{
+    height: "265px",
+    backgroundColor: "#374151",
+    borderRadius: "6px",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  }}
+>
+  {pieData.length === 0 || pieData.every((item) => item.value === 0) ? (
+    <div style={{ color: "white", fontSize: "16px" }}>No data available</div>
+  ) : (
+    <PieChart width={350} height={262}>
+      <Pie
+        data={pieData}
+        cx="50%"
+        cy="50%"
+        labelLine={false}
+        outerRadius={70}
+        fill="#8884d8"
+        dataKey="value"
+        label
+      >
+        {pieData.map((entry, index) => (
+          <Cell
+            key={`cell-${index}`}
+            fill={pieColors[index % pieColors.length]}
+          />
+        ))}
+      </Pie>
+      <Legend />
+    </PieChart>
+  )}
+</div>
+
           </div>
         </div>
 
@@ -529,7 +549,7 @@ setLoading1(true);
             gap: "16px",
           }}
         >
-          <div style={sectionStyle}>
+          <div style={sectionStylestyle}>
             <div style={{ fontWeight: "600", marginBottom: "8px" }}>
               Detailed AI-Powered PTP Insights
             </div>
@@ -564,7 +584,7 @@ setLoading1(true);
           </div>
 
           {/* Agent-Wise PTP Accuracy Table */}
-          <div style={sectionStyle}>
+          <div style={sectionStylestyle}>
             <div style={{ fontWeight: "600", marginBottom: "8px" }}>
               Agent-Wise PTP Accuracy
             </div>
