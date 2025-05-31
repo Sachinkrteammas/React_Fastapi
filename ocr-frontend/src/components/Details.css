@@ -1,7 +1,7 @@
 .dashboard-container-de {
     font-family: Arial, sans-serif;
     padding: 20px;
-    background: #f4f4f4;
+    background: rgb(15, 23, 42);
     margin-top: 20px;
     width: 100%;
   }
@@ -68,7 +68,7 @@
   
   /* Left Section */
   .left-section-de{
-    width: 60%;
+    width: 50%;
   }
   .issue-card {
     display: flex;
@@ -80,15 +80,16 @@
   .issue-card-container{
     height: 100%;
     width: 100%;
-  
-
-    background: white;
+    background: rgb(31, 41, 55);
     padding: 15px;
     margin-bottom: 10px;
     border-radius: 8px;
     box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+    color:grey;
 
   }
+
+
   .top-issues-container {
     display: flex;
     justify-content: space-between;
@@ -97,7 +98,7 @@
    
   }
 .chart-detail{
-  background: white;
+  background: rgb(31, 41, 55);
   padding: 0px;
   margin-bottom: 0px;
   border-radius: 8px;
@@ -118,7 +119,7 @@
 
   /* Right Section */
   .right-section-de {
-    width: 40%;
+    width: 50%;
   }
   
   .stats-flex-right{
@@ -133,12 +134,14 @@
 
   /* Table Cards */
   .table-card-de {
-    background: white;
+    background: rgb(31, 41, 55);
     padding: 15px;
-    
+    color:grey;
     margin-bottom: 10px;
     border-radius: 8px;
     box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+    height:195px;
+
   }
   
   .table-card-de h4 {
@@ -166,8 +169,8 @@
  
 
   .audit-table {
-    background: white;
-    
+    background: rgb(31, 41, 55);
+    color:grey;
     padding: 15px;
     border-radius: 8px;
     box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
@@ -255,32 +258,35 @@
   /* 2nd page */
   .cq-container {
     width: fit-content;
-    background-color: #efefef;
+    background-color: rgb(31, 41, 55);
     padding: 15px;
     border-radius: 8px;
     font-family: Arial, sans-serif;
     margin-top: 10px;
+    color:grey;
   }
   
 
   /* 3rd page */
   .daywise-container {
     width: fit-content;
-    background-color: #efefef;
+    background-color:  rgb(31, 41, 55);
     padding: 15px;
     border-radius: 8px;
     font-family: Arial, sans-serif;
     margin-top: 10px;
+    color:grey;
   }
   
   /* 4the page */
   .weekwise-container {
     width: fit-content;
-    background-color: #efefef;
+    background-color:  rgb(31, 41, 55);
     padding: 15px;
     border-radius: 8px;
     font-family: Arial, sans-serif;
     margin-top: 10px;
+    color:grey;
   }
 
   .setheaderdivdetails

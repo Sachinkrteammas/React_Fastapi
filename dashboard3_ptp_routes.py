@@ -66,7 +66,7 @@ def get_summary(filters: FilterParams):
     if conditions:
         query += " AND " + " AND ".join(conditions)
 
-    print(query)
+    # print(query)
     with engine.connect() as conn:
         result = conn.execute(text(query), params).fetchone()
 

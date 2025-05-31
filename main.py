@@ -1570,7 +1570,7 @@ def get_fatal_count(
     """)
 
     result = db.execute(query, {"client_id": client_id, "start_date": start_date, "end_date": end_date}).fetchone()
-    print(result)
+    # print(result)
     # Handle None case to avoid errors
     if not result:
         return {"audit_cnt": 0, "cq_score": 0, "fatal_count": 0, "fatal_percentage": 0, "query_fatal": 0,
@@ -3239,7 +3239,7 @@ async def run_scheduler(db: Session = Depends(get_db2)):
             )
             #print(final_prompt)
             analysis = await analyze_transcript(final_prompt)
-            print(analysis,"ANAlysys 44444444444444444444444444444444444")
+            # print(analysis,"ANAlysys 44444444444444444444444444444444444")
             try:
                 analysis_json = json.loads(analysis)
             except json.JSONDecodeError:

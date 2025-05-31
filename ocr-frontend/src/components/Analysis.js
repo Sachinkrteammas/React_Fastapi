@@ -757,15 +757,15 @@ const Analysis = () => {
     bgColor = "white";
   }
 
-  return (
-    <div key={index} className="card" style={{ backgroundColor: bgColor }}>
-      <h6>{card.title}</h6>
-      <p className={`text-2xl font-bold ${card.textColor}`}>
-        {card.value}
-      </p>
-    </div>
-  );
-})}
+              return (
+                <div key={index} className="card" style={{ backgroundColor: bgColor }}>
+                  <h6>{card.title}</h6>
+                  <p className={`text-2xl font-bold ${card.textColor}`}>
+                    {card.value}
+                  </p>
+                </div>
+              );
+            })}
 
               </div>
             </div>

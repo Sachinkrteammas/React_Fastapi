@@ -523,10 +523,10 @@ const DetailAnalysis = () => {
 
   useEffect(() => {
     if (!clientId) return; // ✅ Prevents running effect if clientId is missing
-  
+
     setLoading(true);
     setError(null);
-  
+
     const fetchData = async () => {
       try {
         // API URLs (Only passing client_id)
@@ -535,7 +535,7 @@ const DetailAnalysis = () => {
         const url3 = `${BASE_URL}/day_performance_summary?client_id=${clientId}`;
         const url4 = `${BASE_URL}/week_performance_summary?client_id=${clientId}`;
         const url5 = `${BASE_URL}/details_count?client_id=${clientId}`;
-  
+
         // Fetch all APIs in parallel
         const results = await Promise.allSettled([
           fetch(url1).then((res) => (res.ok ? res.json() : Promise.reject(res.status))),
@@ -544,19 +544,19 @@ const DetailAnalysis = () => {
           fetch(url4).then((res) => (res.ok ? res.json() : Promise.reject(res.status))),
           fetch(url5).then((res) => (res.ok ? res.json() : Promise.reject(res.status))),
         ]);
-  
+
         // Extract API responses
         const data1 = results[0].status === "fulfilled" ? results[0].value : [];
         const data2 = results[1].status === "fulfilled" ? results[1].value : [];
         const data3 = results[2].status === "fulfilled" ? results[2].value : [];
         const data4 = results[3].status === "fulfilled" ? results[3].value : [];
         const data5 = results[4].status === "fulfilled" ? results[4].value : [];
-  
+
         // Process first API response (Scenario Data)
         const queryData = data1?.Query || [];
         const complaintData = data1?.Complaint || [];
         const requestData = data1?.Request || [];
-  
+
         const queryData1 = queryData.map((item) => ({
           name: item.Reason,
           count: item.Count,
@@ -569,17 +569,17 @@ const DetailAnalysis = () => {
           name: item.Reason,
           count: item.Count,
         }));
-  
+
         setQueryData(queryData);
         setQueryData1(queryData1);
         setComplaintData(complaintData);
         setComplaintData1(complaintData1);
         setRequestData(requestData);
         setRequestData1(requestData1);
-  
+
         // Process second API response (Agent Performance Data)
         setAgentData(data2);
-  
+
         // Process third API response (Day-wise Performance Data)
         setDatadaywise(
           Array.isArray(data3)
@@ -597,7 +597,7 @@ const DetailAnalysis = () => {
               }))
             : []
         );
-  
+
         // Process fourth API response (Week-wise Performance Data)
         setDataweek(
           Array.isArray(data4)
@@ -615,7 +615,7 @@ const DetailAnalysis = () => {
               }))
             : []
         );
-  
+
         // Process fifth API response (Stats Data)
         setStats(data5);
       } catch (error) {
@@ -625,7 +625,7 @@ const DetailAnalysis = () => {
         setLoading(false);
       }
     };
-  
+
     fetchData();
   }, [clientId]); // ✅ Runs when clientId changes
 
@@ -648,7 +648,7 @@ const DetailAnalysis = () => {
       {/* <div className="dashboard-container-de"> */}
       <div className={`dashboard-container-de ${loading ? "blurred" : ""}`}>
         {/* Header Section */}
-        <header className="header">
+        <header className="header" style={{backgroundColor:"rgb(15, 23, 42)",color:"grey"}}>
           <h3>DialDesk</h3>
           <div className="setheaderdivdetails">
             <label>
@@ -682,15 +682,15 @@ const DetailAnalysis = () => {
             <div className="stats-flex">
               {stats?.cq_score !== undefined ? (
                 <>
-                  <div className="stat-card">CQ Score
+                  <div className="stat-card" style={{backgroundColor:"red",color:"white"}}>CQ Score
                   <p>{stats.cq_score}%</p></div>
-                  <div className="stat-card">Audit Count
+                  <div className="stat-card" style={{backgroundColor:"rgb(30, 136, 229)",color:"white"}}>Audit Count
                   <p>{stats.audit_cnt}</p></div>
-                  <div className="stat-card">
+                  <div className="stat-card" style={{backgroundColor:"rgb(67, 160, 71)",color:"white"}}>
                     Fatal Count
                     <p>{stats.fatal_count}</p>
                   </div>
-                  <div className="stat-card">
+                  <div className="stat-card" style={{backgroundColor:"orange",color:"white"}}>
                     Fatal
                     <p>{stats.fatal_percentage}%</p>
                   </div>
@@ -700,60 +700,11 @@ const DetailAnalysis = () => {
               )}
             </div>
             <div className="top-issues-container">
-              {/* Top 5 Queries */}
-              <h4 style={{fontSize:"16px"}}>Top 5 - Query</h4>
-              <div className="issue-card">
-                <div className="issue-card-container">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Query Type</th>
-                        <th>Count</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {queryData.length > 0 ? (
-                        queryData.map((query, index) => (
-                          <tr key={index}>
-                            <td className="count">{query.Reason}</td>
-                            <td >{query.Count}</td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan="2">No data available</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
 
-                <div className="chart-detail">
-                  <PieChart width={250} height={330}>
-                    <RePie
-                      data={queryData1}
-                      dataKey="count"
-                      nameKey="name"
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={80}
-                      label
-                    >
-                      {queryData1.map((entry, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={COLORS[index % COLORS.length]}
-                        />
-                      ))}
-                    </RePie>
-                    <Tooltip />
-                    <Legend />
-                  </PieChart>
-                </div>
-              </div>
+
 
               {/* Top 5 Complaints */}
-              <h4 style={{fontSize:"16px"}}>Top 5 - Complaint</h4>
+              <h4 style={{fontSize:"16px", color:"grey"}}>Top 5 - Complaint</h4>
               <div className="issue-card">
                 <div className="issue-card-container">
                   <table>
@@ -804,7 +755,7 @@ const DetailAnalysis = () => {
               </div>
 
               {/* Top 5 Requests */}
-              <h4 style={{fontSize:"16px"}}>Top 5 - Request</h4>
+              <h4 style={{fontSize:"16px",color:"grey"}}>Top 5 - Request</h4>
               <div className="issue-card">
                 <div className="issue-card-container">
                   <table>
@@ -861,15 +812,15 @@ const DetailAnalysis = () => {
             <div className="stats-flex-right">
               {stats?.query !== undefined ? (
                 <>
-                  <div className="stat-card">Query Count
+                  <div className="stat-card" style={{backgroundColor:"rgb(67, 160, 71)",color:"white"}}>Query Count
                   <p>{stats.query}</p></div>
-                  <div className="stat-card">
+                  <div className="stat-card" className="stat-box" style={{backgroundColor:"orange",color:"white"}}>
                     Complaint Count
                     <p>{stats.Complaint}</p>
                   </div>
-                  <div className="stat-card">Request Count
+                  <div className="stat-card" style={{backgroundColor:"red",color:"white"}}>Request Count
                   <p>{stats.Request}</p></div>
-                  <div className="stat-card">Sale Done Count
+                  <div className="stat-card" style={{backgroundColor:"rgb(30, 136, 229)",color:"white"}}>Sale Done Count
                   <p>{stats.sale}</p></div>
                 </>
               ) : (
@@ -939,6 +890,61 @@ const DetailAnalysis = () => {
                 </tr>
               </table>
             </div>
+
+
+
+{/* Top 5 Queries */}
+              <h4 style={{fontSize:"16px" ,color:"grey"}}>Top 5 - Query</h4>
+<div className="issue-card">
+                <div className="issue-card-container" style={{height:"auto"}}>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Query Type</th>
+                        <th>Count</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {queryData.length > 0 ? (
+                        queryData.map((query, index) => (
+                          <tr key={index}>
+                            <td className="count">{query.Reason}</td>
+                            <td >{query.Count}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="2">No data available</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="chart-detail">
+                  <PieChart width={250} height={330}>
+                    <RePie
+                      data={queryData1}
+                      dataKey="count"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={80}
+                      label
+                    >
+                      {queryData1.map((entry, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={COLORS[index % COLORS.length]}
+                        />
+                      ))}
+                    </RePie>
+                    <Tooltip />
+                    <Legend />
+                  </PieChart>
+                </div>
+              </div>
+
           </div>
         </div>
 
