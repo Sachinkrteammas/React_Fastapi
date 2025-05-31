@@ -10,7 +10,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 10px 20px;
-    background-color: #c7d5e3;
+    background-color: #ffffff;
     border-radius: 8px;
     margin-bottom: 20px;
     width: 100%;
@@ -52,10 +52,11 @@
   
   .top-contributors {
     margin-top: 20px;
-    background-color: white;
+    background-color: rgb(31, 41, 55);
     padding: 16px;
     border-radius: 8px;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+    color:grey;
   }
   
   table {
@@ -83,17 +84,19 @@
   
   .chart-section {
     margin-top: 20px;
-    background-color: white;
+    background-color: rgb(31, 41, 55);
     padding: 16px;
     border-radius: 8px;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+    color:grey;
   }
 
   .right-card{
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
-    background-color: white;
+    background-color: rgb(31, 41, 55);
     padding: 16px;
     border-radius: 8px;
+    color:grey;
   }
   /* .chart-section:hover {
     transform: scale(1.05);
@@ -160,8 +163,8 @@
   } */
   
   .leftbody, .rightbody {
-    width: 49%; /* Make each section take 50% width */
-    background-color: white; /* Add background for visibility */
+    width: 49%;
+    background-color: rgb(31, 41, 55);;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
@@ -181,13 +184,14 @@
 
   .full-width {
     width: 98.5%;
-    background-color: white;
+    background-color: rgb(31, 41, 55);
     border-radius: 8px;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
     padding: 10px;
     text-align: center;
     border-radius: 8px;
     margin-top: 5px;
+    color:grey;
   }
   .low-score {
     background-color: red;
@@ -210,7 +214,7 @@
   {
     width: 72px;
     cursor: pointer;
-    background-color: #ccc;
+    background-color: rgb(251, 191, 36);
     color: white;
     height: 44px;
     margin-left: 3px;
@@ -218,7 +222,7 @@
   }
 
   .setsubmitbtn:hover {
-    background: #16155e;
+
   }
   
   

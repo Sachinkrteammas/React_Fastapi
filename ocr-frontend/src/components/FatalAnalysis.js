@@ -501,7 +501,7 @@ const Fatal = () => {
     <Layout heading="Title to be decided">
       {/* <div className="dashboard-container"> */}
       <div className={`dashboard-container ${loading ? "blurred" : ""}`}>
-        <header className="header">
+        <header className="header" style={{backgroundColor:"rgb(15, 23, 42)",color:"grey"}}>
           {/* <div> */}
           <label>
             {" "}
@@ -533,19 +533,19 @@ const Fatal = () => {
         <div className="maincon">
           <div className="leftbody">
             <div className="stats">
-              <div className="stat-box">
+              <div className="stat-box" style={{backgroundColor:"red",color:"white"}}>
                 <h6>CQ Score%</h6>
                 <p className="score">{stats?.cq_score || "N/A"}%</p>
               </div>
-              <div className="stat-box">
+              <div className="stat-box" style={{backgroundColor:"rgb(30, 136, 229)",color:"white"}}>
                 <h6>Audit Count</h6>
                 <p className="score">{stats?.audit_cnt || "N/A"}</p>
               </div>
-              <div className="stat-box">
+              <div className="stat-box" style={{backgroundColor:"rgb(67, 160, 71)",color:"white"}}>
                 <h6>Fatal Count</h6>
                 <p className="score">{stats?.fatal_count || "N/A"}</p>
               </div>
-              <div className="stat-box">
+              <div className="stat-box" style={{backgroundColor:"orange",color:"white"}}>
                 <h6>Fatal%</h6>
                 <p className="score">{stats?.fatal_percentage || "N/A"}%</p>
               </div>
@@ -597,19 +597,19 @@ const Fatal = () => {
               <h5 className="text-center"style={{ marginBottom: '8px' }}>Scenario Wise Fatal Count</h5>
 
               <div className="stats">
-                <div className="stat-box">
+                <div className="stat-box" style={{backgroundColor:"orange",color:"white"}}>
                   <h6>Query Fatal</h6>
                   <p className="score">{stats?.query_fatal ?? "N/A"}</p>
                 </div>
-                <div className="stat-box">
+                <div className="stat-box"  style={{backgroundColor:"rgb(30, 136, 229)",color:"white"}}>
                   <h6>Complaint Fatal</h6>
                   <p className="score">{stats?.Complaint_fatal ?? "N/A"}</p>
                 </div>
-                <div className="stat-box">
+                <div className="stat-box" style={{backgroundColor:"rgb(67, 160, 71)",color:"white"}}>
                   <h6>Request Fatal</h6>
                   <p className="score">{stats?.Request_fatal ?? "N/A"}</p>
                 </div>
-                <div className="stat-box">
+                <div className="stat-box" style={{backgroundColor:"red",color:"white"}}>
                   <h6>Sale Done Fatal</h6>
                   <p className="score">{stats?.sale_fatal ?? "N/A"}</p>
                 </div>

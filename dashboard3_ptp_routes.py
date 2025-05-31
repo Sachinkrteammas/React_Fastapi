@@ -25,6 +25,7 @@ class FilterParams(BaseModel):
 
 @router.post("/summary")
 def get_summary(filters: FilterParams):
+    today = date.today()
     query = """
         SELECT
             COUNT(*) AS total_ptps,
@@ -38,11 +39,9 @@ def get_summary(filters: FilterParams):
     conditions = []
     params = {}
 
-    # Use today's date if no date filters provided
-    today = date.today()
     if not filters.start_date and not filters.end_date:
         conditions.append("DATE(call_time) = :today")
-        params['today'] = today
+        params["today"] = today
     else:
         if filters.start_date:
             conditions.append("DATE(call_time) >= :start_date")
@@ -51,29 +50,22 @@ def get_summary(filters: FilterParams):
             conditions.append("DATE(call_time) <= :end_date")
             params['end_date'] = filters.end_date
 
-    if filters.agent_name and filters.agent_name.strip():
+    if filters.agent_name and filters.agent_name.strip().lower() != "string":
         conditions.append("agent_name = :agent_name")
         params['agent_name'] = filters.agent_name.strip()
-
-    if filters.min_confidence_score is not None:
-        conditions.append("confidence_score >= :min_confidence_score")
-        params['min_confidence_score'] = filters.min_confidence_score
-
-    if filters.team is not None:
+    if filters.team and filters.team.strip().lower() != "string":
         conditions.append("team = :team")
-        params['team'] = filters.team
-    if filters.region is not None:
+        params['team'] = filters.team.strip()
+    if filters.region and filters.region.strip().lower() != "string":
         conditions.append("region = :region")
-        params['region'] = filters.region
-    if filters.campaign is not None:
+        params['region'] = filters.region.strip()
+    if filters.campaign and filters.campaign.strip().lower() != "string":
         conditions.append("campaign = :campaign")
-        params['campaign'] = filters.campaign
-    if filters.disposition is not None:
-        conditions.append("call_disposition = :disposition")
-        params['disposition'] = filters.disposition
+        params['campaign'] = filters.campaign.strip()
 
     if conditions:
         query += " AND " + " AND ".join(conditions)
+
     print(query)
     with engine.connect() as conn:
         result = conn.execute(text(query), params).fetchone()
@@ -85,6 +77,7 @@ def get_summary(filters: FilterParams):
         "ptps_failed": result[3],
         "follow_up_cases": result[4],
     }
+
 
 
 @router.post("/ptp-distribution")

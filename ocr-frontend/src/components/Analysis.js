@@ -35,7 +35,7 @@ const Analysis = () => {
   };
 
   const pieData1 = [
-    { name: "Top Negative Signals", value: 2, color: "#b765bd" },
+    { name: "Top Negative Signals", value: 2, color: "rgb(52, 211, 153)" },
   ];
 
   // const topNegativeSignals = [
@@ -295,11 +295,11 @@ const Analysis = () => {
           color: "#4CAF50",
         },
         { name: "Good", value: auditData.good || 0, color: "#2d9179" },
-        { name: "Average", value: auditData.avg_call || 0, color: "#b765bd" },
+        { name: "Average", value: auditData.avg_call || 0, color: "rgb(250, 204, 21)" },
         {
           name: "Below Average",
           value: auditData.b_avg || 0,
-          color: "#798e43",
+          color: "rgb(52, 211, 153)",
         },
       ]);
 
@@ -396,8 +396,8 @@ const Analysis = () => {
         setPieData([
           { name: "Excellent", value: data.excellent, color: "#4CAF50" },
           { name: "Good", value: data.good, color: "#2d9179" },
-          { name: "Average", value: data.avg_call, color: "#b765bd" },
-          { name: "Below Average", value: data.b_avg, color: "#798e43" },
+          { name: "Average", value: data.avg_call, color: "rgb(250, 204, 21)" },
+          { name: "Below Average", value: data.b_avg, color: "rgb(52, 211, 153)" },
         ]);
       } catch (error) {
         console.error("Error fetching audit data:", error);
@@ -634,7 +634,7 @@ const Analysis = () => {
       } catch (error) {
         console.error("Error in fetchData:", error);
       } finally {
-        setLoading(false); // Ensure setLoading(false) runs even if there's an error
+        setLoading(false);
       }
     };
 
@@ -658,7 +658,7 @@ const Analysis = () => {
     <Layout heading="Title to be decided">
       {/* <div className="dashboard-container"> */}
       <div className={`dashboard-container ${loading ? "blurred" : ""}`}>
-        <header className="header">
+        <header className="header" style={{backgroundColor:"rgb(15, 23, 42)",color:"grey"}}>
           <h3>DialDesk</h3>
           {/* <div className="date-picker">Feb 19, 2025 - Feb 20, 2025</div> */}
           <div className="setdate">
@@ -682,7 +682,7 @@ const Analysis = () => {
                 />
               </label>
               <label>
-                <input type="submit" class="setsubmitbtn" value="Submit" />
+                <input type="submit" class="" style={{backgroundColor:"rgb(251, 191, 36)"}} value="Submit" />
               </label>
             </form>
           </div>
@@ -692,49 +692,81 @@ const Analysis = () => {
             <div className="cqscore">
               <div className="card-container">
                 {[
-                  {
-                    title: "CQ Score",
-                    value: `${auditData.cq_score}%`,
-                    color: "text-red-600",
-                  },
-                  {
-                    title: "Fatal CQ Score",
-                    value: "84%",
-                    color: "text-green-600",
-                  }, // Static for now
-                  {
-                    title: "Audit Count",
-                    value: auditData.audit_cnt,
-                    color: "text-blue-600",
-                  },
-                  {
-                    title: "Excellent Call",
-                    value: auditData.excellent,
-                    color: "text-purple-600",
-                  },
-                  {
-                    title: "Good Call",
-                    value: auditData.good,
-                    color: "text-green-600",
-                  },
-                  {
-                    title: "Average Call",
-                    value: auditData.avg_call,
-                    color: "text-yellow-600",
-                  },
-                  {
-                    title: "Below Call",
-                    value: auditData.b_avg,
-                    color: "text-gray-600",
-                  },
-                ].map((card, index) => (
-                  <div key={index} className="card">
-                    <h6>{card.title}</h6>
-                    <p className={`text-2xl font-bold ${card.color}`}>
-                      {card.value}
-                    </p>
-                  </div>
-                ))}
+  {
+    title: "CQ Score",
+    value: `${auditData.cq_score}%`,
+    textColor: "text-red-600",
+  },
+//  {
+//    title: "Fatal CQ Score",
+//    value: "84%",
+//    textColor: "text-green-600",
+//  },
+  {
+    title: "Audit Count",
+    value: auditData.audit_cnt,
+    textColor: "text-blue-600",
+  },
+//  {
+//    title: "Excellent Call",
+//    value: auditData.excellent,
+//    textColor: "text-purple-600",
+//  },
+  {
+    title: "Good Call",
+    value: auditData.good,
+    textColor: "text-green-600",
+  },
+  {
+    title: "Average Call",
+    value: auditData.avg_call,
+    textColor: "text-yellow-600",
+  },
+  {
+    title: "Below Call",
+    value: auditData.b_avg,
+    textColor: "text-gray-600",
+  },
+].map((card, index) => {
+  let bgColor = "";
+
+  if (card.title === "Average Call") {
+    bgColor = "orange";
+  } else if (card.title === "Below Call") {
+    bgColor = "red";
+  } else if (card.title === "Good Call") {
+    bgColor = "#4bd9f0";
+  }
+//  else if (card.title === "Excellent Call") {
+//    bgColor = "rgb(52, 211, 153)";
+//  }
+
+  else if (card.title === "Audit Count") {
+    bgColor = "rgb(67, 160, 71)";
+  }
+
+//  else if (card.title === "Fatal CQ Score") {
+//    bgColor = "rgb(250, 204, 21)";
+//  }
+
+  else if (card.title === "CQ Score") {
+    bgColor = "rgb(30, 136, 229)";
+  }
+
+   else {
+    bgColor = "white";
+  }
+
+  return (
+    <div key={index} className="card" style={{ backgroundColor: bgColor }}>
+      <h6>{card.title}</h6>
+      <p className={`text-2xl font-bold ${card.textColor}`}>
+        {card.value}
+      </p>
+    </div>
+  );
+})}
+
               </div>
             </div>
 
@@ -813,8 +845,8 @@ const Analysis = () => {
           </div>
 
           <div className="callwise">
-            <h5 style={{ fontSize: '1.08rem' }}
-            >Call Wise</h5>
+            <h3 style={{ fontSize: '20px' }}
+            >Call Wise</h3>
             <PieChart width={400} height={300}>
               <Pie
                 data={pieData}
@@ -838,7 +870,7 @@ const Analysis = () => {
 
         <div className="performertarget">
           <div className="topperformer">
-            <p>Top 5 Performers</p>
+            <p style={{color:"white"}}>Top 5 Performers</p>
             <table className="performer1">
               <thead>
                 <tr>

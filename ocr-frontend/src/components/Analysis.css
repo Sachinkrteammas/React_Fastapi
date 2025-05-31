@@ -36,13 +36,15 @@
   height: 411px;
   /* background-color: rgb(96, 96, 97); */
 
-  background-color: white;
+  background-color: rgb(31, 41, 55);
   padding: 5px;
   border-radius: 8px;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
   /* flex: 1 1;
   margin-right: 10px;
   width: fit-content; */
+  color:white;
+  text-align:center;
 }
 .callandache
 {
@@ -63,17 +65,18 @@
 .card-container
 {
   display: flex;
+  gap:5px;
 }
 
 .card {
-  background: white;
+  background: rgb(52 103 167) ;
   padding: 6px;
   border-radius: 5px;
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
   text-align: center;
   /* min-width: 140px; */
   display: flex;
- 
+  color:white!important;
   font-size: 13px;
   width: 20%;
   height: 110px !important;
@@ -91,7 +94,7 @@
 
   text-align: center;
   width: 60%;
-  background-color:white;
+  background-color:rgb(31, 41, 55);
   height: 290px;
   border-radius: 8px;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
@@ -118,12 +121,13 @@
   display: flex;
   flex-direction: column;
  
-  background-color: white;
+  background-color: rgb(31, 41, 55);
   
   border-radius: 8px;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
   width: 100% !important;
   /* margin: 4px */
+  color:white;
 
 
 }
@@ -146,7 +150,7 @@
 {
   width: 45%;
   text-align: center;
-  background: white;
+  background: rgb(31, 41, 55);
   padding: 6px;
   border-radius: 5px;
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
@@ -154,7 +158,7 @@
 .targetwize
 {
   width: 55%;
-  background: white;
+  background: rgb(31, 41, 55);
   padding: 6px;
   border-radius: 5px;
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
@@ -162,38 +166,42 @@
 
 }
 .one-12{
-  background: white;
+  background: rgb(31, 41, 55);
   padding: 6px;
   border-radius: 5px;
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
   margin-left: 5px;
+  color:grey;
 
 }
 .one-123{
   margin-top: 5px;
-  background: white;
+  background: rgb(31, 41, 55);
   padding: 6px;
   border-radius: 5px;
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
   margin-left: 5px;
+  color:grey;
 
 }
 .one-124{
   margin-top: 5px;
-  background: white;
+  background: rgb(31, 41, 55);
   padding: 6px;
   border-radius: 5px;
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
   margin-left: 5px;
+  color:grey;
 
 }
 .one-125{
   margin-top: 5px;
-  background: white;
+  background: rgb(31, 41, 55);
   padding: 6px;
   border-radius: 5px;
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
   margin-left: 5px;
+  color:grey;
 
 }
 
@@ -241,19 +249,21 @@
   display: flex;
   justify-content: space-between;
   padding: 10px;
-  background: #ffffff;
+  background: rgb(31, 41, 55);
   border-radius: 5px;
   border: 1px solid #ddd;
   /*font-weight: bold; */
+  color:grey;
 }
 
 .chart-containernew {
   margin-top: 5px;
-  background: white;
+  background: rgb(31, 41, 55);
   padding: 20px;
   border-radius: 10px;
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
   text-align: center;
+  color:white;
 }
 
 
@@ -334,12 +344,13 @@
   
 }
 .section-box {
-  background-color: #80cbc4; 
+  background-color: rgb(31, 41, 55);
   padding: 16px;
   border-radius: 10px;
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
   margin-top: 20px;
   width: 100%;
+  color:grey;
 }
 
 .section-content {
@@ -393,11 +404,11 @@
 }
 
 .data-table tbody tr:nth-child(even) {
-  background-color: #e0f2f1; 
+  background-color: #e0f2f1;
 }
 
 .data-table tbody tr:hover {
-  background-color: #b2dfdb; 
+
 }
 
 
@@ -440,7 +451,7 @@
 
 
 .data-table {
-  width: 100%;
+  width: 91%;
   background: white;
   border-collapse: collapse;
   text-align: left;
@@ -467,7 +478,6 @@
 }
 
 .data-table tbody tr:hover {
-  background-color: #b2dfdb; 
 }
 
 
@@ -488,11 +498,12 @@
   justify-content: space-between;
   margin-bottom: 20px;
   border-radius: 5px;
-  background-color: #b0d4d3;
+  background-color: rgb(31, 41, 55);
   margin-top: 2rem;
   height: 415px;
   width: 37%;
   margin-right: 8px;
+  color:grey;
 }
 
 .alerts {
@@ -500,6 +511,8 @@
   margin-right: 2px;
   margin-top: 0rem;
   overflow: auto;
+  background:rgb(31, 41, 55);
+  color:grey;
 }
 
 .alert-box {
@@ -524,6 +537,8 @@
     overflow: auto;
     height: 430px;
     margin-top: 25px;
+    background:rgb(31, 41, 55);
+    color:grey;
 }
 
 .competitor-table table {
@@ -552,7 +567,7 @@
 
 .chart-box1 {
   width: 30%;
-  background: #e9f0f0;
+  background: rgb(31, 41, 55);
   /* padding: 15px; */
   border-radius: 8px;
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
@@ -560,18 +575,20 @@
   /* margin-left: 1rem; */
   margin-right: 5px;
   height: 428px;
+  color:grey;
 }
 
 
 .chart-box2 {
   width: 31%;
-  background: #e9f0f0;
+  background: rgb(31, 41, 55);
   padding: 1px;
   border-radius: 8px;
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
   margin-top: 2rem;
   /* margin-left: 1rem; */
   height: 428px;
+  color:grey;
 }
 .Competitordiv
 {
@@ -649,3 +666,4 @@ width: 100%;
   50% { transform: scaleY(2); }
   100% { transform: scaleY(1); }
 }
+

@@ -118,12 +118,12 @@ const today = new Date().toISOString().split("T")[0];
       const res = await axios.post(`${BASE_URL}/dashboard3/summary`, {
         start_date: today,
         end_date: today,
-        agent_name: null,
-        team: null,
-        region: null,
-        campaign: null,
-        min_confidence_score: null,
-        disposition: null,
+        agent_name: "string",
+        team: "string",
+        region: "string",
+        campaign: "string",
+        min_confidence_score: 0,
+        disposition: "string"
       });
       setSummary(res.data);
     } catch (err) {
@@ -301,12 +301,12 @@ setLoading1(true);
       const res = await axios.post(`${BASE_URL}/dashboard3/summary`, {
         start_date: startDate,
         end_date: endDate,
-        agent_name: null,
-        team: null,
-        region: null,
-        campaign: null,
-        min_confidence_score: null,
-        disposition: null,
+        agent_name: "string",
+        team: "string",
+        region: "string",
+        campaign: "string",
+        min_confidence_score: 0,
+        disposition: "string"
       });
       setSummary(res.data);
     } catch (err) {
