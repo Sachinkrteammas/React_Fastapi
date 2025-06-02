@@ -35,6 +35,7 @@ import UploadHelp from './pages/UploadHelp';
 import ApiHelp from './pages/ApiHelp';
 import PTPAnalysis from './components/PTPAnalysis'
 import Insight from './components/Insight'
+import Portfolio from './components/Portfolio'
 
 
 
@@ -128,7 +129,10 @@ const App = () => {
 
         <Route path="/PTPAnalysis" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<PTPAnalysis onLogout={handleLogout}/>} />} />
         <Route path="/Insight" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Insight onLogout={handleLogout}/>} />} />
-        
+        <Route path="/Portfolio" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Portfolio onLogout={handleLogout}/>} />} />
+
+
+
         <Route path="/upload-help" element={<UploadHelp />} />
         <Route path="/api-help" element={<ApiHelp />} />
         
