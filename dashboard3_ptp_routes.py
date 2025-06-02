@@ -5,6 +5,8 @@ from datetime import date
 from sqlalchemy import create_engine, text
 import json
 from collections import Counter
+from datetime import datetime
+from collections import OrderedDict
 
 router = APIRouter(prefix="/dashboard3")
 
@@ -1150,3 +1152,229 @@ def collection_funnel_optimization(filters: FilterParams):
         "total_records": total
     }
     return response
+
+
+@router.post("/ptp-summary-stats")
+def ptp_summary_stats(filters: FilterParams):
+    today = date.today()
+
+    query = """
+        SELECT 
+            COUNT(*) AS total_calls,
+            SUM(call_disposition = 'PTP Given') AS ptp_count,
+            SUM(call_disposition = 'PTP Given' AND predicted_to_fail = 0) AS rtp_count,
+            SUM(CASE WHEN call_disposition = 'PTP Given' THEN ptp_amount ELSE 0 END) AS ptp_amount_total,
+            SUM(CASE WHEN call_disposition = 'PTP Given' AND predicted_to_fail = 0 THEN ptp_amount ELSE 0 END) AS rtp_amount_total
+        FROM tbl_collection
+        WHERE 1 = 1
+    """
+    conditions = []
+    params = {}
+
+    # Date Filters
+    if not filters.start_date and not filters.end_date:
+        conditions.append("DATE(call_time) = :today")
+        params["today"] = today
+    else:
+        if filters.start_date:
+            conditions.append("DATE(call_time) >= :start_date")
+            params["start_date"] = filters.start_date
+        if filters.end_date:
+            conditions.append("DATE(call_time) <= :end_date")
+            params["end_date"] = filters.end_date
+
+    # Optional Filters
+    if filters.agent_name and filters.agent_name.strip().lower() != "string":
+        conditions.append("agent_name = :agent_name")
+        params["agent_name"] = filters.agent_name.strip()
+    if filters.team and filters.team.strip().lower() != "string":
+        conditions.append("team = :team")
+        params["team"] = filters.team.strip()
+    if filters.region and filters.region.strip().lower() != "string":
+        conditions.append("region = :region")
+        params["region"] = filters.region.strip()
+    if filters.campaign and filters.campaign.strip().lower() != "string":
+        conditions.append("campaign = :campaign")
+        params["campaign"] = filters.campaign.strip()
+
+    if conditions:
+        query += " AND " + " AND ".join(conditions)
+
+    with engine.connect() as conn:
+        result = conn.execute(text(query), params).mappings().first()
+
+    return {
+        "total_calls": result["total_calls"] or 0,
+        "ptp_count": result["ptp_count"] or 0,
+        "rtp_count": result["rtp_count"] or 0,
+        "ptp_amount": float(result["ptp_amount_total"] or 0),
+        "rtp_amount": float(result["rtp_amount_total"] or 0),
+        "not_given_count": (result["total_calls"] or 0) - (result["ptp_count"] or 0)
+    }
+
+
+@router.post("/ptp-rtp-monthly-trends")
+def ptp_rtp_monthly_trends(filters: FilterParams):
+    query = """
+        SELECT 
+            DATE_FORMAT(call_time, '%Y-%m') AS month,
+            SUM(CASE WHEN call_disposition = 'PTP Given' THEN ptp_amount ELSE 0 END) AS ptp_amount,
+            SUM(CASE WHEN call_disposition = 'PTP Given' AND predicted_to_fail = 0 THEN ptp_amount ELSE 0 END) AS rtp_amount
+        FROM tbl_collection
+        WHERE call_time IS NOT NULL
+    """
+    conditions = []
+    params = {}
+
+    # Date Filters
+    if filters.start_date:
+        conditions.append("DATE(call_time) >= :start_date")
+        params["start_date"] = filters.start_date
+    if filters.end_date:
+        conditions.append("DATE(call_time) <= :end_date")
+        params["end_date"] = filters.end_date
+    else:
+        from datetime import date
+        current_year = date.today().year
+        conditions.append("YEAR(call_time) = :year")
+        params["year"] = current_year
+
+    # Optional Filters
+    if filters.agent_name and filters.agent_name.strip().lower() != "string":
+        conditions.append("agent_name = :agent_name")
+        params["agent_name"] = filters.agent_name.strip()
+    if filters.team and filters.team.strip().lower() != "string":
+        conditions.append("team = :team")
+        params["team"] = filters.team.strip()
+    if filters.region and filters.region.strip().lower() != "string":
+        conditions.append("region = :region")
+        params["region"] = filters.region.strip()
+    if filters.campaign and filters.campaign.strip().lower() != "string":
+        conditions.append("campaign = :campaign")
+        params["campaign"] = filters.campaign.strip()
+
+    if conditions:
+        query += " AND " + " AND ".join(conditions)
+
+    query += " GROUP BY month ORDER BY month"
+
+    # Month labels
+    all_months = OrderedDict((datetime(1900, m, 1).strftime('%b'), {'PTP': 0, 'RTP': 0}) for m in range(1, 13))
+
+    with engine.connect() as conn:
+        results = conn.execute(text(query), params).fetchall()
+
+    # Fill actual data into the default months
+    for row in results:
+        month_str = datetime.strptime(row[0], "%Y-%m").strftime('%b')  # 'Jan', 'Feb', etc.
+        if month_str in all_months:
+            all_months[month_str]['PTP'] = float(row[1] or 0)
+            all_months[month_str]['RTP'] = float(row[2] or 0)
+
+    # Final structured data for frontend
+    return [
+        {"month": month, "PTP": data["PTP"], "RTP": data["RTP"]}
+        for month, data in all_months.items()
+    ]
+
+
+@router.post("/ptp-by-agent")
+def ptp_by_agent(filters: FilterParams):
+    query = """
+        SELECT agent_name, SUM(ptp_amount) AS total_ptp
+        FROM tbl_collection
+        WHERE call_disposition = 'PTP Given' AND ptp_amount IS NOT NULL
+    """
+    conditions = []
+    params = {}
+
+    # Date Filters
+    if filters.start_date:
+        conditions.append("DATE(call_time) >= :start_date")
+        params["start_date"] = filters.start_date
+    if filters.end_date:
+        conditions.append("DATE(call_time) <= :end_date")
+        params["end_date"] = filters.end_date
+
+    # Optional Filters
+    if filters.team and filters.team.strip().lower() != "string":
+        conditions.append("team = :team")
+        params["team"] = filters.team.strip()
+    if filters.region and filters.region.strip().lower() != "string":
+        conditions.append("region = :region")
+        params["region"] = filters.region.strip()
+    if filters.campaign and filters.campaign.strip().lower() != "string":
+        conditions.append("campaign = :campaign")
+        params["campaign"] = filters.campaign.strip()
+
+    if conditions:
+        query += " AND " + " AND ".join(conditions)
+
+    query += " GROUP BY agent_name ORDER BY total_ptp DESC"
+
+    with engine.connect() as conn:
+        results = conn.execute(text(query), params).fetchall()
+
+    return {
+        "agents": [row[0] for row in results],
+        "ptp_amounts": [float(row[1]) for row in results]
+    }
+
+
+@router.post("/ptp-fulfillment-table")
+def ptp_fulfillment_table(filters: FilterParams):
+    query = """
+        SELECT
+            customer_num AS customer_id,
+            agent_name,
+            DATE(call_time) AS call_date,
+            ptp_amount,
+            predicted_to_fail
+        FROM tbl_collection
+        WHERE call_disposition = 'PTP Given' AND ptp_amount IS NOT NULL
+    """
+    conditions = []
+    params = {}
+
+    # Date Filters
+    if filters.start_date:
+        conditions.append("DATE(call_time) >= :start_date")
+        params["start_date"] = filters.start_date
+    if filters.end_date:
+        conditions.append("DATE(call_time) <= :end_date")
+        params["end_date"] = filters.end_date
+
+    # Optional Filters
+    if filters.agent_name and filters.agent_name.strip().lower() != "string":
+        conditions.append("agent_name = :agent_name")
+        params["agent_name"] = filters.agent_name.strip()
+    if filters.team and filters.team.strip().lower() != "string":
+        conditions.append("team = :team")
+        params["team"] = filters.team.strip()
+    if filters.region and filters.region.strip().lower() != "string":
+        conditions.append("region = :region")
+        params["region"] = filters.region.strip()
+    if filters.campaign and filters.campaign.strip().lower() != "string":
+        conditions.append("campaign = :campaign")
+        params["campaign"] = filters.campaign.strip()
+
+    if conditions:
+        query += " AND " + " AND ".join(conditions)
+
+    query += " ORDER BY call_time DESC"
+
+    with engine.connect() as conn:
+        results = conn.execute(text(query), params).fetchall()
+
+    data = []
+    for row in results:
+        status = "Fulfilled" if not row[4] else "Pending"
+        data.append({
+            "customer_id": row[0],
+            "agent": row[1],
+            "call_date": str(row[2]),
+            "promised_amount": float(row[3]),
+            "status": status
+        })
+
+    return {"data": data}
