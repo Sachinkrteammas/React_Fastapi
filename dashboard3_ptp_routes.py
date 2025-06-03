@@ -7,6 +7,7 @@ import json
 from collections import Counter
 from datetime import datetime
 from collections import OrderedDict
+from fastapi.responses import JSONResponse
 
 router = APIRouter(prefix="/dashboard3")
 
@@ -1378,3 +1379,41 @@ def ptp_fulfillment_table(filters: FilterParams):
         })
 
     return {"data": data}
+
+
+
+
+@router.get("/latest-transcribe-audit")
+async def get_latest_transcribe_and_audit(agent_no: str = Query(...), leadid: str = Query(...)):
+    query = """
+        SELECT transcribe_text, analysis_json
+        FROM tbl_collection
+        WHERE agent_no = :agent_no
+        AND leadid = :leadid
+        ORDER BY call_time DESC
+        LIMIT 1
+    """
+    print(query)
+    with engine.connect() as conn:
+        result = conn.execute(text(query), {"agent_no": agent_no, "leadid": leadid}).fetchone()
+
+    if not result:
+        return JSONResponse(
+            content={"status": "error", "message": "No matching call found"},
+            status_code=404
+        )
+
+    transcribe_text, analysis_json = result
+    try:
+        audit_data = json.loads(analysis_json) if analysis_json else {}
+    except json.JSONDecodeError:
+        audit_data = {"error": "Invalid audit JSON"}
+
+    return {
+        "status": "success",
+        "agent_no": agent_no,
+        "leadid": leadid,
+        "transcribe": transcribe_text or "",
+        "audit": audit_data
+    }
+

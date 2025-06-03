@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import Layout from "../layout";
 import "../layout.css";
 import { BASE_URL } from "./config";
 const contact_number = localStorage.getItem("contact_number");
+const agent_no = `31${contact_number}`;
 
 
 
@@ -20,8 +21,12 @@ const Calling = () => {
     Services: "",
     Collection: "",
   });
+  const [callStatus, setCallStatus] = useState("");
+//  const [callVar, setCallVar] = useState(null);
 
-
+  const [auditData, setAuditData] = useState({});
+  const [transcribeData, setTranscribeData] = useState("");
+   const [leadid, setLeadid] = useState("");
 
 const handleCall = () => {
   const contact_number = localStorage.getItem("contact_number");
@@ -46,6 +51,8 @@ const handleCall = () => {
     })
     .then((data) => {
       console.log("API call success:", data);
+      setCallStatus("Call in progress.");
+//      setCallVar(data.data.var)
     })
     .catch((error) => {
       console.error("API call error:", error);
@@ -65,8 +72,62 @@ const handleCall = () => {
     }
   };
 
+
+
+
+useEffect(() => {
+  if (!contact_number || !agent_no) return;
+
+  let interval;
+
+  const fetchData = async () => {
+    try {
+      // Step 1: Fetch leadid
+      const leadidRes = await fetch(`${BASE_URL}/get-leadid?contact_number=${contact_number}`);
+      const leadidResult = await leadidRes.json();
+
+      if (leadidResult.status === "success" && leadidResult.leadid) {
+        setLeadid(leadidResult.leadid);
+
+        // Step 2: Fetch audit and transcribe using the leadid
+        const auditRes = await fetch(
+          `${BASE_URL}/dashboard3/latest-transcribe-audit?agent_no=${agent_no}&leadid=${leadidResult.leadid}`
+        );
+        const auditResult = await auditRes.json();
+
+        if (auditResult.status === "success") {
+          setAuditData(auditResult.audit || {});
+          setTranscribeData(auditResult.transcribe || "");
+          console.log("Audit:", auditResult.audit);
+          console.log("Transcribe:", auditResult.transcribe);
+        } else {
+          setAuditData({});
+          setTranscribeData("");
+        }
+      } else {
+        console.warn("Lead ID not found");
+        setLeadid(null);
+        setAuditData({});
+        setTranscribeData("");
+      }
+    } catch (err) {
+      console.error("Error fetching leadid/audit/transcribe:", err);
+      setAuditData({});
+      setTranscribeData("");
+    }
+  };
+
+  fetchData(); // initial fetch
+  interval = setInterval(fetchData, 5000); // polling every 5 seconds
+
+  return () => clearInterval(interval); // cleanup on unmount
+}, [contact_number, agent_no]); // run when these change
+
+
   return (
     <Layout heading="Smart Calling Center">
+
+
       <div
         style={{
           padding: "2rem",
@@ -76,6 +137,14 @@ const handleCall = () => {
           backgroundColor: "rgb(117 129 145)",
         }}
       >
+
+          {callStatus && (
+              <div className="call-status" style={{ marginTop: "10px", color: "rgb(59, 130, 246)" }}>
+                {callStatus}
+              </div>
+            )}
+
+
         {/* Top Section Buttons */}
         <div
           style={{
@@ -86,6 +155,9 @@ const handleCall = () => {
             marginBottom: "3rem",
           }}
         >
+
+
+
           {sections.map(({ name, icon, color }) => (
             <div
               key={name}
@@ -154,10 +226,11 @@ const handleCall = () => {
                 boxShadow: "inset 0 1px 4px rgba(0,0,0,0.1)",
                 fontSize: "1.05rem",
                 color: "#1e293b",
+                height:"320px",
                 overflowY: "auto",
               }}
             >
-              Transcribe data here
+              {transcribeData || "No transcription available"}
             </div>
           </div>
 
@@ -190,10 +263,15 @@ const handleCall = () => {
                 boxShadow: "inset 0 1px 4px rgba(0,0,0,0.1)",
                 fontSize: "1.05rem",
                 color: "#1e293b",
+                height:"320px",
                 overflowY: "auto",
               }}
             >
-              Audit data here
+             {Object.keys(auditData).length > 0
+                ? renderKeyValue(auditData)
+                : "No audit data available"}
+
+
             </div>
           </div>
         </div>
@@ -268,5 +346,27 @@ const handleCall = () => {
     </Layout>
   );
 };
+
+const renderKeyValue = (data, indent = 0) => {
+  if (typeof data !== "object" || data === null) {
+    return <span>{String(data)}</span>;
+  }
+
+  return (
+    <ul style={{ paddingLeft: `${indent + 12}px`, listStyle: "none" }}>
+      {Object.entries(data).map(([key, value]) => (
+        <li key={key} style={{ marginBottom: "4px" }}>
+          {key}:{" "}
+          {typeof value === "object" && value !== null ? (
+            renderKeyValue(value, indent + 16)
+          ) : (
+            <span>{String(value)}</span>
+          )}
+        </li>
+      ))}
+    </ul>
+  );
+};
+
 
 export default Calling;

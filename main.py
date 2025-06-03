@@ -100,7 +100,7 @@ class User(Base):
     clientid = Column(String, nullable=True)
     set_limit = Column(Integer, nullable=False, default=30)
     company_name = Column(String(255), nullable=True)
-
+    leadid = Column(String(50), nullable=True)
 
 # Create tables if they don't exist
 Base.metadata.create_all(bind=engine)
@@ -387,7 +387,8 @@ def login_user(user: LoginRequest, db: Session = Depends(get_db)):
     return {"message": "Login successful", "token": token, "username": db_user.username, "id": db_user.id,
             "client_id": db_user.clientid,
             "set_limit": db_user.set_limit,
-            "contact_number": db_user.contact_number}
+            "contact_number": db_user.contact_number,
+            "leadid": db_user.leadid}
 
 
 class VerifyOtpRequest(BaseModel):
@@ -3101,9 +3102,10 @@ def update_transcript(request: TranscriptUpdateRequest, db: Session = Depends(ge
 
 @app.get("/click2dial")
 async def click2dial(
-        param1: str = Query(...),
-        param2: str = Query(...),
-        param3: str = Query(...)
+    param1: str = Query(...),
+    param2: str = Query(...),
+    param3: str = Query(...),
+    db: Session = Depends(get_db)  # Inject the database session
 ):
     target_url = "http://192.168.10.8/remote/click2dial_demo.php"
     params = {
@@ -3116,12 +3118,17 @@ async def click2dial(
         async with httpx.AsyncClient() as client:
             response = await client.get(target_url, params=params)
 
-        # Try to return as JSON if the remote API returns JSON
         try:
             data = response.json()
+            # Update user leadid if 'var' is present
+            if data.get("var"):
+                user = db.query(User).filter(User.contact_number == param2).first()
+                if user:
+                    user.leadid = data["var"]
+                    db.commit()
+
             return JSONResponse(content={"status": "success", "data": data})
         except Exception:
-            # Fallback: wrap plain text in JSON
             return JSONResponse(content={"status": "success", "response": response.text})
 
     except Exception as e:
@@ -3239,7 +3246,7 @@ async def run_scheduler(db: Session = Depends(get_db2)):
             )
             #print(final_prompt)
             analysis = await analyze_transcript(final_prompt)
-            # print(analysis,"ANAlysys 44444444444444444444444444444444444")
+            print(analysis,"ANAlysys 44444444444444444444444444444444444")
             try:
                 analysis_json = json.loads(analysis)
             except json.JSONDecodeError:
@@ -3298,7 +3305,8 @@ async def run_scheduler(db: Session = Depends(get_db2)):
                 dispute_management = :dispute_management,
                 agent_behavior = :agent_behavior,
                 emotional_sentiment = :emotional_sentiment,
-                collection_funnel = :collection_funnel
+                collection_funnel = :collection_funnel,
+                ptp_amount = :ptp_amount
 
             WHERE id = :id
             """
@@ -3321,7 +3329,7 @@ async def run_scheduler(db: Session = Depends(get_db2)):
                 "ptp_confidence_score": ptp_summary.get("confidence_score"),
                 "predicted_to_fail": ptp_summary.get("predicted_to_fail"),
                 "ptp_remarks": ptp_summary.get("remarks"),
-
+                "ptp_amount": ptp_summary.get("ptp_amount"),
                 "confident_phrases": json.dumps(language_insights.get("confident_phrases", [])),
                 "hesitation_markers": json.dumps(language_insights.get("hesitation_markers", [])),
                 "confidence_distribution": json.dumps(language_insights.get("distribution", {})),
@@ -3359,3 +3367,141 @@ async def run_scheduler(db: Session = Depends(get_db2)):
     return {"message": "Scheduler completed"}
 
 
+
+class TranscriptInput(BaseModel):
+    transcript: str
+    collection_id: int
+    prompt_template: str
+
+@app.post("/analyze_transcript")
+async def analyze_transcript_and_store(data: TranscriptInput, db: Session = Depends(get_db2)):
+    try:
+        transcript = data.transcript
+        collection_id = data.collection_id
+        prompt_template = data.prompt_template
+
+        final_prompt = (
+            prompt_template.replace("{transcribed_text}", transcript)
+            if "{transcribed_text}" in prompt_template
+            else f"{prompt_template}\n\n{transcript}"
+        )
+
+        analysis = await analyze_transcript(final_prompt)
+        try:
+            analysis_json = json.loads(analysis)
+        except json.JSONDecodeError:
+            analysis_json = {"raw_analysis": analysis}
+
+        # Extract fields
+        metadata = analysis_json.get("metadata", {})
+        ptp_summary = analysis_json.get("ptp_summary", {})
+        language_insights = analysis_json.get("language_insights", {})
+        followup_priority = analysis_json.get("followup_priority", {})
+        ptp_analysis = analysis_json.get("ptp_analysis", {})
+        intent_classification = analysis_json.get("intent_classification", {})
+        root_cause = analysis_json.get("root_cause", [])
+        agent_forced = analysis_json.get("agent_forced_ptp_detected", False)
+        escalation_risks = analysis_json.get("escalation_risks", [])
+        dispute_mgmt = analysis_json.get("dispute_management", {})
+        agent_behavior = analysis_json.get("agent_behavior", {})
+        emotion = analysis_json.get("emotional_sentiment", {})
+        funnel = analysis_json.get("collection_funnel", {})
+
+        update_query = """
+        UPDATE tbl_collection SET
+            transcribe_text = :transcribe_text,
+            analysis_json = :analysis_json,
+            status = 1,
+
+            agent_name = :agent_name,
+            team = :team,
+            region = :region,
+            campaign = :campaign,
+            call_disposition = :call_disposition,
+            confidence_score = :confidence_score,
+            sentiment = :sentiment,
+
+            customer_name = :customer_name,
+            ptp_phrase = :ptp_phrase,
+            ptp_confidence_score = :ptp_confidence_score,
+            predicted_to_fail = :predicted_to_fail,
+            ptp_remarks = :ptp_remarks,
+
+            confident_phrases = :confident_phrases,
+            hesitation_markers = :hesitation_markers,
+            confidence_distribution = :confidence_distribution,
+
+            follow_up_needed = :follow_up_needed,
+            priority_level = :priority_level,
+            suggested_action = :suggested_action,
+
+            ptp_analysis = :ptp_analysis,
+            intent_classification = :intent_classification,
+            root_cause = :root_cause,
+            agent_forced_ptp_detected = :agent_forced_ptp_detected,
+            escalation_risks = :escalation_risks,
+            dispute_management = :dispute_management,
+            agent_behavior = :agent_behavior,
+            emotional_sentiment = :emotional_sentiment,
+            collection_funnel = :collection_funnel,
+            ptp_amount = :ptp_amount
+
+        WHERE id = :id
+        """
+
+        update_params = {
+            "id": collection_id,
+            "transcribe_text": transcript,
+            "analysis_json": json.dumps(analysis_json),
+
+            "agent_name": metadata.get("agent_name"),
+            "team": metadata.get("team"),
+            "region": metadata.get("region"),
+            "campaign": metadata.get("campaign"),
+            "call_disposition": metadata.get("call_disposition"),
+            "confidence_score": metadata.get("confidence_score"),
+            "sentiment": metadata.get("sentiment"),
+
+            "customer_name": ptp_summary.get("customer_name"),
+            "ptp_phrase": ptp_summary.get("ptp_phrase"),
+            "ptp_confidence_score": ptp_summary.get("confidence_score"),
+            "predicted_to_fail": ptp_summary.get("predicted_to_fail"),
+            "ptp_remarks": ptp_summary.get("remarks"),
+            "ptp_amount": ptp_summary.get("ptp_amount"),
+            "confident_phrases": json.dumps(language_insights.get("confident_phrases", [])),
+            "hesitation_markers": json.dumps(language_insights.get("hesitation_markers", [])),
+            "confidence_distribution": json.dumps(language_insights.get("distribution", {})),
+
+            "follow_up_needed": followup_priority.get("follow_up_needed"),
+            "priority_level": followup_priority.get("priority_level"),
+            "suggested_action": json.dumps(followup_priority.get("suggested_action", [])),
+
+            "ptp_analysis": json.dumps(ptp_analysis),
+            "intent_classification": json.dumps(intent_classification),
+            "root_cause": json.dumps(root_cause),
+            "agent_forced_ptp_detected": agent_forced,
+            "escalation_risks": json.dumps(escalation_risks),
+            "dispute_management": json.dumps(dispute_mgmt),
+            "agent_behavior": json.dumps(agent_behavior),
+            "emotional_sentiment": json.dumps(emotion),
+            "collection_funnel": json.dumps(funnel),
+        }
+
+        db.execute(text(update_query), update_params)
+        db.commit()
+
+        return {"message": f"Collection ID {collection_id} updated successfully"}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/get-leadid")
+def get_leadid_by_contact_number(
+    contact_number: str = Query(...),
+    db: Session = Depends(get_db)
+):
+    user = db.query(User).filter(User.contact_number == contact_number).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"status": "success", "leadid": user.leadid}

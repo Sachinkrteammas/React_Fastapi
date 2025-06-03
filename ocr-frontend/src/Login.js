@@ -35,6 +35,8 @@ const Login = ({ onLogin }) => {
         localStorage.setItem("client_id", response.data.client_id);
         localStorage.setItem("isLoggedIn", JSON.stringify(true));
         localStorage.setItem("set_limit", response.data.set_limit);
+        localStorage.setItem("leadid", response.data.leadid);
+
 
         localStorage.setItem("contact_number", response.data.contact_number);
 
