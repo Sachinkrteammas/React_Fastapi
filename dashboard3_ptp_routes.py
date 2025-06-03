@@ -800,7 +800,7 @@ def escalation_risk_alerts(filters: FilterParams):
     tracked_phrases = [
         "I'll complain",
         "going to consumer court",
-        "I tweet this"
+        "social media"
     ]
 
     phrase_counter = Counter()

@@ -106,12 +106,12 @@ useEffect(() => {
           ? ["Home", "Service", "Logout"]
           : [
               "Home",
-              "Recordings",
-              "Transcription",
-              "Prompt",
-              "Settings",
-              "API Key",
-              "User Access",
+//              "Recordings",
+//              "Transcription",
+//              "Prompt",
+//              "Settings",
+//              "API Key",
+//              "User Access",
               "Calling",
               "Collection",
               "Service",

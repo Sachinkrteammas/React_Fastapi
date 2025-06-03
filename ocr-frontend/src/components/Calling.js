@@ -82,6 +82,7 @@ useEffect(() => {
 
   const fetchData = async () => {
     try {
+      await fetch(`${BASE_URL}/run_scheduler`);
       // Step 1: Fetch leadid
       const leadidRes = await fetch(`${BASE_URL}/get-leadid?contact_number=${contact_number}`);
       const leadidResult = await leadidRes.json();
@@ -118,10 +119,10 @@ useEffect(() => {
   };
 
   fetchData(); // initial fetch
-  interval = setInterval(fetchData, 5000); // polling every 5 seconds
+  interval = setInterval(fetchData, 5000);
 
-  return () => clearInterval(interval); // cleanup on unmount
-}, [contact_number, agent_no]); // run when these change
+  return () => clearInterval(interval);
+}, [contact_number, agent_no]);
 
 
   return (
@@ -139,7 +140,7 @@ useEffect(() => {
       >
 
           {callStatus && (
-              <div className="call-status" style={{ marginTop: "10px", color: "rgb(59, 130, 246)" }}>
+              <div className="call-status" style={{ marginTop: "10px", color: "white" }}>
                 {callStatus}
               </div>
             )}

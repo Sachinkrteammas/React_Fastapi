@@ -225,7 +225,7 @@ setLoading1(true);
       const colorMap = {
         "I'll complain": "#11d6ed",
         "going to consumer court": "#facc15",
-        "I tweet this": "#c39b12",
+        "social media": "#c39b12",
       };
 
       const formatted = response.data.map((item) => ({
