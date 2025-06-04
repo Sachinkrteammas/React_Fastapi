@@ -402,122 +402,120 @@ const DetailAnalysis = () => {
   const COLORS = ["#4caf50", "#26a69a", "#ffca28", "#f57c00", "#d32f2f"];
 
   const fetchScenarios = async () => {
-    if (!startDate || !endDate) {
-      alert("Please select both start and end dates.");
-      return;
+  if (!startDate || !endDate) {
+    alert("Please select both start and end dates.");
+    return;
+  }
+
+  setLoading1(true);
+  setError(null);
+
+  try {
+    if (!clientId) {
+      throw new Error("Client ID is missing!");
     }
 
-    setLoading1(true);
-    setError(null);
+    // API URLs
+    const url1 = `${BASE_URL}/top_scenarios_with_counts?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}&limit=5`;
+    const url2 = `${BASE_URL}/agent_performance_summary?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}`;
+    const url3 = `${BASE_URL}/day_performance_summary?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}`;
+    const url4 = `${BASE_URL}/week_performance_summary?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}`;
+    const url5 = `${BASE_URL}/details_count?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}`;
 
-    try {
-      if (!clientId) {
-        throw new Error("Client ID is missing!");
-      }
+    // Fetch all APIs in parallel
+    const results = await Promise.allSettled([
+      fetch(url1).then((res) => (res.ok ? res.json() : Promise.reject(res.status))),
+      fetch(url2).then((res) => (res.ok ? res.json() : Promise.reject(res.status))),
+      fetch(url3).then((res) => (res.ok ? res.json() : Promise.reject(res.status))),
+      fetch(url4).then((res) => (res.ok ? res.json() : Promise.reject(res.status))),
+      fetch(url5).then((res) => (res.ok ? res.json() : Promise.reject(res.status))),
+    ]);
 
-      // API URLs
-      const url1 = `${BASE_URL}/top_scenarios_with_counts?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}&limit=5`;
-      const url2 = `${BASE_URL}/agent_performance_summary?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}`;
-      const url3 = `${BASE_URL}/day_performance_summary?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}`;
-      const url4 = `${BASE_URL}/week_performance_summary?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}`;
+    const [data1, data2, data3, data4, data5] = results.map((res) =>
+      res.status === "fulfilled" ? res.value : null
+    );
 
-      // Fetch all APIs in parallel
-      const results = await Promise.allSettled([
-        fetch(url1).then((res) =>
-          res.ok ? res.json() : Promise.reject(res.status)
-        ),
-        fetch(url2).then((res) =>
-          res.ok ? res.json() : Promise.reject(res.status)
-        ),
-        fetch(url3).then((res) =>
-          res.ok ? res.json() : Promise.reject(res.status)
-        ),
-        fetch(url4).then((res) =>
-          res.ok ? res.json() : Promise.reject(res.status)
-        ),
-      ]);
+    console.log("Scenarios:", data1);
+    console.log("Agent Performance:", data2);
+    console.log("Day-wise Performance:", data3);
+    console.log("Week-wise Performance:", data4);
+    console.log("Details Count:", data5);
 
-      // Extract API responses
-      const data1 = results[0].status === "fulfilled" ? results[0].value : null;
-      const data2 = results[1].status === "fulfilled" ? results[1].value : null;
-      const data3 = results[2].status === "fulfilled" ? results[2].value : null;
-      const data4 = results[3].status === "fulfilled" ? results[3].value : null;
+    // Scenario data processing
+    const queryData = data1?.Query || [];
+    const complaintData = data1?.Complaint || [];
+    const requestData = data1?.Request || [];
 
-      console.log("API Response 1 (Scenarios):", data1);
-      console.log("API Response 2 (Agent Performance):", data2);
-      console.log("API Response 3 (Day-wise Performance):", data3);
-      console.log("API Response 4 (Week-wise Performance):", data4);
+    const queryData1 = queryData.map((item) => ({
+      name: item.Reason,
+      count: item.Count,
+    }));
+    const complaintData1 = complaintData.map((item) => ({
+      name: item.Reason,
+      count: item.Count,
+    }));
+    const requestData1 = requestData.map((item) => ({
+      name: item.Reason,
+      count: item.Count,
+    }));
 
-      // Process first API response (Scenario Data)
-      const queryData = data1?.Query || [];
-      const complaintData = data1?.Complaint || [];
-      const requestData = data1?.Request || [];
+    // Agent performance
+    const agentData = data2 || [];
 
-      const queryData1 = queryData.map((item) => ({
-        name: item.Reason,
-        count: item.Count,
-      }));
-      const complaintData1 = complaintData.map((item) => ({
-        name: item.Reason,
-        count: item.Count,
-      }));
-      const requestData1 = requestData.map((item) => ({
-        name: item.Reason,
-        count: item.Count,
-      }));
+    // Day-wise performance
+    const daywiseData = Array.isArray(data3)
+      ? data3.map((item) => ({
+          date: item["Call Date"] || "N/A",
+          audit: item["Audit Count"] || "N/A",
+          cqScore: item["CQ Score%"] || "N/A",
+          fatalCount: item["Fatal Count"] || "N/A",
+          fatal: item["Fatal%"] || "N/A",
+          opening: item["Opening Score%"] || "N/A",
+          softSkills: item["Soft Skills Score%"] || "N/A",
+          hold: item["Hold Procedure Score%"] || "N/A",
+          resolution: item["Resolution Score%"] || "N/A",
+          closing: item["Closing Score%"] || "N/A",
+        }))
+      : [];
 
-      // Process second API response (Agent Performance Data)
-      const agentData = data2 || [];
+    // Week-wise performance
+    const weekwiseData = Array.isArray(data4)
+      ? data4.map((item) => ({
+          week: item["Week Number"] || "N/A",
+          audit: item["Audit Count"] || "N/A",
+          cqScore: item["CQ Score%"] || "N/A",
+          fatalCount: item["Fatal Count"] || "N/A",
+          fatal: item["Fatal%"] || "N/A",
+          opening: item["Opening Score%"] || "N/A",
+          softSkills: item["Soft Skills Score%"] || "N/A",
+          hold: item["Hold Procedure Score%"] || "N/A",
+          resolution: item["Resolution Score%"] || "N/A",
+          closing: item["Closing Score%"] || "N/A",
+        }))
+      : [];
 
-      // Process third API response (Day-wise Performance Data)
-      const daywiseData = Array.isArray(data3)
-        ? data3.map((item) => ({
-            date: item["Call Date"] || "N/A",
-            audit: item["Audit Count"] || "N/A",
-            cqScore: item["CQ Score%"] || "N/A",
-            fatalCount: item["Fatal Count"] || "N/A",
-            fatal: item["Fatal%"] || "N/A",
-            opening: item["Opening Score%"] || "N/A",
-            softSkills: item["Soft Skills Score%"] || "N/A",
-            hold: item["Hold Procedure Score%"] || "N/A",
-            resolution: item["Resolution Score%"] || "N/A",
-            closing: item["Closing Score%"] || "N/A",
-          }))
-        : [];
+    // Stats (details count)
+    const statsData = data5 || {};
 
-      // Process fourth API response (Week-wise Performance Data)
-      const weekwiseData = Array.isArray(data4)
-        ? data4.map((item) => ({
-            week: item["Week Number"] || "N/A",
-            audit: item["Audit Count"] || "N/A",
-            cqScore: item["CQ Score%"] || "N/A",
-            fatalCount: item["Fatal Count"] || "N/A",
-            fatal: item["Fatal%"] || "N/A",
-            opening: item["Opening Score%"] || "N/A",
-            softSkills: item["Soft Skills Score%"] || "N/A",
-            hold: item["Hold Procedure Score%"] || "N/A",
-            resolution: item["Resolution Score%"] || "N/A",
-            closing: item["Closing Score%"] || "N/A",
-          }))
-        : [];
+    // Update state
+    setQueryData(queryData);
+    setQueryData1(queryData1);
+    setComplaintData(complaintData);
+    setComplaintData1(complaintData1);
+    setRequestData(requestData);
+    setRequestData1(requestData1);
+    setAgentData(agentData);
+    setDatadaywise(daywiseData);
+    setDataweek(weekwiseData);
+    setStats(statsData);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    setError(`Failed to load data: ${error}`);
+  } finally {
+    setLoading1(false);
+  }
+};
 
-      // Update state efficiently
-      setQueryData(queryData);
-      setQueryData1(queryData1);
-      setComplaintData(complaintData);
-      setComplaintData1(complaintData1);
-      setRequestData(requestData);
-      setRequestData1(requestData1);
-      setAgentData(agentData);
-      setDatadaywise(daywiseData);
-      setDataweek(weekwiseData); // Added missing state update for week-wise data
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      setError(`Failed to load data: ${error}`);
-    } finally {
-      setLoading1(false);
-    }
-  };
 
 
 

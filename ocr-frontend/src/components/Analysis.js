@@ -1053,19 +1053,14 @@ const Analysis = () => {
                   </table>
                 </div>
               </div>
-              <div className="one-125">
-                <p>Potential Scam</p>
-                <div className="data-table">
-                  <p>No data</p>
-                </div>
-              </div>
+
 
             </div>
           </div>
         </div>
 
         <div className="social-media">
-          <div className="section-box">
+          <div className="section-box" style={{display:"none"}}>
             <h5>Social Media and Consumer Court Threat</h5>
             <div className="section-content">
               <div className="alert-box setalertbox">

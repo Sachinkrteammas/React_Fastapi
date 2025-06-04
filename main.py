@@ -35,7 +35,7 @@ SECRET_KEY = "your_secret_key"
 # CORS Middleware to allow requests from React frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # React frontend URL
+    allow_origins=["*"],  # React frontend URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -51,7 +51,8 @@ Base = declarative_base()
 #########  Second DB
 
 # DATABASE_URL2 = "mysql+pymysql://root:321*#LDtr!?*ktasb@192.168.10.12/db_dialdesk"
-DATABASE_URL2 = "mysql+pymysql://root:321%2A%23LDtr%21%3F%2Aktasb@192.168.10.22/db_dialdesk"
+#DATABASE_URL2 = "mysql+pymysql://root:321%2A%23LDtr%21%3F%2Aktasb@192.168.10.22/db_dialdesk"
+DATABASE_URL2 = "mysql+pymysql://root:vicidialnow@192.168.10.6/db_audit"
 
 # Create SQLAlchemy engine
 engine2 = create_engine(DATABASE_URL2)
@@ -878,7 +879,7 @@ def get_audit_count(
         SUM(CASE WHEN quality_percentage BETWEEN 90 AND 97 THEN 1 ELSE 0 END) AS good_call,
         SUM(CASE WHEN quality_percentage BETWEEN 85 AND 89 THEN 1 ELSE 0 END) AS avg_call,
         SUM(CASE WHEN quality_percentage <= 84 THEN 1 ELSE 0 END) AS below_avg_call
-    FROM bot_tagging 
+    FROM call_quality_assessment 
     WHERE ClientId = :client_id
     AND DATE(CallDate) BETWEEN :start_date AND :end_date;
     """)
@@ -924,7 +925,7 @@ def get_call_length_categorization(
         / NULLIF(COUNT(*), 0), 2
     ) AS fatal_percentage,
     ROUND(AVG(quality_percentage), 2) AS score_percentage
-FROM bot_tagging
+FROM call_quality_assessment
 WHERE ClientId = :client_id
 AND DATE(CallDate) BETWEEN :start_date AND :end_date
 GROUP BY category
@@ -1056,7 +1057,7 @@ def get_agent_scores(
                 )
             ) / 5, 2) AS avg_score
 
-        FROM bot_tagging
+        FROM call_quality_assessment
         WHERE ClientId = :client_id
         AND DATE(CallDate) BETWEEN :start_date AND :end_date;
     """)
@@ -1094,7 +1095,7 @@ def get_top_performers(
             ROUND(AVG(quality_percentage), 2) AS cq_percentage,
             SUM(CASE WHEN professionalism_maintained = 0 AND scenario2 <> 'Blank Call' THEN 1 ELSE 0 END) AS fatal_count,
             ROUND(SUM(CASE WHEN professionalism_maintained = 0 THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0) * 100, 2) AS fatal_percentage
-        FROM bot_tagging
+        FROM call_quality_assessment
         WHERE ClientId = :client_id
         AND DATE(CallDate) BETWEEN :start_date AND :end_date
         GROUP BY User
@@ -1150,7 +1151,7 @@ def get_target_vs_cq_trend(
     query = text("""
         SELECT DATE(CallDate) AS date, 
                ROUND(AVG(quality_percentage), 2) AS cq_score
-        FROM bot_tagging
+        FROM call_quality_assessment
         WHERE ClientId = :client_id
         AND DATE(CallDate) BETWEEN :start_date AND :end_date
         GROUP BY DATE(CallDate)
@@ -1159,11 +1160,12 @@ def get_target_vs_cq_trend(
 
     result = db.execute(query, {"client_id": client_id, "start_date": start_date, "end_date": end_date}).fetchall()
 
-    # Convert date to string before returning
-    trend_data = [
-        CQScoreTrend(date=row[0].strftime("%Y-%m-%d"), cq_score=row[1], target=target_cq)
-        for row in result
-    ]
+    # Ensure all dates in the range are present, even with missing data
+    trend_data = []
+    for i in range(7):
+        current_date = start_date + timedelta(days=i)
+        cq_score = next((row[1] for row in result if row[0] == current_date), 0)  # Default to 0 if no data
+        trend_data.append(CQScoreTrend(date=current_date.strftime("%Y-%m-%d"), cq_score=cq_score, target=target_cq))
 
     return CQScoreResponse(client_id=client_id, target_cq=target_cq, trend=trend_data)
 
@@ -1214,7 +1216,7 @@ def get_potential_escalation(
             SUM(CASE WHEN LOWER(top_negative_words) LIKE '%Slang%' THEN 1 ELSE 0 END) AS slang,
             SUM(CASE WHEN LOWER(top_negative_words) LIKE '%Sarcasm%' THEN 1 ELSE 0 END) AS sarcasm
 
-        FROM bot_tagging
+        FROM call_quality_assessment
         WHERE ClientId = :client_id
         AND DATE(CallDate) BETWEEN :start_date AND :end_date
     """)
@@ -1254,7 +1256,7 @@ def get_potential_escalations_data(
             scenario, 
             scenario1, 
             sensetive_word
-        FROM bot_tagging
+        FROM call_quality_assessment
         WHERE ClientId = :client_id  
         AND DATE(CallDate) BETWEEN :start_date AND :end_date
         AND (
@@ -1299,7 +1301,7 @@ def get_negative_data(
             scenario, 
             scenario1, 
             top_negative_words,lead_id,date(CallDate) call_date
-        FROM bot_tagging
+        FROM call_quality_assessment
         WHERE ClientId = :client_id  
         AND DATE(CallDate) BETWEEN :start_date AND :end_date
         AND (
@@ -1366,7 +1368,7 @@ def get_complaints_by_date(
                         OR LOWER(sensetive_word) LIKE '%legal%' 
                         OR LOWER(sensetive_word) LIKE '%fir%' THEN 1 ELSE 0 END) AS consumer_court_threat,
             COUNT(*) AS total
-        FROM bot_tagging
+        FROM call_quality_assessment
         WHERE ClientId = :client_id  
         AND DATE(CallDate) BETWEEN :start_date AND :end_date
         GROUP BY DATE(CallDate)
@@ -1379,7 +1381,7 @@ def get_complaints_by_date(
             lead_id,
             sensetive_word AS sensitive_word,
             sensitive_word_context
-        FROM bot_tagging
+        FROM call_quality_assessment
         WHERE ClientId = :client_id  
         AND DATE(CallDate) BETWEEN :start_date AND :end_date
         AND DATE(CallDate) BETWEEN :start_date AND :end_date
@@ -1444,7 +1446,7 @@ def get_negative_data_summary(
             DATE_FORMAT(CallDate, '%Y-%m') AS month,
             top_negative_words,
             COUNT(*) AS total_count
-        FROM bot_tagging
+        FROM call_quality_assessment
         WHERE ClientId = :client_id  
         AND DATE(CallDate) BETWEEN :start_date AND :end_date
         AND (
@@ -1464,7 +1466,7 @@ def get_negative_data_summary(
             DATE(CallDate) AS date,
             top_negative_words,
             COUNT(*) AS total_count
-        FROM bot_tagging
+        FROM call_quality_assessment
         WHERE ClientId = :client_id  
         AND DATE(CallDate) BETWEEN :start_date AND :end_date
         AND (
@@ -1516,7 +1518,7 @@ def get_competitor_data(
         SELECT
             Competitor_Name,
             COUNT(*) AS total_count
-        FROM bot_tagging
+        FROM call_quality_assessment
         WHERE ClientId = :client_id  
         AND DATE(CallDate) BETWEEN :start_date AND :end_date
         and Competitor_Name not in ('Not Applicable','Not Mentioned','','Not Available','N/A','NA','Not provided')
@@ -1565,7 +1567,7 @@ def get_fatal_count(
         SUM(CASE WHEN scenario = 'Complaint' AND professionalism_maintained = 0 THEN 1 ELSE 0 END) AS Complaint_fatal,
         SUM(CASE WHEN scenario = 'Request' AND professionalism_maintained = 0 THEN 1 ELSE 0 END) AS Request_fatal,
         SUM(CASE WHEN scenario = 'Sale Done' AND professionalism_maintained = 0 THEN 1 ELSE 0 END) AS sale_fatal
-    FROM bot_tagging 
+    FROM call_quality_assessment 
     WHERE ClientId = :client_id  
     AND DATE(CallDate) BETWEEN :start_date AND :end_date
     """)
@@ -1607,7 +1609,7 @@ def get_top_agents_fatal_summary(
             COUNT(*) AS audit_count,
             SUM(CASE WHEN professionalism_maintained = 0 THEN 1 ELSE 0 END) AS fatal_count,
             ROUND((SUM(CASE WHEN professionalism_maintained = 0 THEN 1 ELSE 0 END) * 100.0) / NULLIF(COUNT(*), 0), 2) AS fatal_percentage
-        FROM bot_tagging
+        FROM call_quality_assessment
         WHERE ClientId = :client_id
         AND DATE(CallDate) BETWEEN :start_date AND :end_date
         GROUP BY Agent_Name
@@ -1650,7 +1652,7 @@ def get_daywise_fatal_summary(
         SELECT 
             date(CallDate) as CallDate,
             SUM(CASE WHEN professionalism_maintained = 0 THEN 1 ELSE 0 END) AS fatal_count
-        FROM bot_tagging
+        FROM call_quality_assessment
         WHERE ClientId = :client_id
         AND DATE(CallDate) BETWEEN :start_date AND :end_date
         GROUP BY DATE(CallDate);
@@ -1696,7 +1698,7 @@ def get_agent_audit_summary(
             ROUND((SUM(CASE WHEN quality_percentage BETWEEN 50 AND 69 THEN 1 ELSE 0 END) * 100.0) / NULLIF(COUNT(*), 0), 2) AS average_percentage,
             ROUND((SUM(CASE WHEN quality_percentage BETWEEN 70 AND 89 THEN 1 ELSE 0 END) * 100.0) / NULLIF(COUNT(*), 0), 2) AS good_percentage,
             ROUND((SUM(CASE WHEN quality_percentage >= 90 THEN 1 ELSE 0 END) * 100.0) / NULLIF(COUNT(*), 0), 2) AS excellent_percentage
-        FROM bot_tagging
+        FROM call_quality_assessment
         WHERE ClientId = :client_id
         AND DATE(CallDate) BETWEEN :start_date AND :end_date
         GROUP BY Agent_Name
@@ -1783,7 +1785,7 @@ def get_details_count(
         SUM(CASE WHEN scenario = 'Complaint' THEN 1 ELSE 0 END) AS Complaint_fatal,
         SUM(CASE WHEN scenario = 'Request' THEN 1 ELSE 0 END) AS Request_fatal,
         SUM(CASE WHEN scenario = 'Sale Done' THEN 1 ELSE 0 END) AS sale_fatal
-    FROM bot_tagging 
+    FROM call_quality_assessment 
     WHERE ClientId = :client_id  
     AND DATE(CallDate) BETWEEN :start_date AND :end_date
     """)
@@ -1828,7 +1830,7 @@ def get_top_scenarios_with_counts(
             SELECT 
                 scenario1 AS reason,
                 COUNT(*) AS count
-            FROM bot_tagging
+            FROM call_quality_assessment
             WHERE ClientId = :client_id
             AND scenario = :scenario
             AND DATE(CallDate) BETWEEN :start_date AND :end_date
@@ -1968,7 +1970,7 @@ def get_agent_performance_summary(
                 )
             ) / 5, 2) AS avg_score 
 
-        FROM bot_tagging
+        FROM call_quality_assessment
         WHERE ClientId = :client_id
         AND DATE(CallDate) BETWEEN :start_date AND :end_date
         GROUP BY User
@@ -2119,7 +2121,7 @@ def get_day_performance_summary(
                 )
             ) / 5, 2) AS avg_score 
 
-        FROM bot_tagging
+        FROM call_quality_assessment
         WHERE ClientId = :client_id
         AND DATE(CallDate) BETWEEN :start_date AND :end_date
         GROUP BY DATE(CallDate)
@@ -2270,7 +2272,7 @@ def get_week_performance_summary(
                 )
             ) / 5, 2) AS avg_score 
 
-        FROM bot_tagging
+        FROM call_quality_assessment
         WHERE ClientId = :client_id
         AND DATE(CallDate) BETWEEN :start_date AND :end_date
         GROUP BY year, week_number
@@ -2351,7 +2353,7 @@ def get_call_quality_details(
             proper_call_closure, express_empathy, total_score, 
             max_score, quality_percentage, areas_for_improvement, 
             Transcribe_Text
-        FROM bot_tagging
+        FROM call_quality_assessment
         WHERE ClientId = :client_id AND lead_id = :lead_id
     """)
 
@@ -2399,7 +2401,7 @@ def get_call_quality_assessments(
 ):
     query = text("""
         SELECT * 
-        FROM bot_tagging
+        FROM call_quality_assessment
         WHERE ClientId = :client_id
         AND DATE(CallDate) BETWEEN :start_date AND :end_date
     """)
@@ -2443,7 +2445,7 @@ def get_potential_data_summarry(
             SUM(CASE WHEN LOWER(top_negative_words) LIKE '%frustration%' THEN 1 ELSE 0 END) AS frustration,
             SUM(CASE WHEN LOWER(top_negative_words) LIKE '%slang%' THEN 1 ELSE 0 END) AS slang,
             SUM(CASE WHEN LOWER(top_negative_words) LIKE '%sarcasm%' THEN 1 ELSE 0 END) AS sarcasm
-        FROM bot_tagging
+        FROM call_quality_assessment
         WHERE ClientId = :client_id
         AND DATE(CallDate) BETWEEN :start_date AND :end_date
     """)
@@ -2460,7 +2462,7 @@ def get_potential_data_summarry(
     # Query to get raw dump
     query_raw_dump = text("""
         SELECT *
-        FROM bot_tagging
+        FROM call_quality_assessment
         WHERE ClientId = :client_id
         AND (LOWER(sensetive_word) LIKE '%social%'
              OR LOWER(sensetive_word) LIKE '%court%'
@@ -3246,7 +3248,7 @@ async def run_scheduler(db: Session = Depends(get_db2)):
             )
             #print(final_prompt)
             analysis = await analyze_transcript(final_prompt)
-            print(analysis,"ANAlysys 44444444444444444444444444444444444")
+            #print(analysis,"ANAlysys 44444444444444444444444444444444444")
             try:
                 analysis_json = json.loads(analysis)
             except json.JSONDecodeError:
