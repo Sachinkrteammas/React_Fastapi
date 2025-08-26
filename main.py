@@ -12,7 +12,7 @@ import datetime
 import bcrypt
 from fastapi import FastAPI, HTTPException, Depends, File, UploadFile, Form, Header, Query
 from fastapi.exceptions import RequestValidationError
-from sqlalchemy import create_engine, Column, Integer, String, func, DateTime, text, DECIMAL
+from sqlalchemy import create_engine, Column, Integer, String, func, DateTime, text, DECIMAL, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from pydantic import BaseModel, EmailStr, constr, validator
@@ -26,21 +26,24 @@ import pandas as pd
 from transcriber import transcribe_with_deepgram_async
 from analyzer import analyze_transcript
 from dashboard3_ptp_routes import router as dashboard3_router
+from inbound_call import router as inbound_call_router
+
 # from apscheduler.schedulers.background import BackgroundScheduler
 
 app = FastAPI()
 
 SECRET_KEY = "your_secret_key"
 
-# CORS Middleware to allow requests from React frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # React frontend URL
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 app.include_router(dashboard3_router)
+app.include_router(inbound_call_router)
 # MySQL Database Connection (replace with your actual credentials)
 # SQL_DB_URL = "mysql+pymysql://root:Hello%40123@localhost/my_db?charset=utf8mb4"
 SQL_DB_URL = "mysql+pymysql://root:dial%40mas123@172.12.10.22/ai_audit?charset=utf8mb4"
@@ -102,6 +105,9 @@ class User(Base):
     set_limit = Column(Integer, nullable=False, default=30)
     company_name = Column(String(255), nullable=True)
     leadid = Column(String(50), nullable=True)
+    sales = Column(Boolean, default=False)
+    service = Column(Boolean, default=False)
+
 
 # Create tables if they don't exist
 Base.metadata.create_all(bind=engine)
@@ -389,7 +395,13 @@ def login_user(user: LoginRequest, db: Session = Depends(get_db)):
             "client_id": db_user.clientid,
             "set_limit": db_user.set_limit,
             "contact_number": db_user.contact_number,
-            "leadid": db_user.leadid}
+            "leadid": db_user.leadid,
+            "permissions": {
+                "sales": db_user.sales,
+                "service": db_user.service
+            }
+
+            }
 
 
 class VerifyOtpRequest(BaseModel):
@@ -3507,3 +3519,364 @@ def get_leadid_by_contact_number(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return {"status": "success", "leadid": user.leadid}
+
+
+
+############ menu api ##############################
+
+
+
+
+class UserRequestApi(BaseModel):
+    username: str
+    email_id: EmailStr
+    contact_number: str
+    password: str
+    company_name: str = None
+    clientid: str = None
+    set_limit: int = 30
+    leadid: str = None
+    sales: bool = False
+    service: bool = False
+
+@app.post("/auth/register")
+def register_user(user: UserRequestApi, db: Session = Depends(get_db)):
+    # Check if email or phone already exists
+    if db.query(User).filter(User.email_id == user.email_id).first():
+        raise HTTPException(status_code=400, detail="Email is already registered.")
+    if db.query(User).filter(User.contact_number == user.contact_number).first():
+        raise HTTPException(status_code=400, detail="Phone number is already registered.")
+
+    # Hash the password
+    hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+    # Current timestamp
+    now = datetime.datetime.utcnow()
+
+    # Create user
+    new_user = User(
+        username=user.username,
+        email_id=user.email_id,
+        contact_number=user.contact_number,
+        password=hashed_password,
+        company_name=user.company_name,
+        clientid=user.clientid,
+        set_limit=user.set_limit,
+        leadid=user.leadid,
+        sales=user.sales,        # <-- set sales
+        service=user.service     # <-- set service
+    )
+
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    return {
+        "detail": "User registered successfully",
+        "id": new_user.id,
+        "username": new_user.username,
+        "email_id": new_user.email_id,
+        "contact_number": new_user.contact_number,
+        "sales": new_user.sales,
+        "service": new_user.service,
+        "api_key": getattr(new_user, "api_key", None)
+    }
+
+
+
+############# Sales new api ######################
+
+class DailyMetric(BaseModel):
+    Calldate: Optional[str]
+    Detractor_Count: int
+    Passive_Count: int
+    Promoter_Count: int
+    NPS_Score: float
+    CSAT_Score: float
+    Total_Feedbacks: int
+
+class TrendMetric(BaseModel):
+    date: str
+    NPS: float
+    CSAT: float
+
+class PieMetric(BaseModel):
+    name: str
+    value: float
+    color: str
+
+class GrandTotalMetric(BaseModel):
+    NPS_Score: float
+    CSAT_Score: float
+    Total_Feedbacks: int
+    Detractor_Count: int
+    Passive_Count: int
+    Promoter_Count: int
+
+class MetricsResponse(BaseModel):
+    data: List[DailyMetric]
+    grand_total: Optional[GrandTotalMetric] = None
+    trend_list: List[TrendMetric] = []
+    pie_data: List[PieMetric] = []
+
+# ----------------- API -----------------
+
+@app.get("/metrics/daily", response_model=MetricsResponse)
+def get_daily_metrics(
+    start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
+    end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
+    grand_total: bool = Query(False, description="Include grand total row"),
+    db: Session = Depends(get_db3)
+):
+    DAILY_SQL = """
+    SELECT
+        DATE(Calldate) AS Calldate,
+        SUM(CASE WHEN Feedback = 'Negative' THEN 1 ELSE 0 END) AS Detractor_Count,
+        SUM(CASE WHEN Feedback = 'Neutral'  THEN 1 ELSE 0 END) AS Passive_Count,
+        SUM(CASE WHEN Feedback = 'Positive' THEN 1 ELSE 0 END) AS Promoter_Count,
+        COUNT(*) AS Total_Feedbacks,
+        ROUND(
+            (SUM(CASE WHEN Feedback = 'Positive' THEN 1 ELSE 0 END) * 100.0 /
+             NULLIF(SUM(CASE WHEN Feedback IN ('Positive','Negative','Neutral') THEN 1 ELSE 0 END), 0))
+            -
+            (SUM(CASE WHEN Feedback = 'Negative' THEN 1 ELSE 0 END) * 100.0 /
+             NULLIF(SUM(CASE WHEN Feedback IN ('Positive','Negative','Neutral') THEN 1 ELSE 0 END), 0))
+        , 2) AS NPS_Score,
+        ROUND(
+            ((SUM(CASE WHEN Feedback = 'Positive' THEN 1 ELSE 0 END)
+              + SUM(CASE WHEN Feedback = 'Neutral'  THEN 1 ELSE 0 END)) * 100.0
+            / NULLIF(SUM(CASE WHEN Feedback IN ('Positive','Negative','Neutral') THEN 1 ELSE 0 END), 0))
+        , 1) AS CSAT_Score
+    FROM CallDetails
+    WHERE Feedback IN ('Positive','Negative','Neutral')
+      AND DATE(Calldate) >= :start_date
+      AND DATE(Calldate) <= :end_date
+    GROUP BY DATE(Calldate)
+    ORDER BY DATE(Calldate);
+    """
+
+    rows = db.execute(
+        text(DAILY_SQL),
+        {"start_date": start_date, "end_date": end_date}
+    ).mappings().all()
+
+    # --- Table Data ---
+    data = [
+        DailyMetric(
+            Calldate=str(r["Calldate"]),
+            Detractor_Count=int(r["Detractor_Count"] or 0),
+            Passive_Count=int(r["Passive_Count"] or 0),
+            Promoter_Count=int(r["Promoter_Count"] or 0),
+            NPS_Score=float(r["NPS_Score"] or 0.0),
+            CSAT_Score=float(r["CSAT_Score"] or 0.0),
+            Total_Feedbacks=int(r["Total_Feedbacks"] or 0),
+        )
+        for r in rows
+    ]
+
+    # --- Trend Data ---
+    trend_list = [
+        TrendMetric(
+            date=r["Calldate"].strftime("%b %d, %Y") if hasattr(r["Calldate"], "strftime") else str(r["Calldate"]),
+            NPS=float(r["NPS_Score"] or 0.0),
+            CSAT=float(r["CSAT_Score"] or 0.0),
+        )
+        for r in rows
+    ]
+
+    # --- Pie Data ---
+    total_det = sum(d.Detractor_Count for d in data)
+    total_pas = sum(d.Passive_Count for d in data)
+    total_pro = sum(d.Promoter_Count for d in data)
+    total_fb  = sum(d.Total_Feedbacks for d in data)
+
+    pie_data: List[PieMetric] = []
+    if total_fb > 0:
+        pie_data = [
+            PieMetric(name="Positive", value=round((total_pro / total_fb) * 100, 2), color="#0088FE"),
+            PieMetric(name="Negative", value=round((total_det / total_fb) * 100, 2), color="#FF4081"),
+            PieMetric(name="Neutral",  value=round((total_pas / total_fb) * 100, 2), color="#FFA500"),
+        ]
+
+    # --- Grand Total ---
+    gt = None
+    if grand_total and total_fb:
+        nps = round(((total_pro * 100 / total_fb) - (total_det * 100 / total_fb)), 2)
+        csat = round(((total_pro + total_pas) * 100 / total_fb), 1)
+
+        gt = GrandTotalMetric(
+            NPS_Score=nps,
+            CSAT_Score=csat,
+            Total_Feedbacks=total_fb,
+            Detractor_Count=total_det,
+            Passive_Count=total_pas,
+            Promoter_Count=total_pro,
+        )
+
+    return MetricsResponse(data=data, grand_total=gt, trend_list=trend_list, pie_data=pie_data)
+
+
+
+
+@app.get("/objection_vs_rebuttal_analysis")
+def objection_vs_rebuttal_analysis(
+        client_id: str = Query(..., description="Client ID"),
+        start_date: str = Query(..., description="Start date in YYYY-MM-DD"),
+        end_date: str = Query(..., description="End date in YYYY-MM-DD"),
+        db: Session = Depends(get_db3)
+):
+    query = text("""
+        SELECT
+            COALESCE(TRIM(CustomerObjectionCategory), 'Uncategorized') AS "Main Objection",
+            COALESCE(TRIM(AgentRebuttalCategory), 'Uncategorized') AS "Agent Rebuttal",
+            COUNT(DISTINCT LeadID) AS "Objection Count",
+            SUM(CASE WHEN OpeningRejected = 1 THEN 1 ELSE 0 END) AS "Failed Rebuttal",
+            ROUND(SUM(CASE WHEN OpeningRejected = 1 THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0), 2) AS "Failed Rebuttal %",
+            SUM(CASE WHEN OpeningRejected = 0 AND SaleDone = 1 THEN 1 ELSE 0 END) AS "Successful Rebuttal",
+            ROUND(SUM(CASE WHEN OpeningRejected = 0 AND SaleDone = 1 THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0), 2) AS "Successful Rebuttal %",
+            SUM(CASE WHEN SaleDone = 1 THEN 1 ELSE 0 END) AS "Sales",
+            ROUND(SUM(CASE WHEN SaleDone = 1 THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0), 2) AS "Conversion%"
+        FROM CallDetails
+        WHERE client_id = :client_id
+          AND DATE(CallDate) BETWEEN :start_date AND :end_date
+          AND CustomerObjectionCategory IS NOT NULL
+          AND TRIM(CustomerObjectionCategory) <> ''
+          AND TRIM(CustomerObjectionCategory) <> 'None'
+        GROUP BY CustomerObjectionCategory, AgentRebuttalCategory
+        ORDER BY "Objection Count" DESC
+    """)
+
+    result = db.execute(query, {
+        "client_id": client_id,
+        "start_date": start_date,
+        "end_date": end_date
+    }).fetchall()
+
+    response_data = [dict(row._mapping) for row in result]
+
+    if response_data:
+        total_calls = sum(row["Objection Count"] for row in response_data)
+        failed_total = sum(row["Failed Rebuttal"] for row in response_data)
+        success_total = sum(row["Successful Rebuttal"] for row in response_data)
+        sales_total = sum(row["Sales"] for row in response_data)
+
+        grand_total = {
+            "Main Objection": "Grand Total",
+            "Agent Rebuttal": "-",
+            "Objection Count": int(total_calls),
+            "Failed Rebuttal": int(failed_total),
+            "Failed Rebuttal %": round(float(failed_total) * 100.0 / max(float(total_calls), 1.0), 2),
+            "Successful Rebuttal": int(success_total),
+            "Successful Rebuttal %": round(float(success_total) * 100.0 / max(float(total_calls), 1.0), 2),
+            "Sales": int(sales_total),
+            "Conversion%": round(float(sales_total) * 100.0 / max(float(total_calls), 1.0), 2)
+        }
+        response_data.append(grand_total)
+
+    return response_data
+
+
+
+@app.get("/objection_subcategory_analysis")
+def objection_subcategory_analysis(
+        client_id: str = Query(..., description="Client ID"),
+        start_date: str = Query(..., description="Start date in YYYY-MM-DD"),
+        end_date: str = Query(..., description="End date in YYYY-MM-DD"),
+        db: Session = Depends(get_db3)
+):
+    query = text("""
+        SELECT
+            COALESCE(TRIM(CustomerObjectionSubCategory), 'Uncategorized') AS "Objection",
+            COUNT(DISTINCT LeadID) AS "Objection Count",
+            SUM(CASE WHEN OpeningRejected = 1 THEN 1 ELSE 0 END) AS "Failed Rebuttal",
+            ROUND(SUM(CASE WHEN OpeningRejected = 1 THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0), 2) AS "Failed Rebuttal %",
+            SUM(CASE WHEN OpeningRejected = 0 AND SaleDone = 1 THEN 1 ELSE 0 END) AS "Successful Rebuttal",
+            ROUND(SUM(CASE WHEN OpeningRejected = 0 AND SaleDone = 1 THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0), 2) AS "Successful Rebuttal %",
+            SUM(CASE WHEN SaleDone = 1 THEN 1 ELSE 0 END) AS "Sales",
+            ROUND(SUM(CASE WHEN SaleDone = 1 THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0), 2) AS "Conversion%"
+        FROM CallDetails
+        WHERE client_id = :client_id
+          AND DATE(CallDate) BETWEEN :start_date AND :end_date
+          AND CustomerObjectionSubCategory IS NOT NULL
+          AND TRIM(CustomerObjectionSubCategory) <> ''
+          AND TRIM(CustomerObjectionSubCategory) <> 'None'
+        GROUP BY CustomerObjectionSubCategory
+        ORDER BY "Objection Count" DESC
+    """)
+
+    result = db.execute(query, {
+        "client_id": client_id,
+        "start_date": start_date,
+        "end_date": end_date
+    }).fetchall()
+
+    response_data = [dict(row._mapping) for row in result]
+
+    if response_data:
+        total_calls = sum(row["Objection Count"] for row in response_data)
+        failed_total = sum(row["Failed Rebuttal"] for row in response_data)
+        success_total = sum(row["Successful Rebuttal"] for row in response_data)
+        sales_total = sum(row["Sales"] for row in response_data)
+
+        grand_total = {
+            "Objection": "Grand Total",
+            "Objection Count": int(total_calls),
+            "Failed Rebuttal": int(failed_total),
+            "Failed Rebuttal %": round(float(failed_total) * 100.0 / max(float(total_calls), 1.0), 2),
+            "Successful Rebuttal": int(success_total),
+            "Successful Rebuttal %": round(float(success_total) * 100.0 / max(float(total_calls), 1.0), 2),
+            "Sales": int(sales_total),
+            "Conversion%": round(float(sales_total) * 100.0 / max(float(total_calls), 1.0), 2)
+        }
+        response_data.append(grand_total)
+
+    return response_data
+
+
+
+@app.get("/agent_pitch_top_conversion")
+def agent_pitch_top_conversion(
+    client_id: str = Query(..., description="Client ID"),
+    start_date: str = Query(..., description="YYYY-MM-DD"),
+    end_date: str = Query(..., description="YYYY-MM-DD"),
+    pitch_level: str = Query("category", description="category | subcategory"),
+    min_calls: int = Query(20, ge=0, description="Minimum distinct LeadID per pitch"),
+    top_n: int = Query(10, ge=1, le=1000, description="How many rows to return"),
+    db: Session = Depends(get_db3),
+):
+    # choose which field holds the pitch name
+    field = "AgentRebuttalCategory" if pitch_level.lower() == "category" else "AgentRebuttalSubCategory"
+
+    # NOTE: using COUNT(DISTINCT LeadID) as the denominator for % metrics
+    query = text(f"""
+        SELECT
+            COALESCE(TRIM({field}), 'Uncategorized') AS "Agent Rebuttal Pitch",
+            COUNT(DISTINCT LeadID) AS "Objection Count",
+            SUM(CASE WHEN OpeningRejected = 1 THEN 1 ELSE 0 END) AS "Failed Rebuttal",
+            ROUND(SUM(CASE WHEN OpeningRejected = 1 THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(DISTINCT LeadID), 0), 2) AS "Failed Rebuttal %",
+            SUM(CASE WHEN OpeningRejected = 0 AND SaleDone = 1 THEN 1 ELSE 0 END) AS "Successful Rebuttal",
+            ROUND(SUM(CASE WHEN OpeningRejected = 0 AND SaleDone = 1 THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(DISTINCT LeadID), 0), 2) AS "Successful Rebuttal %",
+            SUM(CASE WHEN SaleDone = 1 THEN 1 ELSE 0 END) AS "Sales",
+            ROUND(SUM(CASE WHEN SaleDone = 1 THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(DISTINCT LeadID), 0), 2) AS "Conversion%"
+        FROM CallDetails
+        WHERE client_id = :client_id
+          AND DATE(CallDate) BETWEEN :start_date AND :end_date
+          AND {field} IS NOT NULL AND TRIM({field}) <> '' AND TRIM({field}) <> 'None'
+        GROUP BY {field}
+        HAVING `Objection Count` >= :min_calls
+        ORDER BY `Conversion%` DESC, `Objection Count` DESC
+        LIMIT :top_n
+    """)
+
+    rows = db.execute(
+        query,
+        {
+            "client_id": client_id,
+            "start_date": start_date,
+            "end_date": end_date,
+            "min_calls": min_calls,
+            "top_n": top_n,
+        },
+    ).fetchall()
+
+    return [dict(r._mapping) for r in rows]

@@ -18,6 +18,10 @@ export default function DetailSales() {
   const [contactAnalysisData, setContactAnalysisData] = useState([]);
   const [contactData, setContactData] = useState([]);
   const [discountData, setdiscountData] = useState([]);
+  const [objectionData, setObjectionData] = useState([]);
+  const [subcategoryData, setSubcategoryData] = useState([]);
+  const [agentPitchData, setAgentPitchData] = useState([]);
+
   
 
   useEffect(() => {
@@ -27,50 +31,81 @@ export default function DetailSales() {
   }, []);
 
   const fetchSalesData = async () => {
-    setLoading1(true);
-    try {
-      const clientId = localStorage.getItem("client_id");
+  setLoading1(true);
+  try {
+    const clientId = localStorage.getItem("client_id");
 
-      // Fetch Call Summary
-      const summaryRes = await fetch(
-        `${BASE_URL}/call_summary_sales?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}`
-      );
-      if (!summaryRes.ok) throw new Error("Failed to fetch call summary");
-      const summaryResult = await summaryRes.json();
-      setCallSummary(summaryResult.call_summary || {});
+    // Call Summary
+    const summaryRes = await fetch(
+      `${BASE_URL}/call_summary_sales?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}`
+    );
+    if (!summaryRes.ok) throw new Error("Failed to fetch call summary");
+    const summaryResult = await summaryRes.json();
+    setCallSummary(summaryResult.call_summary || {});
 
-      // Fetch Opening Pitch Analysis
-      const opRes = await fetch(
-        `${BASE_URL}/op_analysis_sales?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}`
-      );
-      if (!opRes.ok) throw new Error("Failed to fetch OP analysis");
-      const opResult = await opRes.json();
-      setContactAnalysisData(opResult || []);
+    // Opening Pitch Analysis
+    const opRes = await fetch(
+      `${BASE_URL}/op_analysis_sales?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}`
+    );
+    if (!opRes.ok) throw new Error("Failed to fetch OP analysis");
+    const opResult = await opRes.json();
+    setContactAnalysisData(opResult || []);
 
-      const contactRes = await fetch(
-        `${BASE_URL}/contact_analysis_sales?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}`
-      );
-      if (!contactRes.ok) throw new Error("Failed to fetch OP analysis");
-      const contactResult = await contactRes.json();
-      setContactData(contactResult || []);
+    // Contact Analysis
+    const contactRes = await fetch(
+      `${BASE_URL}/contact_analysis_sales?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}`
+    );
+    if (!contactRes.ok) throw new Error("Failed to fetch contact analysis");
+    const contactResult = await contactRes.json();
+    setContactData(contactResult || []);
 
-      const contdiscount = await fetch(
-        `${BASE_URL}/discount_analysis_sales?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}`
-      );
-      if (!contdiscount.ok) throw new Error("Failed to fetch OP analysis");
-      const Resultdiscount = await contdiscount.json();
-      setdiscountData(Resultdiscount || []);
+    // Discount Analysis
+    const discountRes = await fetch(
+      `${BASE_URL}/discount_analysis_sales?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}`
+    );
+    if (!discountRes.ok) throw new Error("Failed to fetch discount analysis");
+    const discountResult = await discountRes.json();
+    setdiscountData(discountResult || []);
 
-    } catch (error) {
-      console.error("Error fetching sales data:", error);
-      setCallSummary({});
-      setContactAnalysisData([]);
-      setContactData([]);
-      setdiscountData([]);
-    } finally {
-      setLoading1(false);
-    }
-  };
+    // Objection vs Rebuttal Analysis
+    const objectionRes = await fetch(
+      `${BASE_URL}/objection_vs_rebuttal_analysis?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}`
+    );
+    if (!objectionRes.ok) throw new Error("Failed to fetch objection data");
+    const objectionResult = await objectionRes.json();
+    setObjectionData(objectionResult || []);
+
+    // Objection Subcategory Analysis
+    const subcategoryRes = await fetch(
+      `${BASE_URL}/objection_subcategory_analysis?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}`
+    );
+    if (!subcategoryRes.ok) throw new Error("Failed to fetch subcategory data");
+    const subcategoryResult = await subcategoryRes.json();
+    setSubcategoryData(subcategoryResult || []);
+
+    // ✅ Agent Pitch Top Conversion
+    const pitchRes = await fetch(
+      `${BASE_URL}/agent_pitch_top_conversion?client_id=${clientId}&start_date=${startDate}&end_date=${endDate}&pitch_level=category&min_calls=20&top_n=10`
+    );
+    if (!pitchRes.ok) throw new Error("Failed to fetch agent pitch data");
+    const pitchResult = await pitchRes.json();
+    setAgentPitchData(pitchResult || []);
+
+  } catch (error) {
+    console.error("Error fetching sales data:", error);
+    setCallSummary({});
+    setContactAnalysisData([]);
+    setContactData([]);
+    setdiscountData([]);
+    setObjectionData([]);
+    setSubcategoryData([]);
+    setAgentPitchData([]);  // reset if error
+  } finally {
+    setLoading1(false);
+  }
+};
+
+
 
   if (loading) {
     return (
@@ -396,256 +431,164 @@ export default function DetailSales() {
         </div>
 
         {/* Customer Objection Analysis */}
-        <div className="sales-section">
-          <h2 className="sales-title">Customer Objection Analysis</h2>
-          <h3 className="sales-subtitle">POS Breakdown</h3>
-          <table className="sales-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
+<div className="sales-section" style={{ height: "450px", overflowY: "auto" }}>
+  <h2 className="sales-title">Customer Objection Analysis</h2>
+  <h3 className="sales-subtitle">POS Breakdown</h3>
+
+  <table className="sales-table" style={{ width: "100%", borderCollapse: "collapse" }}>
+    <thead>
       <tr>
-        <th style={{ position: 'sticky', top: 0, zIndex: 1 }}>
-          Main Objection
-        </th>
-        <th style={{ position: 'sticky', top: 0, zIndex: 1 }}>
-          Total Count
-        </th>
-        <th style={{ position: 'sticky', top: 0, zIndex: 1 }}>
-          Failed Rebuttal %
-        </th>
-        <th style={{ position: 'sticky', top: 0, zIndex: 1 }}>
-          Failed Rebuttal
-        </th>
-        <th style={{ position: 'sticky', top: 0, zIndex: 1 }}>
-          Successful Rebuttal %
-        </th>
-        <th style={{ position: 'sticky', top: 0, zIndex: 1 }}>
-          Successful Rebuttal
-        </th>
-        <th style={{ position: 'sticky', top: 0, zIndex: 1 }}>
-          Conversion %
-        </th>
-        <th style={{ position: 'sticky', top: 0, zIndex: 1 }}>
-          data %
-        </th>
+        <th style={{ position: "sticky", top: 0, zIndex: 1 }}>Main Objection</th>
+        <th style={{ position: "sticky", top: 0, zIndex: 1 }}>Agent Rebuttal</th>
+        <th style={{ position: "sticky", top: 0, zIndex: 1 }}>Objection Count</th>
+        <th style={{ position: "sticky", top: 0, zIndex: 1 }}>Failed Rebuttal %</th>
+        <th style={{ position: "sticky", top: 0, zIndex: 1 }}>Failed Rebuttal</th>
+        <th style={{ position: "sticky", top: 0, zIndex: 1 }}>Successful Rebuttal %</th>
+        <th style={{ position: "sticky", top: 0, zIndex: 1 }}>Successful Rebuttal</th>
+        <th style={{ position: "sticky", top: 0, zIndex: 1 }}>Conversion %</th>
       </tr>
     </thead>
-            <tbody>
-              <tr>
-                <td>Not Interested in Perfumes</td>
-                <td>Provide Other Product Variety</td>
-                <td className="greenclr">390</td>
-                <td className="red-cell">96%</td>
-                <td>375</td>
-                <td className="green-cell">4%</td>
-                <td>15</td>
-                <td className="green-cell">4%</td>
+
+    {objectionData.length > 0 ? (
+      <>
+        <tbody>
+          {objectionData
+            .filter((row) => row["Main Objection"] !== "Grand Total")
+            .map((row, idx) => (
+              <tr key={idx}>
+                <td>{row["Main Objection"]}</td>
+                <td>{row["Agent Rebuttal"]}</td>
+                <td className="greenclr">{row["Objection Count"]}</td>
+                <td className="red-cell">{row["Failed Rebuttal %"]}%</td>
+                <td>{row["Failed Rebuttal"]}</td>
+                <td className="green-cell">{row["Successful Rebuttal %"]}%</td>
+                <td>{row["Successful Rebuttal"]}</td>
+                <td className="green-cell">{row["Conversion%"]}%</td>
               </tr>
+            ))}
+        </tbody>
 
-              <tr>
-              <td>Price Too High</td>
-              <td>Offer Discounts</td>
-              <td className="greenclr">420</td>
-              <td className="red-cell">89%</td>
-              <td>400</td>
-              <td className="green-cell">6%</td>
-              <td>20</td>
-              <td className="green-cell">5%</td>
-            </tr>
-            <tr>
-              <td>Product Not Long-Lasting</td>
-              <td>Improve Product Quality</td>
-              <td className="greenclr">350</td>
-              <td className="red-cell">82%</td>
-              <td>320</td>
-              <td className="green-cell">10%</td>
-              <td>30</td>
-              <td className="green-cell">8%</td>
-            </tr>
-            <tr>
-              <td>Customer Service Delay</td>
-              <td>Faster Support Response</td>
-              <td className="greenclr">275</td>
-              <td className="red-cell">91%</td>
-              <td>250</td>
-              <td className="green-cell">6%</td>
-              <td>25</td>
-              <td className="green-cell">3%</td>
-            </tr>
-            <tr>
-              <td>Delivery Takes Too Long</td>
-              <td>Speed Up Logistics</td>
-              <td className="greenclr">310</td>
-              <td className="red-cell">85%</td>
-              <td>280</td>
-              <td className="green-cell">10%</td>
-              <td>30</td>
-              <td className="green-cell">5%</td>
-            </tr>
-            <tr>
-              <td>Packaging Not Attractive</td>
-              <td>Enhance Product Design</td>
-              <td className="greenclr">198</td>
-              <td className="red-cell">78%</td>
-              <td>180</td>
-              <td className="green-cell">12%</td>
-              <td>18</td>
-              <td className="green-cell">10%</td>
-            </tr>
-
-            </tbody>
-          </table>
-        </div>
-
-        {/* POS Breakdown */}
-        <div className="sales-section">
-          <h3 className="sales-subtitle">POS Subcategory Breakdown</h3>
-          <table className="sales-table">
-            <thead>
-              <tr>
-                <th>Objection Subcategory</th>
-                <th>Objection Count</th>
-                <th>Failed Rebuttal %</th>
-                <th>Failed Rebuttal</th>
-                <th>Successful Rebuttal %</th>
-                <th>Successful Rebuttal</th>
-                <th>Conversion %</th>
+        {/* If API returns a Grand Total row */}
+        <tfoot>
+          {objectionData
+            .filter((row) => row["Main Objection"] === "Grand Total")
+            .map((total, idx) => (
+              <tr key={`objection-total-${idx}`}>
+                <td colSpan="2">Grand Total</td>
+                <td>{total["Objection Count"]}</td>
+                <td>{total["Failed Rebuttal %"]}%</td>
+                <td>{total["Failed Rebuttal"]}</td>
+                <td>{total["Successful Rebuttal %"]}%</td>
+                <td>{total["Successful Rebuttal"]}</td>
+                <td>{total["Conversion%"]}%</td>
               </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Already has too many perfumes</td>
-                <td className="greenclr">1,180</td>
-                <td className="red-cell">94%</td>
-                <td>1,108</td>
-                <td className="green-cell">6%</td>
-                <td>72</td>
-                <td className="green-cell">6%</td>
+            ))}
+        </tfoot>
+      </>
+    ) : (
+      <tbody>
+        <tr>
+          <td colSpan="8" style={{ textAlign: "center", color: "#888" }}>
+            No data available
+          </td>
+        </tr>
+      </tbody>
+    )}
+  </table>
+</div>
+
+
+        {/* POS Subcategory Breakdown */}
+    <div className="sales-section" style={{ height: "450px", overflowY: "auto" }}>
+      <h3 className="sales-subtitle">POS Subcategory Breakdown</h3>
+
+      <table
+        className="sales-table"
+        style={{ width: "100%", borderCollapse: "collapse" }}
+      >
+        <thead>
+          <tr>
+            <th style={{ position: "sticky", top: 0, zIndex: 1 }}>Objection Subcategory</th>
+            <th style={{ position: "sticky", top: 0, zIndex: 1 }}>Objection Count</th>
+            <th style={{ position: "sticky", top: 0, zIndex: 1 }}>Failed Rebuttal %</th>
+            <th style={{ position: "sticky", top: 0, zIndex: 1 }}>Failed Rebuttal</th>
+            <th style={{ position: "sticky", top: 0, zIndex: 1 }}>Successful Rebuttal %</th>
+            <th style={{ position: "sticky", top: 0, zIndex: 1 }}>Successful Rebuttal</th>
+            <th style={{ position: "sticky", top: 0, zIndex: 1 }}>Conversion %</th>
+          </tr>
+        </thead>
+
+        {subcategoryData.length > 0 ? (
+          <tbody>
+            {subcategoryData.map((row, idx) => (
+              <tr key={idx}>
+                <td>{row.Objection}</td>
+                <td className="greenclr">{row["Objection Count"]}</td>
+                <td className="red-cell">{row["Failed Rebuttal %"]}%</td>
+                <td>{row["Failed Rebuttal"]}</td>
+                <td className="green-cell">{row["Successful Rebuttal %"]}%</td>
+                <td>{row["Successful Rebuttal"]}</td>
+                <td className="green-cell">{row["Conversion%"]}%</td>
               </tr>
+            ))}
+          </tbody>
+        ) : (
+          <tbody>
+            <tr>
+              <td colSpan="7" style={{ textAlign: "center", color: "#888" }}>
+                No data available
+              </td>
+            </tr>
+          </tbody>
+        )}
+      </table>
+    </div>
 
-              <tr>
-              <td>Prefers Natural Scents</td>
-              <td className="greenclr">980</td>
-              <td className="red-cell">91%</td>
-              <td>892</td>
-              <td className="green-cell">9%</td>
-              <td>88</td>
-              <td className="green-cell">9%</td>
-            </tr>
-            <tr>
-              <td>Allergic to Strong Fragrances</td>
-              <td className="greenclr">765</td>
-              <td className="red-cell">87%</td>
-              <td>665</td>
-              <td className="green-cell">13%</td>
-              <td>100</td>
-              <td className="green-cell">13%</td>
-            </tr>
-            <tr>
-              <td>Uses Only Specific Brands</td>
-              <td className="greenclr">1,050</td>
-              <td className="red-cell">92%</td>
-              <td>966</td>
-              <td className="green-cell">8%</td>
-              <td>84</td>
-              <td className="green-cell">8%</td>
-            </tr>
-            <tr>
-              <td>Dislikes Online Shopping</td>
-              <td className="greenclr">640</td>
-              <td className="red-cell">88%</td>
-              <td>563</td>
-              <td className="green-cell">12%</td>
-              <td>77</td>
-              <td className="green-cell">12%</td>
-            </tr>
-            <tr>
-              <td>Worried About Authenticity</td>
-              <td className="greenclr">710</td>
-              <td className="red-cell">90%</td>
-              <td>639</td>
-              <td className="green-cell">10%</td>
-              <td>71</td>
-              <td className="green-cell">10%</td>
-            </tr>
 
-            </tbody>
-          </table>
-        </div>
 
         {/* Rebuttal Breakdown */}
-        <div className="sales-section">
-          <h3 className="sales-subtitle">Rebuttal Breakdown</h3>
-          <table className="sales-table">
+        <div className="sales-section" style={{ height: "450px", overflowY: "auto" }}>
+          <h3 className="sales-subtitle">Agent Pitch Top Conversion</h3>
+
+          <table className="sales-table" style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
-                <th>Agent Rebuttal Pitch</th>
-                <th>Objection Count</th>
-                <th>Failed Rebuttal %</th>
-                <th>Failed Rebuttal</th>
-                <th>Successful Rebuttal %</th>
-                <th>Successful Rebuttal</th>
-                <th>Conversion %</th>
+                <th style={{ position: "sticky", top: 0, zIndex: 1 }}>Agent Rebuttal Pitch</th>
+                <th style={{ position: "sticky", top: 0, zIndex: 1 }}>Objection Count</th>
+                <th style={{ position: "sticky", top: 0, zIndex: 1 }}>Failed Rebuttal %</th>
+                <th style={{ position: "sticky", top: 0, zIndex: 1 }}>Failed Rebuttal</th>
+                <th style={{ position: "sticky", top: 0, zIndex: 1 }}>Successful Rebuttal %</th>
+                <th style={{ position: "sticky", top: 0, zIndex: 1 }}>Successful Rebuttal</th>
+                <th style={{ position: "sticky", top: 0, zIndex: 1 }}>Conversion %</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>Old Pitch</td>
-                <td className="greenclr">1,742</td>
-                <td className="red-cell">91%</td>
-                <td>1,591</td>
-                <td className="green-cell">9%</td>
-                <td>151</td>
-                <td className="green-cell">9%</td>
-              </tr>
 
-              <tr>
-              <td>Wrong Timing</td>
-              <td className="greenclr">1,215</td>
-              <td className="red-cell">89%</td>
-              <td>1,082</td>
-              <td className="green-cell">11%</td>
-              <td>133</td>
-              <td className="green-cell">11%</td>
-            </tr>
-            <tr>
-              <td>Repeated Call</td>
-              <td className="greenclr">980</td>
-              <td className="red-cell">92%</td>
-              <td>902</td>
-              <td className="green-cell">8%</td>
-              <td>78</td>
-              <td className="green-cell">8%</td>
-            </tr>
-            <tr>
-              <td>Language Barrier</td>
-              <td className="greenclr">870</td>
-              <td className="red-cell">88%</td>
-              <td>766</td>
-              <td className="green-cell">12%</td>
-              <td>104</td>
-              <td className="green-cell">12%</td>
-            </tr>
-            <tr>
-              <td>Didn't Understand Offer</td>
-              <td className="greenclr">1,050</td>
-              <td className="red-cell">90%</td>
-              <td>945</td>
-              <td className="green-cell">10%</td>
-              <td>105</td>
-              <td className="green-cell">10%</td>
-            </tr>
-            <tr>
-              <td>Pitch Too Long</td>
-              <td className="greenclr">1,320</td>
-              <td className="red-cell">87%</td>
-              <td>1,148</td>
-              <td className="green-cell">13%</td>
-              <td>172</td>
-              <td className="green-cell">13%</td>
-            </tr>
-
-            </tbody>
+            {agentPitchData.length > 0 ? (
+              <tbody>
+                {agentPitchData.map((row, idx) => (
+                  <tr key={idx}>
+                    <td>{row["Agent Rebuttal Pitch"]}</td>
+                    <td className="greenclr">{row["Objection Count"]}</td>
+                    <td className="red-cell">{row["Failed Rebuttal %"]}%</td>
+                    <td>{row["Failed Rebuttal"]}</td>
+                    <td className="green-cell">{row["Successful Rebuttal %"]}%</td>
+                    <td>{row["Successful Rebuttal"]}</td>
+                    <td className="green-cell">{row["Conversion%"]}%</td>
+                  </tr>
+                ))}
+              </tbody>
+            ) : (
+              <tbody>
+                <tr>
+                  <td colSpan="7" style={{ textAlign: "center", color: "#888" }}>
+                    No data available
+                  </td>
+                </tr>
+              </tbody>
+            )}
           </table>
         </div>
+
         {loading1 && (
           <div className="loader-overlay">
             <div className="bar"></div>

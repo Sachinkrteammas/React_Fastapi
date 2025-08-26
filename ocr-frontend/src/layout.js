@@ -41,123 +41,79 @@ const iconMap = {
 const Layout = ({ onLogout, children }) => {
   const navigate = useNavigate();
   const location = useLocation();
+
   const [username, setUsername] = useState("");
-  const [menuItems, setMenuItems] = useState([]);
+  const [menu, setMenu] = useState([]);
   const [openMenus, setOpenMenus] = useState(
-    JSON.parse(localStorage.getItem("openMenus")) || { Service: false, Sales: false,Collection:false }
+    JSON.parse(localStorage.getItem("openMenus")) || {}
   );
   const [loading, setLoading] = useState(true);
 
+  // Get username from localStorage
   useEffect(() => {
     const storedName = localStorage.getItem("username");
     setUsername(storedName ? storedName.split(" ")[0] : "");
   }, []);
 
-//  useEffect(() => {
-//    const fetchMenu = async () => {
-//      try {
-//        setLoading(true);
-//        const response = await fetch(`${BASE_URL}/menu`);
-//        if (!response.ok) throw new Error("Failed to fetch menu");
-//        const data = await response.json();
-//
-//        const filteredMenu = data.filter(item => {
-//        if ([22, 37].includes(userId)) {
-//          return ["Home", "Service", "Logout"].includes(item.name);
-//        }
-//        return true; // all items for other users
-//      });
-//
-//        const formattedMenu = data
-//          .filter((item) =>
-//            ["Home", "Recordings", "Transcription", "Prompt", "Settings", "API Key", "User Access","Calling","Collection", "Service", "Sales"].includes(item.name)
-//          )
-//          .map((item) => ({
-//            ...item,
-//            Icon: iconMap[item.icon] || null,
-//            url: item.url?.trim(),
-//            submenu: item.submenu || [],
-//          }));
-//
-//        setMenuItems(formattedMenu);
-//      } catch (error) {
-//        console.error("Failed to fetch menu:", error);
-//      } finally {
-//        setLoading(false);
-//      }
-//    };
-//
-//    fetchMenu();
-//  }, []);
+  // Fetch and filter menu based on permissions
+  useEffect(() => {
+    const fetchMenu = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`${BASE_URL}/menu`);
+        if (!response.ok) throw new Error("Failed to fetch menu");
+        const data = await response.json();
 
-useEffect(() => {
-  const fetchMenu = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`${BASE_URL}/menu`);
-      if (!response.ok) throw new Error("Failed to fetch menu");
+        const permissions = JSON.parse(localStorage.getItem("permissions") || "{}");
 
-      const data = await response.json();
+        // Always include Home
+        let filteredMenu = data.filter(item => item.name === "Home");
 
+        // Include Service/Sales if allowed
+        if (permissions.service) {
+          const serviceMenu = data.find(item => item.name === "Service");
+          if (serviceMenu) filteredMenu.push(serviceMenu);
+        }
+        if (permissions.sales) {
+          const salesMenu = data.find(item => item.name === "Sales");
+          if (salesMenu) filteredMenu.push(salesMenu);
+        }
 
-        const userId = Number(localStorage.getItem("id"));
-
-        const allowedNames = userId === 37
-          ? ["Home", "Service", "Logout"]
-          : [
-              "Home",
-//              "Recordings",
-//              "Transcription",
-//              "Prompt",
-//              "Settings",
-//              "API Key",
-//              "User Access",
-              "Calling",
-              "Collection",
-              "Service",
-              "Sales"
-            ];
-
-
-
-      const formattedMenu = data
-        .filter(item => allowedNames.includes(item.name))
-        .map(item => ({
+        // Map icons
+        const menuWithIcons = filteredMenu.map(item => ({
           ...item,
           Icon: iconMap[item.icon] || null,
-          url: item.url?.trim(),
-          submenu: item.submenu || [],
         }));
 
-      setMenuItems(formattedMenu);
-    } catch (error) {
-      console.error("Failed to fetch menu:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+        setMenu(menuWithIcons);
+      } catch (error) {
+        console.error("Failed to fetch menu:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  fetchMenu();
-}, []);
+    fetchMenu();
+  }, []);
 
-
+  // Persist open menus
   useEffect(() => {
     localStorage.setItem("openMenus", JSON.stringify(openMenus));
   }, [openMenus]);
 
-  const toggleMenu = (menu) => {
-    setOpenMenus((prev) => {
-      const newState = { ...prev, [menu]: !prev[menu] };
+  const toggleMenu = (menuName) => {
+    setOpenMenus(prev => {
+      const newState = { ...prev, [menuName]: !prev[menuName] };
       localStorage.setItem("openMenus", JSON.stringify(newState));
       return newState;
     });
   };
 
-  const handleNavigation = (path, menu) => {
-    navigate(path);
-    if (menu) {
-      setOpenMenus((prev) => {
-        const newState = { ...prev, [menu]: true };
+  const handleNavigation = (path, menuName) => {
+    if (path) navigate(path);
+    if (menuName) {
+      setOpenMenus(prev => {
+        const newState = { ...prev, [menuName]: true };
         localStorage.setItem("openMenus", JSON.stringify(newState));
         return newState;
       });
@@ -168,17 +124,14 @@ useEffect(() => {
     localStorage.removeItem("token");
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("openMenus");
-    sessionStorage.removeItem("user");
-
+    localStorage.removeItem("permissions");
     if (onLogout) onLogout();
-
-    setTimeout(() => {
-      window.location.href = "/";
-    }, 100);
+    window.location.href = "/";
   };
 
   return (
     <div className="dashboard-layout5">
+      {/* Top Navbar */}
       <div className="top-navbar">
         <img src={topLogo} alt="Company Logo" className="top-logo" />
         <div className="top-text">
@@ -190,12 +143,13 @@ useEffect(() => {
         </div>
       </div>
 
+      {/* Sidebar + Main Content */}
       <div className="content-layout5">
         <div className="sidebar5">
           {loading ? (
             <p>Loading menu...</p>
           ) : (
-            menuItems.map(({ url, name, Icon, submenu }) => (
+            menu.map(({ url, name, Icon, submenu }) => (
               <div key={name}>
                 <button
                   className={`nav-button ${location.pathname === url ? "active" : ""}`}
@@ -209,22 +163,26 @@ useEffect(() => {
 
                 {submenu.length > 0 && openMenus[name] && (
                   <div className="submenu">
-                    {submenu.map(({ url, name, Icon }) => (
-                      <button
-                        key={url}
-                        className={`sub-nav-button ${location.pathname === url ? "active" : ""}`}
-                        title={`Go to ${name}`}
-                        onClick={() => handleNavigation(url, name)}
-                      >
-                        {Icon && <Icon size={16} className="icon" />} {name}
-                      </button>
-                    ))}
+                    {submenu.map(({ url, name, icon }) => {
+                      const SubIcon = iconMap[icon] || null;
+                      return (
+                        <button
+                          key={url}
+                          className={`sub-nav-button ${location.pathname === url ? "active" : ""}`}
+                          title={`Go to ${name}`}
+                          onClick={() => handleNavigation(url, name)}
+                        >
+                          {SubIcon && <SubIcon size={16} className="icon" />} {name}
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
               </div>
             ))
           )}
 
+          {/* Separate Logout Button */}
           <button
             className="nav-button logout-button"
             title="Log out of your account"

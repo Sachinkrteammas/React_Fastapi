@@ -39,6 +39,7 @@ const Login = ({ onLogin }) => {
 
 
         localStorage.setItem("contact_number", response.data.contact_number);
+        localStorage.setItem("permissions", JSON.stringify(response.data.permissions || {}));
 
         onLogin();
         navigate("/dashboard", { replace: true }); // Prevents going back to login
