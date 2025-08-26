@@ -1,0 +1,1111 @@
+2025-08-26 15:21:02 | INFO | app | [manual] accepted unique_id=None file=test.mp3
+2025-08-26 15:21:02 | INFO | app | [manual] transcribe start unique_id=None url=https://dialdesk.co.in/JUSTHERB_20230729-104948_8600022882_MAS52861-all.wav
+2025-08-26 15:21:04 | ERROR | app | [manual] pipeline failed: Deepgram error 401: {"err_code":"INVALID_AUTH","err_msg":"Invalid credentials.","request_id":"420bf696-5961-404a-9508-6a6494909b6e"}
+Traceback (most recent call last):
+  File "D:\Project\dialdesk-callmaster\React_Fastapi\routers\manual_call.py", line 181, in _pipeline
+    tr_text, lang, conf, dur = await deepgram_transcribe(rec_url)
+  File "D:\Project\dialdesk-callmaster\React_Fastapi\routers\manual_call.py", line 74, in deepgram_transcribe
+    raise RuntimeError(f"Deepgram error {r.status}: {text}")
+RuntimeError: Deepgram error 401: {"err_code":"INVALID_AUTH","err_msg":"Invalid credentials.","request_id":"420bf696-5961-404a-9508-6a6494909b6e"}
+2025-08-26 15:23:16 | INFO | app | [manual] accepted unique_id=None file=test.mp3
+2025-08-26 15:23:16 | INFO | app | [manual] transcribe start unique_id=None url=https://dialdesk.co.in/JUSTHERB_20230729-104948_8600022882_MAS52861-all.wav
+2025-08-26 15:23:30 | INFO | app | [manual] transcribe ok lang=auto conf=0.9392373 dur=341
+2025-08-26 15:23:30 | ERROR | app | [manual] pipeline failed: (pymysql.err.OperationalError) (1045, "Access denied for user 'user'@'localhost' (using password: YES)")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Traceback (most recent call last):
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 146, in __init__
+    self._dbapi_connection = engine.raw_connection()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 3298, in raw_connection
+    return self.pool.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 449, in connect
+    return _ConnectionFairy._checkout(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 1263, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 712, in checkout
+    rec = pool._do_get()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\impl.py", line 179, in _do_get
+    with util.safe_reraise():
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\impl.py", line 177, in _do_get
+    return self._create_connection()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 390, in _create_connection
+    return _ConnectionRecord(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 674, in __init__
+    self.__connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 900, in __connect
+    with util.safe_reraise():
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 896, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\create.py", line 646, in connect
+    return dialect.connect(*cargs, **cparams)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\default.py", line 622, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 971, in _request_authentication
+    auth_packet = self._process_auth(plugin_name, auth_packet)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 1062, in _process_auth
+    pkt = self._read_packet()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 775, in _read_packet
+    packet.raise_for_error()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+pymysql.err.OperationalError: (1045, "Access denied for user 'user'@'localhost' (using password: YES)")
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\Project\dialdesk-callmaster\React_Fastapi\routers\manual_call.py", line 189, in _pipeline
+    .first()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\query.py", line 2754, in first
+    return self.limit(1)._iter().first()  # type: ignore
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\query.py", line 2853, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 2365, in execute
+    return self._execute_internal(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 2241, in _execute_internal
+    conn = self._connection_for_bind(bind)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 2110, in _connection_for_bind
+    return trans._connection_for_bind(engine, execution_options)
+  File "<string>", line 2, in _connection_for_bind
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 1189, in _connection_for_bind
+    conn = bind.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 3274, in connect
+    return self._connection_cls(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 148, in __init__
+    Connection._handle_dbapi_exception_noconnection(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 2439, in _handle_dbapi_exception_noconnection
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 146, in __init__
+    self._dbapi_connection = engine.raw_connection()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 3298, in raw_connection
+    return self.pool.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 449, in connect
+    return _ConnectionFairy._checkout(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 1263, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 712, in checkout
+    rec = pool._do_get()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\impl.py", line 179, in _do_get
+    with util.safe_reraise():
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\impl.py", line 177, in _do_get
+    return self._create_connection()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 390, in _create_connection
+    return _ConnectionRecord(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 674, in __init__
+    self.__connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 900, in __connect
+    with util.safe_reraise():
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 896, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\create.py", line 646, in connect
+    return dialect.connect(*cargs, **cparams)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\default.py", line 622, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 971, in _request_authentication
+    auth_packet = self._process_auth(plugin_name, auth_packet)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 1062, in _process_auth
+    pkt = self._read_packet()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 775, in _read_packet
+    packet.raise_for_error()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+sqlalchemy.exc.OperationalError: (pymysql.err.OperationalError) (1045, "Access denied for user 'user'@'localhost' (using password: YES)")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-08-26 15:27:47 | INFO | app | [manual] accepted unique_id=None file=test.mp3
+2025-08-26 15:27:47 | INFO | app | [manual] transcribe start unique_id=None url=https://dialdesk.co.in/JUSTHERB_20230729-104948_8600022882_MAS52861-all.wav
+2025-08-26 15:28:01 | INFO | app | [manual] transcribe ok lang=auto conf=0.9411624 dur=341
+2025-08-26 15:28:01 | ERROR | app | [manual] pipeline failed: (pymysql.err.OperationalError) (1045, "Access denied for user 'user'@'localhost' (using password: YES)")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Traceback (most recent call last):
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 146, in __init__
+    self._dbapi_connection = engine.raw_connection()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 3298, in raw_connection
+    return self.pool.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 449, in connect
+    return _ConnectionFairy._checkout(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 1263, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 712, in checkout
+    rec = pool._do_get()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\impl.py", line 179, in _do_get
+    with util.safe_reraise():
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\impl.py", line 177, in _do_get
+    return self._create_connection()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 390, in _create_connection
+    return _ConnectionRecord(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 674, in __init__
+    self.__connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 900, in __connect
+    with util.safe_reraise():
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 896, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\create.py", line 646, in connect
+    return dialect.connect(*cargs, **cparams)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\default.py", line 622, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 971, in _request_authentication
+    auth_packet = self._process_auth(plugin_name, auth_packet)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 1062, in _process_auth
+    pkt = self._read_packet()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 775, in _read_packet
+    packet.raise_for_error()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+pymysql.err.OperationalError: (1045, "Access denied for user 'user'@'localhost' (using password: YES)")
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\Project\dialdesk-callmaster\React_Fastapi\routers\manual_call.py", line 189, in _pipeline
+    .first()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\query.py", line 2754, in first
+    return self.limit(1)._iter().first()  # type: ignore
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\query.py", line 2853, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 2365, in execute
+    return self._execute_internal(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 2241, in _execute_internal
+    conn = self._connection_for_bind(bind)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 2110, in _connection_for_bind
+    return trans._connection_for_bind(engine, execution_options)
+  File "<string>", line 2, in _connection_for_bind
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 1189, in _connection_for_bind
+    conn = bind.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 3274, in connect
+    return self._connection_cls(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 148, in __init__
+    Connection._handle_dbapi_exception_noconnection(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 2439, in _handle_dbapi_exception_noconnection
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 146, in __init__
+    self._dbapi_connection = engine.raw_connection()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 3298, in raw_connection
+    return self.pool.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 449, in connect
+    return _ConnectionFairy._checkout(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 1263, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 712, in checkout
+    rec = pool._do_get()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\impl.py", line 179, in _do_get
+    with util.safe_reraise():
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\impl.py", line 177, in _do_get
+    return self._create_connection()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 390, in _create_connection
+    return _ConnectionRecord(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 674, in __init__
+    self.__connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 900, in __connect
+    with util.safe_reraise():
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 896, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\create.py", line 646, in connect
+    return dialect.connect(*cargs, **cparams)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\default.py", line 622, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 971, in _request_authentication
+    auth_packet = self._process_auth(plugin_name, auth_packet)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 1062, in _process_auth
+    pkt = self._read_packet()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 775, in _read_packet
+    packet.raise_for_error()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+sqlalchemy.exc.OperationalError: (pymysql.err.OperationalError) (1045, "Access denied for user 'user'@'localhost' (using password: YES)")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-08-26 15:29:25 | INFO | app | [manual] accepted unique_id=None file=test.mp3
+2025-08-26 15:29:25 | INFO | app | [manual] transcribe start unique_id=None url=https://dialdesk.co.in/JUSTHERB_20230729-104948_8600022882_MAS52861-all.wav
+2025-08-26 15:29:38 | INFO | app | [manual] transcribe ok lang=auto conf=0.94115514 dur=341
+2025-08-26 15:29:38 | ERROR | app | [manual] pipeline failed: (pymysql.err.OperationalError) (1045, "Access denied for user 'user'@'localhost' (using password: YES)")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Traceback (most recent call last):
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 146, in __init__
+    self._dbapi_connection = engine.raw_connection()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 3298, in raw_connection
+    return self.pool.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 449, in connect
+    return _ConnectionFairy._checkout(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 1263, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 712, in checkout
+    rec = pool._do_get()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\impl.py", line 179, in _do_get
+    with util.safe_reraise():
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\impl.py", line 177, in _do_get
+    return self._create_connection()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 390, in _create_connection
+    return _ConnectionRecord(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 674, in __init__
+    self.__connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 900, in __connect
+    with util.safe_reraise():
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 896, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\create.py", line 646, in connect
+    return dialect.connect(*cargs, **cparams)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\default.py", line 622, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 971, in _request_authentication
+    auth_packet = self._process_auth(plugin_name, auth_packet)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 1062, in _process_auth
+    pkt = self._read_packet()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 775, in _read_packet
+    packet.raise_for_error()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+pymysql.err.OperationalError: (1045, "Access denied for user 'user'@'localhost' (using password: YES)")
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\Project\dialdesk-callmaster\React_Fastapi\routers\manual_call.py", line 189, in _pipeline
+    .first()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\query.py", line 2754, in first
+    return self.limit(1)._iter().first()  # type: ignore
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\query.py", line 2853, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 2365, in execute
+    return self._execute_internal(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 2241, in _execute_internal
+    conn = self._connection_for_bind(bind)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 2110, in _connection_for_bind
+    return trans._connection_for_bind(engine, execution_options)
+  File "<string>", line 2, in _connection_for_bind
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 1189, in _connection_for_bind
+    conn = bind.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 3274, in connect
+    return self._connection_cls(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 148, in __init__
+    Connection._handle_dbapi_exception_noconnection(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 2439, in _handle_dbapi_exception_noconnection
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 146, in __init__
+    self._dbapi_connection = engine.raw_connection()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 3298, in raw_connection
+    return self.pool.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 449, in connect
+    return _ConnectionFairy._checkout(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 1263, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 712, in checkout
+    rec = pool._do_get()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\impl.py", line 179, in _do_get
+    with util.safe_reraise():
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\impl.py", line 177, in _do_get
+    return self._create_connection()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 390, in _create_connection
+    return _ConnectionRecord(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 674, in __init__
+    self.__connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 900, in __connect
+    with util.safe_reraise():
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 896, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\create.py", line 646, in connect
+    return dialect.connect(*cargs, **cparams)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\default.py", line 622, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 971, in _request_authentication
+    auth_packet = self._process_auth(plugin_name, auth_packet)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 1062, in _process_auth
+    pkt = self._read_packet()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 775, in _read_packet
+    packet.raise_for_error()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+sqlalchemy.exc.OperationalError: (pymysql.err.OperationalError) (1045, "Access denied for user 'user'@'localhost' (using password: YES)")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-08-26 15:32:48 | INFO | app | [manual] accepted unique_id=None file=test.mp3
+2025-08-26 15:32:48 | INFO | app | [manual] accepted unique_id=None file=test.mp3
+2025-08-26 15:32:48 | INFO | app | [manual] transcribe start unique_id=None url=https://dialdesk.co.in/JUSTHERB_20230729-104948_8600022882_MAS52861-all.wav
+2025-08-26 15:32:48 | INFO | app | [manual] transcribe start unique_id=None url=https://dialdesk.co.in/JUSTHERB_20230729-104948_8600022882_MAS52861-all.wav
+2025-08-26 15:33:02 | INFO | app | [manual] transcribe ok lang=auto conf=0.9411498 dur=341
+2025-08-26 15:33:02 | ERROR | app | [manual] pipeline failed: (pymysql.err.OperationalError) (1045, "Access denied for user 'user'@'localhost' (using password: YES)")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Traceback (most recent call last):
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 146, in __init__
+    self._dbapi_connection = engine.raw_connection()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 3298, in raw_connection
+    return self.pool.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 449, in connect
+    return _ConnectionFairy._checkout(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 1263, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 712, in checkout
+    rec = pool._do_get()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\impl.py", line 179, in _do_get
+    with util.safe_reraise():
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\impl.py", line 177, in _do_get
+    return self._create_connection()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 390, in _create_connection
+    return _ConnectionRecord(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 674, in __init__
+    self.__connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 900, in __connect
+    with util.safe_reraise():
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 896, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\create.py", line 646, in connect
+    return dialect.connect(*cargs, **cparams)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\default.py", line 622, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 971, in _request_authentication
+    auth_packet = self._process_auth(plugin_name, auth_packet)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 1062, in _process_auth
+    pkt = self._read_packet()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 775, in _read_packet
+    packet.raise_for_error()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+pymysql.err.OperationalError: (1045, "Access denied for user 'user'@'localhost' (using password: YES)")
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\Project\dialdesk-callmaster\React_Fastapi\routers\manual_call.py", line 189, in _pipeline
+    )
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\query.py", line 2754, in first
+    return self.limit(1)._iter().first()  # type: ignore
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\query.py", line 2853, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 2365, in execute
+    return self._execute_internal(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 2241, in _execute_internal
+    conn = self._connection_for_bind(bind)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 2110, in _connection_for_bind
+    return trans._connection_for_bind(engine, execution_options)
+  File "<string>", line 2, in _connection_for_bind
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 1189, in _connection_for_bind
+    conn = bind.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 3274, in connect
+    return self._connection_cls(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 148, in __init__
+    Connection._handle_dbapi_exception_noconnection(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 2439, in _handle_dbapi_exception_noconnection
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 146, in __init__
+    self._dbapi_connection = engine.raw_connection()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 3298, in raw_connection
+    return self.pool.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 449, in connect
+    return _ConnectionFairy._checkout(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 1263, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 712, in checkout
+    rec = pool._do_get()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\impl.py", line 179, in _do_get
+    with util.safe_reraise():
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\impl.py", line 177, in _do_get
+    return self._create_connection()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 390, in _create_connection
+    return _ConnectionRecord(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 674, in __init__
+    self.__connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 900, in __connect
+    with util.safe_reraise():
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 896, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\create.py", line 646, in connect
+    return dialect.connect(*cargs, **cparams)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\default.py", line 622, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 971, in _request_authentication
+    auth_packet = self._process_auth(plugin_name, auth_packet)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 1062, in _process_auth
+    pkt = self._read_packet()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 775, in _read_packet
+    packet.raise_for_error()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+sqlalchemy.exc.OperationalError: (pymysql.err.OperationalError) (1045, "Access denied for user 'user'@'localhost' (using password: YES)")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-08-26 15:33:03 | INFO | app | [manual] transcribe ok lang=auto conf=0.94115514 dur=341
+2025-08-26 15:33:03 | ERROR | app | [manual] pipeline failed: (pymysql.err.OperationalError) (1045, "Access denied for user 'user'@'localhost' (using password: YES)")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Traceback (most recent call last):
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 146, in __init__
+    self._dbapi_connection = engine.raw_connection()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 3298, in raw_connection
+    return self.pool.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 449, in connect
+    return _ConnectionFairy._checkout(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 1263, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 712, in checkout
+    rec = pool._do_get()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\impl.py", line 179, in _do_get
+    with util.safe_reraise():
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\impl.py", line 177, in _do_get
+    return self._create_connection()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 390, in _create_connection
+    return _ConnectionRecord(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 674, in __init__
+    self.__connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 900, in __connect
+    with util.safe_reraise():
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 896, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\create.py", line 646, in connect
+    return dialect.connect(*cargs, **cparams)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\default.py", line 622, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 971, in _request_authentication
+    auth_packet = self._process_auth(plugin_name, auth_packet)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 1062, in _process_auth
+    pkt = self._read_packet()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 775, in _read_packet
+    packet.raise_for_error()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+pymysql.err.OperationalError: (1045, "Access denied for user 'user'@'localhost' (using password: YES)")
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\Project\dialdesk-callmaster\React_Fastapi\routers\manual_call.py", line 189, in _pipeline
+    )
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\query.py", line 2754, in first
+    return self.limit(1)._iter().first()  # type: ignore
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\query.py", line 2853, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 2365, in execute
+    return self._execute_internal(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 2241, in _execute_internal
+    conn = self._connection_for_bind(bind)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 2110, in _connection_for_bind
+    return trans._connection_for_bind(engine, execution_options)
+  File "<string>", line 2, in _connection_for_bind
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 1189, in _connection_for_bind
+    conn = bind.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 3274, in connect
+    return self._connection_cls(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 148, in __init__
+    Connection._handle_dbapi_exception_noconnection(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 2439, in _handle_dbapi_exception_noconnection
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 146, in __init__
+    self._dbapi_connection = engine.raw_connection()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 3298, in raw_connection
+    return self.pool.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 449, in connect
+    return _ConnectionFairy._checkout(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 1263, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 712, in checkout
+    rec = pool._do_get()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\impl.py", line 179, in _do_get
+    with util.safe_reraise():
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\impl.py", line 177, in _do_get
+    return self._create_connection()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 390, in _create_connection
+    return _ConnectionRecord(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 674, in __init__
+    self.__connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 900, in __connect
+    with util.safe_reraise():
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 896, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\create.py", line 646, in connect
+    return dialect.connect(*cargs, **cparams)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\default.py", line 622, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 971, in _request_authentication
+    auth_packet = self._process_auth(plugin_name, auth_packet)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 1062, in _process_auth
+    pkt = self._read_packet()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 775, in _read_packet
+    packet.raise_for_error()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+sqlalchemy.exc.OperationalError: (pymysql.err.OperationalError) (1045, "Access denied for user 'user'@'localhost' (using password: YES)")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-08-26 15:35:13 | INFO | app | [manual] accepted unique_id=None file=test.mp3
+2025-08-26 15:35:13 | INFO | app | [manual] transcribe start unique_id=None url=https://dialdesk.co.in/JUSTHERB_20230729-104948_8600022882_MAS52861-all.wav
+2025-08-26 15:35:25 | INFO | app | [manual] transcribe ok lang=auto conf=0.94114995 dur=341
+2025-08-26 15:35:26 | ERROR | app | [manual] pipeline failed: (pymysql.err.OperationalError) (1045, "Access denied for user 'user'@'localhost' (using password: YES)")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Traceback (most recent call last):
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 146, in __init__
+    self._dbapi_connection = engine.raw_connection()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 3298, in raw_connection
+    return self.pool.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 449, in connect
+    return _ConnectionFairy._checkout(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 1263, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 712, in checkout
+    rec = pool._do_get()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\impl.py", line 179, in _do_get
+    with util.safe_reraise():
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\impl.py", line 177, in _do_get
+    return self._create_connection()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 390, in _create_connection
+    return _ConnectionRecord(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 674, in __init__
+    self.__connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 900, in __connect
+    with util.safe_reraise():
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 896, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\create.py", line 646, in connect
+    return dialect.connect(*cargs, **cparams)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\default.py", line 622, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 971, in _request_authentication
+    auth_packet = self._process_auth(plugin_name, auth_packet)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 1062, in _process_auth
+    pkt = self._read_packet()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 775, in _read_packet
+    packet.raise_for_error()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+pymysql.err.OperationalError: (1045, "Access denied for user 'user'@'localhost' (using password: YES)")
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\Project\dialdesk-callmaster\React_Fastapi\routers\manual_call.py", line 189, in _pipeline
+    )
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\query.py", line 2754, in first
+    return self.limit(1)._iter().first()  # type: ignore
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\query.py", line 2853, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 2365, in execute
+    return self._execute_internal(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 2241, in _execute_internal
+    conn = self._connection_for_bind(bind)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 2110, in _connection_for_bind
+    return trans._connection_for_bind(engine, execution_options)
+  File "<string>", line 2, in _connection_for_bind
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 1189, in _connection_for_bind
+    conn = bind.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 3274, in connect
+    return self._connection_cls(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 148, in __init__
+    Connection._handle_dbapi_exception_noconnection(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 2439, in _handle_dbapi_exception_noconnection
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 146, in __init__
+    self._dbapi_connection = engine.raw_connection()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 3298, in raw_connection
+    return self.pool.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 449, in connect
+    return _ConnectionFairy._checkout(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 1263, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 712, in checkout
+    rec = pool._do_get()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\impl.py", line 179, in _do_get
+    with util.safe_reraise():
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\impl.py", line 177, in _do_get
+    return self._create_connection()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 390, in _create_connection
+    return _ConnectionRecord(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 674, in __init__
+    self.__connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 900, in __connect
+    with util.safe_reraise():
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 896, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\create.py", line 646, in connect
+    return dialect.connect(*cargs, **cparams)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\default.py", line 622, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 971, in _request_authentication
+    auth_packet = self._process_auth(plugin_name, auth_packet)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 1062, in _process_auth
+    pkt = self._read_packet()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 775, in _read_packet
+    packet.raise_for_error()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+sqlalchemy.exc.OperationalError: (pymysql.err.OperationalError) (1045, "Access denied for user 'user'@'localhost' (using password: YES)")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-08-26 15:37:37 | INFO | app | [manual] accepted unique_id=None file=test.mp3
+2025-08-26 15:37:37 | INFO | app | [manual] transcribe start unique_id=None url=https://dialdesk.co.in/JUSTHERB_20230729-104948_8600022882_MAS52861-all.wav
+2025-08-26 15:37:52 | INFO | app | [manual] transcribe ok lang=auto conf=0.94114363 dur=341
+2025-08-26 15:37:52 | ERROR | app | [manual] pipeline failed: (pymysql.err.OperationalError) (1045, "Access denied for user 'user'@'localhost' (using password: YES)")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Traceback (most recent call last):
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 146, in __init__
+    self._dbapi_connection = engine.raw_connection()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 3298, in raw_connection
+    return self.pool.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 449, in connect
+    return _ConnectionFairy._checkout(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 1263, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 712, in checkout
+    rec = pool._do_get()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\impl.py", line 179, in _do_get
+    with util.safe_reraise():
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\impl.py", line 177, in _do_get
+    return self._create_connection()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 390, in _create_connection
+    return _ConnectionRecord(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 674, in __init__
+    self.__connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 900, in __connect
+    with util.safe_reraise():
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 896, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\create.py", line 646, in connect
+    return dialect.connect(*cargs, **cparams)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\default.py", line 622, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 971, in _request_authentication
+    auth_packet = self._process_auth(plugin_name, auth_packet)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 1062, in _process_auth
+    pkt = self._read_packet()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 775, in _read_packet
+    packet.raise_for_error()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+pymysql.err.OperationalError: (1045, "Access denied for user 'user'@'localhost' (using password: YES)")
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\Project\dialdesk-callmaster\React_Fastapi\routers\manual_call.py", line 189, in _pipeline
+    )
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\query.py", line 2754, in first
+    return self.limit(1)._iter().first()  # type: ignore
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\query.py", line 2853, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 2365, in execute
+    return self._execute_internal(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 2241, in _execute_internal
+    conn = self._connection_for_bind(bind)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 2110, in _connection_for_bind
+    return trans._connection_for_bind(engine, execution_options)
+  File "<string>", line 2, in _connection_for_bind
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 1189, in _connection_for_bind
+    conn = bind.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 3274, in connect
+    return self._connection_cls(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 148, in __init__
+    Connection._handle_dbapi_exception_noconnection(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 2439, in _handle_dbapi_exception_noconnection
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 146, in __init__
+    self._dbapi_connection = engine.raw_connection()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 3298, in raw_connection
+    return self.pool.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 449, in connect
+    return _ConnectionFairy._checkout(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 1263, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 712, in checkout
+    rec = pool._do_get()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\impl.py", line 179, in _do_get
+    with util.safe_reraise():
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\impl.py", line 177, in _do_get
+    return self._create_connection()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 390, in _create_connection
+    return _ConnectionRecord(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 674, in __init__
+    self.__connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 900, in __connect
+    with util.safe_reraise():
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 896, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\create.py", line 646, in connect
+    return dialect.connect(*cargs, **cparams)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\default.py", line 622, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 971, in _request_authentication
+    auth_packet = self._process_auth(plugin_name, auth_packet)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 1062, in _process_auth
+    pkt = self._read_packet()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 775, in _read_packet
+    packet.raise_for_error()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+sqlalchemy.exc.OperationalError: (pymysql.err.OperationalError) (1045, "Access denied for user 'user'@'localhost' (using password: YES)")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-08-26 15:41:34 | INFO | app | [manual] accepted unique_id=None file=test.mp3
+2025-08-26 15:41:34 | INFO | app | [manual] transcribe start unique_id=None url=https://dialdesk.co.in/JUSTHERB_20230729-104948_8600022882_MAS52861-all.wav
+2025-08-26 15:41:48 | INFO | app | [manual] transcribe ok lang=auto conf=0.94116086 dur=341
+2025-08-26 15:41:48 | ERROR | app | [manual] pipeline failed: (pymysql.err.OperationalError) (1054, "Unknown column 'prompts.client_id' in 'field list'")
+[SQL: SELECT prompts.id AS prompts_id, prompts.client_id AS prompts_client_id, prompts.direction AS prompts_direction, prompts.name AS prompts_name, prompts.prompt_text AS prompts_prompt_text, prompts.is_active AS prompts_is_active 
+FROM prompts 
+WHERE prompts.client_id = %(client_id_1)s AND prompts.direction = %(direction_1)s AND prompts.is_active = %(is_active_1)s ORDER BY prompts.id DESC 
+ LIMIT %(param_1)s]
+[parameters: {'client_id_1': 101, 'direction_1': 'outbound', 'is_active_1': 1, 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Traceback (most recent call last):
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\default.py", line 942, in do_execute
+    cursor.execute(statement, parameters)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\cursors.py", line 153, in execute
+    result = self._query(query)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\cursors.py", line 322, in _query
+    conn.query(q)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 563, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 825, in _read_query_result
+    result.read()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 1199, in read
+    first_packet = self.connection._read_packet()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 775, in _read_packet
+    packet.raise_for_error()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+pymysql.err.OperationalError: (1054, "Unknown column 'prompts.client_id' in 'field list'")
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\Project\dialdesk-callmaster\React_Fastapi\routers\manual_call.py", line 188, in _pipeline
+    .first()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\query.py", line 2754, in first
+    return self.limit(1)._iter().first()  # type: ignore
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\query.py", line 2853, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 2365, in execute
+    return self._execute_internal(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 2251, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\context.py", line 305, in orm_execute_statement
+    result = conn.execute(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 1416, in execute
+    return meth(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\sql\elements.py", line 516, in _execute_on_connection
+    return connection._execute_clauseelement(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 1638, in _execute_clauseelement
+    ret = self._execute_context(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 1843, in _execute_context
+    return self._exec_single_context(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 1983, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 2352, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\default.py", line 942, in do_execute
+    cursor.execute(statement, parameters)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\cursors.py", line 153, in execute
+    result = self._query(query)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\cursors.py", line 322, in _query
+    conn.query(q)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 563, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 825, in _read_query_result
+    result.read()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 1199, in read
+    first_packet = self.connection._read_packet()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 775, in _read_packet
+    packet.raise_for_error()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+sqlalchemy.exc.OperationalError: (pymysql.err.OperationalError) (1054, "Unknown column 'prompts.client_id' in 'field list'")
+[SQL: SELECT prompts.id AS prompts_id, prompts.client_id AS prompts_client_id, prompts.direction AS prompts_direction, prompts.name AS prompts_name, prompts.prompt_text AS prompts_prompt_text, prompts.is_active AS prompts_is_active 
+FROM prompts 
+WHERE prompts.client_id = %(client_id_1)s AND prompts.direction = %(direction_1)s AND prompts.is_active = %(is_active_1)s ORDER BY prompts.id DESC 
+ LIMIT %(param_1)s]
+[parameters: {'client_id_1': 101, 'direction_1': 'outbound', 'is_active_1': 1, 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-08-26 15:44:32 | INFO | app | [manual] accepted unique_id=None file=test.mp3
+2025-08-26 15:44:32 | INFO | app | [manual] transcribe start unique_id=None url=https://dialdesk.co.in/JUSTHERB_20230729-104948_8600022882_MAS52861-all.wav
+2025-08-26 15:44:45 | INFO | app | [manual] transcribe ok lang=auto conf=0.9411624 dur=341
+2025-08-26 15:44:45 | ERROR | app | [manual] pipeline failed: No active outbound prompt for this client
+Traceback (most recent call last):
+  File "D:\Project\dialdesk-callmaster\React_Fastapi\routers\manual_call.py", line 191, in _pipeline
+    raise RuntimeError("No active outbound prompt for this client")
+RuntimeError: No active outbound prompt for this client
+2025-08-26 15:46:10 | INFO | app | [manual] accepted unique_id=None file=test.mp3
+2025-08-26 15:46:10 | INFO | app | [manual] transcribe start unique_id=None url=https://dialdesk.co.in/JUSTHERB_20230729-104948_8600022882_MAS52861-all.wav
+2025-08-26 15:46:23 | INFO | app | [manual] transcribe ok lang=auto conf=0.94116265 dur=341
+2025-08-26 15:46:23 | INFO | app | [manual] gpt start prompt_id=1
+2025-08-26 15:46:24 | ERROR | app | [manual] pipeline failed: OpenAI error 429: {
+    "error": {
+        "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+        "type": "insufficient_quota",
+        "param": null,
+        "code": "insufficient_quota"
+    }
+}
+Traceback (most recent call last):
+  File "D:\Project\dialdesk-callmaster\React_Fastapi\routers\manual_call.py", line 195, in _pipeline
+    raw = await run_gpt(prompt_row.prompt_text, tr_text)
+  File "D:\Project\dialdesk-callmaster\React_Fastapi\routers\manual_call.py", line 101, in run_gpt
+    raise RuntimeError(f"OpenAI error {r.status}: {txt}")
+RuntimeError: OpenAI error 429: {
+    "error": {
+        "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+        "type": "insufficient_quota",
+        "param": null,
+        "code": "insufficient_quota"
+    }
+}
+
+2025-08-26 17:10:40 | INFO | app | [manual] accepted unique_id=None file=test.mp3
+2025-08-26 17:10:40 | INFO | app | [manual] transcribe start unique_id=None url=https://dialdesk.co.in/JUSTHERB_20230729-104948_8600022882_MAS52861-all.wav
+2025-08-26 17:10:50 | INFO | app | [manual] transcribe ok lang=auto conf=0.94116086 dur=341
+2025-08-26 17:11:00 | ERROR | app | [manual] pipeline failed: (pymysql.err.OperationalError) (2003, "Can't connect to MySQL server on '192.168.11.243' (timed out)")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Traceback (most recent call last):
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 649, in connect
+    sock = socket.create_connection(
+  File "C:\Users\Krishna\AppData\Local\Programs\Python\Python310\lib\socket.py", line 845, in create_connection
+    raise err
+  File "C:\Users\Krishna\AppData\Local\Programs\Python\Python310\lib\socket.py", line 833, in create_connection
+    sock.connect(sa)
+TimeoutError: timed out
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 146, in __init__
+    self._dbapi_connection = engine.raw_connection()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 3298, in raw_connection
+    return self.pool.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 449, in connect
+    return _ConnectionFairy._checkout(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 1263, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 717, in checkout
+    with util.safe_reraise():
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 715, in checkout
+    dbapi_connection = rec.get_connection()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 866, in get_connection
+    self.__connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 900, in __connect
+    with util.safe_reraise():
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 896, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\create.py", line 646, in connect
+    return dialect.connect(*cargs, **cparams)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\default.py", line 622, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 716, in connect
+    raise exc
+pymysql.err.OperationalError: (2003, "Can't connect to MySQL server on '192.168.11.243' (timed out)")
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\Project\dialdesk-callmaster\React_Fastapi\routers\manual_call.py", line 188, in _pipeline
+    .first()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\query.py", line 2754, in first
+    return self.limit(1)._iter().first()  # type: ignore
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\query.py", line 2853, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 2365, in execute
+    return self._execute_internal(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 2241, in _execute_internal
+    conn = self._connection_for_bind(bind)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 2110, in _connection_for_bind
+    return trans._connection_for_bind(engine, execution_options)
+  File "<string>", line 2, in _connection_for_bind
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\orm\session.py", line 1189, in _connection_for_bind
+    conn = bind.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 3274, in connect
+    return self._connection_cls(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 148, in __init__
+    Connection._handle_dbapi_exception_noconnection(
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 2439, in _handle_dbapi_exception_noconnection
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 146, in __init__
+    self._dbapi_connection = engine.raw_connection()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 3298, in raw_connection
+    return self.pool.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 449, in connect
+    return _ConnectionFairy._checkout(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 1263, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 717, in checkout
+    with util.safe_reraise():
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 715, in checkout
+    dbapi_connection = rec.get_connection()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 866, in get_connection
+    self.__connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 900, in __connect
+    with util.safe_reraise():
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\pool\base.py", line 896, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\create.py", line 646, in connect
+    return dialect.connect(*cargs, **cparams)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\sqlalchemy\engine\default.py", line 622, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+  File "D:\Project\dialdesk-callmaster\.venv\lib\site-packages\pymysql\connections.py", line 716, in connect
+    raise exc
+sqlalchemy.exc.OperationalError: (pymysql.err.OperationalError) (2003, "Can't connect to MySQL server on '192.168.11.243' (timed out)")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-08-26 18:21:32 | INFO | app | [manual] accepted unique_id=None file=test.mp3
+2025-08-26 18:21:32 | INFO | app | [manual] transcribe start unique_id=None url=https://dialdesk.co.in/JUSTHERB_20230729-104948_8600022882_MAS52861-all.wav
+2025-08-26 18:21:41 | INFO | app | [manual] transcribe ok lang=auto conf=0.9411498 dur=341
+2025-08-26 18:21:41 | INFO | app | [manual] gpt start prompt_id=1
+2025-08-26 18:21:52 | INFO | app | [manual] gpt done
+2025-08-26 18:21:52 | INFO | app | [manual] CallDetails inserted id=1

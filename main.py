@@ -26,7 +26,10 @@ import pandas as pd
 from transcriber import transcribe_with_deepgram_async
 from analyzer import analyze_transcript
 from dashboard3_ptp_routes import router as dashboard3_router
-from inbound_call import router as inbound_call_router
+#from inbound_call import router as inbound_call_router
+
+from common import Base, engine, access_logger
+from routers.manual_call import router as manual_router
 
 # from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -43,10 +46,11 @@ app.add_middleware(
 )
 
 app.include_router(dashboard3_router)
-app.include_router(inbound_call_router)
+app.include_router(manual_router)
+#app.include_router(inbound_call_router)
 # MySQL Database Connection (replace with your actual credentials)
 # SQL_DB_URL = "mysql+pymysql://root:Hello%40123@localhost/my_db?charset=utf8mb4"
-SQL_DB_URL = "mysql+pymysql://root:dial%40mas123@172.12.10.22/ai_audit?charset=utf8mb4"
+SQL_DB_URL = "mysql+pymysql://root:vicidialnow@192.168.11.243/dialdesk_callmaster?charset=utf8mb4"
 engine = create_engine(SQL_DB_URL, echo=True)
 SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 Base = declarative_base()
@@ -90,6 +94,26 @@ def get_db3():
         yield db
     finally:
         db.close()
+
+
+
+@app.middleware("http")
+async def access_log_mw(request: Request, call_next):
+    try:
+        resp = await call_next(request)
+    except Exception as e:
+        access_logger.exception(f"{request.method} {request.url.path} crashed: {e}")
+        return JSONResponse(status_code=500, content={"detail": "Internal server error"})
+    access_logger.info(f"{request.method} {request.url.path} -> {resp.status_code}")
+    return resp
+
+#app.include_router(manual_router)
+
+
+
+@app.get("/health")
+def health():
+    return {"ok": True}
 
 
 # User Model
