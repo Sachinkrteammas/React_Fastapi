@@ -50,7 +50,7 @@ app.include_router(manual_router)
 #app.include_router(inbound_call_router)
 # MySQL Database Connection (replace with your actual credentials)
 # SQL_DB_URL = "mysql+pymysql://root:Hello%40123@localhost/my_db?charset=utf8mb4"
-SQL_DB_URL = "mysql+pymysql://root:vicidialnow@192.168.11.243/dialdesk_callmaster?charset=utf8mb4"
+SQL_DB_URL = "mysql+pymysql://root:vicidialnow@192.168.11.243:3306/dialdesk_callmaster?charset=utf8mb4"
 engine = create_engine(SQL_DB_URL, echo=True)
 SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 Base = declarative_base()
@@ -59,41 +59,41 @@ Base = declarative_base()
 
 # DATABASE_URL2 = "mysql+pymysql://root:321*#LDtr!?*ktasb@192.168.10.12/db_dialdesk"
 #DATABASE_URL2 = "mysql+pymysql://root:321%2A%23LDtr%21%3F%2Aktasb@192.168.10.22/db_dialdesk"
-DATABASE_URL2 = "mysql+pymysql://root:vicidialnow@192.168.10.6/db_audit"
+# DATABASE_URL2 = "mysql+pymysql://root:vicidialnow@192.168.10.6/db_audit"
 
 # Create SQLAlchemy engine
-engine2 = create_engine(DATABASE_URL2)
-SessionLocal2 = sessionmaker(autocommit=False, autoflush=False, bind=engine2)
+# engine2 = create_engine(DATABASE_URL2)
+# SessionLocal2 = sessionmaker(autocommit=False, autoflush=False, bind=engine2)
 
 
 # Dependency to get database session
-def get_db2():
-    db = SessionLocal2()
-    try:
-        yield db
-    finally:
-        db.close()
+# def get_db2():
+#     db = SessionLocal2()
+#     try:
+#         yield db
+#     finally:
+#         db.close()
 
 
 #########  Third DB
 
-DATABASE_URL3 = "mysql+pymysql://root:vicidialnow@192.168.10.6/db_external"
+# DATABASE_URL3 = "mysql+pymysql://root:vicidialnow@192.168.10.6/db_external"
 
 # Create SQLAlchemy engine
 
-engine3 = create_engine(DATABASE_URL3)
-
-SessionLocal3 = sessionmaker(autocommit=False, autoflush=False, bind=engine3)
+# engine3 = create_engine(DATABASE_URL3)
+#
+# SessionLocal3 = sessionmaker(autocommit=False, autoflush=False, bind=engine3)
 
 
 # Dependency to get database session
 
-def get_db3():
-    db = SessionLocal3()
-    try:
-        yield db
-    finally:
-        db.close()
+# def get_db3():
+#     db = SessionLocal3()
+#     try:
+#         yield db
+#     finally:
+#         db.close()
 
 
 
@@ -896,7 +896,7 @@ def get_audit_count(
         client_id: str = Query(..., description="Client ID"),
         start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
         end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
-        db: Session = Depends(get_db2)
+        db: Session = Depends(get_db)
 ):
     # Use current date if start_date or end_date is not provided
     today = date.today()
@@ -941,7 +941,7 @@ def get_call_length_categorization(
         client_id: str = Query(..., description="Client ID"),
         start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
         end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
-        db: Session = Depends(get_db2)
+        db: Session = Depends(get_db)
 ):
     # Use current date if start_date or end_date is not provided
     today = date.today()
@@ -987,7 +987,7 @@ def get_agent_scores(
         client_id: str = Query(..., description="Client ID"),
         start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
         end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
-        db: Session = Depends(get_db2)
+        db: Session = Depends(get_db)
 ):
     # Use current date if start_date or end_date is not provided
     today = date.today()
@@ -1118,7 +1118,7 @@ def get_top_performers(
         client_id: str = Query(..., description="Client ID"),
         start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
         end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
-        db: Session = Depends(get_db2)
+        db: Session = Depends(get_db)
 ):
     # Use current date if start_date or end_date is not provided
     today = date.today()
@@ -1176,7 +1176,7 @@ class CQScoreResponse(BaseModel):
 @app.get("/target_vs_cq_trend", response_model=CQScoreResponse)
 def get_target_vs_cq_trend(
         client_id: str = Query(..., description="Client ID"),
-        db: Session = Depends(get_db2)
+        db: Session = Depends(get_db)
 ):
     target_cq = 95  # Target CQ Score
 
@@ -1231,7 +1231,7 @@ def get_potential_escalation(
         client_id: str = Query(..., description="Client ID"),
         start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
         end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
-        db: Session = Depends(get_db2)
+        db: Session = Depends(get_db)
 ):
     # Use current date if start_date or end_date is not provided
     today = date.today()
@@ -1281,7 +1281,7 @@ def get_potential_escalations_data(
         client_id: str = Query(..., description="Client ID"),
         start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
         end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
-        db: Session = Depends(get_db2)
+        db: Session = Depends(get_db)
 ):
     # Use current date if start_date or end_date is not provided
     today = date.today()
@@ -1326,7 +1326,7 @@ def get_negative_data(
         client_id: str = Query(..., description="Client ID"),
         start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
         end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
-        db: Session = Depends(get_db2)
+        db: Session = Depends(get_db)
 ):
     # Use current date if start_date or end_date is not provided
     today = date.today()
@@ -1390,7 +1390,7 @@ class ComplaintResponse(BaseModel):
 @app.get("/complaints_by_date", response_model=ComplaintResponse)
 def get_complaints_by_date(
         client_id: str = Query(..., description="Client ID"),
-        db: Session = Depends(get_db2)
+        db: Session = Depends(get_db)
 ):
     end_date = date.today()
     start_date = end_date - timedelta(days=6)
@@ -1469,7 +1469,7 @@ def get_complaints_by_date(
 @app.get("/negative_data_summary/")
 def get_negative_data_summary(
         client_id: str = Query(..., description="Client ID"),
-        db: Session = Depends(get_db2)
+        db: Session = Depends(get_db)
 ):
     today = date.today()
     three_months_ago = today.replace(day=1) - timedelta(days=1)
@@ -1544,7 +1544,7 @@ def get_competitor_data(
         client_id: str = Query(..., description="Client ID"),
         start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
         end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
-        db: Session = Depends(get_db2)
+        db: Session = Depends(get_db)
 ):
     # Use current date if start_date or end_date is not provided
     today = date.today()
@@ -1583,7 +1583,7 @@ def get_fatal_count(
         client_id: str = Query(..., description="Client ID"),
         start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
         end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
-        db: Session = Depends(get_db2)
+        db: Session = Depends(get_db)
 ):
     # Use current date if start_date or end_date is not provided
     today = date.today()
@@ -1633,7 +1633,7 @@ def get_top_agents_fatal_summary(
         start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
         end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
         limit: int = Query(5, description="Number of top agents to fetch (default: 5)"),
-        db: Session = Depends(get_db2)
+        db: Session = Depends(get_db)
 ):
     # Use current date if start_date or end_date is not provided
     today = date.today()
@@ -1678,7 +1678,7 @@ def get_daywise_fatal_summary(
         client_id: str = Query(..., description="Client ID"),
         start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
         end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
-        db: Session = Depends(get_db2)
+        db: Session = Depends(get_db)
 ):
     # Use current date if start_date or end_date is not provided
     today = date.today()
@@ -1717,7 +1717,7 @@ def get_agent_audit_summary(
         client_id: str = Query(..., description="Client ID"),
         start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
         end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
-        db: Session = Depends(get_db2)
+        db: Session = Depends(get_db)
 ):
     # Use current date if start_date or end_date is not provided
     today = date.today()
@@ -1801,7 +1801,7 @@ def get_details_count(
         client_id: str = Query(..., description="Client ID"),
         start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
         end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
-        db: Session = Depends(get_db2)
+        db: Session = Depends(get_db)
 ):
     # Use current date if start_date or end_date is not provided
     today = date.today()
@@ -1852,7 +1852,7 @@ def get_top_scenarios_with_counts(
         end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
         limit: int = Query(5, description="Number of top reasons to fetch per category (default: 5)"),
 
-        db: Session = Depends(get_db2)
+        db: Session = Depends(get_db)
 ):
     # Use current date if start_date or end_date is not provided
     today = date.today()
@@ -1893,7 +1893,7 @@ def get_agent_performance_summary(
         client_id: str = Query(..., description="Client ID"),
         start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
         end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
-        db: Session = Depends(get_db2)
+        db: Session = Depends(get_db)
 ):
     # Use current date if start_date or end_date is not provided
     today = date.today()
@@ -2044,7 +2044,7 @@ def get_day_performance_summary(
         client_id: str = Query(..., description="Client ID"),
         start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
         end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
-        db: Session = Depends(get_db2)
+        db: Session = Depends(get_db)
 ):
     # Use current date if start_date or end_date is not provided
     today = date.today()
@@ -2196,7 +2196,7 @@ def get_week_performance_summary(
         client_id: str = Query(..., description="Client ID"),
         start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
         end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
-        db: Session = Depends(get_db2)
+        db: Session = Depends(get_db)
 ):
     # Use current date if start_date or end_date is not provided
     today = date.today()
@@ -2375,7 +2375,7 @@ class CallQualityAssessment(BaseModel):
 def get_call_quality_details(
         client_id: str = Query(..., description="Client ID"),
         lead_id: str = Query(..., description="Lead ID"),
-        db: Session = Depends(get_db2)
+        db: Session = Depends(get_db)
 ):
     query = text("""
         SELECT 
@@ -2433,7 +2433,7 @@ def get_call_quality_assessments(
         client_id: str = Query(..., description="Client ID"),
         start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
         end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
-        db: Session = Depends(get_db2)
+        db: Session = Depends(get_db)
 ):
     query = text("""
         SELECT * 
@@ -2461,7 +2461,7 @@ def get_potential_data_summarry(
         client_id: str = Query(..., description="Client ID"),
         start_date: date = Query(None, description="Start Date in YYYY-MM-DD format"),
         end_date: date = Query(None, description="End Date in YYYY-MM-DD format"),
-        db: Session = Depends(get_db2)
+        db: Session = Depends(get_db)
 ):
     # Use current date if start_date or end_date is not provided
     today = date.today()
@@ -2759,7 +2759,7 @@ def get_call_summary_sales(
         client_id: str = Query(..., description="Client ID"),
         start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
         end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
-        db: Session = Depends(get_db3)
+        db: Session = Depends(get_db)
 ):
     query_summary = text("""
         SELECT
@@ -2791,7 +2791,7 @@ def get_call_summary_sales(
 def get_call_category_counts_sales(client_id: str = Query(..., description="Client ID"),
                                    start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
                                    end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
-                                   db: Session = Depends(get_db3)):
+                                   db: Session = Depends(get_db)):
     query = text("""
         SELECT
             COUNT(CASE WHEN AfterListeningOfferRejected = 1 THEN 1 END) AS post_offer_rejected,
@@ -2818,7 +2818,7 @@ def get_call_dump_sales(
         client_id: str = Query(..., description="Client ID"),
         start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
         end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
-        db: Session = Depends(get_db3)
+        db: Session = Depends(get_db)
 ):
     query = text("""
         SELECT * FROM CallDetails 
@@ -2867,7 +2867,7 @@ OBJECTION_MAPPING = {
 def get_mo_breakdown(client_id: str = Query(..., description="Client ID"),
                      start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
                      end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
-                     db: Session = Depends(get_db3)):
+                     db: Session = Depends(get_db)):
     query = text("""
         SELECT CustomerObjectionSubCategory
         FROM CallDetails
@@ -2927,7 +2927,7 @@ def get_ned_ed_breakdown(
         client_id: str = Query(..., description="Client ID"),
         start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
         end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
-        db: Session = Depends(get_db3)
+        db: Session = Depends(get_db)
 ):
     query = text("""
         SELECT CustomerObjectionSubCategory
@@ -2975,7 +2975,7 @@ def op_analysis_sales(
         client_id: str = Query(..., description="Client ID"),
         start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
         end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
-        db: Session = Depends(get_db3)
+        db: Session = Depends(get_db)
 ):
     query = text("""
         SELECT
@@ -3024,7 +3024,7 @@ def contact_analysis_sales(
         client_id: str = Query(..., description="Client ID"),
         start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
         end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
-        db: Session = Depends(get_db3)
+        db: Session = Depends(get_db)
 ):
     query = text("""
         SELECT
@@ -3073,7 +3073,7 @@ def discount_analysis_sales(
         client_id: str = Query(..., description="Client ID"),
         start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
         end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
-        db: Session = Depends(get_db3)
+        db: Session = Depends(get_db)
 ):
     query = text("""
         SELECT
@@ -3189,7 +3189,7 @@ async def transcribe(uniqueid: str):
 
 
 @app.get("/bulk_transcribe")
-async def bulk_transcribe(db: Session = Depends(get_db2)):
+async def bulk_transcribe(db: Session = Depends(get_db)):
     result = db.execute(text("SELECT id, recording_path FROM tbl_collection WHERE status = 0"))
     rows = result.fetchall()
 
@@ -3246,7 +3246,7 @@ async def analyze(uniqueid: str):
 
 
 @app.get("/run_scheduler")
-async def run_scheduler(db: Session = Depends(get_db2)):
+async def run_scheduler(db: Session = Depends(get_db)):
     query = """
         SELECT c.id, c.recording_path, p.template_text
         FROM tbl_collection c
@@ -3412,7 +3412,7 @@ class TranscriptInput(BaseModel):
     prompt_template: str
 
 @app.post("/analyze_transcript")
-async def analyze_transcript_and_store(data: TranscriptInput, db: Session = Depends(get_db2)):
+async def analyze_transcript_and_store(data: TranscriptInput, db: Session = Depends(get_db)):
     try:
         transcript = data.transcript
         collection_id = data.collection_id
@@ -3650,7 +3650,7 @@ def get_daily_metrics(
     start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
     end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
     grand_total: bool = Query(False, description="Include grand total row"),
-    db: Session = Depends(get_db3)
+    db: Session = Depends(get_db)
 ):
     DAILY_SQL = """
     SELECT
@@ -3747,7 +3747,7 @@ def objection_vs_rebuttal_analysis(
         client_id: str = Query(..., description="Client ID"),
         start_date: str = Query(..., description="Start date in YYYY-MM-DD"),
         end_date: str = Query(..., description="End date in YYYY-MM-DD"),
-        db: Session = Depends(get_db3)
+        db: Session = Depends(get_db)
 ):
     query = text("""
         SELECT
@@ -3806,7 +3806,7 @@ def objection_subcategory_analysis(
         client_id: str = Query(..., description="Client ID"),
         start_date: str = Query(..., description="Start date in YYYY-MM-DD"),
         end_date: str = Query(..., description="End date in YYYY-MM-DD"),
-        db: Session = Depends(get_db3)
+        db: Session = Depends(get_db)
 ):
     query = text("""
         SELECT
@@ -3866,7 +3866,7 @@ def agent_pitch_top_conversion(
     pitch_level: str = Query("category", description="category | subcategory"),
     min_calls: int = Query(20, ge=0, description="Minimum distinct LeadID per pitch"),
     top_n: int = Query(10, ge=1, le=1000, description="How many rows to return"),
-    db: Session = Depends(get_db3),
+    db: Session = Depends(get_db),
 ):
     # choose which field holds the pitch name
     field = "AgentRebuttalCategory" if pitch_level.lower() == "category" else "AgentRebuttalSubCategory"
