@@ -2824,7 +2824,6 @@ def get_call_dump_sales(
         SELECT * FROM CallDetails 
         WHERE client_id = :client_id 
         AND DATE(CallDate) BETWEEN :start_date AND :end_date 
-        LIMIT 10
     """)
 
     result = db.execute(query, {
