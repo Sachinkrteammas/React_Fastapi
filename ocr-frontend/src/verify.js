@@ -53,7 +53,7 @@ const VerifyPassword = () => {
 
             <div className="logo">
                 <img src={logo} alt="Logo" className="logo-overlay" />
-                <div className="welcome-text">Welcome to MasCallNet</div>
+                <div className="welcome-text">Welcome to DialDesk</div>
             </div>
 
             <div className="login-section">
