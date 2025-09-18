@@ -24,9 +24,13 @@ import Potential from "./components/Potential";
 
 import Magical from "./components/Magical";
 import Sales_dashboard from "./components/Sales_dashboard";
+import SecondDashboard from "./components/SecondDashboard";
 import Opportunity from "./components/Opportunity";
+import OpportunityAnalysis from "./components/OpportunityAnalysis";
 import Estimated from "./components/Estimated";
+import EstimatedNpsCsat from "./components/EstimatedNpsCsat";
 import DetailSales from "./components/DetailSales";
+import DetailedAnalysis from "./components/DetailedAnalysis";
 import RawSales from "./components/RawSales";
 import UserDashboardSelection from "./components/UserDashboardSelection";
 import Calling from "./components/Calling";
@@ -94,7 +98,7 @@ const App = () => {
     <Router>
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" replace /> : <Login onLogin={() => setIsLoggedIn(true)} />} />
+        <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard-two" replace /> : <Login onLogin={() => setIsLoggedIn(true)} />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password/:token" element={<ForgotPassword />} />
         <Route path="/verify" element={<VerifyPassword />} />
@@ -102,7 +106,7 @@ const App = () => {
         <Route path="/ResetPassword" element={<ResetPassword />} />
 
         {/* Protected Routes */}
-        <Route path="/dashboard" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Dashboard onLogout={handleLogout} />} />} />
+        <Route path="/dashboard-two" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Dashboard onLogout={handleLogout} />} />} />
         <Route path="/Recordings" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Recordings onLogout={handleLogout} />} />} />
         <Route path="/Transcription" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Transcription onLogout={handleLogout}/>} />} />
         <Route path="/prompt" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Prompt onLogout={handleLogout} />} />} />
@@ -120,9 +124,13 @@ const App = () => {
 
         <Route path="/Magical" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Magical onLogout={handleLogout}/>} />} />
         <Route path="/Sales" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Sales_dashboard onLogout={handleLogout}/>} />} />
+        <Route path="/dashboard" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<SecondDashboard onLogout={handleLogout}/>} />} />
         <Route path="/Opportunity" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Opportunity onLogout={handleLogout}/>} />} />
+        <Route path="/opportunty-analysis" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<OpportunityAnalysis onLogout={handleLogout}/>} />} />
         <Route path="/Estimated" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Estimated onLogout={handleLogout}/>} />} />
+        <Route path="/estimated-nps-csat" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<EstimatedNpsCsat onLogout={handleLogout}/>} />} />
         <Route path="/DetailSales" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<DetailSales onLogout={handleLogout}/>} />} />
+        <Route path="/detailed-analysis" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<DetailedAnalysis onLogout={handleLogout}/>} />} />
         <Route path="/RawSales" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<RawSales onLogout={handleLogout}/>} />} />
         <Route path="/UserDashboardSelection" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<UserDashboardSelection onLogout={handleLogout}/>} />} />
         <Route path="/Calling" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Calling onLogout={handleLogout}/>} />} />

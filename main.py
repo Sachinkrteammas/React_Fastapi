@@ -30,8 +30,12 @@ from dashboard3_ptp_routes import router as dashboard3_router
 
 from common import Base, engine, access_logger
 from routers.manual_call import router as manual_router
+from routers.fabonow import router as fabonow_router
+from dotenv import load_dotenv
 
 # from apscheduler.schedulers.background import BackgroundScheduler
+
+load_dotenv()
 
 app = FastAPI()
 
@@ -39,7 +43,7 @@ SECRET_KEY = "your_secret_key"
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://172.12.13.120:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -47,6 +51,7 @@ app.add_middleware(
 
 app.include_router(dashboard3_router)
 app.include_router(manual_router)
+app.include_router(fabonow_router)
 #app.include_router(inbound_call_router)
 # MySQL Database Connection (replace with your actual credentials)
 # SQL_DB_URL = "mysql+pymysql://root:Hello%40123@localhost/my_db?charset=utf8mb4"
