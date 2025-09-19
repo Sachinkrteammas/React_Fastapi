@@ -148,13 +148,17 @@ def get_franchise_opportunity_analysis(
         SUM(CASE WHEN Franchise_Opportunity_Analysis IN ('Missed','None') THEN 1 ELSE 0 END) AS NonWorkable_Count,
 
         -- 3. Reason for Missed Franchise Signup
-        SUM(CASE WHEN Reason_for_Missed_Franchise_Signup = 'Location issue' THEN 1 ELSE 0 END) AS Location_Issue,
-        SUM(CASE WHEN Reason_for_Missed_Franchise_Signup = 'Language barrier' THEN 1 ELSE 0 END) AS Language_Barrier,
-        SUM(CASE WHEN Reason_for_Missed_Franchise_Signup = 'Investment concern' THEN 1 ELSE 0 END) AS Investment_Concern,
-        SUM(CASE WHEN Reason_for_Missed_Franchise_Signup = 'Network issue' THEN 1 ELSE 0 END) AS Network_Issue,
+        SUM(CASE WHEN Reason_for_Missed_Franchise_Signup LIKE '%Location%' THEN 1 ELSE 0 END) AS Location_Issue,
+        SUM(CASE WHEN Reason_for_Missed_Franchise_Signup LIKE '%Language%' THEN 1 ELSE 0 END) AS Language_Barrier,
+        SUM(CASE WHEN Reason_for_Missed_Franchise_Signup LIKE '%Investment%' THEN 1 ELSE 0 END) AS Investment_Concern,
+        SUM(CASE WHEN Reason_for_Missed_Franchise_Signup LIKE '%Network%' THEN 1 ELSE 0 END) AS Network_Issue,
+        SUM(CASE WHEN Reason_for_Missed_Franchise_Signup LIKE '%General%' THEN 1 ELSE 0 END) AS General_Disinterest,
 
         -- 4. Detailed Franchise Objection Split (JSON column, pick latest available)
-        MAX(Detailed_Franchise_Objection_Split_JSON) AS Objection_Split_JSON,
+        SUM(CAST(JSON_UNQUOTE(JSON_EXTRACT(Detailed_Franchise_Objection_Split_JSON, '$."Brand"')) AS UNSIGNED)) AS Brand_Objections,
+        SUM(CAST(JSON_UNQUOTE(JSON_EXTRACT(Detailed_Franchise_Objection_Split_JSON, '$."Location"')) AS UNSIGNED)) AS Location_Objections,
+        SUM(CAST(JSON_UNQUOTE(JSON_EXTRACT(Detailed_Franchise_Objection_Split_JSON, '$."Financial"')) AS UNSIGNED)) AS Financial_Objections,
+        SUM(CAST(JSON_UNQUOTE(JSON_EXTRACT(Detailed_Franchise_Objection_Split_JSON, '$."Operational"')) AS UNSIGNED)) AS Operational_Objections,
 
         -- 5. Franchise Lead Data Completeness
         SUM(CASE WHEN Franchise_Lead_Data_Completeness = 'Complete' THEN 1 ELSE 0 END) AS Complete_Leads,
@@ -165,13 +169,6 @@ def get_franchise_opportunity_analysis(
     """)
 
     result = db.execute(query, {"start_date": start_date, "end_date": end_date}).mappings().first()
-
-    objection_split = {}
-    if result["Objection_Split_JSON"]:
-        try:
-            objection_split = json.loads(result["Objection_Split_JSON"])
-        except Exception:
-            objection_split = {"error": "Invalid JSON format in DB"}
 
     return {
         "Opportunity_Analysis_Franchise": {
@@ -189,8 +186,14 @@ def get_franchise_opportunity_analysis(
             "Language_Barrier": result["Language_Barrier"],
             "Investment_Concern": result["Investment_Concern"],
             "Network_Issue": result["Network_Issue"],
+            "General_Disinterest": result["General_Disinterest"],
         },
-        "Detailed_Franchise_Objection_Split": objection_split,
+        "Detailed_Franchise_Objection_Split": {
+            "Brand": result["Brand_Objections"],
+            "Location": result["Location_Objections"],
+            "Financial": result["Financial_Objections"],
+            "Operational": result["Operational_Objections"],
+        },
         "Franchise_Lead_Data_Completeness": {
             "Complete_Leads": result["Complete_Leads"],
             "Incomplete_Leads": result["Incomplete_Leads"],
