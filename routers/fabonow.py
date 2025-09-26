@@ -162,7 +162,8 @@ def get_franchise_opportunity_analysis(
 
         -- 5. Franchise Lead Data Completeness
         SUM(CASE WHEN Franchise_Lead_Data_Completeness = 'Complete' THEN 1 ELSE 0 END) AS Complete_Leads,
-        SUM(CASE WHEN Franchise_Lead_Data_Completeness = 'Incomplete' THEN 1 ELSE 0 END) AS Incomplete_Leads
+        SUM(CASE WHEN Franchise_Lead_Data_Completeness = 'Incomplete' THEN 1 ELSE 0 END) AS Incomplete_Leads,
+        SUM(CASE WHEN Franchise_Lead_Data_Completeness = 'None' THEN 1 ELSE 0 END) AS None_Leads
 
     FROM fabonow_calls
     WHERE DATE(occurred_at) BETWEEN :start_date AND :end_date
@@ -197,6 +198,7 @@ def get_franchise_opportunity_analysis(
         "Franchise_Lead_Data_Completeness": {
             "Complete_Leads": result["Complete_Leads"],
             "Incomplete_Leads": result["Incomplete_Leads"],
+            "None_Leads": result["None_Leads"],
         }
     }
 
@@ -478,7 +480,6 @@ def franchise_objections_metrics(
         FROM fabonow_calls
         WHERE DATE(occurred_at) BETWEEN :start_date AND :end_date
           AND Customer_Objection_Category IS NOT NULL
-          AND Customer_Objection_Category <> 'None'
         GROUP BY Customer_Objection_Category
     """)
     pos_rows = db.execute(pos_sql, {"start_date": start_date, "end_date": end_date}).mappings().all()
@@ -536,7 +537,6 @@ def franchise_objections_metrics(
         FROM fabonow_calls
         WHERE DATE(occurred_at) BETWEEN :start_date AND :end_date
           AND Agent_Rebuttal_Category IS NOT NULL
-          AND Agent_Rebuttal_Category <> 'None'
         GROUP BY Agent_Rebuttal_Category
     """)
     rebuttal_rows = db.execute(rebuttal_sql, {"start_date": start_date, "end_date": end_date}).mappings().all()
@@ -649,11 +649,11 @@ DB_COLUMNS = ENUM_FIELDS | NUMERIC_FIELDS | JSON_FIELDS | {
 
 
 
-FFMPEG_PATH = r"C:\Users\User\ffmpeg-8.0-essentials_build\ffmpeg-8.0-essentials_build\bin\ffmpeg.exe"
+# FFMPEG_PATH = r"C:\Users\User\ffmpeg-8.0-essentials_build\ffmpeg-8.0-essentials_build\bin\ffmpeg.exe"
 
 
-def convert_mp3_to_wav(mp3_path, wav_path):
-    subprocess.run([FFMPEG_PATH, "-y", "-i", mp3_path, wav_path])
+# def convert_mp3_to_wav(mp3_path, wav_path):
+#     subprocess.run([FFMPEG_PATH, "-y", "-i", mp3_path, wav_path])
 
 def transcribe_with_deepgram(wav_path):
     dg = Deepgram(DEEPGRAM_API_KEY)
@@ -1021,11 +1021,11 @@ async def process_audio_sales(
         f.write(await file.read())
 
     # -------- Convert MP3 → WAV --------
-    temp_wav_path = os.path.join("media", f"{uuid.uuid4().hex}.wav")
-    convert_mp3_to_wav(temp_audio_path, temp_wav_path)
+    # temp_wav_path = os.path.join("media", f"{uuid.uuid4().hex}.wav")
+    # convert_mp3_to_wav(temp_audio_path, temp_wav_path)
 
     # -------- Transcribe --------
-    transcription_text = transcribe_with_deepgram(temp_wav_path)
+    transcription_text = transcribe_with_deepgram(temp_audio_path)
 
     # -------- GPT Extraction --------
     prompt = f"{Prompt} {transcription_text}"
@@ -1056,12 +1056,12 @@ async def process_audio_sales(
     insert_sql = text(f"""
         INSERT INTO fabonow_calls (
             campaign_id, external_ref, agent_name, customer_phone, occurred_at,
-            language, raw_transcript, ai_output_json, CRT_Isha_Total_Connected, Fabonow_Total_Connected
+            language, raw_transcript, ai_output_json, CRT_Isha_Total_Connected
             {"," + extra_cols if extra_cols else ""}
         )
         VALUES (
             :campaign_id, :external_ref, :agent_name, :customer_phone, :occurred_at,
-            :language, :raw_transcript, :ai_output_json, :CRT_Isha_Total_Connected, :Fabonow_Total_Connected
+            :language, :raw_transcript, :ai_output_json, :CRT_Isha_Total_Connected
             {"," + extra_vals if extra_vals else ""}
         )
     """)
@@ -1074,7 +1074,6 @@ async def process_audio_sales(
         "occurred_at": occurred_at,
         "language": "en",
         "CRT_Isha_Total_Connected": "Yes",
-        "Fabonow_Total_Connected": "Yes",
         "raw_transcript": transcription_text,
         "ai_output_json": ai_output_str,
         **flattened
@@ -1088,7 +1087,7 @@ async def process_audio_sales(
 
     # -------- Cleanup --------
     os.remove(temp_audio_path)
-    os.remove(temp_wav_path)
+    # os.remove(temp_wav_path)
 
     return {
         "status": "success",
@@ -1096,3 +1095,27 @@ async def process_audio_sales(
         "transcription": transcription_text,
         "ai_output": gpt_response_json
     }
+
+
+
+@router.get("/raw_data")
+def get_raw_data(
+        start_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
+        end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
+        db: Session = Depends(get_db)
+):
+    query = text("""
+        SELECT * 
+        FROM fabonow_calls
+        WHERE DATE(occurred_at) BETWEEN :start_date AND :end_date
+    """)
+
+    result = db.execute(query, {
+        "start_date": start_date,
+        "end_date": end_date
+    }).fetchall()
+
+    # Convert result to JSON-friendly format
+    response_data = [dict(row._mapping) for row in result]
+
+    return response_data

@@ -94,6 +94,15 @@ export default function OpportunityAnalysis() {
             ? ((completeness.Incomplete_Leads / totalLeads) * 100).toFixed(1)
             : 0,
         },
+        {
+            "NED/ED Category": "None Leads",
+            "NED/ED-QS": "NED",
+            "NED/ED Status": "None",
+            Count: completeness.None_Leads || 0,
+            Contribution: totalLeads
+              ? ((completeness.None_Leads / totalLeads) * 100).toFixed(1)
+              : 0,
+        },
       ]);
     } catch (err) {
       console.error("Error fetching data:", err);

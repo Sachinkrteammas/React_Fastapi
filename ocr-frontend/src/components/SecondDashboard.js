@@ -85,7 +85,6 @@ export default function SecondDashboard() {
     { name: "WhatsApp Asked", value: callSummary?.CRT_Isha_to_Manage?.Asked_for_Details_WhatsApp ?? 0, color: "#3CB371" },
     { name: "Meeting Scheduled", value: callSummary?.CRT_Isha_to_Manage?.Meeting_Scheduled ?? 0, color: "rgb(111 101 49)" },
     { name: "Not Interested", value: callSummary?.CRT_Isha_to_Manage?.Not_Interested ?? 0, color: "#FF6347" },
-    { name: "Meeting CRM", value: callSummary?.CRT_Isha_to_Manage?.Meeting_Schedule_CRM ?? 0, color: "#9C27B0" },
   ];
 
   const crtFunnelData = [
@@ -146,7 +145,7 @@ export default function SecondDashboard() {
         {/* 1️⃣ CST & CRT Cards */}
         <div className="metric-container">
           <div className="metric-card green-met">
-            <h4>CST (CRT)</h4>
+            <h4>CST (CRT ISPARK)</h4>
             <div className="metrics">
               <div><b>{callSummary?.CRT_Isha_to_Manage?.Total_Connected ?? 0}</b><p>Total Connected</p></div>
               <div><b>{callSummary?.CRT_Isha_to_Manage?.Total_Interested ?? 0}</b><p>Total Interested</p></div>

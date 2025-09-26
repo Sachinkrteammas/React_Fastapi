@@ -18,6 +18,7 @@ import Search from "./components/Search";
 import QualityPerformance from "./components/QualityPerformance";
 import RawDump from "./components/RawDump";
 import RawDownload from "./components/RawDownload";
+import RawExport from "./components/RawExport";
 import Fatal from "./components/FatalAnalysis";
 import Details from "./components/DetailAnalysis";
 import Potential from "./components/Potential";
@@ -118,6 +119,7 @@ const App = () => {
         <Route path="/QualityPerformance" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<QualityPerformance onLogout={handleLogout}/>} />} />
         <Route path="/RawDump" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<RawDump onLogout={handleLogout}/>} />} />
         <Route path="/RawDownload" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<RawDownload onLogout={handleLogout}/>} />} />
+        <Route path="/RawExport" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<RawExport onLogout={handleLogout}/>} />} />
         <Route path="/FatalAnalysis" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Fatal onLogout={handleLogout}/>} />} />
         <Route path="/DetailAnalysis" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Details onLogout={handleLogout}/>} />} />
         <Route path="/Potential" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Potential onLogout={handleLogout}/>} />} />

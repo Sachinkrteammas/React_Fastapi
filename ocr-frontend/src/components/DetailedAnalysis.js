@@ -110,7 +110,7 @@ export default function DetailedAnalysis() {
         {/* ====== Call Summary (unchanged) ====== */}
         <div className="metric-container">
           <div className="metric-card green-met">
-            <h4>CST (CRT)</h4>
+            <h4>CST (CRT ISPARK)</h4>
             <div className="metrics">
               <div>
                 <b>{callSummary?.CRT_Isha_to_Manage?.Total_Connected ?? 0}</b>
