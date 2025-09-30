@@ -258,6 +258,7 @@ def franchise_feedback_metrics(
     sentiment_result = db.execute(sentiment_sql, {"start_date": start_date, "end_date": end_date}).mappings().first()
 
     # 4. Daily Franchise Call Feedback Summary (text notes per day)
+    db.execute(text("SET SESSION group_concat_max_len = 1000000"))
     feedback_sql = text("""
         SELECT
             DATE(occurred_at) AS call_date,
