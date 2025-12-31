@@ -8,8 +8,8 @@ import re
 from openai import OpenAI
 
 # ---------- CONFIG ----------
-DEEPGRAM_API_KEY = "7a63c6640bac02d846e02fafde98099e22150cd3"
-OPENAI_API_KEY = "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"
+DEEPGRAM_API_KEY = os.getenv("DEEPGRAM_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 DB_CONFIG = {
