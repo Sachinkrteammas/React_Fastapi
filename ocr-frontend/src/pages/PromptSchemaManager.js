@@ -24,6 +24,7 @@ const buildSectionTree = (sections) => {
   return roots;
 };
 
+const isValidKey = (key) => /^[a-z0-9_]+$/.test(key);
 
 const PromptSchemaManager = () => {
   const [sections, setSections] = useState([]);
@@ -103,9 +104,14 @@ const PromptSchemaManager = () => {
   };
 
   const createField = async () => {
-    if (!newField.section_id || !newField.field_key || !newField.label) {
+    if (!newField.section_id || !newField.field_key) {
       alert("Required fields missing");
       return;
+    }
+
+    if (!isValidKey(newField.field_key)) {
+        alert("Field key must be lowercase and use underscores only (example: whisper_initial_prompt)");
+        return;
     }
 
     await axios.post(`${BASE_URL}/prompt-fields`, {
@@ -129,6 +135,11 @@ const PromptSchemaManager = () => {
   const createSection = async () => {
       if (!newSection.section_key) {
         alert("Section key is required");
+        return;
+      }
+
+      if (!isValidKey(newSection.section_key)) {
+        alert("Section key must be lowercase and use underscores only (example: call_quality)");
         return;
       }
 
@@ -308,7 +319,7 @@ const PromptSchemaManager = () => {
             <div className="card-body">
               <input
                 className="form-control mb-2"
-                placeholder="section_key (call_quality)"
+                placeholder="lowercase_with_underscores*"
                 value={newSection.section_key}
                 onChange={(e) =>
                   setNewSection({ ...newSection, section_key: e.target.value })
@@ -394,7 +405,7 @@ const PromptSchemaManager = () => {
 
               <div className="card-body row g-2">
                 <div className="col-md-4">
-                  <label className="form-label">Section</label>
+                  <label className="form-label">Section *</label>
                   <select
                     className="form-select"
                     name="section_id"
@@ -411,13 +422,13 @@ const PromptSchemaManager = () => {
                 </div>
 
                 <div className="col-md-4">
-                  <label className="form-label">Field Key</label>
+                  <label className="form-label">Field Key *</label>
                   <input
                     className="form-control"
                     name="field_key"
                     value={newField.field_key}
                     onChange={handleFieldChange}
-                    placeholder="whisper_initial_prompt"
+                    placeholder="lowercase_with_underscores"
                   />
                 </div>
 

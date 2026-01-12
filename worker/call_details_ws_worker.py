@@ -29,18 +29,38 @@ ws_cfg = WSConfig()
 # ---------------- AUDIO HELPERS ----------------
 CHUNK_SIZE = 512 * 1024
 
+
+def get_client_prompt_schema(client_id: int):
+    conn = mysql.connector.connect(**DB_CONFIG)
+    cur = conn.cursor(dictionary=True)
+
+    cur.execute("""
+        SELECT prompt_text
+        FROM client_prompt_configs
+        WHERE client_id = %s
+        AND is_active = 1
+        LIMIT 1
+    """, (client_id,))
+
+    row = cur.fetchone()
+    cur.close()
+    conn.close()
+
+    return row["prompt_text"] if row else None
+
+
 def make_audio_chunks(data: bytes):
     encoded = b64encode(data).decode()
     return [encoded[i:i + CHUNK_SIZE] for i in range(0, len(encoded), CHUNK_SIZE)]
 
-async def call_details_auto_ws(audio_url: str, cfg):
+async def call_details_auto_ws(audio_url: str, cfg, schema: str | None):
     audio_bytes = requests.get(audio_url, timeout=30).content
     chunks = make_audio_chunks(audio_bytes)
 
     uri = f"ws://{cfg.connection_uri.strip()}"
 
     async with connect(uri, ping_timeout=cfg.timeout) as ws:
-        cmd = Box(task="avdut_auto", num_chunks=len(chunks))
+        cmd = Box(task="custom_v2", whisper_beam_size = 5, whisper_patience = 1.5, extra_whisper_words = 'avdut', whisper_condition_on_previous_text = True, temperature = 0.4, num_chunks=len(chunks), schema=schema)
         await ws.send(cmd.to_json())
 
         for chunk in chunks:
@@ -61,31 +81,9 @@ INSERT INTO CallDetails (
     LeadID,
     AgentName,
     MobileNo,
-    Opening,
-    Offered,
-    ObjectionHandling,
-    PrepaidPitch,
-    UpsellingEfforts,
-    OfferUrgency,
-    SensitiveWordUsed,
-    SensitiveWordContext,
     AreaForImprovement,
     TranscribeText,
-    CallDisposition,
-    OpeningRejected,
-    OfferingRejected,
-    AfterListeningOfferRejected,
-    SaleDone,
-    OpeningPitchContext,
-    OfferedPitchContext,
-    ObjectionHandlingContext,
     Status,
-    CustomerObjectionCategory,
-    AgentRebuttalCategory,
-    OpeningPitchCategory,
-    ContactSettingContext,
-    Feedback_Category,
-    FeedbackContext,
     entrydate,
     QE_Correct_Opening,
     QE_Professionalism_No_Rude_Behavior,
@@ -111,31 +109,9 @@ INSERT INTO CallDetails (
     %(LeadID)s,
     %(AgentName)s,
     %(MobileNo)s,
-    %(Opening)s,
-    %(Offered)s,
-    %(ObjectionHandling)s,
-    %(PrepaidPitch)s,
-    %(UpsellingEfforts)s,
-    %(OfferUrgency)s,
-    %(SensitiveWordUsed)s,
-    %(SensitiveWordContext)s,
     %(AreaForImprovement)s,
     %(TranscribeText)s,
-    %(CallDisposition)s,
-    %(OpeningRejected)s,
-    %(OfferingRejected)s,
-    %(AfterListeningOfferRejected)s,
-    %(SaleDone)s,
-    %(OpeningPitchContext)s,
-    %(OfferedPitchContext)s,
-    %(ObjectionHandlingContext)s,
     %(Status)s,
-    %(CustomerObjectionCategory)s,
-    %(AgentRebuttalCategory)s,
-    %(OpeningPitchCategory)s,
-    %(ContactSettingContext)s,
-    %(Feedback_Category)s,
-    %(FeedbackContext)s,
     %(entrydate)s,
     %(QE_Correct_Opening)s,
     %(QE_Professionalism_No_Rude_Behavior)s,
@@ -155,6 +131,11 @@ INSERT INTO CallDetails (
     %(QE_Proper_Closure)s
 )
 """
+
+
+def qe_yes(val):
+    return 1 if val == "Yes" else 0
+
 
 # ---------------- WORKER ----------------
 def call_details_ws_worker():
@@ -181,16 +162,11 @@ def call_details_ws_worker():
         try:
             logging.info(f"Processing call_log id={call['id']}")
 
-            transcript, ai_json = asyncio.run(
-                call_details_auto_ws(call["file_url"], ws_cfg)
-            )
+            prompt_schema = get_client_prompt_schema(call["Client_id"])
 
-            opening = ai_json.get("opening", {})
-            offer = ai_json.get("offer", {})
-            objections = ai_json.get("objections", {})
-            feedback = ai_json.get("call_context_and_feedback", {})
-            sensitive = ai_json.get("sensitive_words", {})
-            quality = ai_json.get("quality_evaluation", {})
+            transcript, ai_json = asyncio.run(
+                call_details_auto_ws(call["file_url"], ws_cfg, prompt_schema)
+            )
 
             params = {
                 "client_id": call["Client_id"],
@@ -201,97 +177,80 @@ def call_details_ws_worker():
                 "AgentName": call["user"],
                 "MobileNo": call["MobileNo"],
 
-                "Opening": 1 if opening.get("opening_present") == "Yes" else 0,
-                "Offered": 1 if offer.get("offer_present") == "Yes" else 0,
-                "ObjectionHandling": 1 if objections.get("objections_handled") == "Yes" else 0,
-                "PrepaidPitch": 1 if offer.get("prepaid_pitch_present") == "Yes" else 0,
-                "UpsellingEfforts": 1 if offer.get("upselling_efforts") == "Yes" else 0,
-                "OfferUrgency": 1 if offer.get("offer_urgency_created") == "Yes" else 0,
-
-                "SensitiveWordUsed": json.dumps(sensitive.get("sensitive_words_found")),
-                "SensitiveWordContext": None,
-
-                "AreaForImprovement": json.dumps(
-                    [k for k, v in quality.items() if v == "No"]
-                ),
+                "AreaForImprovement": json.dumps([
+                    k for k, v in ai_json.items()
+                    if v.get("short_answer") == "No"
+                ]),
 
                 "TranscribeText": transcript,
-                "CallDisposition": offer.get("customer_reaction"),
-
-                "OpeningRejected": 1 if opening.get("opening_present") == "No" else 0,
-                "OfferingRejected": 1 if offer.get("offer_present") == "No" else 0,
-                "AfterListeningOfferRejected": 0,
-                "SaleDone": 1 if offer.get("sale_done") == "Yes" else 0,
-
-                "OpeningPitchContext": feedback.get("call_context"),
-                "OfferedPitchContext": feedback.get("call_context"),
-                "ObjectionHandlingContext": json.dumps(
-                    objections.get("objection_rebuttal_pairs")
-                ),
 
                 "Status": 1,
 
-                "CustomerObjectionCategory": (
-                    "Raised" if objections.get("objections_handled") == "No" else "None"
-                ),
-                "AgentRebuttalCategory": (
-                    "Provided" if objections.get("objections_handled") == "Yes" else "None"
-                ),
-
-                "OpeningPitchCategory": opening.get("immediate_outcome"),
-                "ContactSettingContext": feedback.get("call_context"),
-                "Feedback_Category": feedback.get("feedback_sentiment"),
-                "FeedbackContext": json.dumps(feedback.get("context_lines")),
-
                 "entrydate": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
 
-                "QE_Correct_Opening": 1
-                if quality.get("correct_opening") == "Yes" else 0,
+                "QE_Correct_Opening": qe_yes(
+                    ai_json.get("correct_opening", {}).get("short_answer")
+                ),
 
-                "QE_Professionalism_No_Rude_Behavior": 1
-                if quality.get("maintained_professionalism_no_rude_behavior") == "Yes" else 0,
+                "QE_Professionalism_No_Rude_Behavior": qe_yes(
+                    ai_json.get("professionalism", {}).get("short_answer")
+                ),
 
-                "QE_Assurance_Appreciation_Phrases": 1
-                if quality.get("used_assurance_appreciation_phrases") == "Yes" else 0,
+                "QE_Assurance_Appreciation_Phrases": qe_yes(
+                    ai_json.get("assurance_and_appreciation", {}).get("short_answer")
+                ),
 
-                "QE_Expressed_Empathy": 1
-                if quality.get("expressed_empathy_with_keywords") == "Yes" else 0,
+                "QE_Expressed_Empathy": qe_yes(
+                    ai_json.get("empathy", {}).get("short_answer")
+                ),
 
-                "QE_Pronunciation_Clarity": 1
-                if quality.get("correct_pronunciation_and_clarity") == "Yes" else 0,
+                "QE_Pronunciation_Clarity": qe_yes(
+                    ai_json.get("pronunciation_and_clarity", {}).get("short_answer")
+                ),
 
-                "QE_Appropriate_Enthusiasm": 1
-                if quality.get("appropriate_enthusiasm_no_fumbling") == "Yes" else 0,
+                "QE_Appropriate_Enthusiasm": qe_yes(
+                    ai_json.get("enthusiasm_and_fumbling", {}).get("short_answer")
+                ),
 
-                "QE_Active_Listening": 1
-                if quality.get("active_listening_no_unnecessary_interruptions") == "Yes" else 0,
+                "QE_Active_Listening": qe_yes(
+                    ai_json.get("acively_listen_without_unnecessary_interruption", {}).get("short_answer")
+                ),
 
-                "QE_Polite_No_Sarcasm": 1
-                if quality.get("polite_and_free_of_sarcasm") == "Yes" else 0,
+                "QE_Polite_No_Sarcasm": qe_yes(
+                    ai_json.get("politeness", {}).get("short_answer")
+                ),
 
-                "QE_Proper_Grammar": 1
-                if quality.get("used_proper_grammar") == "Yes" else 0,
+                "QE_Proper_Grammar": qe_yes(
+                    ai_json.get("proper_grammar", {}).get("short_answer")
+                ),
 
-                "QE_Accurate_Probing": 1
-                if quality.get("accurately_probed_to_understand_issue") == "Yes" else 0,
+                "QE_Accurate_Probing": qe_yes(
+                    ai_json.get("understanding_of_issue", {}).get("short_answer")
+                ),
 
-                "QE_Informed_Before_Hold": 1
-                if quality.get("informed_before_hold_with_proper_phrase") == "Yes" else 0,
+                "QE_Informed_Before_Hold": qe_yes(
+                    ai_json.get("inform_before_placing_hold", {}).get("short_answer")
+                ),
 
-                "QE_Thanked_After_Hold": 1
-                if quality.get("thanked_after_retrieving_from_hold") == "Yes" else 0,
+                "QE_Thanked_After_Hold": qe_yes(
+                    ai_json.get("thank_customer_for_being_on_line", {}).get("short_answer")
+                ),
 
-                "QE_Explained_Steps_Clearly": 1
-                if quality.get("informed_customer_about_exact_steps") == "Yes" else 0,
+                "QE_Explained_Steps_Clearly": qe_yes(
+                    ai_json.get("informing_customer_of_exact_steps", {}).get("short_answer")
+                ),
 
-                "QE_Clear_Timelines": 1
-                if quality.get("stated_clear_timelines_when_asked") == "Yes" else 0,
+                "QE_Clear_Timelines": qe_yes(
+                    ai_json.get("timelines_for_resolution", {}).get("short_answer")
+                ),
 
-                "QE_Proper_Transfer_Procedure": 1
-                if quality.get("proper_transfer_procedure_if_transferred") == "Yes" else 0,
+                "QE_Proper_Transfer_Procedure": qe_yes(
+                    ai_json.get("webinar_request_with_proper_language", {}).get("short_answer")
+                ),
 
-                "QE_Proper_Closure": 1
-                if quality.get("proper_closure_including_further_concerns") == "Yes" else 0,
+                "QE_Proper_Closure": qe_yes(
+                    ai_json.get("proper_closure", {}).get("short_answer")
+                ),
 
             }
 
