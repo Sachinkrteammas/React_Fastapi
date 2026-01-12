@@ -31,6 +31,8 @@ from dashboard3_ptp_routes import router as dashboard3_router
 from common import Base, engine, access_logger
 from routers.manual_call import router as manual_router
 from routers.fabonow import router as fabonow_router
+from routers.prompt_schema import router as prompt_schema_router
+from routers.dynamic_prompt_schema import section_router, field_router, option_router, value_router, prompt_router, prompt_config_router
 from dotenv import load_dotenv
 
 # from apscheduler.schedulers.background import BackgroundScheduler
@@ -52,6 +54,14 @@ app.add_middleware(
 app.include_router(dashboard3_router)
 app.include_router(manual_router)
 app.include_router(fabonow_router)
+app.include_router(prompt_schema_router)
+app.include_router(section_router)
+app.include_router(field_router)
+app.include_router(option_router)
+app.include_router(value_router)
+app.include_router(prompt_router)
+app.include_router(prompt_config_router)
+
 #app.include_router(inbound_call_router)
 # MySQL Database Connection (replace with your actual credentials)
 # SQL_DB_URL = "mysql+pymysql://root:Hello%40123@localhost/my_db?charset=utf8mb4"
@@ -136,6 +146,7 @@ class User(Base):
     leadid = Column(String(50), nullable=True)
     sales = Column(Boolean, default=False)
     service = Column(Boolean, default=False)
+    sales1 = Column(Boolean, default=False)
 
 
 # Create tables if they don't exist
@@ -427,7 +438,8 @@ def login_user(user: LoginRequest, db: Session = Depends(get_db)):
             "leadid": db_user.leadid,
             "permissions": {
                 "sales": db_user.sales,
-                "service": db_user.service
+                "service": db_user.service,
+                "sales1": db_user.sales1
             }
 
             }

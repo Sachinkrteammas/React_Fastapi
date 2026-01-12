@@ -41,7 +41,8 @@ import ApiHelp from './pages/ApiHelp';
 import PTPAnalysis from './components/PTPAnalysis'
 import Insight from './components/Insight'
 import Portfolio from './components/Portfolio'
-
+import PromptTemplate from "./pages/PromptTemplate";
+import PromptSchemaManager from "./pages/PromptSchemaManager";
 
 
 import "./Pages.css";
@@ -123,6 +124,9 @@ const App = () => {
         <Route path="/FatalAnalysis" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Fatal onLogout={handleLogout}/>} />} />
         <Route path="/DetailAnalysis" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Details onLogout={handleLogout}/>} />} />
         <Route path="/Potential" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Potential onLogout={handleLogout}/>} />} />
+
+        <Route path="/prompt-template" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<PromptTemplate onLogout={handleLogout}/>} />} />
+        <Route path="/prompt-schema-manager" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<PromptSchemaManager onLogout={handleLogout}/>} />} />
 
         <Route path="/Magical" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Magical onLogout={handleLogout}/>} />} />
         <Route path="/Sales" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Sales_dashboard onLogout={handleLogout}/>} />} />

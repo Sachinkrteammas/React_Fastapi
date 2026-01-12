@@ -76,8 +76,13 @@ def clean_percentage(value):
         return None
 
 
+LAST_SKIPPED_ID = 0
+
+
 # ---------- WORKER LOOP ----------
 def worker_loop():
+    global LAST_SKIPPED_ID
+
     while True:
 
         conn = mysql.connector.connect(**DB_CONFIG)
@@ -88,9 +93,10 @@ def worker_loop():
             SELECT * FROM call_log
             WHERE processed = 0
             AND lead_id IS NOT NULL
+            AND id > %s
             ORDER BY id ASC
             LIMIT 1
-        """)
+        """, (LAST_SKIPPED_ID,))
 
         call = cur.fetchone()
 
@@ -111,8 +117,18 @@ def worker_loop():
             )
             prompt_row = cur.fetchone()
             if not prompt_row:
-                logging.error("No prompt found. Skipping call...")
+                logging.error(
+                    f"No prompt found for Client_id={call['Client_id']}, "
+                    f"skipping call_id={call_id}"
+                )
+
+                LAST_SKIPPED_ID = call_id
+                time.sleep(2)
                 continue
+
+            # if not prompt_row:
+            #     logging.error("No prompt found. Skipping call...")
+            #     continue
 
             base_prompt = prompt_row["prompt_text"]
 

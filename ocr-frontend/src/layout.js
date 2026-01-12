@@ -78,6 +78,10 @@ const Layout = ({ onLogout, children }) => {
           const salesMenu = data.find(item => item.name === "Sales");
           if (salesMenu) filteredMenu.push(salesMenu);
         }
+        if (permissions.sales1) {
+          const salesMenu1 = data.find(item => item.name === "Sale");
+          if (salesMenu1) filteredMenu.push(salesMenu1);
+        }
 
         // Map icons
         const menuWithIcons = filteredMenu.map(item => ({
