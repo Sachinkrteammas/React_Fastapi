@@ -21,7 +21,7 @@ logging.basicConfig(level=logging.INFO)
 
 # ---------------- WS CONFIG ----------------
 class WSConfig:
-    connection_uri = "194.68.245.50:22162"
+    connection_uri = "194.68.245.147:22082"
     timeout = 600
 
 ws_cfg = WSConfig()
@@ -72,69 +72,98 @@ async def call_details_auto_ws(audio_url: str, cfg, schema: str | None):
         return transcript, Box.from_json(ai_resp).to_dict()
 
 # ---------------- INSERT SQL ----------------
-INSERT_CALLDETAILS_SQL = """
-INSERT INTO CallDetails (
-    client_id,
-    campaign_id,
-    length_in_sec,
-    CallDate,
-    LeadID,
-    AgentName,
+INSERT_BOT_TAGGING_SQL = """
+INSERT INTO bot_tagging (
+    ClientId,
     MobileNo,
-    AreaForImprovement,
-    TranscribeText,
-    Status,
-    entrydate,
-    QE_Correct_Opening,
-    QE_Professionalism_No_Rude_Behavior,
-    QE_Assurance_Appreciation_Phrases,
-    QE_Expressed_Empathy,
-    QE_Pronunciation_Clarity,
-    QE_Appropriate_Enthusiasm,
-    QE_Active_Listening,
-    QE_Polite_No_Sarcasm,
-    QE_Proper_Grammar,
-    QE_Accurate_Probing,
-    QE_Informed_Before_Hold,
-    QE_Thanked_After_Hold,
-    QE_Explained_Steps_Clearly,
-    QE_Clear_Timelines,
-    QE_Proper_Transfer_Procedure,
-    QE_Proper_Closure
-) VALUES (
-    %(client_id)s,
-    %(campaign_id)s,
-    %(length_in_sec)s,
-    %(CallDate)s,
-    %(LeadID)s,
-    %(AgentName)s,
+    CallDate,
+    User,
+    lead_id,
+    Campaign,
+    length_in_sec,
+    Transcribe_Text,
+    areas_for_improvement,
+
+    Standard_Call_Opening,
+    Professionalism,
+    Placed_Empathy,
+    ROS_Clarity_Accent,
+    Enthusiasm,
+    Active_Listening,
+    Grammar,
+    Accurate_Probing,
+    Hold_Procedure,
+    Call_Transfer,
+    Call_Closing,
+    
+    professionalism_maintained,
+    assurance_or_appreciation_provided,
+    pronunciation_and_clarity,
+    enthusiasm_and_no_fumbling,
+    politeness_and_no_sarcasm,
+    proper_grammar,
+    accurate_issue_probing,
+    proper_hold_procedure,
+    proper_transfer_and_language,
+    proper_call_closure,
+    address_recorded_completely,
+    correct_and_complete_information,
+    express_empathy,
+
+    field1, field2, field3, field4, field5,
+    field6, field7, field8, field9, field10,
+    field11, field12, field13, field14, field15
+)
+VALUES (
+    %(ClientId)s,
     %(MobileNo)s,
-    %(AreaForImprovement)s,
-    %(TranscribeText)s,
-    %(Status)s,
-    %(entrydate)s,
-    %(QE_Correct_Opening)s,
-    %(QE_Professionalism_No_Rude_Behavior)s,
-    %(QE_Assurance_Appreciation_Phrases)s,
-    %(QE_Expressed_Empathy)s,
-    %(QE_Pronunciation_Clarity)s,
-    %(QE_Appropriate_Enthusiasm)s,
-    %(QE_Active_Listening)s,
-    %(QE_Polite_No_Sarcasm)s,
-    %(QE_Proper_Grammar)s,
-    %(QE_Accurate_Probing)s,
-    %(QE_Informed_Before_Hold)s,
-    %(QE_Thanked_After_Hold)s,
-    %(QE_Explained_Steps_Clearly)s,
-    %(QE_Clear_Timelines)s,
-    %(QE_Proper_Transfer_Procedure)s,
-    %(QE_Proper_Closure)s
+    %(CallDate)s,
+    %(User)s,
+    %(lead_id)s,
+    %(Campaign)s,
+    %(length_in_sec)s,
+    %(Transcribe_Text)s,
+    %(areas_for_improvement)s,
+
+    %(Standard_Call_Opening)s,
+    %(Professionalism)s,
+    %(Placed_Empathy)s,
+    %(ROS_Clarity_Accent)s,
+    %(Enthusiasm)s,
+    %(Active_Listening)s,
+    %(Grammar)s,
+    %(Accurate_Probing)s,
+    %(Hold_Procedure)s,
+    %(Call_Transfer)s,
+    %(Call_Closing)s,
+    
+    %(professionalism_maintained)s,
+    %(assurance_or_appreciation_provided)s,
+    %(pronunciation_and_clarity)s,
+    %(enthusiasm_and_no_fumbling)s,
+    %(politeness_and_no_sarcasm)s,
+    %(proper_grammar)s,
+    %(accurate_issue_probing)s,
+    %(proper_hold_procedure)s,
+    %(proper_transfer_and_language)s,
+    %(proper_call_closure)s,
+    %(address_recorded_completely)s,
+    %(correct_and_complete_information)s,
+    %(express_empathy)s,
+
+    %(field1)s, %(field2)s, %(field3)s, %(field4)s, %(field5)s,
+    %(field6)s, %(field7)s, %(field8)s, %(field9)s, %(field10)s,
+    %(field11)s, %(field12)s, %(field13)s, %(field14)s, %(field15)s
 )
 """
 
 
-def qe_yes(val):
-    return 1 if val == "Yes" else 0
+
+def ai_yes_no(ai_json, key):
+    """
+    Returns 1 if short_answer == 'Yes', else 0
+    """
+    return 1 if ai_json.get(key, {}).get("short_answer") == "Yes" else 0
 
 
 # ---------------- WORKER ----------------
@@ -169,92 +198,66 @@ def call_details_ws_worker():
             )
 
             params = {
-                "client_id": call["Client_id"],
-                "campaign_id": call["campaign_id"],
-                "length_in_sec": call["length_in_sec"],
-                "CallDate": call["call_date"],
-                "LeadID": call["lead_id"],
-                "AgentName": call["user"],
+                "ClientId": call["Client_id"],
                 "MobileNo": call["MobileNo"],
+                "CallDate": call["call_date"],
+                "User": call["user"],
+                "lead_id": call["lead_id"],
+                "Campaign": call["campaign_id"],
+                "length_in_sec": call["length_in_sec"],
+                "Transcribe_Text": transcript,
 
-                "AreaForImprovement": json.dumps([
+                "areas_for_improvement": json.dumps([
                     k for k, v in ai_json.items()
                     if v.get("short_answer") == "No"
                 ]),
 
-                "TranscribeText": transcript,
+                # -------- Main scoring columns --------
+                "Standard_Call_Opening": ai_yes_no(ai_json, "correct_opening"),
+                "Professionalism": ai_yes_no(ai_json, "professionalism"),
+                "Placed_Empathy": ai_yes_no(ai_json, "empathy"),
+                "ROS_Clarity_Accent": ai_yes_no(ai_json, "pronunciation_and_clarity"),
+                "Enthusiasm": ai_yes_no(ai_json, "enthusiasm_and_fumbling"),
+                "Active_Listening": ai_yes_no(ai_json, "acively_listen_without_unnecessary_interruption"),
+                "Grammar": ai_yes_no(ai_json, "proper_grammar"),
+                "Accurate_Probing": ai_yes_no(ai_json, "understanding_of_issue"),
+                "Hold_Procedure": ai_yes_no(ai_json, "inform_before_placing_hold"),
+                "Call_Transfer": ai_yes_no(ai_json, "webinar_request_with_proper_language"),
+                "Call_Closing": ai_yes_no(ai_json, "proper_closure"),
 
-                "Status": 1,
+                "professionalism_maintained": ai_yes_no(ai_json, "professionalism"),
+                "assurance_or_appreciation_provided": ai_yes_no(ai_json, "assurance_and_appreciation"),
+                "pronunciation_and_clarity": ai_yes_no(ai_json, "pronunciation_and_clarity"),
+                "enthusiasm_and_no_fumbling": ai_yes_no(ai_json, "enthusiasm_and_fumbling"),
+                "politeness_and_no_sarcasm": ai_yes_no(ai_json, "politeness"),
+                "proper_grammar": ai_yes_no(ai_json, "proper_grammar"),
+                "accurate_issue_probing": ai_yes_no(ai_json, "understanding_of_issue"),
+                "proper_hold_procedure": ai_yes_no(ai_json, "inform_before_placing_hold"),
+                "proper_transfer_and_language": ai_yes_no(ai_json, "webinar_request_with_proper_language"),
+                "proper_call_closure": ai_yes_no(ai_json, "proper_closure"),
+                "address_recorded_completely": ai_yes_no(ai_json, "acively_listen_without_unnecessary_interruption"),
+                "correct_and_complete_information": ai_yes_no(ai_json, "informing_customer_of_exact_steps"),
+                "express_empathy": ai_yes_no(ai_json, "empathy"),
 
-                "entrydate": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-
-                "QE_Correct_Opening": qe_yes(
-                    ai_json.get("correct_opening", {}).get("short_answer")
-                ),
-
-                "QE_Professionalism_No_Rude_Behavior": qe_yes(
-                    ai_json.get("professionalism", {}).get("short_answer")
-                ),
-
-                "QE_Assurance_Appreciation_Phrases": qe_yes(
-                    ai_json.get("assurance_and_appreciation", {}).get("short_answer")
-                ),
-
-                "QE_Expressed_Empathy": qe_yes(
-                    ai_json.get("empathy", {}).get("short_answer")
-                ),
-
-                "QE_Pronunciation_Clarity": qe_yes(
-                    ai_json.get("pronunciation_and_clarity", {}).get("short_answer")
-                ),
-
-                "QE_Appropriate_Enthusiasm": qe_yes(
-                    ai_json.get("enthusiasm_and_fumbling", {}).get("short_answer")
-                ),
-
-                "QE_Active_Listening": qe_yes(
-                    ai_json.get("acively_listen_without_unnecessary_interruption", {}).get("short_answer")
-                ),
-
-                "QE_Polite_No_Sarcasm": qe_yes(
-                    ai_json.get("politeness", {}).get("short_answer")
-                ),
-
-                "QE_Proper_Grammar": qe_yes(
-                    ai_json.get("proper_grammar", {}).get("short_answer")
-                ),
-
-                "QE_Accurate_Probing": qe_yes(
-                    ai_json.get("understanding_of_issue", {}).get("short_answer")
-                ),
-
-                "QE_Informed_Before_Hold": qe_yes(
-                    ai_json.get("inform_before_placing_hold", {}).get("short_answer")
-                ),
-
-                "QE_Thanked_After_Hold": qe_yes(
-                    ai_json.get("thank_customer_for_being_on_line", {}).get("short_answer")
-                ),
-
-                "QE_Explained_Steps_Clearly": qe_yes(
-                    ai_json.get("informing_customer_of_exact_steps", {}).get("short_answer")
-                ),
-
-                "QE_Clear_Timelines": qe_yes(
-                    ai_json.get("timelines_for_resolution", {}).get("short_answer")
-                ),
-
-                "QE_Proper_Transfer_Procedure": qe_yes(
-                    ai_json.get("webinar_request_with_proper_language", {}).get("short_answer")
-                ),
-
-                "QE_Proper_Closure": qe_yes(
-                    ai_json.get("proper_closure", {}).get("short_answer")
-                ),
-
+                # -------- field1 → field15 (0 / 1 AI flags) --------
+                "field1": ai_yes_no(ai_json, "correct_opening"),
+                "field2": ai_yes_no(ai_json, "professionalism"),
+                "field3": ai_yes_no(ai_json, "assurance_and_appreciation"),
+                "field4": ai_yes_no(ai_json, "empathy"),
+                "field5": ai_yes_no(ai_json, "pronunciation_and_clarity"),
+                "field6": ai_yes_no(ai_json, "enthusiasm_and_fumbling"),
+                "field7": ai_yes_no(ai_json, "acively_listen_without_unnecessary_interruption"),
+                "field8": ai_yes_no(ai_json, "politeness"),
+                "field9": ai_yes_no(ai_json, "proper_grammar"),
+                "field10": ai_yes_no(ai_json, "understanding_of_issue"),
+                "field11": ai_yes_no(ai_json, "inform_before_placing_hold"),
+                "field12": ai_yes_no(ai_json, "thank_customer_for_being_on_line"),
+                "field13": ai_yes_no(ai_json, "informing_customer_of_exact_steps"),
+                "field14": ai_yes_no(ai_json, "timelines_for_resolution"),
+                "field15": ai_yes_no(ai_json, "proper_closure"),
             }
 
-            cur.execute(INSERT_CALLDETAILS_SQL, params)
+            cur.execute(INSERT_BOT_TAGGING_SQL, params)
             conn.commit()
 
             cur.execute(
