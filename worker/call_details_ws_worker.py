@@ -20,14 +20,27 @@ DB_CONFIG = {
 logging.basicConfig(level=logging.INFO)
 
 # ---------------- WS CONFIG ----------------
-class WSConfig:
-    connection_uri = "194.68.245.147:22082"
-    timeout = 600
-
-ws_cfg = WSConfig()
+WS_TIMEOUT = 600
 
 # ---------------- AUDIO HELPERS ----------------
 CHUNK_SIZE = 512 * 1024
+
+def get_client_connection_uri(client_id: int) -> str | None:
+    conn = mysql.connector.connect(**DB_CONFIG)
+    cur = conn.cursor(dictionary=True)
+
+    cur.execute("""
+        SELECT connection_uri
+        FROM users
+        WHERE clientid = %s
+        LIMIT 1
+    """, (client_id,))
+
+    row = cur.fetchone()
+    cur.close()
+    conn.close()
+
+    return row["connection_uri"] if row and row["connection_uri"] else None
 
 
 def get_client_prompt_schema(client_id: int):
@@ -53,13 +66,13 @@ def make_audio_chunks(data: bytes):
     encoded = b64encode(data).decode()
     return [encoded[i:i + CHUNK_SIZE] for i in range(0, len(encoded), CHUNK_SIZE)]
 
-async def call_details_auto_ws(audio_url: str, cfg, schema: str | None):
+async def call_details_auto_ws(audio_url: str, connection_uri: str, schema: str | None):
     audio_bytes = requests.get(audio_url, timeout=30).content
     chunks = make_audio_chunks(audio_bytes)
 
-    uri = f"ws://{cfg.connection_uri.strip()}"
+    uri = f"ws://{connection_uri.strip()}"
 
-    async with connect(uri, ping_timeout=cfg.timeout) as ws:
+    async with connect(uri, ping_timeout=WS_TIMEOUT) as ws:
         cmd = Box(task="custom_v2", whisper_beam_size = 5, whisper_patience = 1.5, extra_whisper_words = 'avdut', whisper_condition_on_previous_text = True, temperature = 0.4, num_chunks=len(chunks), schema=schema)
         await ws.send(cmd.to_json())
 
@@ -112,7 +125,9 @@ INSERT INTO bot_tagging (
 
     field1, field2, field3, field4, field5,
     field6, field7, field8, field9, field10,
-    field11, field12, field13, field14, field15
+    field11, field12, field13, field14, field15,
+    total_score, quality_percentage,
+    max_score
 )
 VALUES (
     %(ClientId)s,
@@ -153,7 +168,9 @@ VALUES (
 
     %(field1)s, %(field2)s, %(field3)s, %(field4)s, %(field5)s,
     %(field6)s, %(field7)s, %(field8)s, %(field9)s, %(field10)s,
-    %(field11)s, %(field12)s, %(field13)s, %(field14)s, %(field15)s
+    %(field11)s, %(field12)s, %(field13)s, %(field14)s, %(field15)s,
+    %(total_score)s, %(quality_percentage)s,
+    %(max_score)s
 )
 """
 
@@ -192,10 +209,36 @@ def call_details_ws_worker():
             logging.info(f"Processing call_log id={call['id']}")
 
             prompt_schema = get_client_prompt_schema(call["Client_id"])
+            connection_uri = get_client_connection_uri(call["Client_id"])
+
+            if not connection_uri:
+                raise Exception(f"No connection_uri found for ClientId={call['Client_id']}")
 
             transcript, ai_json = asyncio.run(
-                call_details_auto_ws(call["file_url"], ws_cfg, prompt_schema)
+                call_details_auto_ws(call["file_url"], connection_uri, prompt_schema)
             )
+
+            field_scores = [
+                ai_yes_no(ai_json, "correct_opening"),
+                ai_yes_no(ai_json, "professionalism"),
+                ai_yes_no(ai_json, "assurance_and_appreciation"),
+                ai_yes_no(ai_json, "empathy"),
+                ai_yes_no(ai_json, "pronunciation_and_clarity"),
+                ai_yes_no(ai_json, "enthusiasm_and_fumbling"),
+                ai_yes_no(ai_json, "acively_listen_without_unnecessary_interruption"),
+                ai_yes_no(ai_json, "politeness"),
+                ai_yes_no(ai_json, "proper_grammar"),
+                ai_yes_no(ai_json, "understanding_of_issue"),
+                ai_yes_no(ai_json, "inform_before_placing_hold"),
+                ai_yes_no(ai_json, "thank_customer_for_being_on_line"),
+                ai_yes_no(ai_json, "informing_customer_of_exact_steps"),
+                ai_yes_no(ai_json, "timelines_for_resolution"),
+                ai_yes_no(ai_json, "proper_closure"),
+            ]
+
+            total_score = sum(field_scores)
+            max_score = 15
+            quality_percentage = round((total_score / max_score) * 100, 2)
 
             params = {
                 "ClientId": call["Client_id"],
@@ -240,21 +283,26 @@ def call_details_ws_worker():
                 "express_empathy": ai_yes_no(ai_json, "empathy"),
 
                 # -------- field1 → field15 (0 / 1 AI flags) --------
-                "field1": ai_yes_no(ai_json, "correct_opening"),
-                "field2": ai_yes_no(ai_json, "professionalism"),
-                "field3": ai_yes_no(ai_json, "assurance_and_appreciation"),
-                "field4": ai_yes_no(ai_json, "empathy"),
-                "field5": ai_yes_no(ai_json, "pronunciation_and_clarity"),
-                "field6": ai_yes_no(ai_json, "enthusiasm_and_fumbling"),
-                "field7": ai_yes_no(ai_json, "acively_listen_without_unnecessary_interruption"),
-                "field8": ai_yes_no(ai_json, "politeness"),
-                "field9": ai_yes_no(ai_json, "proper_grammar"),
-                "field10": ai_yes_no(ai_json, "understanding_of_issue"),
-                "field11": ai_yes_no(ai_json, "inform_before_placing_hold"),
-                "field12": ai_yes_no(ai_json, "thank_customer_for_being_on_line"),
-                "field13": ai_yes_no(ai_json, "informing_customer_of_exact_steps"),
-                "field14": ai_yes_no(ai_json, "timelines_for_resolution"),
-                "field15": ai_yes_no(ai_json, "proper_closure"),
+                "field1": field_scores[0],
+                "field2": field_scores[1],
+                "field3": field_scores[2],
+                "field4": field_scores[3],
+                "field5": field_scores[4],
+                "field6": field_scores[5],
+                "field7": field_scores[6],
+                "field8": field_scores[7],
+                "field9": field_scores[8],
+                "field10": field_scores[9],
+                "field11": field_scores[10],
+                "field12": field_scores[11],
+                "field13": field_scores[12],
+                "field14": field_scores[13],
+                "field15": field_scores[14],
+
+                "total_score": total_score,
+                "quality_percentage": quality_percentage,
+                "max_score": max_score,
+
             }
 
             cur.execute(INSERT_BOT_TAGGING_SQL, params)

@@ -26,6 +26,9 @@ const Login = ({ onLogin }) => {
       const response = await axios.post(`${BASE_URL}/login`, {
         email_id,
         password
+      },
+      {
+        withCredentials: true
       });
 
       if (response.status === 200) {

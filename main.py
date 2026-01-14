@@ -35,6 +35,9 @@ from routers.prompt_schema import router as prompt_schema_router
 from routers.dynamic_prompt_schema import section_router, field_router, option_router, value_router, prompt_router, prompt_config_router
 from dotenv import load_dotenv
 
+from fastapi import Response
+from routers.user_profile import router as user_profile_router
+
 # from apscheduler.schedulers.background import BackgroundScheduler
 
 load_dotenv()
@@ -61,6 +64,7 @@ app.include_router(option_router)
 app.include_router(value_router)
 app.include_router(prompt_router)
 app.include_router(prompt_config_router)
+app.include_router(user_profile_router)
 
 #app.include_router(inbound_call_router)
 # MySQL Database Connection (replace with your actual credentials)
@@ -413,7 +417,7 @@ def send_otp_sms(phone, otp):
 
 # Route to Login a User
 @app.post("/login")
-def login_user(user: LoginRequest, db: Session = Depends(get_db)):
+def login_user(user: LoginRequest, response: Response, db: Session = Depends(get_db)):
     # Check if the user exists based on email
     db_user = db.query(User).filter(User.email_id == user.email_id).first()
     if not db_user:
@@ -423,15 +427,15 @@ def login_user(user: LoginRequest, db: Session = Depends(get_db)):
     if not bcrypt.checkpw(user.password.encode('utf-8'), db_user.password.encode('utf-8')):
         raise HTTPException(status_code=401, detail="Incorrect password")
 
-    # Generate JWT Token for session management
-    # token = jwt.encode(
-    #     {"email_id": user.email_id, "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=2)},
-    #     SECRET_KEY,
-    #     algorithm="HS256"
-    # )
-    token = ''
+    response.set_cookie(
+        key="user_id",
+        value=str(db_user.id),
+        httponly=True,
+        samesite="none",  # use "strict" if frontend & backend same domain
+        secure=False  # True in production (HTTPS)
+    )
 
-    return {"message": "Login successful", "token": token, "username": db_user.username, "id": db_user.id,
+    return {"message": "Login successful", "username": db_user.username, "id": db_user.id,
             "client_id": db_user.clientid,
             "set_limit": db_user.set_limit,
             "contact_number": db_user.contact_number,

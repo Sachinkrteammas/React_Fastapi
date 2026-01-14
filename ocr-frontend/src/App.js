@@ -43,6 +43,7 @@ import Insight from './components/Insight'
 import Portfolio from './components/Portfolio'
 import PromptTemplate from "./pages/PromptTemplate";
 import PromptSchemaManager from "./pages/PromptSchemaManager";
+import UserProfile from "./pages/UserProfile";
 
 
 import "./Pages.css";
@@ -124,6 +125,8 @@ const App = () => {
         <Route path="/FatalAnalysis" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Fatal onLogout={handleLogout}/>} />} />
         <Route path="/DetailAnalysis" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Details onLogout={handleLogout}/>} />} />
         <Route path="/Potential" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Potential onLogout={handleLogout}/>} />} />
+
+        <Route path="/user-profile" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<UserProfile onLogout={handleLogout}/>} />} />
 
         <Route path="/prompt-template" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<PromptTemplate onLogout={handleLogout}/>} />} />
         <Route path="/prompt-schema-manager" element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<PromptSchemaManager onLogout={handleLogout}/>} />} />
