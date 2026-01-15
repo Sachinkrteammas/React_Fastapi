@@ -49,6 +49,10 @@ const Layout = ({ onLogout, children }) => {
   );
   const [loading, setLoading] = useState(true);
 
+  const [accountOpen, setAccountOpen] = useState(false);
+  const [profileMenu, setProfileMenu] = useState(null);
+
+
   // Get username from localStorage
   useEffect(() => {
     const storedName = localStorage.getItem("username");
@@ -63,6 +67,14 @@ const Layout = ({ onLogout, children }) => {
         const response = await fetch(`${BASE_URL}/menu`);
         if (!response.ok) throw new Error("Failed to fetch menu");
         const data = await response.json();
+
+        const profileItem = data
+          .flatMap(m => m.submenu || [])
+          .find(sub => sub.name === "Profile");
+
+        if (profileItem) {
+          setProfileMenu(profileItem);
+        }
 
         const permissions = JSON.parse(localStorage.getItem("permissions") || "{}");
 
@@ -87,6 +99,7 @@ const Layout = ({ onLogout, children }) => {
         const menuWithIcons = filteredMenu.map(item => ({
           ...item,
           Icon: iconMap[item.icon] || null,
+          submenu: item.submenu.filter(sub => sub.name !== "Profile")
         }));
 
         setMenu(menuWithIcons);
@@ -141,10 +154,26 @@ const Layout = ({ onLogout, children }) => {
         <div className="top-text">
           <p>Your Transcription & Analysis Hub!</p>
         </div>
-        <div className="account">
+
+        <div className="account" onClick={() => setAccountOpen(!accountOpen)}>
           <img src={accountLogo} alt="loginname" className="account-logo" />
           <span>{username}</span>
+          <ChevronDown size={14} />
+
+          {accountOpen && (
+            <div className="account-dropdown">
+              {profileMenu && (
+                <button
+                  className="account-dropdown-item"
+                  onClick={() => navigate(profileMenu.url)}
+                >
+                  Profile
+                </button>
+              )}
+            </div>
+          )}
         </div>
+
       </div>
 
       {/* Sidebar + Main Content */}

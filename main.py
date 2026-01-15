@@ -431,7 +431,7 @@ def login_user(user: LoginRequest, response: Response, db: Session = Depends(get
         key="user_id",
         value=str(db_user.id),
         httponly=True,
-        samesite="none",  # use "strict" if frontend & backend same domain
+        samesite="lax",  # use "strict" if frontend & backend same domain
         secure=False  # True in production (HTTPS)
     )
 
@@ -928,8 +928,7 @@ def get_audit_count(
     SELECT
         COUNT(lead_id) AS audit_cnt,
         ROUND(
-            SUM(CASE WHEN scenario2 <> 'Blank Call' THEN quality_percentage ELSE 0 END) / 
-            NULLIF(COUNT(CASE WHEN scenario2 <> 'Blank Call' THEN lead_id END), 0), 
+            AVG(quality_percentage), 
             2
         ) AS cq_score,
         SUM(CASE WHEN quality_percentage BETWEEN 98 AND 100 THEN 1 ELSE 0 END) AS excellent_call,
@@ -978,7 +977,7 @@ def get_call_length_categorization(
     END AS category,
     COUNT(*) AS audit_count,
     ROUND(
-        100.0 * SUM(CASE WHEN professionalism_maintained = 0 AND scenario2 <> 'Blank Call' THEN 1 ELSE 0 END) 
+        100.0 * SUM(CASE WHEN professionalism_maintained = 0 THEN 1 ELSE 0 END) 
         / NULLIF(COUNT(*), 0), 2
     ) AS fatal_percentage,
     ROUND(AVG(quality_percentage), 2) AS score_percentage
@@ -1150,7 +1149,7 @@ def get_top_performers(
             User,
             COUNT(*) AS audit_count,
             ROUND(AVG(quality_percentage), 2) AS cq_percentage,
-            SUM(CASE WHEN professionalism_maintained = 0 AND scenario2 <> 'Blank Call' THEN 1 ELSE 0 END) AS fatal_count,
+            SUM(CASE WHEN professionalism_maintained = 0 THEN 1 ELSE 0 END) AS fatal_count,
             ROUND(SUM(CASE WHEN professionalism_maintained = 0 THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0) * 100, 2) AS fatal_percentage
         FROM bot_tagging
         WHERE ClientId = :client_id
@@ -1613,12 +1612,8 @@ def get_fatal_count(
     query = text("""
     SELECT
         COUNT(lead_id) AS audit_cnt,
-        ROUND(
-            SUM(CASE WHEN scenario2 <> 'Blank Call' THEN quality_percentage ELSE 0 END) /
-            NULLIF(COUNT(CASE WHEN scenario2 <> 'Blank Call' THEN lead_id END), 0),
-            2
-        ) AS cq_score,
-        SUM(CASE WHEN professionalism_maintained = 0 AND scenario2 <> 'Blank Call' THEN 1 ELSE 0 END) AS fatal_count,
+        ROUND(AVG(quality_percentage), 2) AS cq_score,
+        SUM(CASE WHEN professionalism_maintained = 0 THEN 1 ELSE 0 END) AS fatal_count,
         ROUND(SUM(CASE WHEN professionalism_maintained = 0 THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0) * 100, 2) AS fatal_percentage,
         SUM(CASE WHEN scenario = 'Query' AND professionalism_maintained = 0 THEN 1 ELSE 0 END) AS query_fatal,
         SUM(CASE WHEN scenario = 'Complaint' AND professionalism_maintained = 0 THEN 1 ELSE 0 END) AS Complaint_fatal,
@@ -1831,12 +1826,8 @@ def get_details_count(
     query = text("""
     SELECT
         COUNT(lead_id) AS audit_cnt,
-        ROUND(
-            SUM(CASE WHEN scenario2 <> 'Blank Call' THEN quality_percentage ELSE 0 END) /
-            NULLIF(COUNT(CASE WHEN scenario2 <> 'Blank Call' THEN lead_id END), 0),
-            2
-        ) AS cq_score,
-        SUM(CASE WHEN professionalism_maintained = 0 AND scenario2 <> 'Blank Call' THEN 1 ELSE 0 END) AS fatal_count,
+        ROUND(AVG(quality_percentage), 2) AS cq_score,
+        SUM(CASE WHEN professionalism_maintained = 0 THEN 1 ELSE 0 END) AS fatal_count,
         ROUND(SUM(CASE WHEN professionalism_maintained = 0 THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0) * 100, 2) AS fatal_percentage,
         SUM(CASE WHEN scenario = 'Query' THEN 1 ELSE 0 END) AS query_fatal,
         SUM(CASE WHEN scenario = 'Complaint' THEN 1 ELSE 0 END) AS Complaint_fatal,
