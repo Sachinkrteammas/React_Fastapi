@@ -1124,12 +1124,13 @@ def get_agent_scores(
         "client_id": client_id,
         "start_date": start_date,
         "end_date": end_date,
-        "opening": result[0] * 100,
-        "soft_skills": result[1] * 100,
-        "hold_procedure": result[2] * 100,
-        "resolution": result[3] * 100,
-        "closing": result[4] * 100,
-        "avg_score": result[5] * 100
+        "opening": (result[0] or 0) * 100,
+        "soft_skills": (result[1] or 0) * 100,
+        "hold_procedure": (result[2] or 0) * 100,
+        "resolution": (result[3] or 0) * 100,
+        "closing": (result[4] or 0) * 100,
+        "avg_score": (result[5] or 0) * 100
+
     }
 
 
@@ -1282,16 +1283,16 @@ def get_potential_escalation(
     return EscalationResponse(
         client_id=client_id,
         potential_escalation=PotentialEscalation(
-            social_media_threat=result[0],
-            consumer_court_threat=result[1],
-            potential_scam=result[2]
+            social_media_threat=result[0] or 0,
+            consumer_court_threat=result[1] or 0,
+            potential_scam=result[2] or 0
         ),
         negative_signals=NegativeSignals(
-            abuse=result[3],
-            threat=result[4],
-            frustration=result[5],
-            slang=result[6],
-            sarcasm=result[7]
+            abuse=result[3] or 0,
+            threat=result[4] or 0,
+            frustration=result[5] or 0,
+            slang=result[6] or 0,
+            sarcasm=result[7] or 0
         )
     )
 
