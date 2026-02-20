@@ -289,7 +289,10 @@ def worker_loop():
                 "address_recorded_completely": quality.get("Did the agent actively listen without unnecessary interruptions?"),
                 "correct_and_complete_information": quality.get("Was the customer informed about the exact steps being taken?"),
                 "proper_call_closure": quality.get("Did the agent provide a proper closure, including asking if the customer has further concerns?"),
-                "express_empathy": quality.get("Did the agent express empathy using keywords?")
+                "express_empathy": quality.get("Did the agent express empathy using keywords?"),
+                "customer_concern_acknowledged": quality.get("Did the agent express empathy using keywords?"),
+                "Active_Listening": quality.get("Did the agent actively listen without unnecessary interruptions?"),
+
             }
 
             # ---- INSERT INTO DB ----
