@@ -714,7 +714,7 @@ const Analysis = () => {
 //  },
   {
     title: "Good Call",
-    value: auditData.good,
+    value: auditData.good + auditData.excellent,
     textColor: "text-green-600",
   },
   {

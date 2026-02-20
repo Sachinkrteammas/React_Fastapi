@@ -2218,7 +2218,7 @@ def get_week_performance_summary(
     query = text(f"""
         SELECT 
             YEAR(CallDate) AS year,
-            WEEK(CallDate, 1) AS week_number,  -- ISO Week starts on Monday
+            CEIL(DAY(CallDate) / 7) AS week_number,  -- ISO Week starts on Monday
             COUNT(*) AS audit_count,
             ROUND(AVG(quality_percentage), 2) AS cq_score,
             SUM(CASE WHEN professionalism_maintained = 0 THEN 1 ELSE 0 END) AS fatal_count,
