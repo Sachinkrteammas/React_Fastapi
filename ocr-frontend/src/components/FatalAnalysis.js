@@ -63,36 +63,81 @@ const Fatal = () => {
   //   { name: "Rekha Sharma", audit: 59, fatal: 2, fatalPercent: "3%" },
   // ];
 
-  const scenarioData = [
+  const formatDisplayDate = (dateStr) => {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "2-digit",
+  }).replace(" ", "-");
+};
+
+
+const scenarioData = React.useMemo(() => {
+  const queryFatal = stats?.queryFatal ?? stats?.query_fatal ?? 0;
+  const complaintFatal = stats?.complaintFatal ?? stats?.Complaint_fatal ?? stats?.complaint_fatal ?? 0;
+  const requestFatal = stats?.requestFatal ?? stats?.Request_fatal ?? stats?.request_fatal ?? 0;
+  const saleDoneFatal = stats?.saleDoneFatal ?? stats?.sale_fatal ?? 0;
+
+  return [
     {
-      date: "Feb-20",
-      queryFatal: 36,
-      complaintFatal: 19,
-      requestFatal: 3,
-      saleDoneFatal: 0,
-      total: 3,
+      date: formatDisplayDate(startDate),
+      queryFatal,
+      complaintFatal,
+      requestFatal,
+      saleDoneFatal,
+      total: queryFatal + complaintFatal + requestFatal + saleDoneFatal,
     },
-    // {
-    //   date: "Feb-19",
-    //   queryFatal: 7,
-    //   complaintFatal: 4,
-    //   requestFatal: 0,
-    //   saleDoneFatal: 0,
-    //   total: 11,
-    // },
   ];
+}, [startDate, stats]);
+
+
+  const getWeekOfMonth = (dateStr) => {
+  const date = new Date(dateStr);
+  const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+  const dayOfMonth = date.getDate();
+  const adjustedDate = dayOfMonth + firstDay.getDay();
+  return Math.ceil(adjustedDate / 7);
+};
+
+
+  const getPercentage = (value, total) => {
+  if (!total) return "0%";
+  return ((value / total) * 100).toFixed(0) + "%";
+};
+
 
   // Dummy data for Week & Scenario Wise Fatal Count
-  const weekScenarioData = [
+const weekScenarioData = React.useMemo(() => {
+  const queryFatal = stats?.queryFatal ?? stats?.query_fatal ?? 0;
+  const complaintFatal =
+    stats?.complaintFatal ??
+    stats?.Complaint_fatal ??
+    stats?.complaint_fatal ??
+    0;
+
+  const requestFatal =
+    stats?.requestFatal ??
+    stats?.Request_fatal ??
+    stats?.request_fatal ??
+    0;
+
+  const saleDoneFatal = stats?.saleDoneFatal ?? stats?.sale_fatal ?? 0;
+
+  const total =
+    queryFatal + complaintFatal + requestFatal + saleDoneFatal;
+
+  return [
     {
-      week: "Week 3",
-      queryFatal: "50%",
-      complaintFatal: "50%",
-      requestFatal: "0%",
-      saleDoneFatal: "0%",
-      total: 16,
+      week: `Week ${getWeekOfMonth(startDate)}`,
+      queryFatal: getPercentage(queryFatal, total),
+      complaintFatal: getPercentage(complaintFatal, total),
+      requestFatal: getPercentage(requestFatal, total),
+      saleDoneFatal: getPercentage(saleDoneFatal, total),
+      total,
     },
   ];
+}, [startDate, stats]);
+
 
   const data = [
     {
@@ -722,13 +767,41 @@ const Fatal = () => {
                 <tfoot>
                   <tr>
                     <td>Grand Total</td>
-                    <td className="bold">50%</td>
-                    <td className="bold">50%</td>
-                    <td className="bold">0%</td>
-                    <td className="bold">0%</td>
-                    <td className="bold">16</td>
+
+                    <td className="bold">
+                      {weekScenarioData.reduce(
+                        (sum, row) => sum + (parseFloat(row.queryFatal) || 0),
+                        0
+                      ) + "%"}
+                    </td>
+
+                    <td className="bold">
+                      {weekScenarioData.reduce(
+                        (sum, row) => sum + (parseFloat(row.complaintFatal) || 0),
+                        0
+                      ) + "%"}
+                    </td>
+
+                    <td className="bold">
+                      {weekScenarioData.reduce(
+                        (sum, row) => sum + (parseFloat(row.requestFatal) || 0),
+                        0
+                      ) + "%"}
+                    </td>
+
+                    <td className="bold">
+                      {weekScenarioData.reduce(
+                        (sum, row) => sum + (parseFloat(row.saleDoneFatal) || 0),
+                        0
+                      ) + "%"}
+                    </td>
+
+                    <td className="bold">
+                      {weekScenarioData.reduce((sum, row) => sum + (row.total || 0), 0)}
+                    </td>
                   </tr>
                 </tfoot>
+
               </table>
             </div>
           </div>
