@@ -857,7 +857,9 @@ const DetailAnalysis = () => {
                       <td>{stats.Complaint}</td>
                       <td>{stats.query}</td>
                       <td>{stats.Request}</td>
-                      <td>{stats.audit_cnt}</td>
+                      <td>{(stats.Complaint || 0) +
+                         (stats.query || 0) +
+                         (stats.Request || 0)}</td>
                     </tr>
                   ) : (
                     <tr>
