@@ -7,6 +7,17 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { BASE_URL } from "./config";
 
+const formatDisplayDate = (dateStr) => {
+  if (!dateStr) return "-";
+  const date = new Date(dateStr);
+  return date
+    .toLocaleDateString("en-US", {
+      month: "short",
+      day: "2-digit",
+    })
+    .replace(" ", "-");
+};
+
 const data = [
   {
     name: "Vartika Mishra",
@@ -840,13 +851,19 @@ const DetailAnalysis = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>Feb-28</td>
-                    <td >18</td>
-                    <td >14</td>
-                    <td >1</td>
-                    <td >33</td>
-                  </tr>
+                  {stats ? (
+                    <tr>
+                      <td>{formatDisplayDate(startDate)}</td>
+                      <td>{stats.Complaint}</td>
+                      <td>{stats.query}</td>
+                      <td>{stats.Request}</td>
+                      <td>{stats.audit_cnt}</td>
+                    </tr>
+                  ) : (
+                    <tr>
+                      <td colSpan="5">No data available</td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -878,14 +895,44 @@ const DetailAnalysis = () => {
                   ))}
                 </tbody>
 
-                <tr className="total-row">
-                  <td>Grand total</td>
-                  <td className="percentage green">42%</td>
-                  <td className="percentage red">55%</td>
-                  <td className="percentage green">3%</td>
-                  <td className="percentage">0%</td>
-                  <td>33</td>
-                </tr>
+                {auditData.length > 0 && (
+                  <tfoot>
+                    <tr className="total-row">
+                      <td>Grand Total</td>
+                      <td className="percentage green">
+                        {(
+                          auditData.reduce((sum, row) => sum + Number(row.query || 0), 0) /
+                          auditData.length
+                        ).toFixed(0)}
+                        %
+                      </td>
+                      <td className="percentage red">
+                        {(
+                          auditData.reduce((sum, row) => sum + Number(row.complaint || 0), 0) /
+                          auditData.length
+                        ).toFixed(0)}
+                        %
+                      </td>
+                      <td className="percentage green">
+                        {(
+                          auditData.reduce((sum, row) => sum + Number(row.request || 0), 0) /
+                          auditData.length
+                        ).toFixed(0)}
+                        %
+                      </td>
+                      <td className="percentage">
+                        {(
+                          auditData.reduce((sum, row) => sum + Number(row.saleDone || 0), 0) /
+                          auditData.length
+                        ).toFixed(0)}
+                        %
+                      </td>
+                      <td>
+                        {auditData.reduce((sum, row) => sum + Number(row.total || 0), 0)}
+                      </td>
+                    </tr>
+                  </tfoot>
+                )}
               </table>
             </div>
 
