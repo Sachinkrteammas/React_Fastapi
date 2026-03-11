@@ -393,7 +393,7 @@ const Analysis = () => {
 
         // Update pie chart data dynamically
         setPieData([
-          { name: "Good", value: data.excellent, color: "#4CAF50" },
+          { name: "Good", value: data.excellent + data.good , color: "#4CAF50" },
           { name: "Average", value: data.avg_call, color: "rgb(250, 204, 21)" },
           { name: "Below Average", value: data.b_avg, color: "rgb(52, 211, 153)" },
         ]);
