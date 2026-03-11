@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import time
 import logging
 import mysql.connector
@@ -12,18 +13,11 @@ logging.basicConfig(
 )
 
 # ==========================
-# DB CONFIGS
+# MAIN DB CONFIG
 # ==========================
 main_db_config = {
     "host": "192.168.11.243",
     "database": "dialdesk_callmaster",
-    "user": "root",
-    "password": "vicidialnow"
-}
-
-asterisk_db_config = {
-    "host": "192.168.10.5",
-    "database": "asterisk",
     "user": "root",
     "password": "vicidialnow"
 }
@@ -35,21 +29,28 @@ def get_connection(cfg):
 
 def sync_calls():
     try:
+
         # ==========================
-        # MAIN DB
+        # CONNECT MAIN DB
         # ==========================
         main_conn = get_connection(main_db_config)
         main_cursor = main_conn.cursor(dictionary=True)
 
         # ==========================
-        # GET CLIENT + CAMPAIGN IDS
+        # GET CLIENT CONFIG
         # ==========================
         main_cursor.execute("""
-            SELECT DISTINCT clientid, campaignid
+            SELECT DISTINCT
+                clientid,
+                campaignid,
+                connection_uri,
+                dialerserverIp,
+                user,
+                user_password
             FROM users
-            WHERE clientid IS NOT NULL
-              AND campaignid IS NOT NULL
+            WHERE clientid = 673
         """)
+
         clients = main_cursor.fetchall()
 
         logging.info(f"Clients found: {len(clients)}")
@@ -58,17 +59,41 @@ def sync_calls():
         # LOOP CLIENTS
         # ==========================
         for row in clients:
-            client_id = row["clientid"]
 
+            client_id = row["clientid"]
             raw_campaigns = row["campaignid"]
+            connection_uri = row["connection_uri"]
+            connection_uri_underscore = connection_uri.replace(".", "_")
+
+            if not raw_campaigns:
+                continue
+
+            # ==========================
+            # DYNAMIC ASTERISK DB CONFIG
+            # ==========================
+            asterisk_db_config = {
+                "host": row["connection_uri"],
+                "database": row["dialerserverIp"],
+                "user": row["user"],
+                "password": row["user_password"]
+            }
+
+            if not all(asterisk_db_config.values()):
+                logging.warning(f"Skipping client {client_id} - incomplete DB config")
+                continue
+
+            logging.info(
+                f"Client {client_id} | Dialer IP: {asterisk_db_config['host']}"
+            )
+
+            # ==========================
+            # FORMAT CAMPAIGN IDS
+            # ==========================
             campaign_ids = ",".join(
                 f"'{c.strip()}'"
                 for c in raw_campaigns.split(",")
                 if c.strip()
             )
-
-            if not campaign_ids:
-                continue
 
             logging.info(f"Client {client_id} campaigns: {campaign_ids}")
 
@@ -85,13 +110,18 @@ def sync_calls():
             max_call_date = max_row["max_date"] or "2025-08-27 00:00:00"
 
             # ==========================
-            # ASTERISK DB
+            # CONNECT ASTERISK DB
             # ==========================
-            ast_conn = get_connection(asterisk_db_config)
-            ast_cursor = ast_conn.cursor(dictionary=True)
+            try:
+                ast_conn = get_connection(asterisk_db_config)
+                ast_cursor = ast_conn.cursor(dictionary=True)
+
+            except Exception as e:
+                logging.error(f"Asterisk DB connection failed for client {client_id}: {e}")
+                continue
 
             # ==========================
-            # ASTERISK QUERY (UNCHANGED)
+            # ASTERISK QUERY
             # ==========================
             asterisk_sql = f"""
                 SELECT
@@ -101,9 +131,9 @@ def sync_calls():
                     vc.user,
                     REPLACE(
                         r.location,
-                        'http://192.168.10.8/RECORDINGS/MP3/',
+                        'http://{connection_uri}/RECORDINGS/MP3/',
                         CONCAT(
-                            'http://192.168.10.3/192_168_10_8/',
+                            'http://192.168.10.3/{connection_uri_underscore}/',
                             DATE_FORMAT(DATE(vc.call_date), '%Y%m%d'),
                             '/'
                         )
@@ -111,7 +141,7 @@ def sync_calls():
                     vc.call_date,
                     vc.lead_id,
                     vc.length_in_sec
-                FROM vicidial_closer_log vc
+                FROM vicidial_log vc
                 LEFT JOIN recording_log r
                     ON vc.lead_id = r.lead_id
                    AND DATE(vc.call_date) = DATE(r.start_time)
@@ -119,6 +149,7 @@ def sync_calls():
                   AND vc.call_date > %s
                   AND vc.call_date <= DATE_SUB(NOW(), INTERVAL 20 MINUTE)
                   AND vc.user != 'VDCL'
+                  LIMIT 20
             """
 
             ast_cursor.execute(asterisk_sql, (client_id, max_call_date))
@@ -130,6 +161,7 @@ def sync_calls():
             # INSERT INTO MAIN DB
             # ==========================
             if calls:
+
                 insert_sql = """
                     INSERT INTO call_log
                     (Client_id, campaign_id, MobileNo, user,
@@ -146,10 +178,11 @@ def sync_calls():
                         call["call_date"],
                         call["file_url"],
                         call["lead_id"],
-                        call["length_in_sec"],
+                        call["length_in_sec"] or 0,
                     ))
 
                 main_conn.commit()
+
                 logging.info(f"Inserted {len(calls)} rows for client {client_id}")
 
             ast_cursor.close()
@@ -165,11 +198,12 @@ def sync_calls():
 
 
 # ==========================
-# PERMANENT RUNNER
+# RUNNER
 # ==========================
 if __name__ == "__main__":
+
     logging.info("📞 Call Sync Worker Started")
 
     while True:
         sync_calls()
-        time.sleep(60)   # 🔁 RUN EVERY 1 MINUTE
+        time.sleep(60)

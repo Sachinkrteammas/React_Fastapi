@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import time
 import logging
 import mysql.connector
@@ -54,9 +55,7 @@ def sync_calls():
                 user,
                 user_password
             FROM users
-            WHERE clientid IS NOT NULL
-              AND campaignid IS NOT NULL
-              AND connection_uri IS NOT NULL
+            WHERE clientid IN (628,652,663)
         """)
 
         clients = main_cursor.fetchall()
@@ -68,6 +67,8 @@ def sync_calls():
         for row in clients:
             client_id = row["clientid"]
             raw_campaigns = row["campaignid"]
+            connection_uri = row["connection_uri"]
+            connection_uri_underscore = connection_uri.replace(".", "_")
 
             if not raw_campaigns:
                 continue
@@ -84,7 +85,7 @@ def sync_calls():
 
             # skip if config incomplete
             if not all(asterisk_db_config.values()):
-                logging.warning(f"Skipping client {client_id} — incomplete DB config")
+                logging.warning(f"Skipping client {client_id} - incomplete DB config")
                 continue
 
             logging.info(
@@ -112,7 +113,7 @@ def sync_calls():
             """, (client_id,))
 
             max_row = main_cursor.fetchone()
-            max_call_date = max_row["max_date"] or "2025-08-27 00:00:00"
+            max_call_date = max_row["max_date"] or "2026-03-10 00:00:00"
 
             logging.info(f"Last sync date: {max_call_date}")
 
@@ -137,9 +138,9 @@ def sync_calls():
                     vc.user,
                     REPLACE(
                         r.location,
-                        'http://192.168.10.8/RECORDINGS/MP3/',
+                        'http://{connection_uri}/RECORDINGS/MP3/',
                         CONCAT(
-                            'http://192.168.10.3/192_168_10_8/',
+                            'http://192.168.10.3/{connection_uri_underscore}/',
                             DATE_FORMAT(DATE(vc.call_date), '%Y%m%d'),
                             '/'
                         )

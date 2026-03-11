@@ -21,6 +21,12 @@ DB_CONFIG = {
 
 logging.basicConfig(level=logging.INFO)
 
+def sanitize_params(data):
+    for k, v in data.items():
+        if isinstance(v, (list, dict)):
+            data[k] = json.dumps(v)
+    return data
+
 
 def deepgram_transcribe(audio_url: str):
     try:
@@ -298,6 +304,8 @@ def worker_loop():
             # ---- INSERT INTO DB ----
             placeholders = ", ".join([f"%({k})s" for k in params.keys()])
             columns = ", ".join(params.keys())
+
+            params = sanitize_params(params)
 
             final_sql = f"INSERT INTO bot_tagging ({columns}) VALUES ({placeholders})"
             cur.execute(final_sql, params)

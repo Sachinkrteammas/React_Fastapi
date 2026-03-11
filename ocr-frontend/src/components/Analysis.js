@@ -290,11 +290,10 @@ const Analysis = () => {
       // ✅ Update pie chart dynamically with audit data
       setPieData([
         {
-          name: "Excellent",
-          value: auditData.excellent || 0,
+          name: "Good",
+          value: auditData.excellent + auditData.good || 0,
           color: "#4CAF50",
         },
-        { name: "Good", value: auditData.good || 0, color: "#2d9179" },
         { name: "Average", value: auditData.avg_call || 0, color: "rgb(250, 204, 21)" },
         {
           name: "Below Average",
@@ -394,8 +393,7 @@ const Analysis = () => {
 
         // Update pie chart data dynamically
         setPieData([
-          { name: "Excellent", value: data.excellent, color: "#4CAF50" },
-          { name: "Good", value: data.good, color: "#2d9179" },
+          { name: "Good", value: data.excellent, color: "#4CAF50" },
           { name: "Average", value: data.avg_call, color: "rgb(250, 204, 21)" },
           { name: "Below Average", value: data.b_avg, color: "rgb(52, 211, 153)" },
         ]);
@@ -870,7 +868,7 @@ const Analysis = () => {
 
         <div className="performertarget">
           <div className="topperformer">
-            <p style={{color:"white"}}>Top 5 Performers</p>
+            <p style={{color:"white"}}>Top  Performers</p>
             <table className="performer1">
               <thead>
                 <tr>
