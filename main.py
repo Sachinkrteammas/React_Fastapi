@@ -931,10 +931,10 @@ def get_audit_count(
             AVG(quality_percentage), 
             2
         ) AS cq_score,
-        SUM(CASE WHEN quality_percentage BETWEEN 98 AND 100 THEN 1 ELSE 0 END) AS excellent_call,
-        SUM(CASE WHEN quality_percentage BETWEEN 90 AND 97 THEN 1 ELSE 0 END) AS good_call,
-        SUM(CASE WHEN quality_percentage BETWEEN 85 AND 89 THEN 1 ELSE 0 END) AS avg_call,
-        SUM(CASE WHEN quality_percentage <= 84 THEN 1 ELSE 0 END) AS below_avg_call
+        SUM(CASE WHEN quality_percentage BETWEEN 90 AND 100 THEN 1 ELSE 0 END) AS excellent_call,
+        SUM(CASE WHEN quality_percentage BETWEEN 75 AND 89 THEN 1 ELSE 0 END) AS good_call,
+        SUM(CASE WHEN quality_percentage BETWEEN 51 AND 74 THEN 1 ELSE 0 END) AS avg_call,
+        SUM(CASE WHEN quality_percentage <= 50 THEN 1 ELSE 0 END) AS below_avg_call
     FROM bot_tagging 
     WHERE ClientId = :client_id
     AND DATE(CallDate) BETWEEN :start_date AND :end_date;
